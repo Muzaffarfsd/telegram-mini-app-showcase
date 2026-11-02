@@ -1,445 +1,181 @@
-import { memo, useState } from "react";
-import { 
-  ArrowRight, 
-  MessageCircle, 
-  Phone, 
-  Mail, 
-  ChevronDown, 
-  ChevronUp,
-  Clock,
-  Shield,
-  Zap,
-  CreditCard,
-  Code,
-  Headphones
-} from "lucide-react";
+import { memo, useState } from 'react';
+import { ArrowUpRight, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useTelegram } from '../hooks/useTelegram';
+import { navigate } from '../hooks/useRouting';
+import { ProfileDetailArtwork, ProfileDetailLayout } from './ProfileDetailLayout';
+import helpArtwork from '../assets/profile/help-detail-v1.webp';
 
 interface HelpPageProps {
   onBack: () => void;
 }
 
 const HelpPage = memo(function HelpPage({ onBack }: HelpPageProps) {
-  const { t } = useLanguage();
-  const [expanded, setExpanded] = useState<number | null>(null);
-
-  const faq = [
-    {
-      q: t('help.faqItems.q1'),
-      a: t('help.faqItems.a1'),
-      icon: Clock
-    },
-    {
-      q: t('help.faqItems.q2'),
-      a: t('help.faqItems.a2'),
-      icon: CreditCard
-    },
-    {
-      q: t('help.faqItems.q3'),
-      a: t('help.faqItems.a3'),
-      icon: Code
-    },
-    {
-      q: t('help.faqItems.q4'),
-      a: t('help.faqItems.a4'),
-      icon: Shield
-    },
-    {
-      q: t('help.faqItems.q5'),
-      a: t('help.faqItems.a5'),
-      icon: Headphones
-    }
-  ];
-
-  const contactItems = [
-    { 
-      icon: MessageCircle, 
-      title: t('help.telegram'), 
-      value: '@web4tg_studio',
-      desc: t('help.telegramResponse'),
-      action: () => window.open('https://t.me/web4tgs', '_blank'),
-      primary: true
-    },
-    { 
-      icon: Phone, 
-      title: t('help.phone'), 
-      value: '+7 (999) 999-99-99',
-      desc: t('help.phoneHours'),
-      action: () => window.open('tel:+79999999999', '_blank'),
-      primary: false
-    },
-    { 
-      icon: Mail, 
-      title: t('help.email'), 
-      value: 'hello@web4tg.studio',
-      desc: t('help.forDocuments'),
-      action: () => window.open('mailto:hello@web4tg.studio', '_blank'),
-      primary: false
-    }
-  ];
-
-  const stats = [
-    { value: '30m', label: t('help.responseTime') },
-    { value: '24/7', label: t('help.techSupport') },
-    { value: '100%', label: t('help.qualityGuarantee') },
-    { value: '14', label: t('help.projectDays') }
-  ];
+  const { language } = useLanguage();
+  const { openTelegramLink } = useTelegram();
+  const ru = language === 'ru';
+  const [openQuestion, setOpenQuestion] = useState<number | null>(null);
+  const [topic, setTopic] = useState<'all' | 'order' | 'projects' | 'support'>('all');
+  const faq = ru
+    ? [
+        [
+          'Как заказать приложение?',
+          'Выберите направление и нужные функции в разделе заказа. Затем можно отправить нам заявку в Telegram.',
+        ],
+        [
+          'От чего зависит стоимость?',
+          'От типа приложения, выбранных функций и условий сопровождения. Детали проекта обсудим с вами отдельно.',
+        ],
+        [
+          'Где посмотреть свои проекты?',
+          'Откройте «Мои проекты» в профиле. Если проект не отображается, напишите нам в Telegram.',
+        ],
+        [
+          'Можно ли доработать приложение?',
+          'Расскажите нам о текущем приложении и желаемых изменениях — обсудим задачу и возможный формат работы.',
+        ],
+        [
+          'Как получить помощь после запуска?',
+          'Напишите нам в Telegram и опишите вопрос. Условия сопровождения согласовываются для каждого проекта.',
+        ],
+      ]
+    : [
+        [
+          'How do I order an app?',
+          'Choose a business type and features in the order section, then send us your request in Telegram.',
+        ],
+        [
+          'What affects the price?',
+          'The app type, selected features and support terms. We will discuss the details of your project with you.',
+        ],
+        [
+          'Where can I see my projects?',
+          'Open “My projects” in your profile. If a project is missing, contact us in Telegram.',
+        ],
+        [
+          'Can an existing app be improved?',
+          'Tell us about your current app and the changes you need; we can discuss the project together.',
+        ],
+        [
+          'How can I get help after launch?',
+          'Message us in Telegram and describe your question. Support terms are agreed for each project.',
+        ],
+      ];
 
   return (
-    <div 
-      className="help-page min-h-screen pb-32"
-      style={{ 
-        background: 'var(--background, #09090B)',
-        color: 'var(--foreground, #E4E4E7)',
-        paddingTop: '140px'
-      }}
+    <ProfileDetailLayout
+      title={ru ? 'Мы рядом' : 'We are here to help'}
+      intro={
+        ru
+          ? 'Ответы на частые вопросы и прямая связь с нами.'
+          : 'Helpful answers and a direct way to reach us.'
+      }
+      eyebrow={ru ? 'ЦЕНТР ПОМОЩИ' : 'HELP CENTRE'}
+      onBack={onBack}
+      testId="profile-help-page"
     >
-      <div className="max-w-md mx-auto">
-        
-        <header className="px-7 pt-8 pb-16">
-          <button
-            onClick={onBack}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              background: 'none',
-              border: 'none',
-              color: '#71717A',
-              fontSize: '13px',
-              fontWeight: 500,
-              cursor: 'pointer',
-              marginBottom: '20px',
-              padding: 0
-            }}
-            data-testid="button-back"
-          >
-            <ArrowRight size={14} style={{ transform: 'rotate(180deg)' }} />
-            {t('help.back')}
-          </button>
-          
-          <p 
-            className="scroll-fade-in"
-            style={{
-              fontSize: '11px',
-              fontWeight: 500,
-              letterSpacing: '0.18em',
-              color: '#71717A',
-              textTransform: 'uppercase',
-              marginBottom: '24px'
-            }}
-          >
-            {t('help.support')}
+      <div className="pd-card pd-help-hero">
+        <div>
+          <span className="pd-kicker">{ru ? 'ХОРОШИЙ ВОПРОС' : 'A GOOD QUESTION'}</span>
+          <strong>{ru ? 'Разберёмся вместе' : 'Let’s figure it out'}</strong>
+          <p>
+            {ru
+              ? 'От первого вопроса до деталей проекта.'
+              : 'From your first question to the project details.'}
           </p>
-          
-          <h1 
-            className="scroll-fade-in-delay-1"
-            style={{
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: '32px',
-              fontWeight: 600,
-              letterSpacing: '-0.025em',
-              lineHeight: '1.2',
-              color: '#FAFAFA'
-            }}
-          >
-            {t('help.heroTitle1')}
-            <br />
-            <span style={{ color: '#A78BFA' }}>{t('help.heroTitle2')}</span>
-          </h1>
-          
-          <p 
-            className="scroll-fade-in-delay-2"
-            style={{
-              fontSize: '15px',
-              fontWeight: 400,
-              letterSpacing: '-0.01em',
-              lineHeight: '1.6',
-              color: '#71717A',
-              marginTop: '20px',
-              maxWidth: '320px'
-            }}
-          >
-            {t('help.heroDesc')}
-          </p>
-        </header>
+        </div>
+        <ProfileDetailArtwork src={helpArtwork} className="pd-help-hero-art" />
+      </div>
+      <button
+        className="pd-button full pd-after-hero"
+        type="button"
+        onClick={() => openTelegramLink('https://t.me/web4tgs')}
+        data-testid="button-telegram-support"
+      >
+        {ru ? 'Написать в Telegram' : 'Message us on Telegram'} <ArrowUpRight size={17} aria-hidden="true" />
+      </button>
 
-        <div className="mx-7" style={{ height: '1px', background: '#27272A' }} />
-
-        <section className="px-7 py-12">
-          <p style={{
-            fontSize: '10px',
-            fontWeight: 600,
-            letterSpacing: '0.12em',
-            color: '#52525B',
-            textTransform: 'uppercase',
-            marginBottom: '20px'
-          }}>
-            {t('help.contact')}
-          </p>
-          
-          <div className="space-y-3">
-            {contactItems.map((item, index) => (
-              <button
-                key={index}
-                onClick={item.action}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '16px',
-                  padding: '20px',
-                  borderRadius: '14px',
-                  background: item.primary 
-                    ? 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(59,130,246,0.04) 100%)'
-                    : 'rgba(255, 255, 255, 0.02)',
-                  border: item.primary 
-                    ? '1px solid rgba(139, 92, 246, 0.15)'
-                    : '1px solid rgba(255, 255, 255, 0.04)',
-                  cursor: 'pointer',
-                  textAlign: 'left'
-                }}
-                data-testid={`button-contact-${index}`}
-              >
-                <div style={{
-                  width: '44px',
-                  height: '44px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '12px',
-                  background: 'rgba(139, 92, 246, 0.1)',
-                  flexShrink: 0
-                }}>
-                  <item.icon size={20} color="#A78BFA" />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <p style={{
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    color: '#FAFAFA',
-                    marginBottom: '2px'
-                  }}>
-                    {item.title}
-                  </p>
-                  <p style={{ fontSize: '13px', color: '#A1A1AA' }}>
-                    {item.value}
-                  </p>
-                  <p style={{ fontSize: '11px', color: '#52525B', marginTop: '2px' }}>
-                    {item.desc}
-                  </p>
-                </div>
-                <ArrowRight size={18} color="#52525B" />
-              </button>
-            ))}
+      <section className="pd-section" aria-labelledby="help-faq-title">
+        <div className="pd-section-title">
+          <div>
+            <span className="pd-kicker">{ru ? 'ПОЛЕЗНО ЗНАТЬ' : 'GOOD TO KNOW'}</span>
+            <h2 id="help-faq-title">{ru ? 'Частые вопросы' : 'Frequently asked questions'}</h2>
           </div>
-        </section>
-
-        <div className="mx-7" style={{ height: '1px', background: '#27272A' }} />
-
-        <section className="px-7 py-12">
-          <p style={{
-            fontSize: '10px',
-            fontWeight: 600,
-            letterSpacing: '0.12em',
-            color: '#52525B',
-            textTransform: 'uppercase',
-            marginBottom: '20px'
-          }}>
-            {t('help.faq')}
-          </p>
-          
-          <div className="space-y-3">
-            {faq.map((item, index) => {
-              const isOpen = expanded === index;
+          <span className="pd-faq-count">{faq.length}</span>
+        </div>
+        <div className="pd-faq-filters" role="group" aria-label={ru ? 'Темы вопросов' : 'Question topics'}>
+          {(
+            [
+              ['all', ru ? 'Все' : 'All'],
+              ['order', ru ? 'Заказ' : 'Order'],
+              ['projects', ru ? 'Проекты' : 'Projects'],
+              ['support', ru ? 'Поддержка' : 'Support'],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              type="button"
+              key={value}
+              aria-pressed={topic === value}
+              onClick={() => {
+                setTopic(value);
+                setOpenQuestion(null);
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="pd-faq-list">
+          {faq
+            .map(([question, answer], index) => ({
+              question,
+              answer,
+              index,
+              topic: index < 2 ? 'order' : index < 4 ? 'projects' : 'support',
+            }))
+            .filter((item) => topic === 'all' || item.topic === topic)
+            .map(({ question, answer, index }) => {
+              const expanded = openQuestion === index;
               return (
-                <div 
-                  key={index}
-                  style={{
-                    borderRadius: '14px',
-                    background: 'rgba(255, 255, 255, 0.02)',
-                    border: '1px solid rgba(255, 255, 255, 0.04)',
-                    overflow: 'hidden'
-                  }}
-                >
+                <div className="pd-faq-item" key={question}>
                   <button
-                    onClick={() => setExpanded(isOpen ? null : index)}
-                    aria-expanded={isOpen}
+                    type="button"
+                    aria-expanded={expanded}
                     aria-controls={`faq-answer-${index}`}
-                    style={{
-                      width: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '14px',
-                      padding: '18px 20px',
-                      background: 'transparent',
-                      border: 'none',
-                      cursor: 'pointer',
-                      textAlign: 'left'
-                    }}
+                    onClick={() => setOpenQuestion(expanded ? null : index)}
                     data-testid={`button-faq-${index}`}
                   >
-                    <div style={{
-                      width: '36px',
-                      height: '36px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: '10px',
-                      background: 'rgba(139, 92, 246, 0.1)',
-                      flexShrink: 0
-                    }}>
-                      <item.icon size={18} color="#A78BFA" />
-                    </div>
-                    <p style={{
-                      flex: 1,
-                      fontSize: '14px',
-                      fontWeight: 500,
-                      color: '#FAFAFA',
-                      lineHeight: '1.4'
-                    }}>
-                      {item.q}
-                    </p>
-                    {isOpen ? (
-                      <ChevronUp size={18} color="#52525B" />
-                    ) : (
-                      <ChevronDown size={18} color="#52525B" />
-                    )}
+                    <span>{question}</span>
+                    <ChevronDown size={18} aria-hidden="true" />
                   </button>
-                  
-                  {isOpen && (
-                    <div id={`faq-answer-${index}`} style={{ padding: '0 20px 18px 70px' }}>
-                      <p style={{
-                        fontSize: '13px',
-                        color: '#71717A',
-                        lineHeight: '1.6'
-                      }}>
-                        {item.a}
-                      </p>
-                    </div>
-                  )}
+                  <div id={`faq-answer-${index}`} hidden={!expanded}>
+                    <p>{answer}</p>
+                  </div>
                 </div>
               );
             })}
-          </div>
-        </section>
+        </div>
+      </section>
 
-        <div className="mx-7" style={{ height: '1px', background: '#27272A' }} />
-
-        <section className="px-7 py-12">
-          <p style={{
-            fontSize: '10px',
-            fontWeight: 600,
-            letterSpacing: '0.12em',
-            color: '#52525B',
-            textTransform: 'uppercase',
-            marginBottom: '20px'
-          }}>
-            {t('help.guarantees')}
+      <section className="pd-section pd-card pd-next-card">
+        <div>
+          <strong>{ru ? 'Готовы начать проект?' : 'Ready to start a project?'}</strong>
+          <p className="pd-muted">
+            {ru
+              ? 'Выберите подходящее приложение и функции.'
+              : 'Choose the app and features that fit your business.'}
           </p>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            {stats.map((stat, index) => (
-              <div 
-                key={index}
-                style={{
-                  padding: '20px',
-                  borderRadius: '14px',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.04)',
-                  textAlign: 'center',
-                  minHeight: '100px'
-                }}
-              >
-                <p style={{
-                  fontSize: '28px',
-                  fontWeight: 700,
-                  color: '#FAFAFA',
-                  letterSpacing: '-0.03em'
-                }}>
-                  {stat.value}
-                </p>
-                <p style={{
-                  fontSize: '10px',
-                  color: '#52525B',
-                  marginTop: '4px',
-                  lineHeight: '1.3'
-                }}>
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="px-7 py-8 pb-16">
-          <div 
-            style={{
-              padding: '28px',
-              borderRadius: '20px',
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(59,130,246,0.08) 100%)',
-              border: '1px solid rgba(139, 92, 246, 0.2)',
-              textAlign: 'center'
-            }}
-          >
-            <div style={{
-              width: '56px',
-              height: '56px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '16px',
-              background: 'rgba(139, 92, 246, 0.2)',
-              margin: '0 auto 16px'
-            }}>
-              <Zap size={28} color="#A78BFA" />
-            </div>
-            
-            <h3 style={{
-              fontSize: '20px',
-              fontWeight: 600,
-              color: '#FAFAFA',
-              marginBottom: '8px'
-            }}>
-              {t('help.notFoundAnswer')}
-            </h3>
-            
-            <p style={{
-              fontSize: '14px',
-              color: '#71717A',
-              marginBottom: '20px',
-              lineHeight: '1.5'
-            }}>
-              {t('help.writeUs')}
-              <br />
-              {t('help.within30min')}
-            </p>
-            
-            <button
-              onClick={() => window.open('https://t.me/web4tgs', '_blank')}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '14px 28px',
-                borderRadius: '12px',
-                background: '#A78BFA',
-                border: 'none',
-                color: '#09090B',
-                fontSize: '15px',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
-              data-testid="button-telegram-support"
-            >
-              {t('help.writeInTelegram')}
-              <ArrowRight size={18} />
-            </button>
-          </div>
-        </section>
-
-      </div>
-    </div>
+        </div>
+        <button
+          className="pd-button secondary"
+          type="button"
+          onClick={() => navigate('/constructor')}
+          data-testid="help-open-order"
+        >
+          {ru ? 'К выбору' : 'Explore options'} <ArrowUpRight size={16} aria-hidden="true" />
+        </button>
+      </section>
+    </ProfileDetailLayout>
   );
 });
 

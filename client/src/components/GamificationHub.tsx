@@ -1,346 +1,130 @@
-import { motion } from '@/utils/LazyMotionProvider';
-import { 
-  GiTreasureMap,
-  GiBinoculars,
-  GiTrophyCup,
-  GiFlame,
-  GiHammerNails,
-  GiBrickWall,
-  GiRocketFlight,
-  GiLightningHelix,
-  GiCutDiamond,
-  GiImperialCrown,
-  GiShield,
-  GiSparkles,
-  GiBullseye,
-  GiLaurelCrown,
-  GiPodium
-} from 'react-icons/gi';
-import { useMemo, memo } from 'react';
-import { useGamification, type DailyTask, type Achievement } from '@/hooks/useGamification';
+import { ArrowUpRight, Check, Compass, Layers3, Rocket, Sparkles } from 'lucide-react';
+import { useGamification } from '../hooks/useGamification';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  BronzeMedal, 
-  SilverMedal, 
-  GoldMedal, 
-  PlatinumMedal
-} from '@/components/icons/GamificationIcons';
+import { navigate } from '../hooks/useRouting';
+import { ProfileDetailArtwork, ProfileDetailLayout } from './ProfileDetailLayout';
+import journeyArtwork from '../assets/profile/journey-detail-v1.webp';
 
-// Memoized Daily Task Component
-const DailyTaskItem = memo(({ task, index }: { task: DailyTask, index: number }) => (
-  <motion.div
-    initial={{ opacity: 0, x: -20 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ delay: index * 0.1 }}
-    className={`p-4 rounded-lg border ${
-      task.completed
-        ? 'bg-emerald-500/20 border-emerald-500/30'
-        : 'bg-white/5 border-white/10'
-    }`}
-    data-testid={`task-${task.id}`}
-  >
-    <div className="flex items-start justify-between mb-2">
-      <div className="flex-1">
-        <h4 className={`text-sm font-semibold ${
-          task.completed ? 'text-emerald-300 line-through' : 'text-white'
-        }`}>
-          {task.name}
-        </h4>
-        <p className="text-xs text-white/60 mt-1">{task.description}</p>
-      </div>
-      <Badge 
-        variant={task.completed ? "default" : "secondary"}
-        className={task.completed ? 'bg-emerald-500' : ''}
-      >
-        +{task.xp} XP
-      </Badge>
-    </div>
-    <Progress 
-      value={(task.progress / task.maxProgress) * 100} 
-      className="h-1.5 bg-white/10" 
-    />
-  </motion.div>
-));
-DailyTaskItem.displayName = 'DailyTaskItem';
-
-// Memoized Achievement Component
-const AchievementItem = memo(({ achievement, index, iconMap }: { 
-  achievement: Achievement, 
-  index: number,
-  iconMap: Record<string, React.ReactNode>
-}) => (
-  <motion.div
-    initial={{ opacity: 0, scale: 0.9 }}
-    animate={{ opacity: 1, scale: 1 }}
-    transition={{ delay: index * 0.1 }}
-    className={`p-4 rounded-lg border text-center ${
-      achievement.unlocked
-        ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30'
-        : 'bg-white/5 border-white/10 opacity-60'
-    }`}
-    data-testid={`achievement-${achievement.id}`}
-  >
-    <motion.div
-      className="flex justify-center mb-2"
-      whileHover={{ scale: 1.1, rotate: 5 }}
-      transition={{ type: "spring", stiffness: 300 }}
-    >
-      {iconMap[achievement.icon] || achievement.icon}
-    </motion.div>
-    <h4 className="text-xs font-semibold text-white mb-1">
-      {achievement.name}
-    </h4>
-    <Badge 
-      variant="outline" 
-      className={`text-[10px] h-5 ${
-        achievement.level === 'Platinum' ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-cyan-400/50' :
-        achievement.level === 'Gold' ? 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-400/50' :
-        achievement.level === 'Silver' ? 'bg-gradient-to-r from-gray-400/20 to-gray-300/20 border-gray-400/50' :
-        'bg-gradient-to-r from-orange-700/20 to-orange-600/20 border-orange-600/50'
-      }`}
-    >
-      {achievement.level}
-    </Badge>
-    <div className="mt-2">
-      <Progress 
-        value={(achievement.progress / achievement.maxProgress) * 100} 
-        className="h-1 bg-white/10" 
-      />
-      <p className="text-[10px] text-white/50 mt-1">
-        {achievement.progress}/{achievement.maxProgress}
-      </p>
-    </div>
-  </motion.div>
-));
-AchievementItem.displayName = 'AchievementItem';
-
-// Memoized Leaderboard Item Component
-const LeaderboardItem = memo(({ entry, position, levelLabel }: { entry: any, position: number, levelLabel: string }) => {
-  const getRankMedal = () => {
-    if (position === 0) return <GoldMedal className="w-6 h-6" />;
-    if (position === 1) return <SilverMedal className="w-6 h-6" />;
-    if (position === 2) return <BronzeMedal className="w-6 h-6" />;
-    return null;
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: position * 0.05 }}
-      className={`flex items-center justify-between p-3 rounded-lg ${
-        entry.isCurrentUser 
-          ? 'bg-emerald-500/20 border border-emerald-500/30' 
-          : 'bg-white/5'
-      }`}
-      data-testid={`leaderboard-${position}`}
-    >
-      <div className="flex items-center gap-3">
-        <div className="w-8 text-center">
-          {getRankMedal() || <span className="text-white/60 font-bold">{position + 1}</span>}
-        </div>
-        <div>
-          <div className="text-white font-semibold">{entry.name}</div>
-          <div className="text-white/60 text-xs">{levelLabel} {entry.level}</div>
-        </div>
-      </div>
-      <div className="text-right">
-        <div className="text-emerald-400 font-bold">{entry.xp.toLocaleString()}</div>
-        <div className="text-white/60 text-xs">XP</div>
-      </div>
-    </motion.div>
-  );
-});
-LeaderboardItem.displayName = 'LeaderboardItem';
+const english: Record<string, { name: string; description: string }> = {
+  'explorer-bronze': { name: 'Explorer', description: 'Explore 3 demo apps' },
+  'explorer-silver': { name: 'Experienced explorer', description: 'Explore 10 demo apps' },
+  'early-adopter': { name: 'Getting started', description: 'Open the app for the first time' },
+  'constructor-novice': { name: 'Architect', description: 'Start your first project' },
+  'feature-master': { name: 'Feature expert', description: 'Add 5 features to a project' },
+};
+const visibleIds = new Set(Object.keys(english));
 
 export function GamificationHub() {
-  const { t } = useLanguage();
-  const { stats, dailyTasks, leaderboard } = useGamification();
-
-  // Memoize level progress calculation
-  const levelProgress = useMemo(() => 
-    (stats.xp / stats.xpToNextLevel) * 100, 
-    [stats.xp, stats.xpToNextLevel]
-  );
-
-  // Memoize icon mapping for achievements - Beautiful gaming icons from react-icons/gi
-  const iconMap = useMemo<Record<string, React.ReactNode>>(() => {
-    return {
-      'compass': <GiTreasureMap className="w-12 h-12 text-amber-400" />,
-      'telescope': <GiBinoculars className="w-12 h-12 text-blue-400" />,
-      'star': <GiTrophyCup className="w-12 h-12 text-yellow-400" />,
-      'flame': <GiFlame className="w-12 h-12 text-orange-400" />,
-      'wrench': <GiHammerNails className="w-12 h-12 text-emerald-400" />,
-      'layers': <GiBrickWall className="w-12 h-12 text-purple-400" />,
-      'rocket': <GiRocketFlight className="w-12 h-12 text-cyan-400" />,
-      'zap': <GiLightningHelix className="w-12 h-12 text-yellow-400" />,
-      'gem': <GiCutDiamond className="w-12 h-12 text-pink-400" />,
-      'crown': <GiImperialCrown className="w-12 h-12 text-yellow-400" />,
-      'shield': <GiShield className="w-12 h-12 text-blue-400" />,
-      'sparkles': <GiSparkles className="w-12 h-12 text-purple-400" />,
-    };
-  }, []);
-
-  // Memoize level medal
-  const levelMedal = useMemo(() => {
-    if (stats.level >= 30) return <PlatinumMedal className="w-10 h-10" />;
-    if (stats.level >= 20) return <GoldMedal className="w-10 h-10" />;
-    if (stats.level >= 10) return <SilverMedal className="w-10 h-10" />;
-    return <BronzeMedal className="w-10 h-10" />;
-  }, [stats.level]);
+  const { language } = useLanguage();
+  const { stats } = useGamification();
+  const ru = language === 'ru';
+  const achievements = Array.isArray(stats.achievements)
+    ? stats.achievements.filter((achievement) => visibleIds.has(achievement.id))
+    : [];
+  const currentXp = Number.isFinite(stats.xp) ? Math.max(0, stats.xp) : 0;
+  const goalXp = Number.isFinite(stats.xpToNextLevel) ? Math.max(1, stats.xpToNextLevel) : 100;
+  const progress = Math.min(100, Math.round((currentXp / goalXp) * 100));
+  const level = Number.isFinite(stats.level) ? Math.max(1, stats.level) : 1;
+  const iconFor = (id: string) =>
+    id.startsWith('explorer')
+      ? Compass
+      : id === 'feature-master'
+        ? Layers3
+        : id === 'constructor-novice'
+          ? Rocket
+          : Sparkles;
 
   return (
-    <div className="gamification-hub min-h-screen bg-black text-white pb-24 smooth-scroll-page" style={{ paddingTop: '140px' }}>
-      <div className="max-w-md mx-auto px-4 py-6 space-y-6" data-testid="gamification-hub">
-      {/* User Progress Card */}
-      <Card className="bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 backdrop-blur-xl border-white/20">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", stiffness: 200, damping: 15 }}
-              >
-                {levelMedal}
-              </motion.div>
-              <div>
-                <CardTitle className="text-white flex items-center gap-2">
-                  {t('gamification.level')} {stats.level}
-                </CardTitle>
-                <CardDescription className="text-white/60">
-                  {stats.xp} / {stats.xpToNextLevel} XP
-                </CardDescription>
-              </div>
-            </div>
-            <div className="flex items-center gap-1 text-emerald-400">
-              <GiFlame className="w-5 h-5" />
-              <span className="text-2xl font-bold">{stats.streak.current}</span>
-            </div>
+    <ProfileDetailLayout
+      title={ru ? 'Ваш путь в WEB4TG' : 'Your WEB4TG journey'}
+      intro={
+        ru
+          ? 'Здесь можно следить за своим опытом и достижениями.'
+          : 'Keep track of your experience and achievements.'
+      }
+      eyebrow={ru ? 'НАГРАДЫ И УРОВНИ' : 'REWARDS AND LEVELS'}
+      testId="profile-rewards-page"
+    >
+      <div className="pd-card pd-level-card">
+        <div className="pd-level-top">
+          <div>
+            <span className="pd-kicker">{ru ? 'ВАШ УРОВЕНЬ' : 'YOUR LEVEL'}</span>
+            <strong>{ru ? `Уровень ${level}` : `Level ${level}`}</strong>
+            <p className="pd-muted">
+              {ru ? 'Прогресс сохраняется на этом устройстве.' : 'Progress is saved on this device.'}
+            </p>
           </div>
-        </CardHeader>
-        <CardContent>
-          <Progress value={levelProgress} className="h-3 bg-white/10" />
-          <div className="grid grid-cols-3 gap-4 mt-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">{stats.totalXp}</div>
-              <div className="text-xs text-white/60">{t('gamification.totalXp')}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">{stats.streak.best}</div>
-              <div className="text-xs text-white/60">{t('gamification.bestStreak')}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-white">{stats.completedTasks}</div>
-              <div className="text-xs text-white/60">{t('gamification.completed')}</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          <ProfileDetailArtwork src={journeyArtwork} className="pd-level-art" />
+        </div>
+        <div className="pd-progress-label">
+          <span>{ru ? 'Опыт' : 'Experience'}</span>
+          <span>
+            {currentXp} / {goalXp} XP
+          </span>
+        </div>
+        <progress
+          value={progress}
+          max="100"
+          aria-label={ru ? `Прогресс уровня: ${progress}%` : `Level progress: ${progress}%`}
+        />
+      </div>
 
-      {/* Daily Tasks */}
-      <Card className="bg-white/5 backdrop-blur-xl border-white/10">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <GiBullseye className="w-5 h-5 text-emerald-400" />
-            {t('gamification.dailyTasks')}
-          </CardTitle>
-          <CardDescription className="text-white/60">
-            {t('gamification.dailyTasksDesc')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {dailyTasks.map((task: DailyTask, index: number) => (
-              <DailyTaskItem key={task.id} task={task} index={index} />
-            ))}
+      <section className="pd-section" aria-labelledby="achievements-title">
+        <div className="pd-section-title">
+          <div>
+            <span className="pd-kicker">{ru ? 'ВАШИ ШАГИ' : 'YOUR MILESTONES'}</span>
+            <h2 id="achievements-title">{ru ? 'Достижения' : 'Achievements'}</h2>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Achievements */}
-      <Card className="bg-white/5 backdrop-blur-xl border-white/10">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <GiTrophyCup className="w-5 h-5 text-emerald-400" />
-            {t('gamification.achievementsTitle')}
-          </CardTitle>
-          <CardDescription className="text-white/60">
-            {t('gamification.achievementsDesc')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-3">
-            {stats.achievements.slice(0, 4).map((achievement: Achievement, index: number) => (
-              <AchievementItem 
-                key={achievement.id} 
-                achievement={achievement} 
-                index={index} 
-                iconMap={iconMap}
-              />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Leaderboard */}
-      <Card className="bg-white/5 backdrop-blur-xl border-white/10">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <GiPodium className="w-5 h-5 text-emerald-400" />
-            {t('gamification.leaderboardTitle')}
-          </CardTitle>
-          <CardDescription className="text-white/60">
-            {t('gamification.yourPosition')}: #{leaderboard.position} {t('gamification.outOf')} {leaderboard.totalUsers.toLocaleString()}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {leaderboard.nearbyUsers.map((user: { rank: number; name: string; level: number; xp: number; isCurrentUser?: boolean }, index: number) => {
-              const isCurrentUser = user.isCurrentUser || user.name === t('gamification.you') || user.name === 'You';
-              return (
-              <div
-                key={user.rank}
-                className={`flex items-center gap-3 p-3 rounded-lg ${
-                  isCurrentUser
-                    ? 'bg-emerald-500/20 border border-emerald-500/30'
-                    : 'bg-white/5'
-                }`}
-                data-testid={`leaderboard-${user.rank}`}
-              >
-                <div 
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                    user.rank <= 3
-                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
-                      : 'bg-white/10 text-white/70'
-                  }`}
-                >
-                  #{user.rank}
+        </div>
+        <div className="pd-achievement-list">
+          {achievements.map((achievement) => {
+            const Icon = iconFor(achievement.id);
+            const max = Number.isFinite(achievement.maxProgress) ? Math.max(1, achievement.maxProgress) : 1;
+            const value = Number.isFinite(achievement.progress)
+              ? Math.max(0, Math.min(max, achievement.progress))
+              : 0;
+            return (
+              <article className="pd-card pd-achievement" key={achievement.id}>
+                <div className="pd-achievement-head">
+                  <span className="pd-achievement-symbol">
+                    <Icon size={20} aria-hidden="true" />
+                  </span>
+                  <small>
+                    {achievement.unlocked ? (
+                      <>
+                        <Check size={14} aria-hidden="true" />
+                        {ru ? 'Открыто' : 'Unlocked'}
+                      </>
+                    ) : (
+                      `${value} / ${max}`
+                    )}
+                  </small>
                 </div>
-                <div className="flex-1">
-                  <div className={`text-sm font-semibold ${
-                    isCurrentUser ? 'text-emerald-300' : 'text-white'
-                  }`}>
-                    {isCurrentUser ? t('gamification.you') : user.name}
-                  </div>
-                  <div className="text-xs text-white/50">
-                    {t('gamification.level')} {user.level} • {user.xp.toLocaleString()} XP
-                  </div>
-                </div>
-                {isCurrentUser && (
-                  <GiLaurelCrown className="w-5 h-5 text-emerald-400" />
-                )}
-              </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  </div>
+                <strong>{ru ? achievement.name : english[achievement.id].name}</strong>
+                <p>{ru ? achievement.description : english[achievement.id].description}</p>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+      <section className="pd-section pd-card pd-next-card">
+        <div>
+          <strong>{ru ? 'Продолжить знакомство' : 'Keep exploring'}</strong>
+          <p className="pd-muted">
+            {ru
+              ? 'Посмотрите приложения или начните свой проект.'
+              : 'Explore apps or start your own project.'}
+          </p>
+        </div>
+        <div className="pd-action-row">
+          <button className="pd-button secondary" type="button" onClick={() => navigate('/')}>
+            {ru ? 'Смотреть приложения' : 'Explore apps'} <ArrowUpRight size={16} aria-hidden="true" />
+          </button>
+          <button className="pd-button secondary" type="button" onClick={() => navigate('/constructor')}>
+            {ru ? 'Создать проект' : 'Start a project'} <ArrowUpRight size={16} aria-hidden="true" />
+          </button>
+        </div>
+      </section>
+    </ProfileDetailLayout>
   );
 }

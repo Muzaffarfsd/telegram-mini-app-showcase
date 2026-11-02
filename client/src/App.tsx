@@ -204,7 +204,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
   const { language } = useLanguage();
   const { capabilities } = usePerformanceClass();
   const isAI = route.component === 'aiProcess' || route.component === 'aiAgent';
-  const isProfile = ['profile', 'referral', 'rewards', 'earning'].includes(route.component);
+  const isProfile = ['profile', 'referral', 'rewards', 'earning', 'help', 'review'].includes(route.component);
 
   const navAction = useCallback((path: string) => {
     if (path === '/ai-process') window.dispatchEvent(new Event('web4tg:consultant-home'));
@@ -461,7 +461,7 @@ function AppContent() {
   const handleOpenDemo = useCallback((demoId: string) => {
     navigate(`/demos/${demoId}/app`);
     queueMicrotask(() => hapticFeedback.medium());
-    trackDemoView();
+    trackDemoView(demoId);
   }, [hapticFeedback]);
 
   const handleCloseDemo = useCallback(() => {

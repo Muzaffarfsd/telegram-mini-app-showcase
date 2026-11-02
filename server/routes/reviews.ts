@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "../db";
 import { reviews, insertReviewSchema } from "../../shared/schema";
-import { desc, eq, count } from "drizzle-orm";
+import { and, desc, eq, count, isNotNull } from "drizzle-orm";
 import { parsePaginationParams, createPaginatedResponse, withTimeout, isDbTimeoutError, dbTimeoutError, internalError } from "../apiUtils";
 import { verifyTelegramUser } from "./shared";
 
@@ -10,17 +10,20 @@ const router = Router();
 router.get("/api/reviews", async (req, res) => {
   try {
     const { limit, offset } = parsePaginationParams(req);
+    const reviewFilter = req.query.submitted === '1'
+      ? and(eq(reviews.isApproved, true), isNotNull(reviews.telegramId))
+      : eq(reviews.isApproved, true);
 
     const [totalResult, reviewsList] = await Promise.all([
       withTimeout(
         db.select({ count: count() })
           .from(reviews)
-          .where(eq(reviews.isApproved, true))
+          .where(reviewFilter)
       ),
       withTimeout(
         db.select()
           .from(reviews)
-          .where(eq(reviews.isApproved, true))
+          .where(reviewFilter)
           .orderBy(desc(reviews.isFeatured), desc(reviews.createdAt))
           .limit(limit)
           .offset(offset)
@@ -28,7 +31,11 @@ router.get("/api/reviews", async (req, res) => {
     ]);
 
     const total = totalResult[0]?.count ?? 0;
-    res.json(createPaginatedResponse(reviewsList, total, { limit, offset }));
+    const publicReviews = reviewsList.map(({ telegramId, ...review }) => ({
+      ...review,
+      hasAuthorAccount: telegramId !== null,
+    }));
+    res.json(createPaginatedResponse(publicReviews, total, { limit, offset }));
   } catch (error) {
     console.error('Error fetching reviews:', error);
     if (isDbTimeoutError(error)) {
@@ -50,15 +57,20 @@ router.post("/api/reviews", verifyTelegramUser, async (req: any, res) => {
     }
     
     const reviewData = validationResult.data;
+    if (reviewData.name.trim().length < 2 || reviewData.text.trim().length < 10 ||
+        reviewData.text.length > 4000 || !Number.isInteger(reviewData.rating) ||
+        (reviewData.rating as number) < 1 || (reviewData.rating as number) > 5) {
+      return res.status(400).json({ error: 'Validation failed' });
+    }
     
     const [newReview] = await db.insert(reviews).values({
-      name: reviewData.name as string,
-      company: (reviewData.company as string) || null,
+      name: reviewData.name.trim(),
+      company: reviewData.company?.trim() || null,
       logoUrl: (reviewData.logoUrl as string) || null,
       rating: reviewData.rating as number,
-      text: reviewData.text as string,
+      text: reviewData.text.trim(),
       location: (reviewData.location as string) || null,
-      telegramId: (reviewData.telegramId as number) || null,
+      telegramId: req.telegramUser.id,
       isApproved: false,
       isFeatured: false,
     }).returning();

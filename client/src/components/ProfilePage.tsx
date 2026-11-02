@@ -5,11 +5,18 @@ import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ProfileProjectsSkeleton } from './ProfileSkeleton';
-import { ProfileGlyph, type ProfileIconName } from './ProfileIcons';
+import { ProfileGlyph } from './ProfileIcons';
+import { referralCodeFromStart } from '../lib/profileRequest';
 import projectsArtwork from '../assets/profile/projects-v1.webp';
 import inviteArtwork from '../assets/profile/invite-v1.webp';
 import rewardsArtwork from '../assets/profile/rewards-v1.webp';
 import tasksArtwork from '../assets/profile/tasks-v1.webp';
+import themeArtwork from '../assets/profile/theme-v1.webp';
+import homeArtwork from '../assets/profile/home-shortcut-v1.webp';
+import languageArtwork from '../assets/profile/language-v1.webp';
+import contactArtwork from '../assets/profile/contact-v1.webp';
+import helpArtwork from '../assets/profile/help-v1.webp';
+import reviewArtwork from '../assets/profile/review-v1.webp';
 import './ProfilePage.css';
 import './ProfileExperience.css';
 
@@ -44,48 +51,6 @@ function ProfileArtwork({
         event.currentTarget.style.visibility = 'hidden';
       }}
     />
-  );
-}
-
-function Row({
-  icon,
-  title,
-  subtitle,
-  onClick,
-  external = false,
-  trailing,
-}: {
-  icon: ProfileIconName;
-  title: string;
-  subtitle?: string;
-  onClick?: () => void;
-  external?: boolean;
-  trailing?: string;
-}) {
-  const content = (
-    <>
-      <span className={`profile-row-icon profile-icon-${icon}`}>
-        <ProfileGlyph name={icon} />
-      </span>
-      <span className="profile-row-copy">
-        <span className="profile-row-title">{title}</span>
-        {subtitle && <span className="profile-row-subtitle">{subtitle}</span>}
-      </span>
-      {trailing && <span className="profile-row-trailing">{trailing}</span>}
-      {onClick &&
-        (external ? (
-          <ArrowUpRight className="profile-row-chevron" size={16} aria-hidden="true" />
-        ) : (
-          <ChevronRight className="profile-row-chevron" size={17} aria-hidden="true" />
-        ))}
-    </>
-  );
-  return onClick ? (
-    <button type="button" className="profile-row" onClick={onClick}>
-      {content}
-    </button>
-  ) : (
-    <div className="profile-row">{content}</div>
   );
 }
 
@@ -161,8 +126,17 @@ function ProjectRow({ project, ru }: { project: Project; ru: boolean }) {
 }
 
 function ProfilePage({ onNavigate, active }: Props) {
-  const { user, initData, isAvailable, webApp, homeScreen, shareApp, inviteFriend, hapticFeedback } =
-    useTelegram();
+  const {
+    user,
+    initData,
+    isAvailable,
+    webApp,
+    homeScreen,
+    shareApp,
+    inviteFriend,
+    hapticFeedback,
+    openTelegramLink,
+  } = useTelegram();
   const { toast } = useToast();
   const { theme, toggleTheme } = useTheme();
   const { t, language, setLanguage } = useLanguage();
@@ -178,6 +152,8 @@ function ProfilePage({ onNavigate, active }: Props) {
   const [referralInitializing, setReferralInitializing] = useState(false);
   const referralInitializingRef = useRef(false);
   const [friendCode, setFriendCode] = useState('');
+  const [friendCodeOpen, setFriendCodeOpen] = useState(false);
+  const appliedStartRef = useRef(false);
   const [codeError, setCodeError] = useState('');
   const [applying, setApplying] = useState(false);
   const applyingRef = useRef(false);
@@ -198,6 +174,16 @@ function ProfilePage({ onNavigate, active }: Props) {
       projects.filter((p) => p.status === 'Готово' || p.status === 'Завершен' || p.progress === 100).length,
     [projects],
   );
+
+  useEffect(() => {
+    if (appliedStartRef.current) return;
+    const suggested = referralCodeFromStart(initData);
+    if (suggested) {
+      appliedStartRef.current = true;
+      setFriendCode(suggested);
+      setFriendCodeOpen(true);
+    }
+  }, [initData]);
 
   useEffect(() => {
     const image = new Image();
@@ -371,9 +357,9 @@ function ProfilePage({ onNavigate, active }: Props) {
           : 'Could not prepare the request. Try again later.',
       );
     const tokenData = await tokenResponse.json();
-    if (typeof tokenData.token !== 'string' || !tokenData.token)
-      throw new Error(t('profilePage.applyCodeLater'));
-    return tokenData.token as string;
+    const token = tokenData.csrfToken || tokenData.token;
+    if (typeof token !== 'string' || !token) throw new Error(t('profilePage.applyCodeLater'));
+    return token as string;
   };
   const connectReferral = async () => {
     if (!user?.id || !initData || referralInitializingRef.current) return;
@@ -656,9 +642,7 @@ function ProfilePage({ onNavigate, active }: Props) {
           </div>
           <div className="profile-invite-card">
             <div className="profile-invite-top">
-              <span className="profile-invite-icon profile-icon-gift">
-                <ProfileGlyph name="gift" />
-              </span>
+              <ProfileArtwork className="profile-invite-art" src={inviteArtwork} lazy />
               <div>
                 <h3>{t('profilePage.yourReferralCode')}</h3>
                 <p>
@@ -724,7 +708,11 @@ function ProfilePage({ onNavigate, active }: Props) {
               <Users size={18} />
               {t('profilePage.inviteFriend')}
             </button>
-            <details className="profile-code-details">
+            <details
+              className="profile-code-details"
+              open={friendCodeOpen}
+              onToggle={(event) => setFriendCodeOpen(event.currentTarget.open)}
+            >
               <summary>
                 {ru ? 'У меня есть код друга' : 'I have a friend’s code'}{' '}
                 <ChevronRight size={16} aria-hidden="true" />
@@ -794,33 +782,48 @@ function ProfilePage({ onNavigate, active }: Props) {
           <div className="profile-section-heading">
             <h2 id="profile-settings-title">{ru ? 'Приложение' : 'Application'}</h2>
           </div>
-          <div className="profile-list">
-            <Row
-              icon="moon"
-              title={ru ? 'Тема приложения' : 'App appearance'}
-              subtitle={
-                ru
-                  ? `${theme === 'dark' ? 'Тёмная' : 'Светлая'} · профиль остаётся светлым`
-                  : `${theme === 'dark' ? 'Dark' : 'Light'} · profile stays light`
-              }
+          <div className="profile-settings-grid">
+            <button
+              className="profile-setting-card"
+              type="button"
               onClick={() => {
                 hapticFeedback?.medium();
                 toggleTheme();
               }}
-            />
-            <Row
-              icon="phone"
-              title={t('profilePage.addToHomeScreen')}
-              subtitle={t('profilePage.quickAccess')}
-              onClick={addToHome}
-            />
-            <div className="profile-row">
-              <span className="profile-row-icon profile-icon-language">
-                <ProfileGlyph name="language" />
+              data-testid="profile-theme"
+            >
+              <span className="profile-setting-copy">
+                <strong>{ru ? 'Тема приложения' : 'App appearance'}</strong>
+                <span>
+                  {ru ? (theme === 'dark' ? 'Тёмная' : 'Светлая') : theme === 'dark' ? 'Dark' : 'Light'}
+                </span>
               </span>
-              <label className="profile-row-copy profile-row-title" htmlFor="profile-language">
-                {t('profilePage.interfaceLanguage')}
-              </label>
+              <ProfileArtwork src={themeArtwork} lazy />
+              <span className="profile-setting-arrow" aria-hidden="true">
+                <ArrowUpRight size={15} />
+              </span>
+            </button>
+            <button
+              className="profile-setting-card"
+              type="button"
+              onClick={addToHome}
+              data-testid="profile-add-home"
+            >
+              <span className="profile-setting-copy">
+                <strong>{t('profilePage.addToHomeScreen')}</strong>
+                <span>{ru ? 'Быстрый доступ' : 'Quick access'}</span>
+              </span>
+              <ProfileArtwork src={homeArtwork} lazy />
+              <span className="profile-setting-arrow" aria-hidden="true">
+                <ArrowUpRight size={15} />
+              </span>
+            </button>
+            <div className="profile-language-card">
+              <ProfileArtwork src={languageArtwork} lazy />
+              <div>
+                <label htmlFor="profile-language">{t('profilePage.interfaceLanguage')}</label>
+                <span>{ru ? 'Выберите язык' : 'Choose a language'}</span>
+              </div>
               <select
                 id="profile-language"
                 className="profile-language-select"
@@ -841,35 +844,75 @@ function ProfilePage({ onNavigate, active }: Props) {
           <div className="profile-section-heading">
             <h2 id="profile-support-title">{t('profilePage.support')}</h2>
           </div>
-          <div className="profile-list">
-            <Row
-              icon="chat"
-              title={t('profilePage.contactUs')}
-              subtitle="Telegram"
-              external
-              onClick={() => openExternal('https://t.me/web4tgs')}
-            />
-            <Row
-              icon="help"
-              title={t('profilePage.helpCenter')}
-              subtitle={t('profilePage.faqAndGuides')}
+          <div className="profile-support-grid">
+            <button
+              className="profile-support-contact"
+              type="button"
+              onClick={() => openTelegramLink('https://t.me/web4tgs')}
+              data-testid="profile-contact"
+            >
+              <span>
+                <span className="profile-kicker">{ru ? 'МЫ НА СВЯЗИ' : 'GET IN TOUCH'}</span>
+                <strong>{ru ? 'Написать нам' : 'Message us'}</strong>
+                <small>Telegram · @web4tgs</small>
+              </span>
+              <ProfileArtwork src={contactArtwork} lazy />
+              <ArrowUpRight className="profile-support-external" size={17} aria-hidden="true" />
+            </button>
+            <button
+              className="profile-setting-card"
+              type="button"
               onClick={() => onNavigate('help')}
-            />
-            <Row icon="star" title={t('profilePage.leaveReview')} onClick={() => onNavigate('review')} />
-            <Row
-              icon="instagram"
-              title="Instagram"
-              subtitle="@web4tg"
-              external
-              onClick={() => openExternal('https://instagram.com/web4tg')}
-            />
-            <Row
-              icon="tiktok"
-              title="TikTok"
-              subtitle="@web4tg"
-              external
-              onClick={() => openExternal('https://tiktok.com/@web4tg')}
-            />
+              data-testid="profile-help"
+            >
+              <span className="profile-setting-copy">
+                <strong>{t('profilePage.helpCenter')}</strong>
+                <span>{ru ? 'Ответы на вопросы' : 'Questions and answers'}</span>
+              </span>
+              <ProfileArtwork src={helpArtwork} lazy />
+              <span className="profile-setting-arrow" aria-hidden="true">
+                <ArrowUpRight size={15} />
+              </span>
+            </button>
+            <button
+              className="profile-setting-card"
+              type="button"
+              onClick={() => onNavigate('review')}
+              data-testid="profile-review"
+            >
+              <span className="profile-setting-copy">
+                <strong>{t('profilePage.leaveReview')}</strong>
+                <span>{ru ? 'Поделитесь мнением' : 'Share your feedback'}</span>
+              </span>
+              <ProfileArtwork src={reviewArtwork} lazy />
+              <span className="profile-setting-arrow" aria-hidden="true">
+                <ArrowUpRight size={15} />
+              </span>
+            </button>
+            <div className="profile-social-links">
+              <button
+                type="button"
+                onClick={() => openExternal('https://instagram.com/web4tg')}
+                aria-label="Instagram @web4tg"
+                data-testid="profile-instagram"
+              >
+                <span className="profile-social-icon profile-icon-instagram">
+                  <ProfileGlyph name="instagram" />
+                </span>
+                Instagram <ArrowUpRight size={16} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={() => openExternal('https://tiktok.com/@web4tg')}
+                aria-label="TikTok @web4tg"
+                data-testid="profile-tiktok"
+              >
+                <span className="profile-social-icon profile-icon-tiktok">
+                  <ProfileGlyph name="tiktok" />
+                </span>
+                TikTok <ArrowUpRight size={16} aria-hidden="true" />
+              </button>
+            </div>
           </div>
         </section>
         <footer className="profile-footer">

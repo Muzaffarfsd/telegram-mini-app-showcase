@@ -1,583 +1,327 @@
-import { motion } from '@/utils/LazyMotionProvider';
-import { Copy, Check, Users, Gift, TrendingUp, Share2, X } from 'lucide-react';
-import { useState, useEffect, useMemo, useCallback, memo } from 'react';
-import { cn } from '@/lib/utils';
-import { BronzeMedal, SilverMedal, GoldMedal, PlatinumMedal } from '@/components/icons/GamificationIcons';
-import { useTelegram } from '@/hooks/useTelegram';
-import { useQuery } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
+import { useEffect, useRef, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowUpRight, Copy, Share2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useTelegram } from '../hooks/useTelegram';
+import { profilePost, ProfileRequestError, referralCodeFromStart } from '../lib/profileRequest';
+import { ProfileDetailArtwork, ProfileDetailLayout, ProfileDetailLoading } from './ProfileDetailLayout';
+import referralArtwork from '../assets/profile/referral-detail-v1.webp';
 
-interface ReferralStats {
-  referralCode: string;
-  totalReferrals: number;
-  activeReferrals: number;
-  totalEarnings: number;
-  pendingRewards: number;
-  tier: 'Bronze' | 'Silver' | 'Gold' | 'Platinum';
-}
+type ReferralStats = {
+  referralCode?: string | null;
+  totalReferrals?: number | null;
+  activeReferrals?: number | null;
+  referredByCode?: string | null;
+};
 
-interface ReferralProgramProps {
-  className?: string;
-}
-
-interface TierLevelProps {
-  level: { tier: string; referrals: string; commission: string; color: string };
-  isActive: boolean;
-  t: (key: string) => string;
-}
-
-const TierLevel = memo(({ level, isActive, t }: TierLevelProps) => {
-  const getTierMedalSmall = useCallback((tier: string) => {
-    switch (tier) {
-      case 'Bronze':
-        return <BronzeMedal className="w-10 h-10" />;
-      case 'Silver':
-        return <SilverMedal className="w-10 h-10" />;
-      case 'Gold':
-        return <GoldMedal className="w-10 h-10" />;
-      case 'Platinum':
-        return <PlatinumMedal className="w-10 h-10" />;
-      default:
-        return <BronzeMedal className="w-10 h-10" />;
+export function ReferralProgram({ className = '' }: { className?: string }) {
+  const { language } = useLanguage();
+  const { user, initData, inviteFriend, openTelegramLink } = useTelegram();
+  const queryClient = useQueryClient();
+  const ru = language === 'ru';
+  const [friendCode, setFriendCode] = useState('');
+  const [friendOpen, setFriendOpen] = useState(false);
+  const appliedStartRef = useRef(false);
+  const [feedback, setFeedback] = useState('');
+  const [formError, setFormError] = useState('');
+  useEffect(() => {
+    if (appliedStartRef.current) return;
+    const suggested = referralCodeFromStart(initData);
+    if (suggested) {
+      appliedStartRef.current = true;
+      setFriendCode(suggested);
+      setFriendOpen(true);
     }
-  }, []);
-
-  return (
-    <div
-      className={cn(
-        'flex items-center justify-between p-3 rounded-xl transition-all',
-        isActive
-          ? 'bg-emerald-500/20 border-2 border-emerald-500/50'
-          : 'bg-white/5 border border-white/10'
-      )}
-      data-testid={`tier-${level.tier.toLowerCase()}`}
-    >
-      <div className="flex items-center gap-3">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          whileHover={{ scale: 1.1, rotate: 5 }}
-        >
-          {getTierMedalSmall(level.tier)}
-        </motion.div>
-        <div>
-          <div className="text-white font-semibold">{level.tier}</div>
-          <div className="text-white/60 text-xs">{level.referrals} {t('referral.referrals')}</div>
-        </div>
-      </div>
-      <div className="text-emerald-400 font-bold">
-        {level.commission}
-      </div>
-    </div>
-  );
-});
-TierLevel.displayName = 'TierLevel';
-
-const StatsCard = memo(({ icon: Icon, value, label, subtext, iconBg, textColor }: {
-  icon: any,
-  value: string | number,
-  label: string,
-  subtext: string,
-  iconBg: string,
-  textColor: string
-}) => (
-  <div className="glass-medium rounded-2xl p-4 border border-white/10">
-    <div className="flex items-center gap-3 mb-2">
-      <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center', iconBg)}>
-        <Icon className={cn('w-5 h-5', textColor)} />
-      </div>
-      <div>
-        <div className="text-2xl font-bold text-white">
-          {value}
-        </div>
-        <div className="text-xs text-white/60">
-          {label}
-        </div>
-      </div>
-    </div>
-    <div className={cn('text-xs font-medium', textColor)}>
-      {subtext}
-    </div>
-  </div>
-));
-StatsCard.displayName = 'StatsCard';
-
-export function ReferralProgram({ className = '' }: ReferralProgramProps) {
-  const { t } = useLanguage();
-  const { user, initData, shareApp, inviteFriend } = useTelegram();
-  const { toast } = useToast();
-  const [copied, setCopied] = useState(false);
-  const [showReferralInput, setShowReferralInput] = useState(false);
-  const [referralCodeInput, setReferralCodeInput] = useState('');
-
-  const { data: statsData, isLoading, refetch } = useQuery({
+  }, [initData]);
+  const stats = useQuery<ReferralStats>({
     queryKey: ['/api/referrals/stats', user?.id],
-    queryFn: async () => {
-      if (!user?.id || !initData) return null;
-      const res = await fetch(`/api/referrals/stats/${user.id}`, {
-        headers: { 'x-telegram-init-data': initData }
+    enabled: Boolean(user?.id && initData),
+    retry: false,
+    refetchOnMount: 'always',
+    queryFn: async ({ signal }) => {
+      const response = await fetch(`/api/referrals/stats/${user!.id}`, {
+        headers: { 'x-telegram-init-data': initData },
+        signal,
       });
-      if (!res.ok) throw new Error('Failed to load stats');
-      return await res.json();
+      if (!response.ok) throw new ProfileRequestError('Could not load referral information', response.status);
+      return response.json();
     },
-    enabled: !!user?.id && !!initData,
   });
+  const connect = useMutation({
+    mutationFn: () => profilePost('/api/referrals/user/init', initData, {}),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['/api/referrals/stats', user?.id] }),
+  });
+  const apply = useMutation({
+    mutationFn: (code: string) =>
+      profilePost('/api/referral/apply', initData, { userId: user?.id, referralCode: code }),
+    onSuccess: () => {
+      setFriendCode('');
+      setFormError('');
+      setFeedback(
+        ru ? 'Код принят. Статус появится в программе.' : 'Code accepted. Check your program status.',
+      );
+      void queryClient.invalidateQueries({ queryKey: ['/api/referrals/stats', user?.id] });
+    },
+    onError: (error) => {
+      const known = error instanceof ProfileRequestError && error.status >= 400 && error.status < 500;
+      setFormError(
+        known && ru
+          ? error.message
+          : ru
+            ? 'Не удалось применить код. Попробуйте позже.'
+            : 'Could not apply the code. Please try again later.',
+      );
+    },
+  });
+  const code = typeof stats.data?.referralCode === 'string' ? stats.data.referralCode : '';
+  const missing = stats.error instanceof ProfileRequestError && stats.error.status === 404;
+  const authenticated = Boolean(user?.id && initData);
+  const count = (value: unknown) =>
+    typeof value === 'number' && Number.isFinite(value) ? String(value) : '—';
 
-  const stats: ReferralStats = statsData ? {
-    referralCode: statsData.referralCode || '',
-    totalReferrals: statsData.totalReferrals || 0,
-    activeReferrals: statsData.activeReferrals || 0,
-    totalEarnings: parseFloat(statsData.totalEarnings || '0'),
-    pendingRewards: parseFloat(statsData.pendingRewards || '0'),
-    tier: (statsData.tier || 'Bronze') as 'Bronze' | 'Silver' | 'Gold' | 'Platinum'
-  } : {
-    referralCode: '',
-    totalReferrals: 0,
-    activeReferrals: 0,
-    totalEarnings: 0,
-    pendingRewards: 0,
-    tier: 'Bronze'
+  const copy = async () => {
+    if (!code) return;
+    try {
+      await navigator.clipboard.writeText(code);
+      setFeedback(ru ? 'Код скопирован.' : 'Code copied.');
+    } catch {
+      setFeedback(ru ? 'Не удалось скопировать код.' : 'Could not copy the code.');
+    }
+  };
+  const share = () => {
+    if (!code) return;
+    const result = inviteFriend(code);
+    setFeedback(
+      result.success
+        ? ru
+          ? 'Открываем приглашение в Telegram.'
+          : 'Opening your invitation in Telegram.'
+        : ru
+          ? 'Не удалось открыть Telegram.'
+          : 'Could not open Telegram.',
+    );
   };
 
-  useEffect(() => {
-    if (!statsData && user?.id) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const startParam = urlParams.get('tgWebAppStartParam');
-      if (startParam && startParam.startsWith('WEB4TG')) {
-        setReferralCodeInput(startParam);
-        setShowReferralInput(true);
-      }
-    }
-  }, [statsData, user?.id]);
-
-  const applyReferralCode = useCallback(async () => {
-    if (!user?.id || !referralCodeInput || !initData) return;
-
-    try {
-      const res = await fetch('/api/referrals/user/init', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-telegram-init-data': initData 
-        },
-        body: JSON.stringify({
-          referred_by_code: referralCodeInput,
-        }),
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to apply referral code');
-      }
-
-      setShowReferralInput(false);
-      refetch();
-      toast({
-        title: t('referral.codeApplied'),
-        description: t('referral.welcomeBonus'),
-      });
-    } catch (error) {
-      console.error('Error applying referral code:', error);
-      toast({
-        title: t('referral.error'),
-        description: t('referral.applyError'),
-        variant: 'destructive',
-      });
-    }
-  }, [user, referralCodeInput, initData, refetch, toast, t]);
-
-  const copyReferralCode = useCallback(() => {
-    if (!stats.referralCode) {
-      toast({
-        title: t('referral.error'),
-        description: t('referral.codeNotFound'),
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    navigator.clipboard.writeText(stats.referralCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    
-    toast({
-      title: t('referral.codeCopied'),
-      description: `${t('referral.yourCodeIs')} ${stats.referralCode}`,
-    });
-  }, [stats.referralCode, toast, t]);
-
-  const shareReferralLink = useCallback(() => {
-    console.log('[Referral] Share link clicked:', stats.referralCode);
-    
-    if (!stats.referralCode) {
-      toast({
-        title: t('referral.error'),
-        description: t('referral.codeNotFound'),
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    const result = inviteFriend(stats.referralCode);
-    
-    if (result.success) {
-      toast({
-        title: t('referral.inviteSent'),
-        description: `${stats.referralCode} ${t('referral.codeAddedToLink')} https://t.me/w4tg_bot/w4tg`,
-      });
-    } else {
-      toast({
-        title: t('referral.error'),
-        description: t('referral.telegramError'),
-        variant: "destructive",
-      });
-    }
-  }, [stats.referralCode, inviteFriend, toast, t]);
-
-  const tierColor = useMemo(() => {
-    switch (stats.tier) {
-      case 'Bronze':
-        return 'from-amber-700 to-amber-800';
-      case 'Silver':
-        return 'from-gray-400 to-gray-500';
-      case 'Gold':
-        return 'from-amber-400 to-amber-500';
-      case 'Platinum':
-        return 'from-purple-500 to-purple-600';
-    }
-  }, [stats.tier]);
-
-  const benefits = useMemo(() => {
-    switch (stats.tier) {
-      case 'Bronze':
-        return { commission: 10, bonus: 100 };
-      case 'Silver':
-        return { commission: 15, bonus: 200 };
-      case 'Gold':
-        return { commission: 20, bonus: 500 };
-      case 'Platinum':
-        return { commission: 30, bonus: 1000 };
-    }
-  }, [stats.tier]);
-
-  const tierMedal = useMemo(() => {
-    switch (stats.tier) {
-      case 'Bronze':
-        return <BronzeMedal className="w-16 h-16" />;
-      case 'Silver':
-        return <SilverMedal className="w-16 h-16" />;
-      case 'Gold':
-        return <GoldMedal className="w-16 h-16" />;
-      case 'Platinum':
-        return <PlatinumMedal className="w-16 h-16" />;
-    }
-  }, [stats.tier]);
-
-  const tierLevels = useMemo(() => [
-    { tier: 'Bronze', referrals: '0-9', commission: '10%', color: 'amber-700' },
-    { tier: 'Silver', referrals: '10-29', commission: '15%', color: 'gray-400' },
-    { tier: 'Gold', referrals: '30-99', commission: '20%', color: 'amber-400' },
-    { tier: 'Platinum', referrals: '100+', commission: '30%', color: 'purple-500' },
-  ], []);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-black text-white pb-24 flex items-center justify-center" style={{ paddingTop: '140px' }}>
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-white/60">{t('referral.loading')}</div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-black text-white pb-24" style={{ paddingTop: '140px' }}>
-      <div className={cn('max-w-md mx-auto px-4 py-6 space-y-6', className)} data-testid="referral-program">
-        <div className="text-center">
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="inline-flex items-center gap-2 mb-3"
-        >
-          <Users className="w-6 h-6 text-emerald-400" />
-          <h2 className="text-2xl font-bold text-white">
-            {t('referral.title')}
-          </h2>
-        </motion.div>
-        <p className="text-white/60 text-sm">
-          {t('referral.subtitle')}
-        </p>
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={cn(
-          'glass-medium rounded-2xl p-6 border border-white/20 bg-gradient-to-br',
-          tierColor
-        )}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-            >
-              {tierMedal}
-            </motion.div>
-            <div>
-              <div className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-1">
-                {t('referral.yourLevel')}
-              </div>
-              <div className="text-2xl font-bold text-white">
-                {stats.tier}
-              </div>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-1">
-              {t('referral.commission')}
-            </div>
-            <div className="text-2xl font-bold text-white">
-              {benefits.commission}%
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="glass-subtle rounded-xl p-3 text-center">
-            <div className="text-white/70 text-xs mb-1">{t('referral.youReceive')}</div>
-            <div className="text-white font-bold">100</div>
-          </div>
-          <div className="glass-subtle rounded-xl p-3 text-center">
-            <div className="text-white/70 text-xs mb-1">{t('referral.friendReceives')}</div>
-            <div className="text-white font-bold">50</div>
-          </div>
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="glass-medium rounded-2xl p-6 border border-emerald-500/30"
-      >
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-bold text-white mb-1">
-            {t('referral.yourCode')}
-          </h3>
-          <p className="text-sm text-white/60">
-            {t('referral.shareCode')}
+    <ProfileDetailLayout
+      title={ru ? 'Приглашайте друзей' : 'Invite your friends'}
+      intro={
+        ru
+          ? 'Поделитесь WEB4TG и следите за приглашениями в одном месте.'
+          : 'Share WEB4TG and keep track of your invitations.'
+      }
+      eyebrow={ru ? 'РЕФЕРАЛЬНАЯ ПРОГРАММА' : 'REFERRAL PROGRAM'}
+      testId="profile-referral-page"
+    >
+      <div className={`pd-card pd-referral-hero ${className}`}>
+        <div className="pd-referral-hero-copy">
+          <span className="pd-kicker">
+            {ru ? 'ОДНА ССЫЛКА — НОВОЕ ЗНАКОМСТВО' : 'ONE LINK, A NEW CONNECTION'}
+          </span>
+          <strong>{ru ? 'Хорошим делятся' : 'Good things are shared'}</strong>
+          <p>
+            {ru
+              ? 'Пригласите друга в WEB4TG по личной ссылке.'
+              : 'Invite a friend to WEB4TG with your personal link.'}
           </p>
         </div>
-
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex-1 glass-subtle rounded-xl px-4 py-4 text-center">
-            <div className="text-2xl font-mono font-bold text-emerald-400 tracking-wider">
-              {stats.referralCode}
-            </div>
+        <ProfileDetailArtwork src={referralArtwork} className="pd-referral-hero-art" />
+      </div>
+      <section className="pd-section" aria-labelledby="referral-code-title">
+        <h2 id="referral-code-title">{ru ? 'Ваш код приглашения' : 'Your invitation code'}</h2>
+        {!authenticated ? (
+          <div className="pd-notice">
+            {ru
+              ? 'Откройте приложение в Telegram, чтобы получить код и увидеть статистику.'
+              : 'Open the app in Telegram to get your code and see your stats.'}
           </div>
-          <button
-            onClick={copyReferralCode}
-            className={cn(
-              'w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95',
-              copied
-                ? 'bg-emerald-500 text-white'
-                : 'bg-white/10 text-white hover:bg-white/15'
-            )}
-            data-testid="button-copy-code"
-          >
-            {copied ? (
-              <Check className="w-6 h-6" />
-            ) : (
-              <Copy className="w-6 h-6" />
-            )}
-          </button>
-        </div>
-
-        <button
-          onClick={shareReferralLink}
-          className="w-full px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
-          data-testid="button-share-link"
-        >
-          <Share2 className="w-5 h-5" />
-          {t('referral.shareLink')}
-        </button>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="grid grid-cols-2 gap-3"
-      >
-        <StatsCard
-          icon={Users}
-          value={stats.totalReferrals}
-          label={t('referral.totalReferrals')}
-          subtext={`${stats.activeReferrals} ${t('referral.active')}`}
-          iconBg="bg-emerald-500/20"
-          textColor="text-emerald-400"
-        />
-        <StatsCard
-          icon={Gift}
-          value={`${stats.totalEarnings.toLocaleString()}`}
-          label={t('referral.totalEarned')}
-          subtext={`${t('referral.fromReferrals')} ${stats.totalReferrals}`}
-          iconBg="bg-amber-500/20"
-          textColor="text-amber-400"
-        />
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="glass-subtle rounded-2xl p-6"
-      >
-        <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-emerald-400" />
-          {t('referral.howItWorks')}
-        </h3>
-        
-        <div className="space-y-4">
-          <div className="flex gap-4">
-            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 text-emerald-400 font-bold text-sm">
-              1
-            </div>
-            <div>
-              <div className="text-white font-semibold mb-1">
-                {t('referral.step1Title')}
-              </div>
-              <div className="text-white/60 text-sm">
-                {t('referral.step1Desc')}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-4">
-            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 text-emerald-400 font-bold text-sm">
-              2
-            </div>
-            <div>
-              <div className="text-white font-semibold mb-1">
-                {t('referral.step2Title')}
-              </div>
-              <div className="text-white/60 text-sm">
-                {t('referral.step2Desc')} 50
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-4">
-            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 text-emerald-400 font-bold text-sm">
-              3
-            </div>
-            <div>
-              <div className="text-white font-semibold mb-1">
-                {t('referral.step3Title')}
-              </div>
-              <div className="text-white/60 text-sm">
-                {t('referral.step3Desc')} 100
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="glass-subtle rounded-2xl p-6"
-      >
-        <h3 className="text-lg font-bold text-white mb-4">
-          {t('referral.partnerLevels')}
-        </h3>
-        
-        <div className="space-y-3">
-          {tierLevels.map((level) => (
-            <TierLevel
-              key={level.tier}
-              level={level}
-              isActive={stats.tier === level.tier}
-              t={t}
-            />
-          ))}
-        </div>
-      </motion.div>
-
-      {!statsData?.referredByCode && stats.totalReferrals === 0 && (
-        <motion.button
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          onClick={() => setShowReferralInput(true)}
-          className="w-full px-6 py-3 rounded-xl font-semibold text-white bg-white/10 border border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105 active:scale-95"
-          data-testid="button-enter-code"
-        >
-          {t('referral.haveCode')}
-        </motion.button>
-      )}
-    </div>
-
-    {showReferralInput && (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="glass-medium rounded-2xl p-6 border border-white/20 max-w-md w-full"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-white">
-              {t('referral.enterCode')}
-            </h3>
+        ) : stats.isLoading ? (
+          <ProfileDetailLoading label={ru ? 'Загрузка программы' : 'Loading your program'} />
+        ) : missing ? (
+          <div className="pd-notice">
+            <p>
+              {ru
+                ? 'Подключите программу, чтобы получить личный код.'
+                : 'Connect the program to get your personal code.'}
+            </p>
             <button
-              onClick={() => setShowReferralInput(false)}
-              className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-              data-testid="button-close-modal"
+              className="pd-button"
+              type="button"
+              disabled={connect.isPending}
+              onClick={() => connect.mutate()}
+              data-testid="referral-connect"
             >
-              <X className="w-5 h-5 text-white" />
+              {connect.isPending ? (ru ? 'Подключаем…' : 'Connecting…') : ru ? 'Подключить' : 'Connect'}
+            </button>
+            {connect.isError && (
+              <p className="pd-form-error" role="alert">
+                {ru ? 'Не удалось подключить программу.' : 'Could not connect the program.'}
+              </p>
+            )}
+          </div>
+        ) : stats.isError ? (
+          <div className="pd-notice">
+            <p>{ru ? 'Не удалось загрузить данные программы.' : 'Could not load program data.'}</p>
+            <button className="pd-button secondary" type="button" onClick={() => void stats.refetch()}>
+              {ru ? 'Попробовать снова' : 'Try again'}
             </button>
           </div>
-
-          <p className="text-white/60 text-sm mb-4">
-            {t('referral.enterCodeDesc')}
-          </p>
-
-          <div className="space-y-4">
-            <input
-              type="text"
-              value={referralCodeInput}
-              onChange={(e) => setReferralCodeInput(e.target.value.toUpperCase())}
-              placeholder="WEB4TG..."
-              className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:border-emerald-500/50 font-mono text-lg tracking-wider"
-              data-testid="input-referral-code"
-            />
-
-            <div className="flex gap-3">
+        ) : code ? (
+          <div className="pd-card pd-referral-code-card">
+            <div className="pd-referral-code">
+              <span>{code}</span>
               <button
-                onClick={() => setShowReferralInput(false)}
-                className="flex-1 px-6 py-3 rounded-xl font-semibold text-white bg-white/10 border border-white/20 hover:bg-white/15 transition-all duration-300"
-                data-testid="button-skip"
+                type="button"
+                onClick={() => void copy()}
+                aria-label={ru ? 'Скопировать код' : 'Copy code'}
+                data-testid="referral-copy"
               >
-                {t('referral.skip')}
-              </button>
-              <button
-                onClick={applyReferralCode}
-                disabled={!referralCodeInput}
-                className="flex-1 px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                data-testid="button-apply-code"
-              >
-                {t('referral.apply')}
+                <Copy size={18} />
               </button>
             </div>
+            <button className="pd-button full" type="button" onClick={share} data-testid="referral-share">
+              <Share2 size={17} aria-hidden="true" />
+              {ru ? 'Пригласить друга' : 'Invite a friend'}
+            </button>
           </div>
-        </motion.div>
-      </div>
-    )}
-  </div>
+        ) : (
+          <div className="pd-notice">
+            {ru
+              ? 'Код пока недоступен. Попробуйте обновить данные.'
+              : 'Your code is unavailable. Try refreshing.'}
+            <button className="pd-button secondary" type="button" onClick={() => void stats.refetch()}>
+              {ru ? 'Обновить' : 'Refresh'}
+            </button>
+          </div>
+        )}
+        {feedback && (
+          <p className="pd-inline-feedback" role="status">
+            {feedback}
+          </p>
+        )}
+      </section>
+
+      {stats.data && (
+        <section className="pd-section" aria-labelledby="referral-stats-title">
+          <h2 id="referral-stats-title">{ru ? 'Ваши приглашения' : 'Your invitations'}</h2>
+          <div className="pd-grid">
+            <div className="pd-card pd-stat">
+              <strong>{count(stats.data.totalReferrals)}</strong>
+              <span>{ru ? 'Всего приглашено' : 'Total invited'}</span>
+            </div>
+            <div className="pd-card pd-stat">
+              <strong>{count(stats.data.activeReferrals)}</strong>
+              <span>{ru ? 'Активные' : 'Active'}</span>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="pd-section" aria-labelledby="referral-how-title">
+        <span className="pd-kicker">{ru ? 'ТРИ ПРОСТЫХ ШАГА' : 'THREE SIMPLE STEPS'}</span>
+        <h2 id="referral-how-title">{ru ? 'Как это работает' : 'How it works'}</h2>
+        <ol className="pd-referral-steps">
+          {(ru
+            ? [
+                ['Поделитесь ссылкой', 'Откройте приглашение и выберите друга в Telegram.'],
+                ['Друг открывает WEB4TG', 'Код приглашения уже будет в ссылке.'],
+                ['Следите за приглашениями', 'Статистика появится в вашем профиле.'],
+              ]
+            : [
+                ['Share your link', 'Open the invitation and choose a friend in Telegram.'],
+                ['Your friend opens WEB4TG', 'The invitation code is included in the link.'],
+                ['Track invitations', 'Your statistics appear in your profile.'],
+              ]
+          ).map(([title, description], index) => (
+            <li key={title}>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <div>
+                <strong>{title}</strong>
+                <p>{description}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="pd-section">
+        <details
+          className="pd-card pd-disclosure"
+          open={friendOpen}
+          onToggle={(event) => setFriendOpen(event.currentTarget.open)}
+        >
+          <summary>{ru ? 'У меня есть код друга' : 'I have a friend’s code'}</summary>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              const normalized = friendCode.trim().toUpperCase();
+              if (!authenticated || !code || apply.isPending) return;
+              if (!/^[A-Z0-9]{4,50}$/.test(normalized)) {
+                setFormError(ru ? 'Введите код из латинских букв и цифр.' : 'Use 4–50 letters and numbers.');
+                return;
+              }
+              if (normalized === code.toUpperCase()) {
+                setFormError(ru ? 'Нельзя применить собственный код.' : 'You cannot use your own code.');
+                return;
+              }
+              setFormError('');
+              apply.mutate(normalized);
+            }}
+          >
+            <label className="pd-field" htmlFor="referral-friend-code">
+              <span>{ru ? 'Код друга' : 'Friend’s code'}</span>
+              <input
+                id="referral-friend-code"
+                value={friendCode}
+                autoCapitalize="characters"
+                maxLength={50}
+                disabled={!authenticated || !code}
+                onChange={(event) => {
+                  setFriendCode(event.target.value.toUpperCase());
+                  setFormError('');
+                }}
+                placeholder="WEB4TG…"
+                aria-invalid={Boolean(formError)}
+              />
+            </label>
+            {formError && (
+              <p className="pd-form-error" role="alert">
+                {formError}
+              </p>
+            )}
+            {!code && (
+              <p className="pd-form-hint">
+                {ru
+                  ? 'Сначала подключите программу через Telegram.'
+                  : 'First connect the program in Telegram.'}
+              </p>
+            )}
+            <button
+              className="pd-button secondary"
+              type="submit"
+              disabled={!authenticated || !code || !friendCode.trim() || apply.isPending}
+              data-testid="referral-apply"
+            >
+              {apply.isPending ? '…' : ru ? 'Применить код' : 'Apply code'}
+            </button>
+          </form>
+        </details>
+      </section>
+      <section className="pd-section pd-card pd-next-card">
+        <div>
+          <strong>{ru ? 'Остались вопросы?' : 'Have a question?'}</strong>
+          <p className="pd-muted">
+            {ru ? 'Расскажем об условиях программы в Telegram.' : 'Ask us about the program in Telegram.'}
+          </p>
+        </div>
+        <button
+          className="pd-button secondary"
+          type="button"
+          onClick={() => openTelegramLink('https://t.me/web4tgs')}
+        >
+          {ru ? 'Связаться с нами' : 'Contact us'} <ArrowUpRight size={16} aria-hidden="true" />
+        </button>
+      </section>
+    </ProfileDetailLayout>
   );
 }

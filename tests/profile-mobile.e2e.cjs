@@ -30,7 +30,7 @@ async function openProfile(page) {
       assert.equal(await page.evaluate(()=>document.fonts.check('16px "Google Sans App"')),true);
       assert.equal(await page.locator('.profile-page').evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(255, 255, 255)');
       assert.equal(await page.locator('.profile-page').evaluate(e=>getComputedStyle(e,'::before').backgroundImage),'none');
-      assert.equal(await page.locator('.profile-row-icon svg.profile-glyph path').first().count(),1);
+      assert.equal(await page.locator('.profile-social-icon svg.profile-glyph path').first().count(),1);
       const add=page.getByRole('button',{name:'Создать проект'}).first();
       const rect=await add.boundingBox(); assert.ok(rect.width>=44 && rect.height>=44);
       if(width===390 && process.env.PROFILE_SCREENSHOT) await page.screenshot({path:process.env.PROFILE_SCREENSHOT});

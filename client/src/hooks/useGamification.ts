@@ -34,6 +34,7 @@ export interface UserStats {
   };
   achievements: Achievement[];
   completedTasks: number;
+  viewedDemoIds?: string[];
 }
 
 interface GamificationData {
@@ -177,46 +178,45 @@ function createDefaultDailyTasks(): DailyTask[] {
 ];
 }
 
-function calculateLevel(totalXp: number): number {
-  // XP required for each level: level^2 * 100
-  let level = 1;
-  while (totalXp >= level * level * 100) {
-    totalXp -= level * level * 100;
-    level++;
-  }
-  return level;
+function createDefaultStats(): UserStats {
+  return {
+    level: 1, xp: 0, xpToNextLevel: 100, totalXp: 0,
+    streak: { current: 1, best: 1, lastVisit: new Date().toISOString().slice(0, 10) },
+    achievements: createDefaultAchievements(), completedTasks: 0,
+  };
 }
 
-function xpForNextLevel(level: number): number {
-  return level * level * 100;
+function readStats(): UserStats {
+  try {
+    const stored = localStorage.getItem('gamification_stats');
+    if (stored) {
+      const parsed: UserStats = JSON.parse(stored);
+      if (Array.isArray(parsed.achievements) && parsed.streak) return parsed;
+    }
+  } catch (error) {
+    console.error('Failed to load gamification stats:', error);
+  }
+  return createDefaultStats();
+}
+
+function withXP(stats: UserStats, amount: number): UserStats {
+  const totalXp = Math.max(0, (Number(stats.totalXp) || 0) + amount);
+  let level = 1;
+  let remaining = totalXp;
+  while (remaining >= level * level * 100) {
+    remaining -= level * level * 100;
+    level++;
+  }
+  return { ...stats, level, xp: remaining, xpToNextLevel: level * level * 100, totalXp };
+}
+
+function saveStats(stats: UserStats, unlockedAchievements: Achievement[] = []) {
+  localStorage.setItem('gamification_stats', JSON.stringify(stats));
+  window.dispatchEvent(new CustomEvent('gamification_update', { detail: { unlockedAchievements } }));
 }
 
 export function useGamification(): GamificationData {
-  const [stats, setStats] = useState<UserStats>(() => {
-    try {
-      const stored = localStorage.getItem('gamification_stats');
-      if (stored) {
-        return JSON.parse(stored);
-      }
-    } catch (error) {
-      console.error('Failed to load gamification stats:', error);
-    }
-    
-    // Default stats with fresh copies
-    return {
-      level: 1,
-      xp: 0,
-      xpToNextLevel: 100,
-      totalXp: 0,
-      streak: {
-        current: 1,
-        best: 1,
-        lastVisit: new Date().toISOString().split('T')[0]
-      },
-      achievements: createDefaultAchievements(),
-      completedTasks: 0
-    };
-  });
+  const [stats, setStats] = useState<UserStats>(readStats);
 
   const [dailyTasks, setDailyTasks] = useState<DailyTask[]>(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -269,6 +269,12 @@ export function useGamification(): GamificationData {
     }
   }, []);
 
+  useEffect(() => {
+    const sync = () => setStats(readStats());
+    window.addEventListener('gamification_update', sync);
+    return () => window.removeEventListener('gamification_update', sync);
+  }, []);
+
   // Save to localStorage
   useEffect(() => {
     localStorage.setItem('gamification_stats', JSON.stringify(stats));
@@ -297,166 +303,72 @@ export function useGamification(): GamificationData {
 
 export function useAwardXP() {
   return (xpAmount: number) => {
-    const stored = localStorage.getItem('gamification_stats');
-    if (!stored) return;
-    
-    const stats: UserStats = JSON.parse(stored);
-    const newTotalXp = stats.totalXp + xpAmount;
-    const newLevel = calculateLevel(newTotalXp);
-    const xpInCurrentLevel = newTotalXp - (newLevel - 1) * (newLevel - 1) * 100;
-    const xpNeeded = xpForNextLevel(newLevel);
-    
-    const updatedStats = {
-      ...stats,
-      level: newLevel,
-      xp: xpInCurrentLevel,
-      xpToNextLevel: xpNeeded,
-      totalXp: newTotalXp
-    };
-    
-    localStorage.setItem('gamification_stats', JSON.stringify(updatedStats));
-    
-    // Trigger storage event for other components
-    window.dispatchEvent(new Event('gamification_update'));
+    if (!Number.isFinite(xpAmount) || xpAmount <= 0) return;
+    saveStats(withXP(readStats(), xpAmount));
   };
 }
 
 export function useCompleteTask() {
   return (taskId: string) => {
-    const stored = localStorage.getItem('daily_tasks');
-    if (!stored) return;
-    
-    const tasks: DailyTask[] = JSON.parse(stored);
-    const task = tasks.find(t => t.id === taskId);
-    
-    if (task && !task.completed) {
-      task.completed = true;
-      task.progress = task.maxProgress;
-      
-      localStorage.setItem('daily_tasks', JSON.stringify(tasks));
-      
-      // Award XP
-      const awardXP = useAwardXP();
-      awardXP(task.xp);
-      
-      // Trigger update
-      window.dispatchEvent(new Event('gamification_update'));
-    }
+    let tasks: DailyTask[];
+    try { tasks = JSON.parse(localStorage.getItem('daily_tasks') || 'null') || createDefaultDailyTasks(); }
+    catch { tasks = createDefaultDailyTasks(); }
+    const task = tasks.find(item => item.id === taskId);
+    if (!task || task.completed) return;
+    task.completed = true;
+    task.progress = task.maxProgress;
+    localStorage.setItem('daily_tasks', JSON.stringify(tasks));
+    saveStats(withXP(readStats(), task.xp));
   };
 }
 
-// Track demo view for achievements
-export function trackDemoView() {
-  const statsStr = localStorage.getItem('gamification_stats');
-  if (!statsStr) return;
-  
-  const stats: UserStats = JSON.parse(statsStr);
-  const achievements = stats.achievements;
-  
-  // Update explorer achievements
-  const explorerBronze = achievements.find(a => a.id === 'explorer-bronze');
-  const explorerSilver = achievements.find(a => a.id === 'explorer-silver');
-  
-  let updated = false;
-  let unlockedAchievements: Achievement[] = [];
-  
-  if (explorerBronze && explorerBronze.progress < explorerBronze.maxProgress) {
-    explorerBronze.progress++;
-    if (explorerBronze.progress >= explorerBronze.maxProgress && !explorerBronze.unlocked) {
-      explorerBronze.unlocked = true;
-      unlockedAchievements.push(explorerBronze);
-      const awardXP = useAwardXP();
-      awardXP(50); // Award bonus XP
-    }
-    updated = true;
+// Local achievements start tracking even before the rewards page is first opened.
+export function trackDemoView(demoId?: string) {
+  const stats = readStats();
+  if (demoId) {
+    const viewed = Array.isArray(stats.viewedDemoIds) ? stats.viewedDemoIds : [];
+    if (viewed.includes(demoId)) return;
+    stats.viewedDemoIds = [...viewed, demoId];
   }
-  
-  if (explorerSilver && explorerSilver.progress < explorerSilver.maxProgress) {
-    explorerSilver.progress++;
-    if (explorerSilver.progress >= explorerSilver.maxProgress && !explorerSilver.unlocked) {
-      explorerSilver.unlocked = true;
-      unlockedAchievements.push(explorerSilver);
-      const awardXP = useAwardXP();
-      awardXP(200); // Award bonus XP
-    }
-    updated = true;
-  }
-  
-  if (updated) {
-    localStorage.setItem('gamification_stats', JSON.stringify(stats));
-    window.dispatchEvent(new CustomEvent('gamification_update', { 
-      detail: { unlockedAchievements } 
-    }));
-  }
-}
-
-// Track project creation
-export function trackProjectCreation() {
-  const statsStr = localStorage.getItem('gamification_stats');
-  if (!statsStr) return;
-  
-  const stats: UserStats = JSON.parse(statsStr);
-  const achievement = stats.achievements.find(a => a.id === 'constructor-novice');
-  
-  if (achievement && !achievement.unlocked) {
-    achievement.progress = 1;
-    achievement.unlocked = true;
-    
-    localStorage.setItem('gamification_stats', JSON.stringify(stats));
-    const awardXP = useAwardXP();
-    awardXP(75 + 50); // Base XP + bonus
-    
-    window.dispatchEvent(new CustomEvent('gamification_update', { 
-      detail: { unlockedAchievements: [achievement] } 
-    }));
-  }
-}
-
-// Track feature selection
-export function trackFeatureAdded() {
-  const statsStr = localStorage.getItem('gamification_stats');
-  if (!statsStr) return;
-  
-  const stats: UserStats = JSON.parse(statsStr);
-  const achievement = stats.achievements.find(a => a.id === 'feature-master');
-  
-  if (achievement && achievement.progress < achievement.maxProgress) {
+  const unlocked: Achievement[] = [];
+  let bonus = 0;
+  for (const [id, xp] of [['explorer-bronze', 50], ['explorer-silver', 200]] as const) {
+    const achievement = stats.achievements.find(item => item.id === id);
+    if (!achievement || achievement.progress >= achievement.maxProgress) continue;
     achievement.progress++;
-    
     if (achievement.progress >= achievement.maxProgress && !achievement.unlocked) {
       achievement.unlocked = true;
-      localStorage.setItem('gamification_stats', JSON.stringify(stats));
-      const awardXP = useAwardXP();
-      awardXP(150); // Award bonus XP
-      
-      window.dispatchEvent(new CustomEvent('gamification_update', { 
-        detail: { unlockedAchievements: [achievement] } 
-      }));
-    } else {
-      localStorage.setItem('gamification_stats', JSON.stringify(stats));
-      window.dispatchEvent(new Event('gamification_update'));
+      unlocked.push(achievement);
+      bonus += xp;
     }
   }
+  saveStats(withXP(stats, bonus), unlocked);
 }
 
-// Track order placement
+export function trackProjectCreation() {
+  const stats = readStats();
+  const achievement = stats.achievements.find(item => item.id === 'constructor-novice');
+  if (!achievement || achievement.unlocked) return;
+  achievement.progress = 1;
+  achievement.unlocked = true;
+  saveStats(withXP(stats, 125), [achievement]);
+}
+
+export function trackFeatureAdded() {
+  const stats = readStats();
+  const achievement = stats.achievements.find(item => item.id === 'feature-master');
+  if (!achievement || achievement.progress >= achievement.maxProgress) return;
+  achievement.progress++;
+  const justUnlocked = achievement.progress >= achievement.maxProgress && !achievement.unlocked;
+  if (justUnlocked) achievement.unlocked = true;
+  saveStats(withXP(stats, justUnlocked ? 150 : 0), justUnlocked ? [achievement] : []);
+}
+
 export function trackOrderPlaced() {
-  const statsStr = localStorage.getItem('gamification_stats');
-  if (!statsStr) return;
-  
-  const stats: UserStats = JSON.parse(statsStr);
-  const achievement = stats.achievements.find(a => a.id === 'order-placed');
-  
-  if (achievement && !achievement.unlocked) {
-    achievement.progress = 1;
-    achievement.unlocked = true;
-    
-    localStorage.setItem('gamification_stats', JSON.stringify(stats));
-    const awardXP = useAwardXP();
-    awardXP(300 + 200); // Base XP + bonus
-    
-    window.dispatchEvent(new CustomEvent('gamification_update', { 
-      detail: { unlockedAchievements: [achievement] } 
-    }));
-  }
+  const stats = readStats();
+  const achievement = stats.achievements.find(item => item.id === 'order-placed');
+  if (!achievement || achievement.unlocked) return;
+  achievement.progress = 1;
+  achievement.unlocked = true;
+  saveStats(withXP(stats, 500), [achievement]);
 }

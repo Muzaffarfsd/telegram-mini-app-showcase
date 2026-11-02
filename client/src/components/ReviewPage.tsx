@@ -1,650 +1,226 @@
-import { useState } from "react";
-import { ArrowRight, Star, Send, CheckCircle, MessageSquare, TrendingUp, Award, MapPin, Building2, Loader2 } from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Review } from "@shared/schema";
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { ArrowRight, Star } from 'lucide-react';
+import type { Review } from '@shared/schema';
+import { useLanguage } from '../contexts/LanguageContext';
+import { useTelegram } from '../hooks/useTelegram';
+import { profilePost } from '../lib/profileRequest';
+import { ProfileDetailArtwork, ProfileDetailLayout, ProfileDetailLoading } from './ProfileDetailLayout';
+import reviewArtwork from '../assets/profile/review-detail-v1.webp';
 
 interface ReviewPageProps {
   onBack: () => void;
 }
+type PublicReview = Omit<Review, 'telegramId'> & { hasAuthorAccount?: boolean };
+type ReviewsResult = { data: PublicReview[]; total: number } | PublicReview[];
 
 export default function ReviewPage({ onBack }: ReviewPageProps) {
+  const { language } = useLanguage();
+  const { user, initData } = useTelegram();
+  const ru = language === 'ru';
   const queryClient = useQueryClient();
   const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState("");
-  const [name, setName] = useState("");
-  const [company, setCompany] = useState("");
+  const [name, setName] = useState(user?.first_name || '');
+  const [nameTouched, setNameTouched] = useState(false);
+  const [company, setCompany] = useState('');
+  const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
-
-  const { data: reviewsData, isLoading } = useQuery<{ data: Review[]; total: number } | Review[]>({
+  useEffect(() => {
+    if (!nameTouched && user?.first_name) setName(user.first_name);
+  }, [nameTouched, user?.first_name]);
+  const reviewsQuery = useQuery<ReviewsResult>({
     queryKey: ['/api/reviews'],
-  });
-  
-  const reviews: Review[] = Array.isArray(reviewsData) 
-    ? reviewsData 
-    : (reviewsData?.data || []);
-
-  const submitMutation = useMutation({
-    mutationFn: async (data: { name: string; company?: string; rating: number; text: string }) => {
-      const payload: Record<string, unknown> = {
-        name: data.name,
-        rating: data.rating,
-        text: data.text,
-      };
-      if (data.company) {
-        payload.company = data.company;
-      }
-      const response = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) throw new Error('Failed to submit review');
+    queryFn: async () => {
+      const response = await fetch('/api/reviews?submitted=1');
+      if (!response.ok) throw new Error('Could not load reviews');
       return response.json();
     },
+  });
+  // The legacy seed contains sample testimonials without an author account.
+  // Show submitted, approved feedback only; do not present sample entries as client reviews.
+  const reviews = (Array.isArray(reviewsQuery.data) ? reviewsQuery.data : reviewsQuery.data?.data || [])
+    .filter((review) => review.hasAuthorAccount === true);
+  const submit = useMutation({
+    mutationFn: (payload: { name: string; company?: string; rating: number; text: string }) =>
+      profilePost('/api/reviews', initData, payload),
     onSuccess: () => {
       setSubmitted(true);
-      queryClient.invalidateQueries({ queryKey: ['/api/reviews'] });
+      void queryClient.invalidateQueries({ queryKey: ['/api/reviews'] });
     },
   });
-
-  const handleSubmit = async () => {
-    if (rating > 0 && comment.trim().length >= 10 && name.trim().length >= 2) {
-      const trimmedCompany = company.trim();
-      submitMutation.mutate({
-        name: name.trim(),
-        ...(trimmedCompany ? { company: trimmedCompany } : {}),
-        rating,
-        text: comment.trim(),
-      });
-    }
-  };
-
-  const isValid = rating > 0 && comment.trim().length >= 10 && name.trim().length >= 2;
-  const isSubmitting = submitMutation.isPending;
-
-  const avgRating = reviews.length > 0 
-    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
-    : '5.0';
-
-  if (submitted) {
-    return (
-      <div 
-        className="review-page min-h-screen pb-32"
-        style={{ 
-          background: 'var(--background, #09090B)',
-          color: 'var(--foreground, #E4E4E7)',
-          paddingTop: '140px'
-        }}
-      >
-        <div className="max-w-md mx-auto px-7 flex items-center justify-center" style={{ minHeight: '60vh' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{
-              width: '64px',
-              height: '64px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '16px',
-              background: 'rgba(34, 197, 94, 0.1)',
-              margin: '0 auto 20px'
-            }}>
-              <CheckCircle size={32} color="#22C55E" />
-            </div>
-            
-            <h2 style={{
-              fontSize: '24px',
-              fontWeight: 600,
-              color: '#FAFAFA',
-              marginBottom: '8px'
-            }}>
-              Спасибо за отзыв
-            </h2>
-            
-            <p style={{
-              fontSize: '14px',
-              color: '#71717A',
-              marginBottom: '24px'
-            }}>
-              Отзыв отправлен на модерацию
-            </p>
-            
-            <button
-              onClick={onBack}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '14px 28px',
-                borderRadius: '12px',
-                background: '#A78BFA',
-                border: 'none',
-                color: '#09090B',
-                fontSize: '15px',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
-              data-testid="button-back-profile"
-            >
-              Вернуться
-              <ArrowRight size={18} />
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const valid = rating > 0 && name.trim().length >= 2 && comment.trim().length >= 10;
 
   return (
-    <div 
-      className="review-page min-h-screen pb-32"
-      style={{ 
-        background: 'var(--background, #09090B)',
-        color: 'var(--foreground, #E4E4E7)',
-        paddingTop: '140px'
-      }}
+    <ProfileDetailLayout
+      title={ru ? 'Ваш опыт важен' : 'Your experience matters'}
+      intro={ru ? 'Расскажите, как вам работа с WEB4TG.' : 'Tell us about your experience with WEB4TG.'}
+      eyebrow={ru ? 'ОТЗЫВЫ' : 'REVIEWS'}
+      onBack={onBack}
+      testId="profile-review-page"
     >
-      <div className="max-w-md mx-auto">
-        
-        {/* HERO */}
-        <header className="px-7 pt-8 pb-16">
-          <button
-            onClick={onBack}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              background: 'none',
-              border: 'none',
-              color: '#71717A',
-              fontSize: '13px',
-              fontWeight: 500,
-              cursor: 'pointer',
-              marginBottom: '20px',
-              padding: 0
-            }}
-            data-testid="button-back"
-          >
-            <ArrowRight size={14} style={{ transform: 'rotate(180deg)' }} />
-            Назад
+      {submitted ? (
+        <div className="pd-card pd-review-success" role="status">
+          <ProfileDetailArtwork src={reviewArtwork} className="pd-review-art" />
+          <h2>{ru ? 'Спасибо за отзыв' : 'Thank you for your review'}</h2>
+          <p className="pd-muted">
+            {ru ? 'Мы получили его и отправили на модерацию.' : 'We have received it for moderation.'}
+          </p>
+          <button className="pd-button" type="button" onClick={onBack} data-testid="button-back-profile">
+            {ru ? 'Вернуться в профиль' : 'Return to profile'} <ArrowRight size={16} aria-hidden="true" />
           </button>
-          
-          <p 
-            className="scroll-fade-in"
-            style={{
-              fontSize: '11px',
-              fontWeight: 500,
-              letterSpacing: '0.18em',
-              color: '#71717A',
-              textTransform: 'uppercase',
-              marginBottom: '24px'
-            }}
-          >
-            Отзывы
-          </p>
-          
-          <h1 
-            className="scroll-fade-in-delay-1"
-            style={{
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: '32px',
-              fontWeight: 600,
-              letterSpacing: '-0.025em',
-              lineHeight: '1.2',
-              color: '#FAFAFA'
-            }}
-          >
-            Ваше мнение
-            <br />
-            <span style={{ color: '#A78BFA' }}>формирует нас.</span>
-          </h1>
-          
-          <p 
-            className="scroll-fade-in-delay-2"
-            style={{
-              fontSize: '15px',
-              fontWeight: 400,
-              letterSpacing: '-0.01em',
-              lineHeight: '1.6',
-              color: '#71717A',
-              marginTop: '20px',
-              maxWidth: '320px'
-            }}
-          >
-            Расскажите о вашем опыте работы с нами — это поможет другим принять решение.
-          </p>
-        </header>
-
-        {/* Hairline */}
-        <div className="mx-7" style={{ height: '1px', background: '#27272A' }} />
-
-        {/* STATS */}
-        <section className="px-7 py-12">
-          <p style={{
-            fontSize: '10px',
-            fontWeight: 600,
-            letterSpacing: '0.12em',
-            color: '#52525B',
-            textTransform: 'uppercase',
-            marginBottom: '20px'
-          }}>
-            Статистика
-          </p>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-            {[
-              { icon: Star, value: avgRating, label: 'рейтинг' },
-              { icon: MessageSquare, value: String(reviews.length || 127), label: 'отзывов' },
-              { icon: TrendingUp, value: '96%', label: 'рекомендуют' }
-            ].map((stat, index) => (
-              <div 
-                key={index}
-                style={{
-                  padding: '20px 12px',
-                  borderRadius: '14px',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid rgba(255, 255, 255, 0.04)',
-                  textAlign: 'center'
-                }}
-              >
-                <stat.icon size={18} color="#A78BFA" style={{ margin: '0 auto 8px' }} />
-                <p style={{
-                  fontSize: '22px',
-                  fontWeight: 700,
-                  color: '#FAFAFA',
-                  letterSpacing: '-0.03em'
-                }}>
-                  {stat.value}
-                </p>
-                <p style={{ fontSize: '11px', color: '#52525B', marginTop: '2px' }}>
-                  {stat.label}
-                </p>
-              </div>
-            ))}
+        </div>
+      ) : (
+        <form
+          className="pd-card pd-review-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!valid || !initData || submit.isPending) return;
+            const trimmedCompany = company.trim();
+            submit.mutate({
+              name: name.trim(),
+              ...(trimmedCompany ? { company: trimmedCompany } : {}),
+              rating,
+              text: comment.trim(),
+            });
+          }}
+        >
+          <div className="pd-review-intro">
+            <div>
+              <span className="pd-kicker">{ru ? 'ПОДЕЛИТЬСЯ ВПЕЧАТЛЕНИЕМ' : 'SHARE YOUR FEEDBACK'}</span>
+              <h2>{ru ? 'Оцените работу' : 'Rate your experience'}</h2>
+              <p className="pd-muted">
+                {ru ? 'Выберите оценку и напишите пару слов.' : 'Choose a rating and tell us more.'}
+              </p>
+            </div>
+            <ProfileDetailArtwork src={reviewArtwork} className="pd-review-form-art" />
           </div>
-        </section>
-
-        {/* FORM */}
-        <section className="px-7 py-8">
-          <p style={{
-            fontSize: '10px',
-            fontWeight: 600,
-            letterSpacing: '0.12em',
-            color: '#52525B',
-            textTransform: 'uppercase',
-            marginBottom: '20px'
-          }}>
-            Оставить отзыв
-          </p>
-          
-          {/* Rating */}
-          <div 
-            style={{
-              padding: '24px',
-              borderRadius: '16px',
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.08) 0%, rgba(59,130,246,0.04) 100%)',
-              border: '1px solid rgba(139, 92, 246, 0.15)',
-              marginBottom: '16px',
-              textAlign: 'center'
-            }}
-          >
-            <p style={{ fontSize: '13px', color: '#71717A', marginBottom: '12px' }}>
-              Ваша оценка
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
-              {[1, 2, 3, 4, 5].map((star) => (
+          <fieldset className="pd-rating">
+            <legend>
+              <span className="pd-step-number">01</span>
+              {ru ? 'Ваша оценка' : 'Your rating'}
+            </legend>
+            <div>
+              {[1, 2, 3, 4, 5].map((value) => (
                 <button
-                  key={star}
-                  onClick={() => setRating(star)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '4px'
-                  }}
-                  data-testid={`button-star-${star}`}
+                  type="button"
+                  key={value}
+                  aria-label={ru ? `${value} из 5` : `${value} out of 5`}
+                  aria-pressed={rating === value}
+                  onClick={() => setRating(value)}
+                  data-testid={`review-rating-${value}`}
                 >
-                  <Star
-                    size={28}
-                    fill={star <= rating ? '#F59E0B' : 'none'}
-                    color={star <= rating ? '#F59E0B' : '#52525B'}
-                  />
+                  <Star size={25} fill={value <= rating ? 'currentColor' : 'none'} aria-hidden="true" />
                 </button>
               ))}
             </div>
+          </fieldset>
+          <div className="pd-form-step">
+            <span className="pd-step-number">02</span>
+            {ru ? 'Пара слов о вас' : 'A little about you'}
           </div>
-
-          {/* Name */}
-          <div style={{ marginBottom: '12px' }}>
+          <label className="pd-field" htmlFor="review-name">
+            <span>{ru ? 'Как к вам обращаться' : 'Your name'}</span>
             <input
-              type="text"
-              placeholder="Ваше имя"
+              id="review-name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={50}
-              style={{
-                width: '100%',
-                padding: '16px 20px',
-                borderRadius: '14px',
-                background: 'rgba(255, 255, 255, 0.02)',
-                border: '1px solid rgba(255, 255, 255, 0.04)',
-                color: '#FAFAFA',
-                fontSize: '15px',
-                outline: 'none'
-              }}
-              data-testid="input-name"
-            />
-          </div>
-
-          {/* Company */}
-          <div style={{ marginBottom: '12px' }}>
-            <input
-              type="text"
-              placeholder="Название компании (опционально)"
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
               maxLength={100}
-              style={{
-                width: '100%',
-                padding: '16px 20px',
-                borderRadius: '14px',
-                background: 'rgba(255, 255, 255, 0.02)',
-                border: '1px solid rgba(255, 255, 255, 0.04)',
-                color: '#FAFAFA',
-                fontSize: '15px',
-                outline: 'none'
+              autoComplete="name"
+              onChange={(event) => {
+                setNameTouched(true);
+                setName(event.target.value);
               }}
-              data-testid="input-company"
+              placeholder={ru ? 'Ваше имя' : 'Your name'}
             />
+          </label>
+          <label className="pd-field" htmlFor="review-company">
+            <span>
+              {ru ? 'Компания или проект' : 'Company or project'}{' '}
+              <small>{ru ? 'необязательно' : 'optional'}</small>
+            </span>
+            <input
+              id="review-company"
+              value={company}
+              maxLength={200}
+              onChange={(event) => setCompany(event.target.value)}
+              placeholder={ru ? 'Название' : 'Name'}
+            />
+          </label>
+          <div className="pd-form-step">
+            <span className="pd-step-number">03</span>
+            {ru ? 'Ваши впечатления' : 'Your feedback'}
           </div>
-
-          {/* Comment */}
-          <div style={{ marginBottom: '16px' }}>
+          <label className="pd-field" htmlFor="review-text">
+            <span>{ru ? 'Ваш отзыв' : 'Your review'}</span>
             <textarea
-              placeholder="Расскажите о вашем опыте..."
+              id="review-text"
               value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              maxLength={500}
-              style={{
-                width: '100%',
-                padding: '16px 20px',
-                borderRadius: '14px',
-                background: 'rgba(255, 255, 255, 0.02)',
-                border: '1px solid rgba(255, 255, 255, 0.04)',
-                color: '#FAFAFA',
-                fontSize: '15px',
-                outline: 'none',
-                resize: 'none',
-                minHeight: '120px'
-              }}
-              data-testid="input-comment"
+              maxLength={4000}
+              rows={4}
+              onChange={(event) => setComment(event.target.value)}
+              placeholder={
+                ru ? 'Что вам понравилось или что нам улучшить?' : 'What went well or what could we improve?'
+              }
             />
-            <p style={{ 
-              fontSize: '11px', 
-              color: '#52525B', 
-              textAlign: 'right',
-              marginTop: '6px'
-            }}>
-              {comment.length}/500
+          </label>
+          <p className="pd-form-hint">
+            {ru ? 'Имя — от 2 символов, отзыв — от 10.' : 'Name: at least 2 characters; review: at least 10.'}
+          </p>
+          {!initData && (
+            <p className="pd-form-hint">
+              {ru
+                ? 'Чтобы отправить отзыв, откройте приложение в Telegram.'
+                : 'Open the app in Telegram to submit your review.'}
             </p>
-          </div>
-
-          {/* Submit */}
+          )}
+          {submit.isError && (
+            <p className="pd-form-error" role="alert">
+              {ru
+                ? 'Не удалось отправить отзыв. Попробуйте ещё раз.'
+                : 'Could not send the review. Please try again.'}
+            </p>
+          )}
           <button
-            onClick={handleSubmit}
-            disabled={!isValid || isSubmitting}
-            style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              padding: '16px 24px',
-              borderRadius: '12px',
-              background: isValid ? '#A78BFA' : 'rgba(255, 255, 255, 0.05)',
-              border: 'none',
-              color: isValid ? '#09090B' : '#52525B',
-              fontSize: '15px',
-              fontWeight: 600,
-              cursor: isValid ? 'pointer' : 'not-allowed'
-            }}
+            className="pd-button full"
+            type="submit"
+            disabled={!valid || !initData || submit.isPending}
             data-testid="button-submit-review"
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 size={18} className="animate-spin" />
-                <span>Отправляем...</span>
-              </>
-            ) : (
-              <>
-                <Send size={18} />
-                Отправить отзыв
-              </>
-            )}
+            {submit.isPending ? (ru ? 'Отправляем…' : 'Sending…') : ru ? 'Отправить отзыв' : 'Send review'}
           </button>
-        </section>
-
-        {/* Hairline */}
-        <div className="mx-7" style={{ height: '1px', background: '#27272A' }} />
-
-        {/* REVIEWS */}
-        <section className="px-7 py-12">
-          <p style={{
-            fontSize: '10px',
-            fontWeight: 600,
-            letterSpacing: '0.12em',
-            color: '#52525B',
-            textTransform: 'uppercase',
-            marginBottom: '20px'
-          }}>
-            Отзывы клиентов
-          </p>
-          
-          {isLoading ? (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
-              <Loader2 size={24} color="#A78BFA" className="animate-spin" />
-            </div>
-          ) : reviews.length === 0 ? (
-            <div style={{
-              padding: '40px 20px',
-              borderRadius: '14px',
-              background: 'rgba(255, 255, 255, 0.02)',
-              border: '1px solid rgba(255, 255, 255, 0.04)',
-              textAlign: 'center'
-            }}>
-              <MessageSquare size={32} color="#52525B" style={{ margin: '0 auto 12px' }} />
-              <p style={{ fontSize: '14px', color: '#71717A' }}>
-                Станьте первым, кто оставит отзыв
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {reviews.map((review) => (
-                <div 
-                  key={review.id}
-                  style={{
-                    padding: '20px',
-                    borderRadius: '14px',
-                    background: review.isFeatured 
-                      ? 'linear-gradient(135deg, rgba(139,92,246,0.06) 0%, rgba(255,255,255,0.02) 100%)'
-                      : 'rgba(255, 255, 255, 0.02)',
-                    border: review.isFeatured 
-                      ? '1px solid rgba(139, 92, 246, 0.15)'
-                      : '1px solid rgba(255, 255, 255, 0.04)'
-                  }}
-                  data-testid={`card-review-${review.id}`}
-                >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
-                    {/* Avatar/Logo */}
-                    {review.logoUrl ? (
-                      <div style={{
-                        width: '44px',
-                        height: '44px',
-                        borderRadius: '10px',
-                        background: '#FAFAFA',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        overflow: 'hidden',
-                        flexShrink: 0
-                      }}>
-                        <img 
-                          src={review.logoUrl} 
-                          alt={review.company || review.name}
-                          style={{
-                            width: '32px',
-                            height: '32px',
-                            objectFit: 'contain'
-                          }}
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div style={{
-                        width: '44px',
-                        height: '44px',
-                        borderRadius: '10px',
-                        background: 'linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0
-                      }}>
-                        <span style={{ fontSize: '18px', fontWeight: 600, color: '#FAFAFA' }}>
-                          {review.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                    )}
-                    
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                        <p style={{ 
-                          fontSize: '15px', 
-                          fontWeight: 600, 
-                          color: '#FAFAFA',
-                          lineHeight: '1.3'
-                        }}>
-                          {review.name}
-                        </p>
-                        {review.isFeatured && (
-                          <span style={{
-                            padding: '2px 8px',
-                            borderRadius: '4px',
-                            background: 'rgba(167, 139, 250, 0.15)',
-                            fontSize: '10px',
-                            fontWeight: 600,
-                            color: '#A78BFA',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em'
-                          }}>
-                            Top
-                          </span>
-                        )}
-                      </div>
-                      
-                      {review.company && (
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '4px',
-                          marginTop: '2px'
-                        }}>
-                          <Building2 size={12} color="#52525B" />
-                          <p style={{ fontSize: '13px', color: '#71717A' }}>
-                            {review.company}
-                          </p>
-                        </div>
-                      )}
-                      
-                      {review.location && (
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '4px',
-                          marginTop: '2px'
-                        }}>
-                          <MapPin size={11} color="#52525B" />
-                          <p style={{ fontSize: '12px', color: '#52525B' }}>
-                            {review.location}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Rating stars */}
-                    <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }}>
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star 
-                          key={i} 
-                          size={12} 
-                          fill={i < review.rating ? '#F59E0B' : 'none'} 
-                          color={i < review.rating ? '#F59E0B' : '#3F3F46'} 
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <p style={{
-                    fontSize: '14px',
-                    color: '#A1A1AA',
-                    lineHeight: '1.6',
-                    fontStyle: 'italic'
-                  }}>
-                    «{review.text}»
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* CTA */}
-        <section className="px-7 py-8 pb-16">
-          <div 
-            style={{
-              padding: '28px',
-              borderRadius: '20px',
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.15) 0%, rgba(59,130,246,0.08) 100%)',
-              border: '1px solid rgba(139, 92, 246, 0.2)',
-              textAlign: 'center'
-            }}
-          >
-            <div style={{
-              width: '56px',
-              height: '56px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '16px',
-              background: 'rgba(139, 92, 246, 0.2)',
-              margin: '0 auto 16px'
-            }}>
-              <Award size={28} color="#A78BFA" />
-            </div>
-            
-            <h3 style={{
-              fontSize: '20px',
-              fontWeight: 600,
-              color: '#FAFAFA',
-              marginBottom: '8px'
-            }}>
-              Бонус за отзыв
-            </h3>
-            
-            <p style={{
-              fontSize: '14px',
-              color: '#71717A',
-              lineHeight: '1.5'
-            }}>
-              Скидка 10% на следующий проект
-              <br />
-              за честный отзыв
-            </p>
+        </form>
+      )}
+      <section className="pd-section" aria-labelledby="reviews-list-title">
+        <h2 id="reviews-list-title">{ru ? 'Отзывы клиентов' : 'Customer reviews'}</h2>
+        {reviewsQuery.isLoading ? (
+          <ProfileDetailLoading label={ru ? 'Загрузка отзывов' : 'Loading reviews'} />
+        ) : reviewsQuery.isError ? (
+          <div className="pd-notice">
+            <p>{ru ? 'Не удалось загрузить отзывы.' : 'Could not load reviews.'}</p>
+            <button className="pd-button secondary" type="button" onClick={() => void reviewsQuery.refetch()}>
+              {ru ? 'Попробовать снова' : 'Try again'}
+            </button>
           </div>
-        </section>
-
-      </div>
-    </div>
+        ) : reviews.length === 0 ? (
+          <div className="pd-notice">
+            {ru ? 'Здесь появятся опубликованные отзывы.' : 'Published reviews will appear here.'}
+          </div>
+        ) : (
+          <div className="pd-review-list">
+            {reviews.map((review) => (
+              <article className="pd-card pd-review-item" key={review.id}>
+                <div>
+                  <strong>{review.name}</strong>
+                  <span aria-label={ru ? `Оценка ${review.rating} из 5` : `Rating ${review.rating} out of 5`}>
+                    <Star size={15} fill="currentColor" aria-hidden="true" /> {review.rating}
+                  </span>
+                </div>
+                {review.company && <small>{review.company}</small>}
+                <p>{review.text}</p>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+    </ProfileDetailLayout>
   );
 }

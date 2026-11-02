@@ -59,9 +59,10 @@ async function getCSRFToken(): Promise<string> {
   const pending = fetch('/api/csrf-token', { credentials: 'include', headers: session ? { 'X-Telegram-Init-Data': session } : {} })
     .then(res => { if (!res.ok) throw new Error('CSRF token request failed'); return res.json(); })
     .then(data => {
-      if (typeof data.token !== 'string' || !data.token) throw new Error('Invalid CSRF token response');
-      if (csrfSession === session) { csrfToken = data.token; csrfRefreshAt = Date.now() + 50 * 60 * 1000; }
-      return data.token as string;
+      const token = data.csrfToken || data.token;
+      if (typeof token !== 'string' || !token) throw new Error('Invalid CSRF token response');
+      if (csrfSession === session) { csrfToken = token; csrfRefreshAt = Date.now() + 50 * 60 * 1000; }
+      return token as string;
     })
     .catch(err => {
       logger.warn('Failed to fetch CSRF token', { error: err.message });

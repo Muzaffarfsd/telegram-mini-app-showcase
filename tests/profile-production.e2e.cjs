@@ -76,7 +76,7 @@ async function assertDrawnIcon(locator, label) {
     const page = await context.newPage();
     await page.goto(site, { waitUntil: 'domcontentloaded' }); await page.getByTestId('nav-profile').tap(); await page.getByTestId('profile-page').waitFor();
     await page.getByText('Оставить отзыв').scrollIntoViewIfNeeded();
-    for (const icon of ['star', 'instagram', 'tiktok']) {
+    for (const icon of ['instagram', 'tiktok']) {
       const glyph = page.locator(`.profile-icon-${icon} svg.profile-glyph`);
       assert.equal(await glyph.count(), 1, `${icon}: SVG missing`);
       assert.equal(await glyph.evaluate(e => getComputedStyle(e).visibility), 'visible');
