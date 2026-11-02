@@ -8,6 +8,8 @@ import { useAIInteractions, useSwipeGesture } from "@/hooks/useAIInteractions";
 import type { TourStep } from "./AIGuidedTour";
 import { BotMessageSquare, X } from "lucide-react";
 import { AIAgentPanel } from "./AIAgentPanel";
+import headerConsultantIcon from "@/assets/consultant/header-consultant-v1.webp";
+import "./AIAgentButton.css";
 
 const AIGuidedTour = lazy(() =>
   import("./AIGuidedTour").then((m) => ({ default: m.AIGuidedTour }))
@@ -575,7 +577,7 @@ export const AIAgentButton = memo(({ profileMode = false }: { profileMode?: bool
         onPointerUp={handleFabPointerUp}
         onPointerCancel={handleFabPointerUp}
         whileTap={{ scale: 0.92 }}
-        className="alex-fab-breathing"
+        className={`alex-fab-breathing${profileMode && !showMenu ? " alex-fab-has-header-mark" : ""}`}
         style={{
           position: "fixed", right: "16px", bottom: "140px",
           width: "56px", height: "56px", borderRadius: "50%",
@@ -596,6 +598,8 @@ export const AIAgentButton = memo(({ profileMode = false }: { profileMode?: bool
       >
         {showMenu ? (
           <X size={22} color="#fff" strokeWidth={1.8} />
+        ) : profileMode ? (
+          <img className="alex-fab-header-mark" src={headerConsultantIcon} alt="" width={30} height={30} draggable={false} />
         ) : (
           /* mini-orb visual identity for FAB */
           <div aria-hidden="true" style={{

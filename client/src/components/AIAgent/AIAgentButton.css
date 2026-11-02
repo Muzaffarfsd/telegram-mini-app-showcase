@@ -1,0 +1,13 @@
+/* The header keeps its existing glass button and hit area; only its artwork changes. */
+.alex-fab-breathing.alex-fab-has-header-mark > .alex-fab-header-mark {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  opacity: 1 !important;
+  pointer-events: none;
+  user-select: none;
+}
+
+.alex-fab-breathing.alex-fab-has-header-mark::after {
+  content: none !important;
+}
