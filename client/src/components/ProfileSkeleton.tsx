@@ -23,6 +23,22 @@ export function ProfileSkeleton({ label }: { label: string }) {
   );
 }
 
+export function ProfileDetailSkeleton({ label }: { label: string }) {
+  return (
+    <main className="profile-detail-skeleton" data-testid="profile-detail-skeleton" role="status" aria-live="polite" aria-busy="true" aria-label={label}>
+      <div className="profile-detail-skeleton-content" aria-hidden="true">
+        <div className="profile-skeleton profile-detail-skeleton-back" />
+        <div className="profile-skeleton profile-detail-skeleton-kicker" />
+        <div className="profile-skeleton profile-detail-skeleton-title" />
+        <div className="profile-skeleton profile-detail-skeleton-description" />
+        <div className="profile-skeleton profile-detail-skeleton-hero" />
+        <div className="profile-skeleton profile-detail-skeleton-section" />
+        <div className="profile-skeleton profile-detail-skeleton-card" />
+      </div>
+    </main>
+  );
+}
+
 export function ProfileProjectsSkeleton({ label }: { label: string }) {
   return (
     <div

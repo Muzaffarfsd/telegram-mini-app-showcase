@@ -1017,11 +1017,6 @@ html.profile-detail-theme .w4-topbar .profile-brand {
   pointer-events: none;
 }
 
-html.profile-detail-theme .w4-topbar .profile-brand span {
-  color: #2b2b30 !important;
-  text-shadow: none !important;
-}
-
 html.profile-detail-theme .w4-topbar .hb-btn {
   background: rgba(237, 239, 243, 0.72) !important;
   border: 1px solid rgba(255, 255, 255, 0.95);

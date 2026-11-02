@@ -1,6 +1,33 @@
 /* The profile shares its light surfaces and illustrated card language with
    the order and consultant screens. Artwork is decorative; the labels remain
    readable and actionable when an image is unavailable. */
+html.profile-detail-theme,
+html.profile-detail-theme body,
+.profile-route-surface {
+  background: #fff !important;
+}
+
+.profile-route-surface {
+  min-height: 100vh;
+}
+
+.profile-detail-skeleton {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 108px 20px calc(130px + env(safe-area-inset-bottom));
+  background: #fff;
+}
+
+.profile-detail-skeleton-content { max-width: 430px; margin: 0 auto; }
+.profile-detail-skeleton-back { width: 105px; height: 44px; border-radius: 14px; }
+.profile-detail-skeleton-kicker { width: 145px; height: 11px; margin-top: 30px; border-radius: 6px; }
+.profile-detail-skeleton-title { width: 72%; height: 32px; margin-top: 11px; border-radius: 9px; }
+.profile-detail-skeleton-description { width: 84%; height: 14px; margin-top: 14px; border-radius: 7px; }
+.profile-detail-skeleton-hero { width: 100%; height: 180px; margin-top: 28px; border-radius: 22px; }
+.profile-detail-skeleton-section { width: 50%; height: 22px; margin-top: 28px; border-radius: 8px; }
+.profile-detail-skeleton-card { width: 100%; height: 115px; margin-top: 14px; border-radius: 20px; }
+@media (max-width: 350px) { .profile-detail-skeleton { padding-left: 14px; padding-right: 14px; } }
+
 .profile-page {
   padding-top: 108px;
 }

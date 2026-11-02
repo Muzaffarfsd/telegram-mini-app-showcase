@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { navigate } from '../hooks/useRouting';
@@ -23,12 +23,6 @@ export function ProfileDetailLayout({
   testId,
 }: ProfileDetailLayoutProps) {
   const { language } = useLanguage();
-  useEffect(() => {
-    const root = document.documentElement;
-    root.classList.add('profile-detail-theme');
-    return () => root.classList.remove('profile-detail-theme');
-  }, []);
-
   return (
     <main className="profile-detail-page" data-testid={testId}>
       <div className="profile-detail-content">

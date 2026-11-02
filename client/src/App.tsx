@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy, useCallback, useEffect, memo, useMemo } from "react";
+import { useState, Suspense, lazy, useCallback, useEffect, useLayoutEffect, memo, useMemo } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -10,6 +10,7 @@ import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useRouting, navigate } from "./hooks/useRouting";
+import { isProfileRoute } from "./lib/profileRoutes";
 import { useScrollHaptic } from "./hooks/useScrollHaptic";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import { useNavigationTracking } from "./hooks/usePredictivePrefetch";
@@ -73,7 +74,7 @@ const AnalyticsPage = lazyWithRetry(() => import("./pages/analytics"));
 const CoinShopPage = lazyWithRetry(() => import("./components/CoinShopPage"));
 
 import GlobalSidebar from "./components/GlobalSidebar";
-import { ProfileSkeleton } from "./components/ProfileSkeleton";
+import { ProfileDetailSkeleton, ProfileSkeleton } from "./components/ProfileSkeleton";
 import { OrderSkeleton } from "./components/OrderSkeleton";
 import { AIConsultantSkeleton } from "./components/AIConsultantSkeleton";
 import { PageTransition } from "./components/PageTransition";
@@ -204,7 +205,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
   const { language } = useLanguage();
   const { capabilities } = usePerformanceClass();
   const isAI = route.component === 'aiProcess' || route.component === 'aiAgent';
-  const isProfile = ['profile', 'referral', 'rewards', 'earning', 'help', 'review'].includes(route.component);
+  const isProfile = isProfileRoute(route.component);
 
   const navAction = useCallback((path: string) => {
     if (path === '/ai-process') window.dispatchEvent(new Event('web4tg:consultant-home'));
@@ -230,7 +231,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
         }}
       >
         <nav 
-          className={`relative flex items-center rounded-[22px] gpu-layer ${route.component === 'profile' ? 'profile-nav' : route.component === 'constructor' ? 'order-nav' : isAI ? 'consultant-nav' : ''}`}
+          className={`relative flex items-center rounded-[22px] gpu-layer ${isProfile ? 'profile-nav' : route.component === 'constructor' ? 'order-nav' : isAI ? 'consultant-nav' : ''}`}
           style={{
             padding: '5px 6px',
             gap: '2px',
@@ -426,7 +427,13 @@ function AppContent() {
   const { hapticFeedback, user } = useTelegram();
   
   const { route } = useRouting();
+  const isProfile = isProfileRoute(route.component);
   const { trackNavigation } = useNavigationTracking();
+
+  useLayoutEffect(() => {
+    document.documentElement.classList.toggle('profile-detail-theme', isProfile);
+    return () => document.documentElement.classList.remove('profile-detail-theme');
+  }, [isProfile]);
   
   useScrollHaptic();
   
@@ -519,7 +526,7 @@ function AppContent() {
                   </ErrorBoundary>
                 )}
                 
-                <div className="pb-36" data-scroll="main" style={['constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
+                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={['constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
                   {visitedTabs.has('showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
                       <Suspense fallback={null}>
@@ -558,7 +565,7 @@ function AppContent() {
                   {!isCachedTab && (
                     <PageTransition routeKey={`${route.component}-${route.params?.id || ''}`}>
                       <ErrorBoundary>
-                        <Suspense fallback={route.component === 'aiAgent' ? <AIConsultantSkeleton label={language === 'ru' ? 'Загрузка страницы консультанта' : 'Loading consultant page'} /> : null}>
+                        <Suspense fallback={isProfile ? <ProfileDetailSkeleton label={language === 'ru' ? 'Загрузка страницы профиля' : 'Loading profile page'} /> : route.component === 'aiAgent' ? <AIConsultantSkeleton label={language === 'ru' ? 'Загрузка страницы консультанта' : 'Loading consultant page'} /> : null}>
                           <NonCachedRoute
                             route={route}
                             handleNavigate={handleNavigate}
@@ -593,7 +600,7 @@ function AppContent() {
               
               {shouldShowBottomNav && route.component !== 'aiProcess' && route.component !== 'aiAgent' && (
                 <Suspense fallback={null}>
-                  <div className={route.component === 'profile' ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : undefined}><AIAgentButton profileMode={route.component === 'profile' || route.component === 'constructor'} /></div>
+                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : undefined}><AIAgentButton profileMode={isProfile || route.component === 'constructor'} /></div>
                 </Suspense>
               )}
 

@@ -4,6 +4,8 @@ import { useTheme } from "@/hooks/useTheme";
 import { SiInstagram, SiTelegram, SiYoutube, SiTiktok } from "react-icons/si";
 import UserAvatar from "./UserAvatar";
 import { useLanguage } from "../contexts/LanguageContext";
+import { isProfileRoute } from "../lib/profileRoutes";
+import { BrandMark } from "./BrandMark";
 
 interface GlobalSidebarProps {
   currentRoute: string;
@@ -56,7 +58,7 @@ const AnimatedHamburgerIcon = memo(forwardRef<HTMLButtonElement, AnimatedHamburg
 AnimatedHamburgerIcon.displayName = 'AnimatedHamburgerIcon';
 
 export default function GlobalSidebar({ currentRoute, onNavigate, user }: GlobalSidebarProps) {
-  const { isDark } = useTheme();
+  useTheme();
   const { t, language } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pressedItem, setPressedItem] = useState<string | null>(null);
@@ -240,7 +242,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   }, [sidebarOpen, handleEdgeTouchStart, handleEdgeTouchMove, handleEdgeTouchEnd]);
 
   const isActive = (routes: string[]) => routes.includes(currentRoute);
-  const isProfileActive = ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute);
+  const isProfileActive = isProfileRoute(currentRoute);
 
   const handleNavClick = useCallback((section: string) => {
     setPressedItem(section);
@@ -364,11 +366,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         /* ── top bar ── */
         .w4-topbar{
           position:fixed;top:0;left:0;right:0;z-index:90;
-          background:rgba(0,0,0,0.55);
+          background:rgba(255,255,255,0.88);
           backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-          border-bottom:1px solid rgba(255,255,255,0.06);
+          border-bottom:1px solid rgba(0,0,0,0.04);
           padding-top:max(env(safe-area-inset-top,0px),var(--csat,0px),12px);
         }
+        .w4-topbar .hb-btn{background:rgba(237,239,243,.72);border-color:rgba(255,255,255,.95);border-radius:50%;}
+        .w4-topbar .hb-line{background:#242428;}
+        .w4-topbar .profile-brand{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transform:none!important;pointer-events:none;}
         html.light .w4-topbar{background:rgba(250,250,252,0.8);border-bottom-color:rgba(0,0,0,0.07);}
 
         @media (prefers-reduced-motion:reduce){
@@ -513,7 +518,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       </div>
 
       {/* top bar */}
-      <div className={`w4-topbar ${currentRoute === 'profile' ? 'profile-topbar' : currentRoute === 'constructor' ? 'order-topbar' : currentRoute === 'aiProcess' || currentRoute === 'aiAgent' ? 'consultant-topbar' : ''}`}>
+      <div className={`w4-topbar ${isProfileActive ? 'profile-topbar' : currentRoute === 'constructor' ? 'order-topbar' : currentRoute === 'aiProcess' || currentRoute === 'aiAgent' ? 'consultant-topbar' : ''}`}>
         <div className="max-w-md mx-auto px-5 pt-6 pb-1 flex items-end justify-between gap-4" style={{ position: 'relative' }}>
           <div className="w-[64px]">
             <AnimatedHamburgerIcon
@@ -525,11 +530,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
             />
           </div>
           <div className="profile-brand absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <span style={{
-              fontFamily: '"Syne", system-ui, sans-serif', fontSize: '14px', fontWeight: 800, letterSpacing: '-0.03em',
-              color: currentRoute === 'profile' || currentRoute === 'constructor' || currentRoute === 'aiProcess' || currentRoute === 'aiAgent' ? '#2b2b30' : isDark ? 'rgba(255,255,255,0.7)' : '#000000',
-              textShadow: !['profile', 'constructor', 'aiProcess', 'aiAgent'].includes(currentRoute) && isDark ? '0 0 20px rgba(255,255,255,0.15)' : 'none',
-            }}>WEB4TG</span>
+            <BrandMark />
           </div>
           <div className="w-[64px]" aria-hidden="true" />
         </div>

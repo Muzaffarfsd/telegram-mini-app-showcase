@@ -55,7 +55,9 @@ export function navigate(path: string): void {
 }
 
 export function useRouting() {
-  const [route, setRoute] = useState<Route>({ path: '/', component: 'showcase', params: {} });
+  const [route, setRoute] = useState<Route>(() =>
+    typeof window === 'undefined' ? { path: '/', component: 'showcase', params: {} } : parseHash(),
+  );
 
   useEffect(() => {
     setRoute(parseHash());

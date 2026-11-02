@@ -40,9 +40,10 @@ async function assertDrawnIcon(locator, label) {
       assert.ok(!navShadow.includes('0.4)'), `mobile dark shadow overrode profile design: ${navShadow}`);
       const header = page.locator('.profile-topbar');
       assert.match(await header.evaluate(e => getComputedStyle(e).backdropFilter), /blur/, 'profile header should be glass');
-      assert.equal(await header.innerText(), 'WEB4TG');
-      assert.match(await header.locator('span').filter({hasText:'WEB4TG'}).evaluate(e => getComputedStyle(e).fontFamily), /Syne/);
-      const logoOffset = await header.locator('span').filter({hasText:'WEB4TG'}).evaluate(e => { const r=e.getBoundingClientRect(); return Math.abs(r.left+r.width/2-innerWidth/2); });
+      const mark = header.getByTestId('header-brand-mark');
+      assert.equal(await mark.getAttribute('aria-label'), 'WEB4TG');
+      assert.equal(await mark.locator('rect').getAttribute('fill'), '#000000');
+      const logoOffset = await mark.evaluate(e => { const r=e.getBoundingClientRect(); return Math.abs(r.left+r.width/2-innerWidth/2); });
       assert.ok(logoOffset < 1, `header logo is not centered: offset ${logoOffset}px`);
       const navFilters = await nav.evaluate(e => [getComputedStyle(e).backdropFilter, getComputedStyle(e.firstElementChild).backdropFilter]);
       assert.ok(navFilters.some(filter => /blur/.test(filter)), 'navigation should be glass, including in low-performance mode');
