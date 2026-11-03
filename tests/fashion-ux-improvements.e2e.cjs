@@ -34,6 +34,7 @@ async function verifyFilters(page) {
   await dialog.getByRole('button',{name:'До 10 000 ₽',exact:true}).tap();
   await dialog.getByRole('button',{name:'Чёрный',exact:true}).tap();
   await dialog.getByRole('button',{name:'ПОКАЗАТЬ ТОВАРЫ'}).tap();
+  await dialog.waitFor({state:'hidden'});
   assert.equal(await card(page).count(),2, 'Size, price and color filters should combine, including multi-color products');
   assert.equal(await page.getByTestId('mf-card-tee-black').count(),1);
   assert.equal(await page.getByRole('button',{name:'Убрать фильтр размера M'}).count(),1);
@@ -45,6 +46,7 @@ async function verifyFilters(page) {
   dialog = page.getByRole('dialog');
   await dialog.getByRole('button',{name:'Размер обуви 42'}).tap();
   await dialog.getByRole('button',{name:'Закрыть'}).tap();
+  await dialog.waitFor({state:'hidden'});
   assert.equal(await page.getByTestId('mf-card-tee-black').count(),1);
   assert.equal(await page.getByRole('button',{name:'Убрать фильтр размера M'}).count(),1);
   await page.getByRole('button',{name:'Убрать фильтр цвета Чёрный'}).tap();
@@ -59,12 +61,14 @@ async function verifyFilters(page) {
   await dialog.getByRole('button',{name:'10 000–20 000 ₽',exact:true}).tap();
   await dialog.getByRole('button',{name:'Белый',exact:true}).tap();
   await dialog.getByRole('button',{name:'ПОКАЗАТЬ ТОВАРЫ'}).tap();
+  await dialog.waitFor({state:'hidden'});
   assert.equal(await card(page).count(),3, 'A color filter should match each component of multi-color products');
   assert.equal(await page.getByTestId('mf-card-sneaker-white').count(),1);
   await page.getByRole('button',{name:/Фильтры/}).tap();
   dialog = page.getByRole('dialog');
   await dialog.getByRole('button',{name:'СБРОСИТЬ ФИЛЬТРЫ'}).tap();
   await dialog.getByRole('button',{name:'ПОКАЗАТЬ ТОВАРЫ'}).tap();
+  await dialog.waitFor({state:'hidden'});
   assert.equal(await card(page).count(),24, 'Reset inside sheet should clear all filter dimensions');
 }
 
