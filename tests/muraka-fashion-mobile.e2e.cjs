@@ -73,6 +73,7 @@ async function checkViewport(browser, width, height) {
     await page.getByRole('button',{name:'В избранное: Джинсы Wide Denim'}).tap();
     assert.equal(await page.getByRole('button',{name:'Убрать из избранного: Джинсы Wide Denim'}).getAttribute('aria-pressed'), 'true');
     await page.getByRole('button',{name:'Назад',exact:true}).tap();
+    await page.locator('.mf-catalog').waitFor();
     assert.equal(await page.locator('[data-testid^="mf-card-"]').count(), 24);
     await page.getByTestId('mf-card-jeans-blue').getByRole('button',{name:/Открыть/}).tap();
     const gallery = page.locator('.mf-gallery-main');

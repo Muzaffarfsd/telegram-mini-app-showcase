@@ -221,9 +221,13 @@ async function runTelegramViewport(browser, width, height) {
     // The native Telegram buttons can leave less usable space than the stable CSS viewport.
     const visibleHeight = height - 80;
     await page.evaluate(({height, visibleHeight}) => {
-      document.documentElement.style.setProperty('--tg-viewport-stable-height', `${height}px`);
-      document.documentElement.style.setProperty('--tg-viewport-height', `${visibleHeight}px`);
+      // Deliver native Telegram events so SDK getters, subscribers and CSS agree.
+      const webView = window.Telegram.WebView;
+      webView.receiveEvent('viewport_changed', {height, is_expanded:true, is_state_stable:true});
+      webView.receiveEvent('viewport_changed', {height:visibleHeight, is_expanded:true, is_state_stable:false});
     }, {height, visibleHeight});
+    const telegramViewport = await page.evaluate(() => ({height:window.Telegram.WebApp.viewportHeight, stableHeight:window.Telegram.WebApp.viewportStableHeight}));
+    assert.deepEqual(telegramViewport, {height:visibleHeight, stableHeight:height});
     await nav(page).getByRole('button',{name:'Каталог'}).tap();
     await assertBottomReachable(page, '.rs-grid > .rs-card');
     const geometry = await page.evaluate(() => ({
@@ -239,7 +243,7 @@ async function runTelegramViewport(browser, width, height) {
 
     // Some Android WebViews resize the window while Telegram retains the old stable height.
     await page.setViewportSize({width, height:visibleHeight});
-    await page.evaluate(visibleHeight => document.documentElement.style.setProperty('--tg-viewport-height', `${visibleHeight}px`), visibleHeight);
+    await page.evaluate(visibleHeight => window.Telegram.WebView.receiveEvent('viewport_changed', {height:visibleHeight, is_expanded:true, is_state_stable:false}), visibleHeight);
     await assertBottomReachable(page, '.rs-grid > .rs-card');
     const resizedRootBottom = await page.locator('#root').evaluate(element => element.getBoundingClientRect().bottom);
     assert.ok(resizedRootBottom <= visibleHeight + 1, `Scroll container exceeds resized WebView: ${resizedRootBottom}`);

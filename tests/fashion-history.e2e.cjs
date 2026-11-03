@@ -1,0 +1,63 @@
+const { chromium, webkit } = require('playwright');
+const assert = require('node:assert/strict');
+const base = process.env.MURAKA_TEST_URL || 'http://127.0.0.1:53738/';
+
+async function run(engine) {
+  const browser = await engine.launch({headless:true});
+  const context = await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'reduce',locale:'ru-RU',serviceWorkers:'block'});
+  await context.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({contentType:'text/javascript',body:''}));
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto(`${base}#/projects`, {waitUntil:'domcontentloaded'});
+  await page.evaluate(() => { location.hash = '#/demos/muraka-fashion/app'; });
+  await page.getByTestId('muraka-fashion').waitFor();
+  await page.locator('.mf-nav').getByRole('button',{name:'Каталог'}).tap();
+  await page.getByRole('button',{name:'Фильтры',exact:true}).tap();
+  await page.getByRole('dialog').getByRole('button',{name:'Размер одежды M'}).tap();
+  await page.getByRole('dialog').getByRole('button',{name:'ПОКАЗАТЬ ТОВАРЫ'}).tap();
+  await page.getByRole('button',{name:'Убрать фильтр размера M'}).waitFor();
+  const card = page.locator('[data-testid^="mf-card-"]').last().getByRole('button',{name:/Открыть/});
+  await card.scrollIntoViewIfNeeded();
+  const before = await page.locator('#root').evaluate(e => e.scrollTop);
+  assert.ok(before > 500);
+  await card.tap();
+  await page.locator('.mf-product').waitFor();
+  const product = await page.locator('.mf-product h1').textContent();
+  await page.goBack();
+  await page.locator('.mf-catalog').waitFor();
+  await page.getByRole('button',{name:'Убрать фильтр размера M'}).waitFor();
+  await page.waitForTimeout(150);
+  const after = await page.locator('#root').evaluate(e => e.scrollTop);
+  assert.ok(Math.abs(before-after) <= 3, `lost scroll position ${before} -> ${after}`);
+  await page.goForward();
+  await page.locator('.mf-product').waitFor();
+  assert.equal(await page.locator('.mf-product h1').textContent(), product);
+  await page.waitForTimeout(150);
+  await page.getByRole('button',{name:'Как выбрать размер'}).tap();
+  await page.getByRole('dialog').waitFor();
+  await page.goBack();
+  await page.getByRole('dialog').waitFor({state:'hidden'});
+  await page.goForward();
+  await page.getByRole('dialog').waitFor();
+  await page.waitForTimeout(150);
+  await page.getByRole('dialog').getByRole('button',{name:'Закрыть'}).tap();
+  await page.getByRole('dialog').waitFor({state:'hidden'});
+  await page.waitForTimeout(150);
+  await page.locator('.mf-sizes button').first().tap();
+  await page.getByRole('button',{name:/ДОБАВИТЬ В КОРЗИНУ/}).tap();
+  await page.getByRole('dialog').getByRole('button',{name:/ОФОРМИТЬ ДЕМО-ЗАКАЗ/}).tap();
+  await page.locator('.mf-checkout').waitFor();
+  const inputs = page.locator('.mf-checkout input');
+  await inputs.nth(0).fill('Тест Секрет');
+  await inputs.nth(1).fill('79991234567');
+  const state = JSON.stringify(await page.evaluate(() => history.state));
+  assert.ok(!state.includes('Тест Секрет') && !state.includes('79991234567'), 'checkout values leaked into history');
+  for (let i=0; i<12 && !page.url().endsWith('#/projects'); i++) { await page.goBack(); await page.waitForTimeout(100); }
+  assert.ok(page.url().endsWith('#/projects'), `host route did not return: ${page.url()}`);
+  assert.deepEqual(errors, []);
+  await browser.close();
+  console.log(`${engine.name()}: internal back/forward, filters, scroll, privacy and host exit passed`);
+}
+
+(async () => { for (const engine of [chromium, webkit]) await run(engine); })().catch(error => { console.error(error); process.exitCode=1; });
