@@ -1,0 +1,35 @@
+/* Product page: a calm, white product presentation with clear purchase choices. */
+.as-product-intro { padding:12px 20px 4px; }
+.as-product-intro h1 { margin-top:9px; color:#151519; font-size:clamp(31px,8vw,39px); font-weight:780; line-height:1.03; letter-spacing:-.055em; }
+.as-product-intro p { margin-top:8px; color:#666970; font-size:13px; line-height:1.45; }
+.as-product-gallery { height:clamp(300px,95vw,410px); margin:10px 12px 0; background:#fff; }
+.as-product-gallery>img { object-fit:contain; }
+.as-product-heart,.as-photo-open { top:8px; background:rgba(255,255,255,.9); box-shadow:0 1px 8px rgba(20,20,25,.08); }
+.as-photo-open { left:8px; }
+.as-product-heart { right:8px; }
+.as-gallery-controls { left:8px; right:8px; bottom:8px; }
+.as-gallery-tabs { background:rgba(255,255,255,.94); box-shadow:0 1px 10px rgba(20,20,25,.09); }
+.as-gallery-tabs button { min-height:40px; min-width:62px; }
+.as-gallery-controls>span { background:rgba(255,255,255,.94); box-shadow:0 1px 10px rgba(20,20,25,.08); }
+.as-product-info { padding:24px 20px 0; }
+.as-product-price { padding:0 0 22px; border-bottom:1px solid #e9e9eb; }
+.as-product-price>div>span { color:#6c6d74; font-size:10px; font-weight:750; letter-spacing:.1em; }
+.as-product-price .as-price { margin-top:8px; color:#17171b; font-size:27px; line-height:1; letter-spacing:-.04em; }
+.as-product-price .as-price-note { margin-top:7px!important; color:#73747a; }
+.as-product-configuration { padding-top:25px; }
+.as-product-configuration h2 { color:#151519; font-size:21px; line-height:1.1; letter-spacing:-.04em; }
+.as-product-configuration>p { margin-top:7px; color:#73747a; font-size:12px; line-height:1.45; }
+.as-product-configuration .as-choice { margin-top:21px; }
+.as-product-configuration .as-choice>div:first-child { justify-content:flex-start; gap:8px; }
+.as-product-configuration .as-choice>div:first-child b { font-size:13px; }
+.as-product-configuration .as-choice>div:first-child span { color:#777981; }
+.as-product-configuration .as-choice-buttons button { min-height:46px; padding:0 16px; border:1px solid #dedfe2; border-radius:12px; background:#fff; color:#35363a; font-weight:650; }
+.as-product-configuration .as-choice-buttons button.is-active { padding:0 15px; border:2px solid #1b1b20; background:#f7f7f8; }
+.as-product-info>.as-primary { min-height:56px; margin-top:27px; border-radius:14px; }
+.as-product-info>.as-demo-note { max-width:390px; margin-top:12px!important; }
+.as-product-story { margin-top:38px; border-radius:16px; background:#f6f6f7; }
+.as-product-story>img { height:clamp(250px,82vw,360px); }
+.as-product-story>div { padding:21px 20px 25px; }
+.as-product-story h2 { font-size:27px; line-height:1.06; }
+.as-photo-viewport { background:#fff; }
+@media (max-width:350px) { .as-product-intro { padding-left:16px; padding-right:16px; } .as-product-info { padding-left:16px; padding-right:16px; } }

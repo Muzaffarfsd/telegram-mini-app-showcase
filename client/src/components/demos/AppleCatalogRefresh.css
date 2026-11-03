@@ -1,0 +1,19 @@
+/* Keep product images and the surrounding catalogue on the same white surface. */
+.as-hero { border:1px solid #eeeeef; border-radius:16px; background:#fff; }
+.as-hero::after { display:none; }
+.as-hero-copy { width:57%; padding-left:19px; }
+.as-hero-art { position:absolute; inset:0 0 0 42%; pointer-events:none; }
+.as-hero-art img:first-child { position:absolute; width:100%; height:82%; right:-6%; top:4%; object-fit:contain; }
+.as-hero-art img:last-child { position:absolute; width:54%; height:43%; right:2%; bottom:0; object-fit:contain; }
+.as-category-card { border:1px solid #eeeeef; border-radius:16px; background:#fff; }
+.as-category-card img { height:63%; padding:7px 13px 13px; }
+.as-category-dark { border-color:#1c1920; background:#1c1920; }
+.as-category-dark img { padding:0; }
+.as-card-media { border:1px solid #eeeeef; border-radius:16px; background:#fff; }
+.as-card-preorder { position:absolute; z-index:1; left:10px; top:12px; color:#93631e; font-size:10px; font-weight:700; }
+.as-card-picture img { padding:14px; }
+.as-heart { background:#fff; }
+.as-card-name { font-size:14px; line-height:1.2; }
+.as-card p { min-height:2.8em; }
+.as-cart-image { background:#fff; border:1px solid #eeeeef; border-radius:10px; }
+.as-photo-viewport { background:#fff; }
