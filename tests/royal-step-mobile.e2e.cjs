@@ -40,13 +40,14 @@ async function assertBottomReachable(page, selector) {
 async function assertEverydayCard(page) {
   const card = page.locator('.rs-editorial--everyday');
   await card.locator('img').evaluate(image => image.decode());
-  const layout = await card.evaluate(element => {
-    const rect = selector => element.querySelector(selector).getBoundingClientRect().toJSON();
-    return {image:rect('img'), label:rect('span'), title:rect('strong'), arrow:rect('i')};
-  });
-  assert.ok(layout.label.bottom <= layout.image.top + 1, `Label overlaps image: ${JSON.stringify(layout)}`);
-  assert.ok(layout.image.bottom <= layout.title.top + 1, `Title overlaps image: ${JSON.stringify(layout)}`);
-  assert.ok(layout.title.right <= layout.arrow.left + 1, `Title overlaps arrow: ${JSON.stringify(layout)}`);
+  const layout = await card.evaluate(element => ({
+    childCount:element.children.length,
+    objectFit:getComputedStyle(element.querySelector('img')).objectFit,
+    text:element.textContent.trim(),
+  }));
+  assert.equal(layout.childCount, 1, 'The poster should not have extra overlays');
+  assert.equal(layout.objectFit, 'contain', 'The complete poster should be visible');
+  assert.equal(layout.text, '', 'The poster should not have extra text');
   await card.tap();
   assert.equal(await page.getByRole('heading',{name:'Найдите свою пару'}).isVisible(), true);
   assert.ok(await page.locator('[data-testid^="royal-card-"]').count() > 0);
