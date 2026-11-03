@@ -42,8 +42,8 @@
       if (/^#\/demos\/apple-store\/app(?:\?|$)/.test(location.hash)) {
         var image = document.createElement('link');
         image.rel = 'preload'; image.as = 'image'; image.fetchPriority = 'high';
-        image.href = '/apple-store/generated/sizes/iphone-18-pro-max-black-480.webp';
-        image.setAttribute('imagesrcset', '/apple-store/generated/sizes/iphone-18-pro-max-black-160.webp 160w, /apple-store/generated/sizes/iphone-18-pro-max-black-480.webp 480w, /apple-store/generated/iphone-18-pro-max-black.webp 940w');
+        image.href = '/apple-store/generated/sizes/hero-iphone18-promax-burgundy-reference-v1-480.webp';
+        image.setAttribute('imagesrcset', '/apple-store/generated/sizes/hero-iphone18-promax-burgundy-reference-v1-160.webp 160w, /apple-store/generated/sizes/hero-iphone18-promax-burgundy-reference-v1-480.webp 480w, /apple-store/generated/hero-iphone18-promax-burgundy-reference-v1.webp 940w');
         image.setAttribute('imagesizes', '(max-width: 448px) 55vw, 220px');
         document.head.appendChild(image);
       } else {
