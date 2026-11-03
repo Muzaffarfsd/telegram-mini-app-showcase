@@ -1,4 +1,4 @@
-.royal-step { --rs-bg:#fff; --rs-ink:#171817; --rs-muted:#676970; --rs-line:#e8e9ec; color:var(--rs-ink); background:var(--rs-bg); min-height:100svh; max-width:448px; margin:0 auto; padding-top:calc(max(env(safe-area-inset-top, 0px), var(--csat, 0px), 12px) + 72px); position:relative; font-family:'Google Sans App',system-ui,sans-serif; font-size:15px; -webkit-font-smoothing:antialiased; }
+.royal-step { --rs-bg:#fff; --rs-ink:#171817; --rs-muted:#676970; --rs-line:#e8e9ec; --rs-bottom-inset:max(12px, env(safe-area-inset-bottom, 0px), var(--sab, 0px), var(--csab, 0px)); color:var(--rs-ink); background:var(--rs-bg); min-height:100svh; max-width:448px; margin:0 auto; padding-top:calc(max(env(safe-area-inset-top, 0px), var(--csat, 0px), 12px) + 72px); position:relative; font-family:'Google Sans App',system-ui,sans-serif; font-size:15px; -webkit-font-smoothing:antialiased; }
 .royal-step.rs-portal { min-height:0; height:0; padding-top:0; position:static; }
 .royal-step *, .royal-step *::before, .royal-step *::after { box-sizing:border-box; }
 .royal-step button, .royal-step input, .royal-step select { font:inherit; }
@@ -14,7 +14,10 @@
 .rs-header__bag { position:relative; }
 .rs-header__bag > span { position:absolute; right:1px; top:2px; min-width:16px; height:16px; border-radius:50%; background:#171817; color:white; font-size:10px; display:grid; place-items:center; padding:0 3px; }
 .rs-logo { display:flex; align-items:center; gap:4px; border:0; background:none; color:#141414; font-size:13px!important; font-weight:800!important; letter-spacing:.1em; white-space:nowrap; padding:12px 0; }
-.rs-main { min-height:calc(100svh - 84px); padding-bottom:calc(100px + env(safe-area-inset-bottom, 0px)); animation:rs-enter .25s ease both; }
+.rs-main { min-height:calc(100svh - 84px); padding-bottom:calc(88px + var(--rs-bottom-inset)); animation:rs-enter .25s ease both; }
+/* The host's estimated off-screen section heights can change the scroll limit
+   while moving through the store, especially in WebKit. */
+[data-scroll="main"] .royal-step.royal-step :is(section, article) { content-visibility:visible; contain-intrinsic-size:none; }
 .rs-page-back { display:flex; align-items:center; gap:8px; min-height:48px; margin:0 20px; padding:0; border:0; color:#292a2d; background:none; font-size:13px!important; font-weight:700!important; }
 @keyframes rs-enter { from { opacity:.76; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
 .rs-home { padding:25px 20px 0; }
@@ -201,7 +204,7 @@
 .rs-related__row img { width:100%; height:100%; object-fit:contain; padding:6px; }
 .rs-related__row strong { font-size:13px; line-height:1.25; }
 .rs-related__row small { font-size:12px; font-weight:650; }
-.rs-nav { position:fixed; z-index:40; left:0; right:0; margin-inline:auto; bottom:max(12px, env(safe-area-inset-bottom, 0px)); width:max-content; max-width:calc(100vw - 24px); display:flex; align-items:center; gap:2px; padding:5px 6px; border-radius:22px; background:rgba(255,255,255,.48); border:1px solid rgba(255,255,255,.78); box-shadow:0 5px 18px rgba(25,25,30,.13), inset 0 1px 0 rgba(255,255,255,.7); backdrop-filter:blur(24px) saturate(1.1); -webkit-backdrop-filter:blur(24px) saturate(1.1); }
+.rs-nav { position:fixed; z-index:40; left:0; right:0; margin-inline:auto; bottom:var(--rs-bottom-inset); width:max-content; max-width:calc(100vw - 24px); display:flex; align-items:center; gap:2px; padding:5px 6px; border-radius:22px; background:rgba(255,255,255,.48); border:1px solid rgba(255,255,255,.78); box-shadow:0 5px 18px rgba(25,25,30,.13), inset 0 1px 0 rgba(255,255,255,.7); backdrop-filter:blur(24px) saturate(1.1); -webkit-backdrop-filter:blur(24px) saturate(1.1); }
 .rs-nav > button { height:44px; min-width:44px; display:flex; align-items:center; justify-content:center; gap:0; padding:0 12px; border:0; border-radius:14px; background:transparent; color:#74757b; font-size:12px!important; font-weight:600!important; transition:background .22s ease, padding .22s ease, gap .22s ease; }
 .rs-nav > button svg { flex:none; stroke-width:1.5; }
 .rs-nav > button.is-active { color:#252529; background:rgba(255,255,255,.55); padding:0 14px; gap:7px; }

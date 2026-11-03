@@ -22,6 +22,21 @@ async function assertLayout(page) {
   assert.ok(geometry.nav.left >= 0 && geometry.nav.right <= geometry.viewport, `Navigation outside horizontal viewport: ${JSON.stringify(geometry)}`);
 }
 
+async function assertBottomReachable(page, selector) {
+  await page.locator(selector).last().waitFor();
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await page.evaluate(() => { const root = document.querySelector('#root'); root.scrollTop = root.scrollHeight; });
+  // Allow off-screen content and scroll geometry to settle after a single trip to the bottom.
+  await page.waitForTimeout(600);
+  const geometry = await page.evaluate(selector => {
+    const root = document.querySelector('#root');
+    const target = [...document.querySelectorAll(selector)].at(-1).getBoundingClientRect();
+    const navigation = document.querySelector('.rs-nav').getBoundingClientRect();
+    return { targetBottom: target.bottom, navTop: navigation.top, scrollTop: root.scrollTop, maxScroll: root.scrollHeight - root.clientHeight };
+  }, selector);
+  assert.ok(geometry.targetBottom <= geometry.navTop + 1, `${selector} is hidden by bottom navigation: ${JSON.stringify(geometry)}`);
+}
+
 async function runFull(browser) {
   const {context,page,errors} = await contextFor(browser,390,844);
   try {
@@ -155,14 +170,22 @@ async function runViewport(browser,width,height) {
   const {context,page,errors}=await contextFor(browser,width,height);
   try {
     await page.goto(`${base}#/demos/nike-sneakers/app`,{waitUntil:'domcontentloaded'});
-    await page.getByTestId('royal-step').waitFor({timeout:30000}); await assertLayout(page);
+    await page.getByTestId('royal-step').waitFor({timeout:30000});
+    // Simulate Telegram reporting a bottom content-safe inset larger than the browser's inset.
+    await page.evaluate(() => { document.documentElement.style.setProperty('--sab', '34px'); document.documentElement.style.setProperty('--csab', '50px'); });
+    await assertLayout(page); await assertBottomReachable(page, '.rs-home__note');
     await nav(page).getByRole('button',{name:'Каталог'}).tap(); await assertLayout(page);
+    await assertBottomReachable(page, '.rs-grid > .rs-card');
     await page.getByRole('button',{name:'Открыть Nike Dunk Low Retro'}).tap(); await assertLayout(page);
+    await assertBottomReachable(page, '.rs-related');
     await page.getByRole('button',{name:'42',exact:true}).tap();
     await page.getByRole('button',{name:'Добавить в корзину'}).tap();
     assert.equal(await page.getByRole('dialog').getByText('Размер 42 EU').isVisible(),true);
     await page.getByRole('dialog').getByRole('button',{name:'Удалить Nike Dunk Low Retro, размер 42'}).tap();
     assert.equal(await page.getByText('Пока пусто').isVisible(),true);
+    await page.getByRole('dialog').getByRole('button',{name:'Закрыть'}).tap();
+    await nav(page).getByRole('button',{name:'Профиль'}).tap();
+    await assertBottomReachable(page, '.rs-account > .rs-demo-note');
     assert.deepEqual(errors,[]);
     console.log(`Mobile ${width}x${height}: navigation, product, size and empty basket passed`);
   } finally { await context.close(); }
@@ -172,5 +195,5 @@ async function runViewport(browser,width,height) {
   const chrome=await chromium.launch({headless:true});
   try { await runFull(chrome); await runViewport(chrome,320,568); } finally { await chrome.close(); }
   const safari=await webkit.launch({headless:true});
-  try { await runViewport(safari,430,932); } finally { await safari.close(); }
+  try { await runViewport(safari,320,568); await runViewport(safari,430,932); } finally { await safari.close(); }
 })().catch(error=>{console.error(error);process.exitCode=1;});
