@@ -16,7 +16,7 @@
 .rs-header__bag { position:relative; }
 .rs-header__bag > span { position:absolute; right:1px; top:2px; min-width:16px; height:16px; border-radius:50%; background:#171817; color:white; font-size:10px; display:grid; place-items:center; padding:0 3px; }
 .rs-logo { display:flex; align-items:center; gap:4px; border:0; background:none; color:#141414; font-size:13px!important; font-weight:800!important; letter-spacing:.1em; white-space:nowrap; padding:12px 0; }
-.rs-main { min-height:calc(100svh - 84px); padding-bottom:calc(88px + var(--rs-bottom-inset)); animation:rs-enter .25s ease both; }
+.rs-main { min-height:calc(100svh - 84px); padding-bottom:max(180px, calc(88px + var(--rs-bottom-inset)), var(--rs-scroll-clearance, 0px)); animation:rs-enter .25s ease both; }
 /* The host's estimated off-screen section heights can change the scroll limit
    while moving through the store, especially in WebKit. */
 [data-scroll="main"] .royal-step.royal-step :is(section, article) { content-visibility:visible; contain-intrinsic-size:none; }

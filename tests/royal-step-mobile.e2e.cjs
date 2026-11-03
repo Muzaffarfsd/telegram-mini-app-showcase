@@ -222,6 +222,35 @@ async function runTelegramViewport(browser, width, height) {
     await assertBottomReachable(page, '.rs-grid > .rs-card');
     const resizedRootBottom = await page.locator('#root').evaluate(element => element.getBoundingClientRect().bottom);
     assert.ok(resizedRootBottom <= visibleHeight + 1, `Scroll container exceeds resized WebView: ${resizedRootBottom}`);
+
+    // Do not assume Telegram's and the browser's viewport measurements agree.
+    // Force the scroll container 120px past the visible viewport to reproduce
+    // the customer's last-row overlap, then scroll and tap the actual last item.
+    await page.evaluate(visibleHeight => {
+      const root = document.querySelector('#root');
+      root.style.setProperty('min-height', `${visibleHeight + 120}px`, 'important');
+      root.scrollTop = 0;
+    }, visibleHeight);
+    await page.waitForFunction(() => {
+      const root = document.querySelector('#root');
+      const nav = document.querySelector('.rs-nav');
+      return parseFloat(getComputedStyle(root).getPropertyValue('--rs-scroll-clearance')) >= root.getBoundingClientRect().bottom - nav.getBoundingClientRect().top + 23;
+    });
+    if (browser.browserType().name() === 'webkit') {
+      // Mobile WebKit's Playwright backend does not implement mouse wheels.
+      await page.evaluate(() => { const root = document.querySelector('#root'); root.scrollTop = root.scrollHeight; });
+    } else {
+      await page.mouse.move(width / 2, visibleHeight / 2);
+      await page.mouse.wheel(0, 100000);
+    }
+    await page.waitForTimeout(600);
+    const lastRow = await page.evaluate(() => {
+      const navTop = document.querySelector('.rs-nav').getBoundingClientRect().top;
+      return [...document.querySelectorAll('.rs-grid > .rs-card')].slice(-2).map(card => ({bottom:card.getBoundingClientRect().bottom, navTop}));
+    });
+    assert.ok(lastRow.every(card => card.bottom <= card.navTop + 1), `Last row is hidden by navigation: ${JSON.stringify(lastRow)}`);
+    await page.getByRole('button',{name:'Air Jordan 1 Mid',exact:true}).tap();
+    assert.equal(await page.getByRole('heading',{name:'Air Jordan 1 Mid'}).isVisible(), true);
     assert.deepEqual(errors, []);
     console.log(`Telegram viewport ${width}x${height}, visible height ${visibleHeight}: scroll and navigation passed`);
   } finally { await context.close(); }

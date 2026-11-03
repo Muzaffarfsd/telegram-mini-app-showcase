@@ -149,6 +149,40 @@ export default function RoyalStep({ onClose }: { onClose: () => void }) {
       try { if (previous.background) tg?.setBackgroundColor?.(previous.background); if (previous.header) tg?.setHeaderColor?.(previous.header); if (previous.bottom) tg?.setBottomBarColor?.(previous.bottom); } catch { /* The host controls its own theme. */ }
     };
   }, []);
+  useEffect(() => {
+    const root = document.getElementById('root');
+    const navigation = document.querySelector<HTMLElement>('.rs-nav');
+    if (!root || !navigation) return;
+    const previousClearance = root.style.getPropertyValue('--rs-scroll-clearance');
+    const previousPriority = root.style.getPropertyPriority('--rs-scroll-clearance');
+    let frame = 0;
+    const updateClearance = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const overlap = root.getBoundingClientRect().bottom - navigation.getBoundingClientRect().top;
+        root.style.setProperty('--rs-scroll-clearance', `${Math.max(180, Math.ceil(overlap + 24))}px`);
+      });
+    };
+    const observer = new ResizeObserver(updateClearance);
+    observer.observe(root);
+    observer.observe(navigation);
+    window.addEventListener('resize', updateClearance);
+    window.visualViewport?.addEventListener('resize', updateClearance);
+    window.visualViewport?.addEventListener('scroll', updateClearance);
+    const telegram = (window as any).Telegram?.WebApp;
+    telegram?.onEvent?.('viewportChanged', updateClearance);
+    updateClearance();
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener('resize', updateClearance);
+      window.visualViewport?.removeEventListener('resize', updateClearance);
+      window.visualViewport?.removeEventListener('scroll', updateClearance);
+      telegram?.offEvent?.('viewportChanged', updateClearance);
+      if (previousClearance) root.style.setProperty('--rs-scroll-clearance', previousClearance, previousPriority);
+      else root.style.removeProperty('--rs-scroll-clearance');
+    };
+  }, []);
   useEffect(() => { try { localStorage.setItem(storageKey, JSON.stringify({ cart, favorites, orders, reviews })); } catch { /* The demo remains usable when storage is unavailable. */ } }, [cart, favorites, orders, reviews]);
   useEffect(() => {
     if (!sheet) return;
