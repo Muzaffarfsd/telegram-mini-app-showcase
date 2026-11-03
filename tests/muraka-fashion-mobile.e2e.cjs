@@ -2,7 +2,7 @@ const { chromium, webkit } = require('playwright');
 const assert = require('node:assert/strict');
 
 const base = process.env.MURAKA_TEST_URL || 'http://127.0.0.1:53738/';
-const ids = ['tee-black','tee-white','tee-red','tee-graphic','jeans-blue','jeans-black','jeans-wide','jeans-grey','jacket-varsity','jacket-patchwork','jacket-bomber','jacket-denim','hoodie-grey','hoodie-black','sneaker-brown','sneaker-white'];
+const ids = ['tee-black','tee-white','tee-red','tee-graphic','jeans-blue','jeans-black','jeans-wide','jeans-grey','jacket-varsity','jacket-patchwork','jacket-bomber','jacket-denim','hoodie-grey','hoodie-black','sneaker-brown','sneaker-white','tee-stripe','tee-olive','jeans-raw','jeans-ecru','jacket-olive','jacket-racing','hoodie-green','sneaker-black'];
 
 async function open(browser, width, height) {
   const context = await browser.newContext({viewport:{width,height}, isMobile:true, hasTouch:true, reducedMotion:'reduce', locale:'ru-RU', serviceWorkers:'block'});
@@ -59,7 +59,7 @@ async function checkViewport(browser, width, height) {
     await bottomVisible(page, '.mf-home > .mf-demo-note');
     await page.locator('.mf-nav').getByRole('button',{name:'Каталог'}).tap();
     await sharedHeader(page, '.mf-page-intro');
-    assert.equal(await page.locator('[data-testid^="mf-card-"]').count(), 16);
+    assert.equal(await page.locator('[data-testid^="mf-card-"]').count(), 24);
     await bottomVisible(page, '.mf-grid > .mf-card');
     await page.evaluate(height => { document.querySelector('#root').style.setProperty('min-height', `${height + 40}px`, 'important'); }, height);
     await page.waitForFunction(() => {
@@ -73,7 +73,7 @@ async function checkViewport(browser, width, height) {
     await page.getByRole('button',{name:'В избранное: Джинсы Wide Denim'}).tap();
     assert.equal(await page.getByRole('button',{name:'Убрать из избранного: Джинсы Wide Denim'}).getAttribute('aria-pressed'), 'true');
     await page.getByRole('button',{name:'Назад',exact:true}).tap();
-    assert.equal(await page.locator('[data-testid^="mf-card-"]').count(), 16);
+    assert.equal(await page.locator('[data-testid^="mf-card-"]').count(), 24);
     await page.getByTestId('mf-card-jeans-blue').getByRole('button',{name:/Открыть/}).tap();
     const gallery = page.locator('.mf-gallery-main');
     await gallery.evaluate(image => image.decode());
@@ -81,6 +81,21 @@ async function checkViewport(browser, width, height) {
     await page.getByRole('button',{name:'Изделие отдельно'}).tap();
     await gallery.evaluate(image => image.decode());
     assert.match(await gallery.getAttribute('src'), /jeans-blue-product\.webp/);
+    await page.getByRole('button',{name:'Образ на модели'}).tap();
+    await gallery.evaluate(image => image.decode());
+    assert.match(await gallery.getAttribute('src'), /jeans-blue-editorial\.webp/);
+    await page.getByRole('button',{name:'Детали изделия'}).tap();
+    await gallery.evaluate(image => image.decode());
+    assert.match(await gallery.getAttribute('src'), /jeans-blue-detail\.webp/);
+    assert.match(await page.locator('.mf-gallery-count').innerText(), /04\s*\/\s*04/);
+    if (browser.browserType().name() === 'chromium') {
+      await page.locator('.mf-gallery').evaluate(element => {
+        const touch = (x,y) => new Touch({identifier:1,target:element,clientX:x,clientY:y});
+        element.dispatchEvent(new TouchEvent('touchstart',{touches:[touch(100,140)],changedTouches:[touch(100,140)],bubbles:true}));
+        element.dispatchEvent(new TouchEvent('touchend',{touches:[],changedTouches:[touch(260,145)],bubbles:true}));
+      });
+      assert.match(await page.locator('.mf-gallery-count').innerText(), /03\s*\/\s*04/);
+    }
     await page.getByRole('button',{name:/ДОБАВИТЬ В КОРЗИНУ/}).tap();
     assert.match(await page.getByRole('alert').innerText(), /размер/i);
     await page.getByRole('button',{name:'M',exact:true}).tap();
@@ -96,14 +111,14 @@ async function checkViewport(browser, width, height) {
     assert.ok(await page.getByRole('heading',{name:/ЗАКАЗ.*ОФОРМЛЕН/s}).isVisible());
     assert.ok(!(await page.evaluate(() => localStorage.getItem('muraka-fashion-demo-v1'))).includes('9001234567'));
     assert.deepEqual(errors, []);
-    console.log(`${browser.browserType().name()} ${width}x${height}: layout, 16 products, gallery, cart and demo checkout passed`);
+    console.log(`${browser.browserType().name()} ${width}x${height}: layout, 24 products, four-photo gallery, cart and demo checkout passed`);
   } finally { await context.close(); }
 }
 
 async function checkAssets(browser) {
   const {context,page} = await open(browser,390,844);
   try {
-    for (const id of ids) for (const kind of ['model','product']) {
+    for (const id of ids) for (const kind of ['model','product','editorial','detail']) {
       const response = await context.request.get(`${base}muraka-fashion/${id}-${kind}.webp`);
       assert.equal(response.status(), 200, `${id}-${kind} HTTP status`);
       assert.match(response.headers()['content-type'] || '', /image\/webp/, `${id}-${kind} image format`);
@@ -114,7 +129,7 @@ async function checkAssets(browser) {
     assert.equal(revisedGraphic.status(), 200, 'corrected graphic T-shirt image');
     await page.locator('.mf-nav').getByRole('button',{name:'Каталог'}).tap();
     await page.getByRole('searchbox',{name:'Поиск по коллекции'}).fill('Джинсы');
-    assert.equal(await page.locator('[data-testid^="mf-card-"]').count(), 4);
+    assert.equal(await page.locator('[data-testid^="mf-card-"]').count(), 6);
     await page.getByRole('searchbox',{name:'Поиск по коллекции'}).fill('');
     await page.getByTestId('mf-card-jeans-blue').getByRole('button',{name:/Открыть/}).tap();
     await page.getByRole('button',{name:'Написать отзыв'}).tap();
@@ -136,7 +151,7 @@ async function checkAssets(browser) {
     await page.getByTestId('muraka-fashion').waitFor();
     await page.locator('.mf-nav').getByRole('button',{name:'Профиль'}).tap();
     assert.equal(await page.locator('[data-testid^="mf-card-"]').count(), 1);
-    console.log('32 images, search and favorites persistence passed');
+    console.log('96 images, search and favorites persistence passed');
   } finally { await context.close(); }
 }
 

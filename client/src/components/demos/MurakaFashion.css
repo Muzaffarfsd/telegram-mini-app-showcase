@@ -78,6 +78,7 @@
 .mf-product { padding-top:0; }
 .mf-gallery { position:relative; height:clamp(380px, 110vw, 500px); background:#fff; overflow:hidden; touch-action:pan-y; }
 .mf-gallery-main { width:100%; height:100%; object-fit:contain; object-position:center; }
+.mf-gallery-main--editorial { object-fit:cover; }
 .mf-gallery-heart { position:absolute; top:8px; right:12px; background:rgba(255,255,255,.9); }
 .mf-gallery-thumbs { position:absolute; bottom:14px; left:15px; display:flex; flex-direction:column; gap:6px; }
 .mf-gallery-thumbs button { width:43px; height:52px; padding:0; border:1px solid transparent; background:#fff; }
