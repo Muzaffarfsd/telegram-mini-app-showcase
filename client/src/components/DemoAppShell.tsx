@@ -270,6 +270,16 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   const baseAppType = getBaseAppType(demoId);
   const theme = demoDark ? darkTheme : getTheme(baseAppType);
 
+  // The wholesale demo supplies its own navigation inside the WEB4TG header.
+  if (demoId === 'opt-market') {
+    const OptMarket = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<div aria-label="Загрузка магазина" style={{ minHeight: '100vh', background: '#fff' }} />}>
+        {OptMarket && <OptMarket onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
+
   // Apple store supplies its own storefront navigation, inside the WEB4TG header.
   if (demoId === 'apple-store') {
     const AppleStore = getDemoComponent(demoId);

@@ -40,6 +40,17 @@ export interface DemoApp {
 // Топ-10 самых популярных приложений по лайкам
 export const demoApps: DemoApp[] = [
   {
+    id: 'opt-market',
+    title: 'ПАРТИЯ — оптовые закупки',
+    description: 'Каталог поставщика, персональные цены и быстрые заказы для бизнеса',
+    category: 'Электронная коммерция',
+    image: '/b2b/generated/hero.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
     id: 'apple-store',
     title: 'Техника Apple',
     description: 'Демо магазина техники Apple с каталогом и корзиной',

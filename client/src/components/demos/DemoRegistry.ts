@@ -9,6 +9,10 @@ export interface DemoComponent {
 
 // Demo registry with lazy loading
 export const demoRegistry: Record<string, DemoComponent> = {
+  'opt-market': {
+    component: lazy(() => import('./OptMarket')),
+    preload: () => import('./OptMarket')
+  },
   'apple-store': {
     component: lazy(() => import('./AppleStore')),
     preload: () => import('./AppleStore')

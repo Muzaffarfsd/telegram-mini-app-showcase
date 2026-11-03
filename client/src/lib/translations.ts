@@ -133,6 +133,7 @@ export const translations = {
       footer: 'Web4TG · Telegram Mini Apps · 2025',
       // Demo app descriptions for project cards
       appDescriptions: {
+        'opt-market': 'Оптовые закупки: каталог, цены и повтор заказа',
         'apple-store': 'Магазин техники Apple с каталогом и корзиной',
         'muraka-fashion': 'Магазин одежды и кроссовок с каталогом',
         'nike-sneakers': 'Магазин кроссовок с каталогом и корзиной',
@@ -1854,6 +1855,7 @@ export const translations = {
       footer: 'Web4TG · Telegram Mini Apps · 2025',
       // Demo app descriptions for project cards
       appDescriptions: {
+        'opt-market': 'Wholesale purchasing: catalog, pricing and repeat orders',
         'apple-store': 'Apple technology store with catalog and shopping bag',
         'muraka-fashion': 'Clothing and sneaker store with catalog',
         'nike-sneakers': 'Sneaker store with catalog and shopping bag',
