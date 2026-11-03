@@ -270,6 +270,16 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   const baseAppType = getBaseAppType(demoId);
   const theme = demoDark ? darkTheme : getTheme(baseAppType);
 
+  // MURAKA supplies its own storefront header and navigation.
+  if (demoId === 'muraka-fashion') {
+    const MurakaFashion = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<div aria-label="Загрузка магазина" style={{ minHeight: '100vh', background: '#fff' }} />}>
+        {MurakaFashion && <MurakaFashion onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
+
   // This standalone store uses its own navigation so it can reproduce the
   // requested shop experience, including a full-screen basket sheet.
   if (demoId === 'royal-step' || demoId === 'nike-sneakers') {

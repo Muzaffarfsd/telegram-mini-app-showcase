@@ -40,6 +40,17 @@ export interface DemoApp {
 // Топ-10 самых популярных приложений по лайкам
 export const demoApps: DemoApp[] = [
   {
+    id: 'muraka-fashion',
+    title: 'MURAKA',
+    description: 'Демо магазина одежды и кроссовок',
+    category: 'Электронная коммерция',
+    image: '/muraka-fashion/jacket-patchwork-product.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
     id: 'nike-sneakers',
     title: 'КРОССОВКИ NIKE',
     description: 'Демо магазина Nike с каталогом и корзиной',

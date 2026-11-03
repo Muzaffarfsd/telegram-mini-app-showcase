@@ -509,6 +509,7 @@ function AppContent() {
   }, [route.component]);
 
   const isRoyalStep = route.component === 'demoApp' && ['nike-sneakers', 'royal-step'].includes(route.params?.id || '');
+  const isFashionDemo = route.component === 'demoApp' && route.params?.id === 'muraka-fashion';
   const shouldShowBottomNav = !route.component.includes('demo') && route.component !== 'notFound';
   const shouldShowSidebar = (!route.component.includes('demo') && route.component !== 'notFound') || isRoyalStep;
 
@@ -532,7 +533,7 @@ function AppContent() {
                   </ErrorBoundary>
                 )}
                 
-                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={isRoyalStep ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
+                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={isRoyalStep || isFashionDemo ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
                   {visitedTabs.has('showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
                       <Suspense fallback={<StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} />}>
