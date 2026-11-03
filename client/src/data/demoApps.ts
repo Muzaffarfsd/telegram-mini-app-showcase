@@ -44,7 +44,7 @@ export const demoApps: DemoApp[] = [
     title: 'ПАРТИЯ — оптовые закупки',
     description: 'Каталог поставщика, персональные цены и быстрые заказы для бизнеса',
     category: 'Электронная коммерция',
-    image: '/b2b/generated/hero.webp',
+    image: '/b2b/generated/hero-real-v1.webp',
     creator: 'WEB4TG',
     likes: '0',
     badge: 'Демо',

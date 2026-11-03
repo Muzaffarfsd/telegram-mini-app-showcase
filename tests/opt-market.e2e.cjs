@@ -12,6 +12,7 @@ async function run(browser, width, height) {
     await p.goto(url, { waitUntil: 'domcontentloaded' });
     await p.getByTestId('opt-market').waitFor();
     await p.locator('.opt-hero-image').evaluate(i => i.decode());
+    assert.ok((await p.locator('.opt-hero-image').getAttribute('src')).includes('hero-real-v1.webp'), 'real-product hero must load');
     const nav = await p.locator('.opt-nav').boundingBox();
     assert(nav && nav.x >= 0 && nav.x + nav.width <= width, `navigation outside viewport: ${JSON.stringify(nav)}`);
     assert.equal(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'horizontal overflow');
@@ -27,11 +28,11 @@ async function run(browser, width, height) {
     await p.getByRole('heading', { name: 'Ничего не нашли' }).waitFor();
     await p.getByRole('button', { name: 'Показать все товары' }).click();
     await search.fill('кофе');
-    await p.getByRole('button', { name: 'Открыть товар: Кофе в зёрнах' }).click();
-    await p.getByRole('heading', { name: 'Кофе в зёрнах' }).waitFor();
+    await p.getByRole('button', { name: 'Открыть товар: Lavazza Qualità Oro' }).click();
+    await p.getByRole('heading', { name: 'Lavazza Qualità Oro' }).waitFor();
     await p.goBack({ waitUntil: 'domcontentloaded' });
     await p.getByRole('searchbox', { name: 'Поиск товара' }).waitFor();
-    await p.getByRole('button', { name: 'Открыть товар: Кофе в зёрнах' }).click();
+    await p.getByRole('button', { name: 'Открыть товар: Lavazza Qualità Oro' }).click();
     await p.getByRole('button', { name: 'Добавить коробку' }).click();
     await p.getByRole('button', { name: 'Перейти в заказ' }).click();
     await p.getByRole('button', { name: 'Оформить заказ' }).click();
@@ -43,12 +44,12 @@ async function run(browser, width, height) {
     await p.getByRole('heading', { name: 'Заказ собран.' }).waitFor();
     await p.getByRole('button', { name: 'Посмотреть историю' }).click();
     await p.getByRole('button', { name: 'Добавить заказ в корзину' }).click();
-    await p.getByText('Кофе в зёрнах', { exact: true }).waitFor();
+    await p.getByText('Lavazza Qualità Oro', { exact: true }).waitFor();
     await p.reload({ waitUntil: 'domcontentloaded' });
     await p.getByTestId('opt-market').waitFor();
     await p.locator('.opt-nav').getByRole('button', { name: /^Заказ,/ }).click();
-    await p.getByText('Кофе в зёрнах', { exact: true }).waitFor();
-    await p.getByRole('button', { name: 'Удалить Кофе в зёрнах' }).click();
+    await p.getByText('Lavazza Qualità Oro', { exact: true }).waitFor();
+    await p.getByRole('button', { name: 'Удалить Lavazza Qualità Oro' }).click();
     await p.getByRole('heading', { name: 'Здесь будет ваш заказ' }).waitFor();
     assert.deepEqual(errors, [], 'uncaught page errors');
     console.log(`${browser.browserType().name()} ${width}×${height}: navigation, search, validation, order, repeat and persistence passed`);
