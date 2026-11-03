@@ -28,7 +28,7 @@ const base = (process.env.OPT_TEST_URL || 'http://127.0.0.1:53742/').replace(/\/
     assert.ok((await image.getAttribute('src')).endsWith('real-coffee-v1-scene-v2.webp'));
     await page.getByRole('button', { name: 'Товар', exact: true }).click();
     assert.ok((await image.getAttribute('src')).endsWith('real-coffee-v1.webp'));
-    await page.getByRole('button', { name: 'Добавить коробку' }).click();
+    await page.getByRole('button', { name: 'Добавить коробку', exact: true }).click();
     await page.getByRole('button', { name: 'Перейти в заказ' }).click();
     await page.getByRole('button', { name: 'Оформить заказ' }).click();
     await page.getByPlaceholder('Как к вам обращаться').fill('Алексей');

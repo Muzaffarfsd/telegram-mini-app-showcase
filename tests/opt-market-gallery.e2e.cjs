@@ -8,7 +8,10 @@ const products = [
   'Barilla Penne Rigate', 'Mutti Pelati', 'Monin Vanilla', 'Alpro Barista Oat',
   'Dr. Oetker Cocoa Powder', 'AXA Гранола медовая с орехами',
   'Медовый Дом Приволжское разнотравье', 'Barilla Basilico', 'Lotus Biscoff',
+  'Nutella Hazelnut Spread', 'Bonne Maman Strawberry', 'OREO Original',
+  'S.Pellegrino', 'Barilla Spaghetti №5', 'NESCAFÉ Gold Blend',
 ];
+const extraScenes = new Set(['Lavazza Qualità Oro', 'Barilla Penne Rigate', 'Lotus Biscoff', 'Alpro Barista Oat']);
 
 async function main() {
   const browser = await engine.launch();
@@ -24,7 +27,7 @@ async function main() {
     await page.locator('.opt-product-picture img').evaluateAll(images => images.forEach(img => { img.loading = 'eager'; }));
     await page.waitForFunction(() => {
       const images = [...document.querySelectorAll('.opt-product-picture img')];
-      return images.length === 12 && images.every(img => img.complete && img.naturalWidth > 0 && img.getAttribute('src').endsWith('-scene-v2.webp'));
+      return images.length === 18 && images.every(img => img.complete && img.naturalWidth > 0 && img.getAttribute('src').endsWith('-scene-v2.webp'));
     });
     for (const name of products) {
       await page.locator('.opt-nav').getByRole('button', { name: 'Каталог' }).click();
@@ -53,6 +56,13 @@ async function main() {
       await scene.click();
       assert.equal(await scene.getAttribute('aria-pressed'), 'true');
       assert.equal(await picture.getAttribute('src'), creative, `${name} returns to creative scene`);
+      if (extraScenes.has(name)) {
+        const serving = page.getByRole('button', { name: 'Подача', exact: true });
+        await serving.click();
+        assert.equal(await serving.getAttribute('aria-pressed'), 'true');
+        assert((await picture.getAttribute('src')).endsWith('-scene-v3.webp'), `${name} has a distinct serving image`);
+        await picture.evaluate(img => img.decode());
+      }
       await product.click();
       assert.equal(await picture.getAttribute('src'), original, `${name} returns to product image`);
       await picture.evaluate(img => img.decode());

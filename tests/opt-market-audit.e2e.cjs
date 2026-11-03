@@ -38,12 +38,12 @@ async function main() {
     await page.getByRole('button', { name: 'Выбрать товары', exact: true }).click();
     await page.waitForFunction(() => document.activeElement === document.querySelector('.opt-main h1'));
     await page.getByRole('button', { name: 'Бакалея', exact: true }).click();
-    assert.equal(await page.locator('.opt-product-card').count(), 4, 'category limits the catalog');
+    assert.equal(await page.locator('.opt-product-card').count(), 5, 'category limits the expanded catalog');
     const search = page.getByRole('searchbox', { name: 'Поиск товара' });
     await search.fill('несуществующий товар');
     await page.getByRole('heading', { name: 'Ничего не нашли' }).waitFor();
     await page.getByRole('button', { name: 'Показать все товары' }).click();
-    assert.equal(await page.locator('.opt-product-card').count(), 12, 'reset restores categories and search');
+    assert.equal(await page.locator('.opt-product-card').count(), 18, 'reset restores all available products');
     await audit(page, 'catalog');
     const lastProduct = page.getByRole('button', { name: 'Открыть товар: Lotus Biscoff' });
     await lastProduct.scrollIntoViewIfNeeded();
@@ -62,7 +62,7 @@ async function main() {
     await page.getByRole('button', { name: 'Товар', exact: true }).click();
     assert.equal(await page.locator('.opt-detail-image img').evaluate(img => getComputedStyle(img).objectFit), 'contain', 'the full product image must fit within the product view');
     if (process.env.OPT_SCREENSHOT) await page.screenshot({ path: process.env.OPT_SCREENSHOT });
-    await assertReachableAboveNav(page, page.getByRole('button', { name: 'Добавить коробку' }), 'product action');
+    await assertReachableAboveNav(page, page.getByRole('button', { name: 'Добавить коробку', exact: true }), 'product action');
     await audit(page, 'product');
     await page.goBack();
     await page.getByRole('searchbox', { name: 'Поиск товара' }).waitFor();
