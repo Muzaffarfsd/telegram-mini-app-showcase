@@ -1,0 +1,46 @@
+const { chromium } = require('playwright');
+const assert = require('node:assert/strict');
+const base = (process.env.OPT_TEST_URL || 'http://127.0.0.1:53742/').replace(/\/$/, '');
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  try {
+    await page.goto(`${base}/#/demos/opt-market/app`, { waitUntil: 'domcontentloaded' });
+    await page.getByRole('button', { name: 'Выбрать товары', exact: true }).click();
+    const product = page.getByRole('button', { name: 'Открыть товар: Lotus Biscoff' });
+    await product.scrollIntoViewIfNeeded();
+    await product.focus();
+    const scrollBefore = await page.locator('#root').evaluate(el => el.scrollTop);
+    await page.keyboard.press('Enter');
+    await page.getByRole('heading', { name: 'Lotus Biscoff' }).waitFor();
+    await page.goBack();
+    await page.waitForFunction(() => document.activeElement?.getAttribute('data-opt-focus') === 'product-picture-real-cookies');
+    const scrollAfter = await page.locator('#root').evaluate(el => el.scrollTop);
+    assert.ok(Math.abs(scrollAfter - scrollBefore) < 5, 'back should restore scroll to the focused product');
+    const search = page.getByRole('searchbox', { name: 'Поиск товара' });
+    await search.fill('лавацца');
+    await page.getByRole('button', { name: 'Открыть товар: Lavazza Qualità Oro' }).click();
+    const scene = page.getByRole('button', { name: 'Иллюстрация', exact: true });
+    await scene.click();
+    assert.equal(await scene.getAttribute('aria-pressed'), 'true');
+    const image = page.locator('.opt-detail-image img');
+    await image.evaluate(img => img.decode());
+    assert.ok((await image.getAttribute('src')).endsWith('real-coffee-v1-scene-v2.webp'));
+    await page.getByRole('button', { name: 'Товар', exact: true }).click();
+    assert.ok((await image.getAttribute('src')).endsWith('real-coffee-v1.webp'));
+    await page.getByRole('button', { name: 'Добавить коробку' }).click();
+    await page.getByRole('button', { name: 'Перейти в заказ' }).click();
+    await page.getByRole('button', { name: 'Оформить заказ' }).click();
+    await page.getByPlaceholder('Как к вам обращаться').fill('Алексей');
+    await page.getByPlaceholder('+7 999 000-00-00').fill('+7 999 000-00-00');
+    await page.getByLabel('Самовывоз').check();
+    await page.getByRole('button', { name: 'Создать демо-заказ' }).click();
+    await page.getByRole('button', { name: 'Посмотреть историю' }).click();
+    await page.getByText('Получение: Самовывоз').waitFor();
+    await page.reload();
+    await page.getByRole('button', { name: 'История', exact: true }).click();
+    await page.getByText('Получение: Самовывоз').waitFor();
+    assert.equal(await page.getByText('Получение: Самовывоз').count(), 1);
+    console.log('Wholesale search and delivery selection persist: passed');
+  } finally { await browser.close(); }
+})().catch(e => { console.error(e); process.exitCode = 1; });
