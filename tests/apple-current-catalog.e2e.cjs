@@ -1,6 +1,32 @@
 // Mobile regression for the refreshed Apple demo. Set APPLE_TEST_URL for a running preview.
 const { chromium, webkit } = require('playwright');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const { parse } = require('@babel/parser');
+require('tsx/cjs');
+const { appleCatalog2026 } = require('../client/src/components/demos/appleCatalog2026.ts');
+const { appleProductGallery2026 } = require('../client/src/components/demos/appleProductGallery2026.ts');
+
+// Read the actual component's static creative map without evaluating component code.
+const source = fs.readFileSync(path.join(__dirname, '../client/src/components/demos/AppleStore.tsx'), 'utf8');
+const ast = parse(source, {sourceType:'module', plugins:['typescript','jsx']});
+const creativeDeclaration = ast.program.body.filter(node => node.type === 'VariableDeclaration').flatMap(node => node.declarations).find(node => node.id.name === 'creativeGallery');
+assert.equal(creativeDeclaration?.init?.type, 'ObjectExpression', 'Creative gallery is not a static object');
+const creative = Object.fromEntries(creativeDeclaration.init.properties.map(property => {
+  assert.equal(property.type, 'ObjectProperty');
+  assert.equal(property.key.type, 'StringLiteral');
+  assert.equal(property.value.type, 'ArrayExpression');
+  return [property.key.value, property.value.elements.map(element => { assert.equal(element?.type, 'StringLiteral'); return element.value; })];
+}));
+const allGallerySources = [];
+for (const item of appleCatalog2026) {
+  const images = [item.image, ...(creative[item.id] || []), ...(appleProductGallery2026[item.id] || [])];
+  assert.ok(item.image && new Set(images).size >= 2, item.id + ' must have at least two distinct image sources');
+  allGallerySources.push(...images);
+}
+const uniqueGallerySources = [...new Set(allGallerySources)];
+const imagesVerified = new Set();
 const base = process.env.APPLE_TEST_URL || 'http://127.0.0.1:53738/';
 const cards = p => p.locator('.as-catalog [data-testid^="as-card-"]');
 
@@ -14,6 +40,22 @@ async function run(engine, width, height) {
   try {
     await page.goto(`${base}#/demos/apple-store/app`, { waitUntil: 'domcontentloaded' });
     await page.getByTestId('apple-store').waitFor({ timeout: 30000 });
+    // Load all data-backed primary and gallery URLs on each engine, including local WebP.
+    if (!imagesVerified.has(engine.name())) {
+      const broken = await page.evaluate(async urls => {
+        const checks = await Promise.all(urls.map(url => new Promise(resolve => {
+          const img = new Image();
+          const timer = setTimeout(() => resolve(url), 30000);
+          img.onload = () => { clearTimeout(timer); resolve(img.naturalWidth > 0 && img.naturalHeight > 0 ? null : url); };
+          img.onerror = () => { clearTimeout(timer); resolve(url); };
+          img.src = url;
+        })));
+        return checks.filter(Boolean);
+      }, uniqueGallerySources);
+      assert.deepEqual(broken, [], 'Gallery images failed to load: ' + broken.join(', '));
+      imagesVerified.add(engine.name());
+      console.log(engine.name() + ': ' + appleCatalog2026.length + ' models have at least two distinct sources; ' + uniqueGallerySources.length + ' unique image sources loaded');
+    }
     await page.locator('.as-nav').getByRole('button', { name: 'Каталог' }).tap();
     await page.locator('.as-catalog').waitFor();
     const total = await cards(page).count();
@@ -40,8 +82,9 @@ async function run(engine, width, height) {
     const failures = await page.evaluate(async urls => {
       const results = await Promise.all(urls.map(url => new Promise(resolve => {
         const image = new Image();
-        image.onload = () => resolve(image.naturalWidth > 0 && image.naturalHeight > 0 ? null : url);
-        image.onerror = () => resolve(url);
+        const timeout = setTimeout(() => resolve(url), 30000);
+        image.onload = () => { clearTimeout(timeout); resolve(image.naturalWidth > 0 && image.naturalHeight > 0 ? null : url); };
+        image.onerror = () => { clearTimeout(timeout); resolve(url); };
         image.src = url;
       })));
       return results.filter(Boolean);
@@ -61,42 +104,80 @@ async function run(engine, width, height) {
     await search.fill('iPhone 18');
     const matches = await cards(page).count();
     assert.ok(matches > 0, 'Search for iPhone 18 returned no results');
-    // Pro has no lifestyle frame; the UI must not invent one.
-    const pro = page.getByTestId('as-card-iphone-18-pro');
-    await pro.scrollIntoViewIfNeeded();
-    await pro.getByRole('button', { name: /Открыть/ }).tap();
-    await page.locator('.as-product').waitFor();
-    assert.match(await page.locator('.as-product h1').textContent(), /iPhone 18 Pro/i);
-    assert.equal(await page.getByRole('button', { name: 'В жизни', exact: true }).count(), 0, 'Unverified lifestyle photo was presented as real');
-    await page.getByRole('button', { name: 'Увеличить фотографию товара' }).tap();
-    let dialog = page.getByRole('dialog');
-    await dialog.waitFor();
-    assert.equal(await dialog.getByRole('button', { name: 'Следующая фотография' }).count(), 0);
-    await dialog.getByRole('button', { name: 'Закрыть' }).tap();
-    await dialog.waitFor({ state: 'hidden' });
+    // Every frame is individually selectable, loads, and identifies generated illustrations.
+    async function exerciseGallery(id, expectedName, minFrames) {
+      const card = page.getByTestId('as-card-' + id);
+      await card.scrollIntoViewIfNeeded();
+      await card.getByRole('button', { name: /Открыть/ }).tap();
+      await page.locator('.as-product').waitFor();
+      assert.match(await page.locator('.as-product h1').textContent(), expectedName);
+      assert.equal(await page.getByRole('button', { name: 'Товар', exact: true }).count(), 0);
+      assert.equal(await page.getByRole('button', { name: 'В жизни', exact: true }).count(), 0);
+      assert.ok(await page.locator('.as-feature').count() > 0, id + ' has no verified feature presentation');
+      assert.ok(await page.locator('.as-specs dl > div').count() > 0, id + ' has no verified specs');
+      const thumbs = page.locator('.as-gallery-strip button');
+      const count = await thumbs.count();
+      assert.ok(count >= minFrames, id + ' has only ' + count + ' frames');
+      const shown = page.locator('.as-product-gallery > img');
+      const overflow = await thumbs.evaluateAll(buttons => buttons.some(button => {const b=button.getBoundingClientRect(), i=button.querySelector('img').getBoundingClientRect(); return i.top < b.top-0.5 || i.bottom > b.bottom+0.5 || i.left < b.left-0.5 || i.right > b.right+0.5;}));
+      assert.equal(overflow, false, id + ' thumbnail image escapes its button');
+      let generatedIndex = -1;
+      for (let i = 0; i < count; i++) {
+        const thumb = thumbs.nth(i);
+        await thumb.scrollIntoViewIfNeeded();
+        await thumb.tap();
+        assert.equal(await thumb.getAttribute('aria-pressed'), 'true');
+        const expected = await thumb.locator('img').getAttribute('src');
+        await page.waitForFunction(url => {const img=document.querySelector('.as-product-gallery > img'); return img?.getAttribute('src') === url && img.complete && img.naturalWidth > 0;}, expected, {timeout:20000});
+        const ai = expected.startsWith('/apple-store/creative/');
+        assert.equal(await page.locator('.as-gallery-note').count(), ai ? 1 : 0, id + ' missing or incorrect AI label for ' + expected);
+        if (ai) { generatedIndex = i; assert.match(await page.locator('.as-gallery-note').textContent(), /создана с помощью ИИ/i); }
+      }
+      const detailImage = await page.locator('.as-detail-visual img').getAttribute('src');
+      const detailIsAI = detailImage.startsWith('/apple-store/creative/');
+      assert.equal(await page.locator('.as-detail-note').count(), detailIsAI ? 1 : 0, id + ' incorrect presentation image label');
+      if (generatedIndex >= 0) {
+        await thumbs.nth(generatedIndex).scrollIntoViewIfNeeded();
+        await thumbs.nth(generatedIndex).tap();
+        await page.getByRole('button', { name:'Увеличить фотографию товара' }).tap();
+        const aiViewer = page.getByRole('dialog');
+        await aiViewer.waitFor();
+        assert.match(await aiViewer.locator('.as-viewer-note').textContent(), /создана с помощью ИИ/i);
+        await aiViewer.getByRole('button', { name:'Закрыть' }).tap();
+        await aiViewer.waitFor({ state:'hidden' });
+      }
+      // Return to first image, then swipe horizontally and verify selection.
+      await thumbs.first().scrollIntoViewIfNeeded();
+      await thumbs.first().tap();
+      await page.locator('.as-product-gallery').evaluate(el => {
+        const start = new Event('touchstart', { bubbles:true });
+        const end = new Event('touchend', { bubbles:true });
+        Object.defineProperty(start, 'touches', { value:[{clientX:300,clientY:300}] });
+        Object.defineProperty(end, 'changedTouches', { value:[{clientX:120,clientY:300}] });
+        el.dispatchEvent(start); el.dispatchEvent(end);
+      });
+      assert.equal(await thumbs.nth(1).getAttribute('aria-pressed'), 'true', id + ' swipe did not advance');
+      await thumbs.first().scrollIntoViewIfNeeded();
+      await thumbs.first().tap();
+      const source = await shown.getAttribute('src');
+      await page.getByRole('button', { name: 'Увеличить фотографию товара' }).tap();
+      const viewer = page.getByRole('dialog');
+      await viewer.waitFor();
+      assert.equal(await viewer.locator('.as-photo-viewport img').getAttribute('src'), source);
+      await viewer.getByRole('button', { name: 'Следующая фотография' }).tap();
+      assert.notEqual(await viewer.locator('.as-photo-viewport img').getAttribute('src'), source);
+      await viewer.getByRole('button', { name: 'Закрыть' }).tap();
+      await viewer.waitFor({ state: 'hidden' });
+      return count;
+    }
+
+    await exerciseGallery('iphone-18-pro', /iPhone 18 Pro/i, 2);
     await page.goBack();
     await page.locator('.as-catalog').waitFor();
     assert.equal(await search.inputValue(), 'iPhone 18');
     assert.equal(await cards(page).count(), matches);
-
-    // Pro Max explicitly identifies its generated illustration.
-    const proMax = page.getByTestId('as-card-iphone-18-pro-max');
-    await proMax.scrollIntoViewIfNeeded();
-    await proMax.getByRole('button', { name: /Открыть/ }).tap();
-    await page.locator('.as-product').waitFor();
-    assert.match(await page.locator('.as-product h1').textContent(), /iPhone 18 Pro Max/i);
-    const productImage = page.locator('.as-product-gallery > img');
-    await productImage.waitFor();
-    await page.waitForFunction(() => { const img = document.querySelector('.as-product-gallery > img'); return img?.complete && img.naturalWidth > 0; });
-    const source = await productImage.getAttribute('src');
-    assert.ok(source, 'Missing product image source');
-    const lifestyle = page.getByRole('button', { name: 'В жизни', exact: true });
-    await lifestyle.tap();
-    assert.equal(await lifestyle.getAttribute('aria-pressed'), 'true');
-    await page.waitForFunction(previous => { const img = document.querySelector('.as-product-gallery > img'); return img?.getAttribute('src') !== previous && img.complete && img.naturalWidth > 0; }, source);
-    assert.match(await page.locator('.as-product').textContent(), /СГЕНЕРИРОВАННАЯ ИЛЛЮСТРАЦИЯ/i);
-    await page.getByRole('button', { name: 'Товар', exact: true }).tap();
-    assert.equal(await productImage.getAttribute('src'), source);
+    const proMaxFrames = await exerciseGallery('iphone-18-pro-max', /iPhone 18 Pro Max/i, 4);
+    assert.ok(proMaxFrames >= 4, 'Pro Max needs multiple photos');
 
     // Browser back keeps the user's search; forward returns to the same product.
     await page.goBack();
@@ -106,7 +187,7 @@ async function run(engine, width, height) {
     await page.goForward();
     await page.locator('.as-product').waitFor();
     await page.getByRole('button', { name: /В КОРЗИНУ/ }).tap();
-    dialog = page.getByRole('dialog');
+    let dialog = page.getByRole('dialog');
     await dialog.waitFor();
     assert.match(await dialog.textContent(), /iPhone 18/i);
     await dialog.getByRole('button', { name: /ОФОРМИТЬ ДЕМО-ЗАКАЗ/ }).tap();
@@ -122,6 +203,14 @@ async function run(engine, width, height) {
     await phone.fill('9001234567');
     await page.getByRole('button', { name: /ПОДТВЕРДИТЬ ДЕМО-ЗАКАЗ/ }).tap();
     await page.locator('.as-success').waitFor();
+    // Verify products from other families with their own photographs and facts.
+    for (const [term, id, expected] of [['iPad Air','ipad-air-11-m4',/iPad Air 11/i], ['Watch Ultra','watch-ultra-4',/Watch Ultra 4/i]]) {
+      await page.locator('.as-nav').getByRole('button', {name:'Каталог'}).tap();
+      await page.locator('.as-catalog').waitFor();
+      const field = page.getByRole('searchbox', {name:'Поиск по каталогу'});
+      await field.fill(term);
+      await exerciseGallery(id, expected, 2);
+    }
     assert.deepEqual(errors, []);
     console.log(`${engine.name()} ${width}x${height}: ${total} products, category filters, images, scroll, search, product, zoom, history and demo checkout passed`);
   } finally {
@@ -131,8 +220,8 @@ async function run(engine, width, height) {
 }
 
 (async () => {
-  await run(chromium, 320, 568);
-  await run(chromium, 390, 844);
-  await run(webkit, 320, 568);
-  await run(webkit, 430, 932);
+  const cases = [[chromium,320,568], [chromium,390,844], [webkit,320,568], [webkit,390,844], [webkit,430,932]];
+  for (const [engine,width,height] of cases) {
+    if (!process.env.APPLE_TEST_SINGLE || process.env.APPLE_TEST_SINGLE === engine.name() + ':' + width) await run(engine,width,height);
+  }
 })().catch(error => { console.error(error); process.exitCode = 1; });
