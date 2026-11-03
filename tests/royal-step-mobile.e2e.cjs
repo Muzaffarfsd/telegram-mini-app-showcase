@@ -37,6 +37,24 @@ async function assertBottomReachable(page, selector) {
   assert.ok(geometry.targetBottom <= geometry.navTop + 1, `${selector} is hidden by bottom navigation: ${JSON.stringify(geometry)}`);
 }
 
+async function assertEverydayCard(page) {
+  const card = page.locator('.rs-editorial--everyday');
+  await card.locator('img').evaluate(image => image.decode());
+  const layout = await card.evaluate(element => {
+    const rect = selector => element.querySelector(selector).getBoundingClientRect().toJSON();
+    return {image:rect('img'), label:rect('span'), title:rect('strong'), arrow:rect('i')};
+  });
+  assert.ok(layout.label.bottom <= layout.image.top + 1, `Label overlaps image: ${JSON.stringify(layout)}`);
+  assert.ok(layout.image.bottom <= layout.title.top + 1, `Title overlaps image: ${JSON.stringify(layout)}`);
+  assert.ok(layout.title.right <= layout.arrow.left + 1, `Title overlaps arrow: ${JSON.stringify(layout)}`);
+  await card.tap();
+  assert.equal(await page.getByRole('heading',{name:'Найдите свою пару'}).isVisible(), true);
+  assert.ok(await page.locator('[data-testid^="royal-card-"]').count() > 0);
+  await page.getByRole('button',{name:'Фильтры'}).tap();
+  await page.getByRole('dialog').getByRole('button',{name:'Сбросить'}).tap();
+  await page.getByRole('button',{name:'Показать модели'}).tap();
+}
+
 async function runFull(browser) {
   const {context,page,errors} = await contextFor(browser,390,844);
   try {
@@ -173,7 +191,9 @@ async function runViewport(browser,width,height) {
     await page.getByTestId('royal-step').waitFor({timeout:30000});
     // Simulate Telegram reporting a bottom content-safe inset larger than the browser's inset.
     await page.evaluate(() => { document.documentElement.style.setProperty('--sab', '34px'); document.documentElement.style.setProperty('--csab', '50px'); });
-    await assertLayout(page); await assertBottomReachable(page, '.rs-home__note');
+    await assertLayout(page); await assertEverydayCard(page);
+    await nav(page).getByRole('button',{name:'Главная'}).tap();
+    await assertBottomReachable(page, '.rs-home__note');
     await nav(page).getByRole('button',{name:'Каталог'}).tap(); await assertLayout(page);
     await assertBottomReachable(page, '.rs-grid > .rs-card');
     await page.getByRole('button',{name:'Открыть Nike Dunk Low Retro'}).tap(); await assertLayout(page);
