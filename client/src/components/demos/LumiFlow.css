@@ -1,0 +1,129 @@
+/* Booking and account screens. Shared with LUMI's editorial, monochrome art direction. */
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) {
+  --lumi-ink: #171717;
+  --lumi-muted: #686868;
+  --lumi-line: #e5e5e3;
+  --lumi-accent: #171717;
+  --lumi-soft: #f5f5f3;
+}
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) .lumi-eyebrow {
+  color: #676767;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: .12em;
+}
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) .lumi-title {
+  margin-top: 10px;
+  color: #171717;
+  font-size: clamp(33px, 9vw, 42px);
+  font-weight: 600;
+  letter-spacing: -.055em;
+  line-height: 1.06;
+}
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) .lumi-subtitle {
+  max-width: 34ch;
+  color: #646464;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) .lumi-back { color: #242424; font-weight: 500; }
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) .lumi-primary {
+  min-height: 52px;
+  border-radius: 999px;
+  background: #171717;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) .lumi-secondary {
+  min-height: 46px;
+  border: 1px solid #d9d9d7;
+  border-radius: 999px;
+  background: #fff;
+  color: #171717;
+  font-size: 13px;
+  font-weight: 600;
+}
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) .lumi-notice { color: #696969; line-height: 1.55; }
+
+/* Book: quiet step indicator, image-led choices and clearly selected slots. */
+.lumi[data-screen="book"] .lumi-steps { gap: 4px; margin: 22px 0 24px; }
+.lumi[data-screen="book"] .lumi-step { height: 2px; border-radius: 0; background: #e3e3e1; }
+.lumi[data-screen="book"] .lumi-step.active { background: #1b1b1b; }
+.lumi[data-screen="book"] .lumi-choice-list { gap: 0; margin-top: 21px; border-top: 1px solid #e6e6e4; }
+.lumi[data-screen="book"] .lumi-choice {
+  min-height: 84px; gap: 14px; padding: 12px 0;
+  border: 0; border-bottom: 1px solid #e6e6e4; border-radius: 0;
+  background: #fff; color: #171717;
+}
+.lumi[data-screen="book"] .lumi-choice img { width: 58px; height: 65px; border-radius: 6px; object-fit: cover; }
+.lumi[data-screen="book"] .lumi-choice b { font-size: 15px; font-weight: 600; line-height: 1.25; }
+.lumi[data-screen="book"] .lumi-choice span small { color: #6a6a6a; font-size: 12px; }
+.lumi[data-screen="book"] .lumi-choice svg { width: 16px; color: #242424; }
+.lumi[data-screen="book"] .lumi-date-row { gap: 8px; margin-top: 24px; padding-bottom: 10px; }
+.lumi[data-screen="book"] .lumi-date-row button,
+.lumi[data-screen="book"] .lumi-slot { border-color: #dededc; border-radius: 9px; background: #fff; color: #292929; }
+.lumi[data-screen="book"] .lumi-date-row button { min-width: 69px; min-height: 70px; }
+.lumi[data-screen="book"] .lumi-date-row button span { color: #707070; font-size: 11px; }
+.lumi[data-screen="book"] .lumi-date-row button b { font-size: 13px; font-weight: 600; }
+.lumi[data-screen="book"] .lumi-date-row button[aria-pressed="true"],
+.lumi[data-screen="book"] .lumi-slot[aria-pressed="true"] { border-color: #171717; background: #171717; color: #fff; }
+.lumi[data-screen="book"] .lumi-date-row button[aria-pressed="true"] span { color: #dedede; }
+.lumi[data-screen="book"] .lumi-slot { min-height: 48px; font-size: 13px; font-weight: 600; }
+.lumi[data-screen="book"] .lumi-slot:disabled { color: #888; background: #f4f4f3; opacity: .56; }
+.lumi[data-screen="book"] .lumi-summary { margin: 23px 0 26px; padding: 5px 0; border-top: 1px solid #e6e6e4; border-bottom: 1px solid #e6e6e4; border-radius: 0; background: transparent; }
+.lumi[data-screen="book"] .lumi-summary>div { padding: 10px 0; font-size: 13px; }
+.lumi[data-screen="book"] .lumi-summary span { color: #696969; }
+.lumi[data-screen="book"] .lumi-summary b { color: #1d1d1d; font-weight: 600; }
+.lumi:is([data-screen="book"],[data-screen="admin"]) .lumi-field { color: #292929; font-size: 13px; font-weight: 600; }
+.lumi:is([data-screen="book"],[data-screen="admin"]) .lumi-field input { min-height: 52px; border-color: #dcdcdc; border-radius: 8px; font-size: 16px; }
+.lumi:is([data-screen="book"],[data-screen="admin"]) .lumi-field input:focus-visible { outline-color: #454545; }
+
+/* Masters: portrait-led cards with captions, rather than boxed profiles. */
+.lumi[data-screen="masters"] .lumi-master-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 12px; margin-top: 26px; }
+.lumi[data-screen="masters"] .lumi-master-card { overflow: visible; border: 0; border-radius: 0; }
+.lumi[data-screen="masters"] .lumi-master-image { aspect-ratio: 4 / 5; border-radius: 8px; object-position: center 25%; }
+.lumi[data-screen="masters"] .lumi-master-body { padding: 11px 0 0; }
+.lumi[data-screen="masters"] .lumi-master-body h2 { font-size: 17px; font-weight: 600; }
+.lumi[data-screen="masters"] .lumi-master-body p { margin-top: 4px; color: #686868; font-size: 12px; }
+.lumi[data-screen="masters"] .lumi-master-body .lumi-eyebrow { margin-top: 9px; font-size: 9px; }
+.lumi[data-screen="master"] .lumi-detail-master { aspect-ratio: 4 / 4.2; border-radius: 9px; object-position: center 25%; }
+.lumi[data-screen="master"] .lumi-detail { padding-top: 25px; }
+.lumi[data-screen="master"] .lumi-detail h1 { font-size: 38px; font-weight: 600; }
+.lumi[data-screen="master"] .lumi-detail p { color: #626262; }
+.lumi[data-screen="master"] .lumi-specialties span { border: 1px solid #e3e3e1; background: #fff; color: #404040; }
+.lumi[data-screen="master"] .lumi-detail-heading { font-size: 21px; font-weight: 600; }
+.lumi[data-screen="master"] .lumi-portfolio-card img { border-radius: 8px; }
+.lumi[data-screen="master"] .lumi-choice { border-color: #e4e4e2; border-radius: 9px; color: #171717; }
+
+/* Visit history and studio: clear states and calm operational controls. */
+.lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-bookings { gap: 12px; margin-top: 25px; }
+.lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-booking-card { padding: 19px; border-color: #e4e4e2; border-radius: 10px; }
+.lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-booking-card h2 { font-size: 19px; font-weight: 600; }
+.lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-booking-card p { color: #666; line-height: 1.55; }
+.lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-status { min-height: 25px; padding: 4px 9px; background: #f0f0ef; color: #404040; font-size: 11px; }
+.lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-empty { padding: 36px 22px; border-color: #e6e6e4; border-radius: 10px; background: #f8f8f7; }
+.lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-empty p { color: #686868; }
+.lumi[data-screen="admin"] .lumi-services-admin { border-color: #e5e5e3; }
+.lumi[data-screen="admin"] .lumi-services-admin>h2 { font-weight: 600; }
+.lumi[data-screen="admin"] .lumi-service-settings { padding: 18px 0; border: 0; border-bottom: 1px solid #e6e6e4; border-radius: 0; }
+.lumi[data-screen="admin"] .lumi-service-settings h3 { font-size: 16px; font-weight: 600; }
+.lumi[data-screen="admin"] .lumi-settings-toggle { color: #444; }
+.lumi[data-screen="admin"] .lumi-settings-toggle input { accent-color: #171717; }
+.lumi[data-screen="admin"] .lumi-service-settings>.lumi-secondary { width: auto; padding-right: 20px; padding-left: 20px; }
+
+/* Client account. */
+.lumi[data-screen="profile"] .lumi-profile-panel { margin-top: 28px; padding: 23px; border: 1px solid #e8e8e6; border-radius: 10px; background: #f8f8f6; color: #171717; }
+.lumi[data-screen="profile"] .lumi-profile-panel h2 { font-size: 25px; font-weight: 600; }
+.lumi[data-screen="profile"] .lumi-profile-panel p { color: #686868; }
+.lumi[data-screen="profile"] .lumi-profile-panel .lumi-primary { width: auto; min-height: 46px; padding: 0 20px; }
+.lumi[data-screen="profile"] .lumi-profile-links { margin-top: 18px; }
+.lumi[data-screen="profile"] .lumi-profile-links button { min-height: 64px; color: #252525; border-color: #e7e7e5; }
+.lumi[data-screen="profile"] .lumi-profile-links button span { font-size: 14px; font-weight: 600; }
+.lumi[data-screen="success"] .lumi-success-icon { background: #efefed; color: #191919; }
+
+@media (max-width: 350px) {
+  .lumi[data-screen="masters"] .lumi-master-list { gap: 20px 9px; }
+  .lumi[data-screen="book"] .lumi-choice img { width: 52px; height: 60px; }
+  .lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-booking-card { padding: 16px; }
+}

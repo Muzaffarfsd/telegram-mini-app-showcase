@@ -15,6 +15,12 @@ async function audit(page, screen) {
   assert.deepEqual(problems, [], `accessibility: ${screen}`);
 }
 
+async function assertBookingVisible(page, button, screen) {
+  const b=await button.boundingBox(), n=await page.locator('.lumi-nav').boundingBox();
+  assert(b&&n&&b.y>=0&&b.y+b.height<=page.viewportSize().height, `${screen}: booking action in viewport`);
+  assert(!(b.x<n.x+n.width&&b.x+b.width>n.x&&b.y<n.y+n.height&&b.y+b.height>n.y), `${screen}: navigation does not cover booking action`);
+}
+
 async function startFromHome(page, serviceName, masterName) {
   await page.locator('.lumi-nav').getByRole('button',{name:'Главная'}).click();
   await page.locator('.lumi-hero').getByRole('button',{name:'Записаться'}).click();
@@ -49,6 +55,15 @@ async function run(browser,width,height) {
     await page.getByText('Это демонстрация: расписание и цены примерные, записи не отправляются и не оплачиваются.').waitFor();
     const navBox=await page.locator('.lumi-nav').boundingBox();
     assert(navBox&&navBox.x>=0&&navBox.x+navBox.width<=width&&navBox.y+navBox.height<=height,'bottom navigation stays inside viewport');
+    if(width===320)await assertBookingVisible(page,page.locator('.lumi-hero').getByRole('button',{name:'Записаться'}),'home');
+    // Telegram can expose a shorter viewport than the browser window. The
+    // floating navigation must also clear its bottom safe-area inset.
+    if(width===320){
+      await page.evaluate(h=>{document.documentElement.style.setProperty('--tg-viewport-height',`${h-88}px`);document.body.style.setProperty('--sab','35px');},height);
+      const compactNav=await page.locator('.lumi-nav').boundingBox();
+      assert(compactNav&&compactNav.y+compactNav.height<=height-88-35+0.1,'navigation clears Telegram viewport and bottom safe area');
+      await page.evaluate(()=>{document.documentElement.style.removeProperty('--tg-viewport-height');document.body.style.removeProperty('--sab');});
+    }
     if(process.env.LUMI_CHECK_IMAGES==='1'){
       const pics=page.locator('.lumi-main img');
       await pics.evaluateAll(images=>images.forEach(img=>{img.loading='eager';}));
@@ -62,6 +77,7 @@ async function run(browser,width,height) {
     await page.getByRole('button',{name:'Открыть услугу: Стрижка и укладка'}).click();
     await page.getByRole('heading',{name:'Стрижка и укладка'}).waitFor();
     await page.getByRole('heading',{name:'Что входит'}).waitFor();
+    if(width===320)await assertBookingVisible(page,page.locator('.lumi-ed-detail').getByRole('button',{name:'Записаться'}).first(),'service');
     if(width===320)await audit(page,'service');
 
     await startFromHome(page,'Стрижка и укладка','Алина');
