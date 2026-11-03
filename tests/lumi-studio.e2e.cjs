@@ -55,6 +55,14 @@ async function run(browser,width,height) {
     await page.getByText('Это демонстрация: расписание и цены примерные, записи не отправляются и не оплачиваются.').waitFor();
     const navBox=await page.locator('.lumi-nav').boundingBox();
     assert(navBox&&navBox.x>=0&&navBox.x+navBox.width<=width&&navBox.y+navBox.height<=height,'bottom navigation stays inside viewport');
+    await page.getByRole('button',{name:'Посмотреть услуги: Волосы',exact:true}).click();
+    assert.equal(await page.getByRole('button',{name:'Волосы',exact:true}).getAttribute('aria-pressed'),'true','home category activates the matching filter');
+    assert.equal(await page.locator('.lumi-service-card').count(),2,'home category displays all matching services');
+    await page.locator('.lumi-nav').getByRole('button',{name:'Главная'}).click();
+    await page.getByRole('button',{name:'Все услуги',exact:true}).click();
+    assert.equal(await page.getByRole('button',{name:'Все',exact:true}).getAttribute('aria-pressed'),'true','all services clears the previous category');
+    assert.equal(await page.locator('.lumi-service-card').count(),7);
+    await page.locator('.lumi-nav').getByRole('button',{name:'Главная'}).click();
     if(width===320)await assertBookingVisible(page,page.locator('.lumi-hero').getByRole('button',{name:'Записаться'}),'home');
     // Telegram can expose a shorter viewport than the browser window. The
     // floating navigation must also clear its bottom safe-area inset.

@@ -44,7 +44,7 @@ export const demoApps: DemoApp[] = [
     title: 'LUMI — студия красоты',
     description: 'Услуги, мастера и удобная запись в студию красоты',
     category: 'Красота и услуги',
-    image: '/lumi/generated/editorial-hero-v2.webp',
+    image: '/lumi/generated/lumi-v3-hero.webp',
     creator: 'WEB4TG',
     likes: '0',
     badge: 'Демо',
