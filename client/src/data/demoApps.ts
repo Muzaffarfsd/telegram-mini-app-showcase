@@ -40,6 +40,17 @@ export interface DemoApp {
 // Топ-10 самых популярных приложений по лайкам
 export const demoApps: DemoApp[] = [
   {
+    id: 'apple-store',
+    title: 'Техника Apple',
+    description: 'Демо магазина техники Apple с каталогом и корзиной',
+    category: 'Электронная коммерция',
+    image: '/apple-store/hero.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
     id: 'muraka-fashion',
     title: 'Магазин одежды',
     description: 'Демо магазина одежды и кроссовок',

@@ -1,0 +1,264 @@
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import { createPortal } from 'react-dom';
+import { ArrowLeft, ArrowRight, Check, ChevronDown, Heart, Home, Menu, Minus, Plus, Search, ShoppingBag, SlidersHorizontal, UserRound, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { scrollToTop } from '@/hooks/useScrollToTop';
+import './AppleStore.css';
+
+type Category = 'iPhone' | 'iPad' | 'Watch' | 'AirPods' | 'Mac';
+type Item = { id:string; family:string; name:string; category:Category; price:number; summary:string; colors:string[]; capacities:string[] };
+type Screen = 'home' | 'catalog' | 'product' | 'profile' | 'checkout' | 'success';
+type Sheet = 'cart' | 'filters' | 'photo' | null;
+type PriceRange = 'all' | 'under50' | '50to100' | 'over100';
+type CartItem = { id:string; color:string; capacity:string; quantity:number };
+type Snapshot = { screen:Screen; sheet:Sheet; selectedId:string; category:Category | 'Все'; query:string; sort:string; priceRange:PriceRange; photo:number; color:string; capacity:string; previous:Screen };
+const list:Item[] = [
+  {id:'iphone-pro-max',family:'iphone-pro',name:'iPhone Pro Max',category:'iPhone',price:149900,summary:'Большой дисплей. Выразительная камера.',colors:['Тёмный','Серебристый'],capacities:['256 ГБ','512 ГБ','1 ТБ']},
+  {id:'iphone-pro',family:'iphone-pro',name:'iPhone Pro',category:'iPhone',price:129900,summary:'Мощность в каждой детали.',colors:['Тёмный','Серебристый'],capacities:['256 ГБ','512 ГБ','1 ТБ']},
+  {id:'iphone',family:'iphone',name:'iPhone',category:'iPhone',price:89900,summary:'Всё, что любишь. Каждый день.',colors:['Светлый','Тёмный'],capacities:['128 ГБ','256 ГБ','512 ГБ']},
+  {id:'iphone-plus',family:'iphone',name:'iPhone Plus',category:'iPhone',price:104900,summary:'Больше пространства для твоих идей.',colors:['Светлый','Тёмный'],capacities:['128 ГБ','256 ГБ','512 ГБ']},
+  {id:'ipad-pro',family:'ipad',name:'iPad Pro',category:'iPad',price:119900,summary:'Творчество без границ.',colors:['Серебристый','Тёмный'],capacities:['256 ГБ','512 ГБ','1 ТБ']},
+  {id:'ipad-air',family:'ipad',name:'iPad Air',category:'iPad',price:74900,summary:'Лёгкий. Яркий. Для всего.',colors:['Светлый','Тёмный'],capacities:['128 ГБ','256 ГБ','512 ГБ']},
+  {id:'ipad-mini',family:'ipad',name:'iPad mini',category:'iPad',price:59900,summary:'Большие идеи в компактном формате.',colors:['Светлый','Тёмный'],capacities:['128 ГБ','256 ГБ','512 ГБ']},
+  {id:'watch-ultra',family:'watch',name:'Apple Watch Ultra',category:'Watch',price:89900,summary:'Для движения и новых маршрутов.',colors:['Тёмный','Светлый'],capacities:['Один размер']},
+  {id:'watch',family:'watch',name:'Apple Watch',category:'Watch',price:44900,summary:'Каждый день в своём ритме.',colors:['Тёмный','Светлый'],capacities:['Один размер']},
+  {id:'watch-se',family:'watch',name:'Apple Watch SE',category:'Watch',price:29900,summary:'Всё важное на твоём запястье.',colors:['Тёмный','Светлый'],capacities:['Один размер']},
+  {id:'airpods-pro',family:'airpods',name:'AirPods Pro',category:'AirPods',price:29900,summary:'Погрузись в любимый звук.',colors:['Белый'],capacities:['Один размер']},
+  {id:'airpods',family:'airpods',name:'AirPods',category:'AirPods',price:19900,summary:'Музыка всегда рядом.',colors:['Белый'],capacities:['Один размер']},
+  {id:'airpods-max',family:'airpods',name:'AirPods Max',category:'AirPods',price:64900,summary:'Звук, который ощущается.',colors:['Тёмный','Светлый'],capacities:['Один размер']},
+  {id:'macbook-pro',family:'mac',name:'MacBook Pro',category:'Mac',price:199900,summary:'Создан для больших идей.',colors:['Тёмный','Серебристый'],capacities:['512 ГБ','1 ТБ']},
+  {id:'macbook-air',family:'mac',name:'MacBook Air',category:'Mac',price:119900,summary:'Лёгкость, которая вдохновляет.',colors:['Серебристый','Тёмный'],capacities:['256 ГБ','512 ГБ']},
+  {id:'imac',family:'mac',name:'iMac',category:'Mac',price:159900,summary:'Целый мир на твоём столе.',colors:['Светлый','Тёмный'],capacities:['256 ГБ','512 ГБ']},
+  {id:'mac-mini',family:'mac',name:'Mac mini',category:'Mac',price:74900,summary:'Большие возможности в малой форме.',colors:['Серебристый'],capacities:['256 ГБ','512 ГБ']},
+];
+const cats:Category[]=['iPhone','iPad','Watch','AirPods','Mac'];
+const priceNames:Record<PriceRange,string>={all:'Любая цена',under50:'До 50 000 ₽','50to100':'50 000–100 000 ₽',over100:'От 100 000 ₽'};
+const visual:Record<Category,string>={iPhone:'iphone-pro-max',iPad:'ipad-air',Watch:'watch-ultra',AirPods:'airpods-pro',Mac:'macbook-air'};
+const byId=(id:string)=>list.find(item=>item.id===id)||list[0];
+const price=(n:number)=>`${new Intl.NumberFormat('ru-RU').format(n)} ₽`;
+const storageKey='web4tg-apple-demo-v1';
+const image=(id:string,kind:'product'|'lifestyle')=>`/apple-store/${id}-${kind}.webp`;
+function Photo({item,kind,alt,className,loading='lazy'}:{item:Item;kind:'product'|'lifestyle';alt:string;className?:string;loading?:'eager'|'lazy'}) {
+  return <img src={image(item.id,kind)} className={className} alt={alt} loading={loading} decoding="async" onError={event=>{const el=event.currentTarget; const fallback=image(item.family,kind); if(!el.src.endsWith(fallback)) el.src=fallback;}}/>;
+}
+function saved(){try {const parsed=JSON.parse(localStorage.getItem(storageKey)||'{}');return {favorites:Array.isArray(parsed.favorites)?parsed.favorites.filter((id:string)=>list.some(item=>item.id===id)):[],cart:Array.isArray(parsed.cart)?parsed.cart.filter((row:CartItem)=>row && list.some(item=>item.id===row.id) && typeof row.color==='string' && typeof row.capacity==='string' && Number.isInteger(row.quantity) && row.quantity>0 && row.quantity<=10):[],orders:Array.isArray(parsed.orders)?parsed.orders.slice(0,10):[]};}catch{return {favorites:[],cart:[],orders:[]};}}
+function ProductCard({item,favorite,onFavorite,onOpen}:{item:Item;favorite:boolean;onFavorite:()=>void;onOpen:()=>void}){return <article className="as-card" data-testid={`as-card-${item.id}`}><div className="as-card-media"><button type="button" className="as-card-picture" onClick={onOpen} aria-label={`Открыть ${item.name}`}><Photo item={item} kind="product" alt={item.name}/></button><button type="button" className="as-heart as-icon" onClick={onFavorite} aria-label={`${favorite?'Убрать из избранного':'В избранное'}: ${item.name}`} aria-pressed={favorite}><Heart size={19} fill={favorite?'currentColor':'none'}/></button></div><button type="button" className="as-card-name" onClick={onOpen}>{item.name}</button><p>{item.summary}</p><strong>от {price(item.price)}</strong></article>;}
+
+
+/** Store only non-sensitive view state here (never checkout contact details). */
+interface AppleHistoryEntry<T> {
+  version: 1;
+  session: string;
+  index: number;
+  hash: string;
+  snapshot: T;
+  scrollTop: number;
+}
+
+interface AppleHistoryOptions<T extends object> {
+  /** Return the currently rendered, structured-cloneable view state. */
+  getSnapshot: () => T;
+  /** Restore view state without creating another history entry or resetting scroll. */
+  restore: (snapshot: T) => void;
+  canSave?: () => boolean;
+}
+
+const key = '__web4tgAppleHistoryV1';
+
+function stateObject(): Record<string, unknown> | null {
+  const state = window.history.state;
+  // Refuse to overwrite a host's non-object state.
+  return state == null ? {} : typeof state === 'object' && !Array.isArray(state) ? state : null;
+}
+
+function readEntry<T>(state: Record<string, unknown> | null, hash: string): AppleHistoryEntry<T> | null {
+  const value = state?.[key] as Partial<AppleHistoryEntry<T>> | undefined;
+  return value?.version === 1 && value.hash === hash && typeof value.session === 'string' &&
+    Number.isInteger(value.index) && (value.index as number) >= 0 && typeof value.scrollTop === 'number' &&
+    Number.isFinite(value.scrollTop) && value.scrollTop >= 0 && value.snapshot != null && typeof value.snapshot === 'object'
+    ? value as AppleHistoryEntry<T> : null;
+}
+
+function freshSession() {
+  return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+/**
+ * Internal store history uses the existing hash, leaving WEB4TG's hash router in
+ * charge of navigation outside the demo. A snapshot should contain screen,
+ * product, filters and sheet state, but not private form contents.
+ *
+ * Call push(next) immediately BEFORE changing React state. For a sheet on the
+ * same screen pass preserveScroll:true. Use back(fallback) for the visible back
+ * control; fallback should perform the old local back behaviour when the hook
+ * cannot safely own the current browser entry. Call replaceCurrent() after
+ * filter changes that should survive forward navigation without a new entry.
+ */
+function useAppleHistory<T extends object>({ getSnapshot, restore, canSave }: AppleHistoryOptions<T>) {
+  const canSaveRef = useRef(canSave);
+  canSaveRef.current = canSave;
+  const getSnapshotRef = useRef(getSnapshot);
+  const restoreRef = useRef(restore);
+  getSnapshotRef.current = getSnapshot;
+  restoreRef.current = restore;
+  const hashRef = useRef('');
+  const sessionRef = useRef('');
+  const enabledRef = useRef(false);
+  const restoringRef = useRef(false);
+  const pendingBackRef = useRef(false);
+  const restoreFramesRef = useRef<number[]>([]);
+
+  const replaceCurrent = useCallback(() => {
+    if (!enabledRef.current || restoringRef.current || window.location.hash !== hashRef.current || (canSaveRef.current && !canSaveRef.current())) return false;
+    const state = stateObject();
+    const entry = readEntry<T>(state, hashRef.current);
+    if (!state || !entry || entry.session !== sessionRef.current) return false;
+    const root = document.getElementById('root');
+    try {
+      window.history.replaceState({ ...state, [key]: { ...entry, snapshot: getSnapshotRef.current(), scrollTop: root?.scrollTop ?? 0 } }, '', window.location.href);
+      return true;
+    } catch { return false; }
+  }, []);
+
+  const push = useCallback((next: T, options?: { preserveScroll?: boolean }) => {
+    if (!enabledRef.current || window.location.hash !== hashRef.current) return false;
+    // A user can navigate again while the two-frame scroll restoration is pending.
+    // Finish that restoration before saving the current entry and pushing the next one.
+    if (restoringRef.current) {
+      restoreFramesRef.current.forEach(cancelAnimationFrame);
+      restoreFramesRef.current = [];
+      const current = readEntry<T>(stateObject(), hashRef.current);
+      const root = document.getElementById('root');
+      if (root && current?.session === sessionRef.current) root.scrollTop = current.scrollTop;
+      restoringRef.current = false;
+    }
+    if (!replaceCurrent()) return false;
+    const state = stateObject();
+    const entry = readEntry<T>(state, hashRef.current);
+    if (!state || !entry || entry.session !== sessionRef.current) return false;
+    const scrollTop = options?.preserveScroll ? (document.getElementById('root')?.scrollTop ?? 0) : 0;
+    try {
+      window.history.pushState({ ...state, [key]: { ...entry, index: entry.index + 1, snapshot: next, scrollTop } }, '', window.location.href);
+      return true;
+    } catch { return false; }
+  }, [replaceCurrent]);
+
+  const back = useCallback((fallback: () => void) => {
+    if (pendingBackRef.current) return;
+    const entry = enabledRef.current && window.location.hash === hashRef.current
+      ? readEntry<T>(stateObject(), hashRef.current) : null;
+    if (!entry || entry.session !== sessionRef.current || entry.index === 0) { fallback(); return; }
+    replaceCurrent();
+    pendingBackRef.current = true;
+    window.history.back();
+  }, [replaceCurrent]);
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!/^#\/demos\/apple-store\/app(?:\?.*)?$/.test(hash)) return;
+    hashRef.current = hash;
+    const state = stateObject();
+    if (!state) return;
+    const existing = readEntry<T>(state, hash);
+    const session = existing?.session ?? freshSession();
+    sessionRef.current = session;
+    try {
+      if (!existing) window.history.replaceState({ ...state, [key]: { version:1, session, index:0, hash, snapshot:getSnapshotRef.current(), scrollTop:document.getElementById('root')?.scrollTop ?? 0 } }, '', window.location.href);
+      enabledRef.current = true;
+    } catch { return; }
+
+    const cancelRestore = () => { restoreFramesRef.current.forEach(cancelAnimationFrame); restoreFramesRef.current = []; };
+    const applyEntry = (entry: AppleHistoryEntry<T>) => {
+      cancelRestore();
+      restoringRef.current = true;
+      restoreRef.current(entry.snapshot);
+      const first = requestAnimationFrame(() => {
+        const second = requestAnimationFrame(() => {
+          // A fast subsequent transition must not restore scroll into another route/entry.
+          const current = readEntry<T>(stateObject(), hashRef.current);
+          if (window.location.hash === hashRef.current && current?.session === entry.session && current.index === entry.index) {
+            const root = document.getElementById('root');
+            if (root) root.scrollTop = entry.scrollTop;
+          }
+          restoringRef.current = false;
+          restoreFramesRef.current = [];
+          replaceCurrent();
+        });
+        restoreFramesRef.current.push(second);
+      });
+      restoreFramesRef.current = [first];
+    };
+    if (existing) applyEntry(existing);
+
+    const onPop = () => {
+      pendingBackRef.current = false;
+      if (window.location.hash !== hashRef.current) return;
+      const entry = readEntry<T>(stateObject(), hashRef.current);
+      if (entry && entry.session === sessionRef.current) applyEntry(entry);
+    };
+    let scrollTimer = 0;
+    const root = document.getElementById('root');
+    const onScroll = () => {
+      if (restoringRef.current || scrollTimer) return;
+      scrollTimer = window.setTimeout(() => { scrollTimer = 0; replaceCurrent(); }, 250);
+    };
+    root?.addEventListener('scroll', onScroll, { passive:true });
+    window.addEventListener('popstate', onPop);
+    return () => {
+      enabledRef.current = false;
+      pendingBackRef.current = false;
+      restoringRef.current = false;
+      cancelRestore();
+      clearTimeout(scrollTimer);
+      root?.removeEventListener('scroll', onScroll);
+      window.removeEventListener('popstate', onPop);
+    };
+  }, [replaceCurrent]);
+
+  return { push, back, replaceCurrent };
+}
+
+export default function AppleStore({onClose}:{onClose:()=>void}) {
+  const [initial]=useState(saved); const [favorites,setFavorites]=useState<string[]>(initial.favorites); const [cart,setCart]=useState<CartItem[]>(initial.cart); const [orders,setOrders]=useState<{id:string;total:number}[]>(initial.orders);
+  const [screen,setScreen]=useState<Screen>('home'); const [sheet,setSheet]=useState<Sheet>(null); const [selectedId,setSelectedId]=useState(list[0].id); const [previous,setPrevious]=useState<Screen>('home'); const [category,setCategory]=useState<Category|'Все'>('Все'); const [query,setQuery]=useState(''); const [sort,setSort]=useState('featured'); const [priceRange,setPriceRange]=useState<PriceRange>('all'); const [photo,setPhoto]=useState(0); const [photoZoom,setPhotoZoom]=useState(false); const [color,setColor]=useState(list[0].colors[0]); const [capacity,setCapacity]=useState(list[0].capacities[0]);
+  const [name,setName]=useState(''); const [phone,setPhone]=useState(''); const [submitted,setSubmitted]=useState(false); const [filterDraft,setFilterDraft]=useState<Category|'Все'>('Все'); const [priceDraft,setPriceDraft]=useState<PriceRange>('all');
+  const catalogScroll=useRef(0); const checkoutOrigin=useRef<Screen>('catalog'); const touchStart=useRef<{x:number;y:number}|null>(null); const nameRef=useRef<HTMLInputElement>(null); const phoneRef=useRef<HTMLInputElement>(null); const focusBefore=useRef<HTMLElement|null>(null); const [lastOrder,setLastOrder]=useState<{id:string;total:number}|null>(null);
+  const activeScreen=screen==='product'?previous:screen;
+  const current=byId(selectedId); const count=cart.reduce((sum,row)=>sum+row.quantity,0); const total=cart.reduce((sum,row)=>sum+byId(row.id).price*row.quantity,0);
+  const filtered=useMemo(()=>list.filter(item=>(category==='Все'||item.category===category)&&(`${item.name} ${item.category} ${item.summary}`.toLocaleLowerCase('ru-RU').includes(query.trim().toLocaleLowerCase('ru-RU'))) && (priceRange==='all'||(priceRange==='under50'?item.price<50000:priceRange==='50to100'?item.price>=50000&&item.price<100000:item.price>=100000))).sort((a,b)=>sort==='low'?a.price-b.price:sort==='high'?b.price-a.price:0),[category,query,sort,priceRange]);
+  useEffect(()=>{try{localStorage.setItem(storageKey,JSON.stringify({favorites,cart,orders}));}catch{}},[favorites,cart,orders]);
+  useEffect(()=>{const root=document.getElementById('root');root?.classList.add('as-scroll-root');return()=>root?.classList.remove('as-scroll-root');},[]);
+  useEffect(()=>{const root=document.getElementById('root'),nav=document.querySelector<HTMLElement>('.as-nav');if(!root||!nav)return;let frame=0;const update=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>root.style.setProperty('--as-clearance',`${Math.max(180,Math.ceil(root.getBoundingClientRect().bottom-nav.getBoundingClientRect().top+24))}px`));};const observer=new ResizeObserver(update);observer.observe(root);observer.observe(nav);window.addEventListener('resize',update);window.visualViewport?.addEventListener('resize',update);const tg=(window as any).Telegram?.WebApp;tg?.onEvent?.('viewportChanged',update);update();return()=>{cancelAnimationFrame(frame);observer.disconnect();window.removeEventListener('resize',update);window.visualViewport?.removeEventListener('resize',update);tg?.offEvent?.('viewportChanged',update);root.style.removeProperty('--as-clearance');};},[]);
+  useEffect(()=>{if(!sheet)return;const elements=Array.from(document.querySelectorAll<HTMLElement>('#root, [data-testid="apple-store"], .as-nav, .w4-topbar, .home-ai-surface'));const old=elements.map(el=>el.hasAttribute('inert'));elements.forEach(el=>el.setAttribute('inert',''));const frame=requestAnimationFrame(()=>document.querySelector<HTMLElement>('.as-sheet button')?.focus({preventScroll:true}));const handle=(event:KeyboardEvent)=>{if(event.key==='Escape')closeSheet();if(event.key!=='Tab')return;const controls=Array.from(document.querySelectorAll<HTMLElement>('.as-sheet button:not([disabled]), .as-sheet input, .as-sheet select, .as-sheet [tabindex="0"]'));if(!controls.length)return;if(event.shiftKey&&document.activeElement===controls[0]){event.preventDefault();controls[controls.length-1].focus();}else if(!event.shiftKey&&document.activeElement===controls[controls.length-1]){event.preventDefault();controls[0].focus();}};document.addEventListener('keydown',handle);return()=>{cancelAnimationFrame(frame);document.removeEventListener('keydown',handle);elements.forEach((el,i)=>{if(!old[i])el.removeAttribute('inert');});if(focusBefore.current?.isConnected)focusBefore.current.focus({preventScroll:true});};},[sheet]);
+  // Browser history contains only navigation state, never checkout contact details.
+  const applyingFilters = useRef<{category:Category|'Все';priceRange:PriceRange}|null>(null);
+  function snapshot():Snapshot { return {screen,sheet,selectedId,category,query,sort,priceRange,photo,color,capacity,previous}; }
+  function apply(value:Snapshot) { setScreen(value.screen);setSheet(value.sheet);setSelectedId(value.selectedId);setCategory(applyingFilters.current?.category ?? value.category);setPriceRange(applyingFilters.current?.priceRange ?? value.priceRange ?? 'all');applyingFilters.current=null;setQuery(value.query);setSort(value.sort);setPhoto(value.photo);setColor(value.color);setCapacity(value.capacity);setPrevious(value.previous); }
+  // WebKit can reject rapid history writes. Keep an internal stack so visible back remains correct.
+  const localStack=useRef<{snapshot:Snapshot;scrollTop:number}[]>([]);
+  const localRestoring=useRef(false);
+  const appleHistory = useAppleHistory({getSnapshot:snapshot,restore:value=>{localStack.current=[];localRestoring.current=false;apply(value);},canSave:()=>localStack.current.length===0&&!localRestoring.current});
+  useEffect(()=>{appleHistory.replaceCurrent();},[screen,sheet,selectedId,category,query,sort,priceRange,photo,color,capacity,previous,appleHistory.replaceCurrent]);
+  function navigate(patch:Partial<Snapshot>,preserve=false){if(localRestoring.current)return;const current=snapshot();const next={...current,...patch};if(Object.keys(patch).every(k=>current[k as keyof Snapshot]===next[k as keyof Snapshot]))return;const root=document.getElementById('root');if(localStack.current.length||localRestoring.current||!appleHistory.push(next,{preserveScroll:preserve}))localStack.current.push({snapshot:current,scrollTop:root?.scrollTop??0});apply(next);if(!preserve)scrollToTop();}
+  function backOrLocal(fallback:()=>void){if(localRestoring.current)return;const entry=localStack.current.pop();if(!entry){appleHistory.back(fallback);return;}localRestoring.current=true;apply(entry.snapshot);requestAnimationFrame(()=>requestAnimationFrame(()=>{const root=document.getElementById('root');if(root)root.scrollTop=entry.scrollTop;localRestoring.current=false;if(!localStack.current.length)appleHistory.replaceCurrent();}));}
+  function closeSheet(){backOrLocal(()=>setSheet(null));}
+  function goHome(){navigate({screen:'home',sheet:null});}
+  function browse(cat:Category|'Все'='Все'){catalogScroll.current=0;navigate({screen:'catalog',sheet:null,category:cat,query:'',sort:'featured',priceRange:'all'});}
+  function openProduct(id:string){if(screen==='catalog')catalogScroll.current=document.getElementById('root')?.scrollTop||0;const item=byId(id);navigate({screen:'product',sheet:null,selectedId:id,previous:screen==='product'?previous:screen,photo:0,color:item.colors[0],capacity:item.capacities[0]});}
+  function back(){backOrLocal(()=>{if(screen==='product'&&previous==='catalog'){setScreen('catalog');setSheet(null);requestAnimationFrame(()=>requestAnimationFrame(()=>{const root=document.getElementById('root');if(root)root.scrollTop=catalogScroll.current;}));}else if(screen==='product')navigate({screen:previous,sheet:null});else if(screen==='checkout'){setScreen(checkoutOrigin.current);setSheet('cart');}else goHome();});}
+  function openSheet(value:Exclude<Sheet,null>){focusBefore.current=document.activeElement instanceof HTMLElement?document.activeElement:null;navigate({sheet:value},true);}
+  function favorite(id:string){setFavorites(old=>old.includes(id)?old.filter(x=>x!==id):[...old,id]);}
+  function add(){setCart(old=>{const found=old.find(row=>row.id===current.id&&row.color===color&&row.capacity===capacity);return found?old.map(row=>row===found?{...row,quantity:Math.min(10,row.quantity+1)}:row):[...old,{id:current.id,color,capacity,quantity:1}];});openSheet('cart');}
+  function quantity(row:CartItem,delta:number){setCart(old=>old.map(item=>item===row?{...item,quantity:Math.min(10,item.quantity+delta)}:item).filter(item=>item.quantity>0));}
+  function submit(event:FormEvent){event.preventDefault();setSubmitted(true);if(!name.trim()||phone.replace(/\D/g,'').length<10||!cart.length){requestAnimationFrame(()=>{const field=!name.trim()?nameRef.current:phoneRef.current;field?.focus({preventScroll:true});field?.scrollIntoView({block:'center'});});return;}const order={id:`DEMO-${Date.now().toString().slice(-6)}`,total};setOrders(old=>[order,...old].slice(0,10));setLastOrder(order);setCart([]);setName('');setPhone('');setSubmitted(false);navigate({screen:'success',sheet:null});}
+  return <div className="as-store" data-testid="apple-store" lang="ru"><main className="as-main" key={screen}>
+    {(screen==='product'||screen==='checkout'||screen==='success')&&<button type="button" className="as-back" onClick={back}><ArrowLeft size={18}/> Назад</button>}
+    {screen==='home'&&<section className="as-home"><div className="as-hero"><div className="as-hero-copy"><span>ТЕХНОЛОГИИ ДЛЯ ТЕБЯ</span><h1>Открой<br/>новое.</h1><p>Знакомые вещи.<br/>Новые возможности.</p><button type="button" onClick={()=>browse()}>Смотреть всё <ArrowRight size={15}/></button></div><img src="/apple-store/hero.webp" alt="Подборка техники Apple" loading="eager"/></div><div className="as-section-heading"><div><span>ВЫБИРАЙ СВОЁ</span><h2>Всё, что любишь.</h2></div><button type="button" onClick={()=>browse()}>В каталог <ArrowRight size={16}/></button></div><div className="as-category-grid">{cats.map(cat=><button type="button" key={cat} className="as-category-card" onClick={()=>browse(cat)}><div><h3>{cat==='Watch'?'Apple Watch':cat==='Mac'?'Mac':cat}</h3><span>Смотреть <ArrowRight size={13}/></span></div><Photo item={byId(visual[cat])} kind="product" alt=""/></button>)}<button type="button" className="as-category-card as-category-dark" onClick={()=>openProduct('iphone-pro-max')}><div><small>НОВОЕ В ДЕМО</small><h3>iPhone Pro</h3><span>Подробнее <ArrowRight size={13}/></span></div><img src="/apple-store/promo-pro.webp" alt="" loading="lazy"/></button></div><div className="as-editorial"><Photo item={byId('airpods-pro')} kind="lifestyle" alt="Наушники в повседневной жизни"/><div><span>НА СВОЕЙ ВОЛНЕ</span><h2>Музыка<br/>всегда рядом.</h2><button type="button" onClick={()=>browse('AirPods')}>Открыть AirPods <ArrowRight size={16}/></button></div></div><div className="as-section-heading"><div><span>ВЫБРАНО ДЛЯ ТЕБЯ</span><h2>Ближе к любимому.</h2></div><button type="button" onClick={()=>browse()}>Все модели <ArrowRight size={16}/></button></div><div className="as-grid">{[list[0],list[5],list[10],list[14]].map(item=><ProductCard key={item.id} item={item} favorite={favorites.includes(item.id)} onFavorite={()=>favorite(item.id)} onOpen={()=>openProduct(item.id)}/>)}</div><p className="as-demo-note">Демонстрационный магазин. Не является официальным магазином Apple. Цены и изображения приведены для примера.</p></section>}
+    {screen==='catalog'&&<section className="as-content as-catalog"><span className="as-eyebrow">APPLE / КОЛЛЕКЦИЯ</span><h1>Найди своё.</h1><p className="as-lead">Технологии, которые хочется взять с собой.</p><label className="as-search"><Search size={19}/><span className="as-sr">Поиск по каталогу</span><input type="search" placeholder="Поиск по каталогу" value={query} onChange={event=>setQuery(event.target.value)}/>{query&&<button type="button" onClick={()=>setQuery('')} aria-label="Очистить поиск"><X size={17}/></button>}</label><div className="as-chips">{(['Все',...cats] as const).map(cat=><button type="button" key={cat} className={category===cat?'is-active':''} onClick={()=>setCategory(cat)}>{cat}</button>)}</div><div className="as-catalog-tools"><button type="button" onClick={()=>{setFilterDraft(category);setPriceDraft(priceRange);openSheet('filters');}}><SlidersHorizontal size={17}/> Фильтр{priceRange!=='all'&&<span className="as-filter-badge">1</span>}</button><label>Сортировка <select aria-label="Сортировка" value={sort} onChange={event=>setSort(event.target.value)}><option value="featured">По подборке</option><option value="low">Сначала дешевле</option><option value="high">Сначала дороже</option></select><ChevronDown size={14}/></label></div><div className="as-active-filters">{priceRange!=='all'&&<button type="button" onClick={()=>setPriceRange('all')} aria-label="Убрать фильтр цены">{priceNames[priceRange]} <X size={14}/></button>}</div><p className="as-count" aria-live="polite">Найдено: {filtered.length}</p>{filtered.length?<div className="as-grid">{filtered.map(item=><ProductCard key={item.id} item={item} favorite={favorites.includes(item.id)} onFavorite={()=>favorite(item.id)} onOpen={()=>openProduct(item.id)}/>)}</div>:<div className="as-empty"><p>По этому запросу ничего не нашли.</p><button type="button" onClick={()=>{setQuery('');setCategory('Все');setPriceRange('all');}}>Показать все модели</button></div>}<p className="as-demo-note">Демо-каталог: цены и изображения условные.</p></section>}
+    {screen==='product'&&<section className="as-product"><div className="as-product-gallery" onTouchStart={event=>{const t=event.touches[0];touchStart.current=t?{x:t.clientX,y:t.clientY}:null;}} onTouchEnd={event=>{const t=event.changedTouches[0],start=touchStart.current;touchStart.current=null;if(!t||!start)return;const dx=t.clientX-start.x,dy=t.clientY-start.y;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy))setPhoto(dx<0?1:0);}}><Photo item={current} kind={photo===0?'product':'lifestyle'} alt={`${current.name}: ${photo===0?'товар':'в жизни'}`} loading="eager"/><button className="as-icon as-product-heart" type="button" aria-label={`${favorites.includes(current.id)?'Убрать из избранного':'В избранное'}: ${current.name}`} aria-pressed={favorites.includes(current.id)} onClick={()=>favorite(current.id)}><Heart size={20} fill={favorites.includes(current.id)?'currentColor':'none'}/></button><button type="button" className="as-icon as-photo-open" aria-label="Увеличить фотографию товара" onClick={event=>{event.currentTarget.focus({preventScroll:true});setPhotoZoom(false);openSheet('photo');}}><ZoomIn size={19}/></button><div className="as-gallery-controls"><div className="as-gallery-tabs"><button type="button" aria-pressed={photo===0} onClick={()=>setPhoto(0)}>Товар</button><button type="button" aria-pressed={photo===1} onClick={()=>setPhoto(1)}>В жизни</button></div><span aria-live="polite">0{photo+1} / 02</span></div></div><div className="as-product-info"><span className="as-eyebrow">{current.category} / КОЛЛЕКЦИЯ</span><h1>{current.name}</h1><p className="as-product-summary">{current.summary}</p><strong className="as-price">{price(current.price)}</strong><p className="as-price-note">Пример цены в демо</p><div className="as-choice"><div><b>Цвет</b><span>{color}</span></div><div className="as-choice-buttons">{current.colors.map(c=><button type="button" key={c} className={color===c?'is-active':''} aria-pressed={color===c} onClick={()=>setColor(c)}>{c}</button>)}</div></div>{current.capacities[0]!=='Один размер'&&<div className="as-choice"><div><b>Память</b><span>{capacity}</span></div><div className="as-choice-buttons">{current.capacities.map(c=><button type="button" key={c} className={capacity===c?'is-active':''} aria-pressed={capacity===c} onClick={()=>setCapacity(c)}>{c}</button>)}</div></div>}<button type="button" className="as-primary" onClick={add}><ShoppingBag size={18}/> В КОРЗИНУ <span>{price(current.price)}</span></button><p className="as-demo-note">Демо: цены и комплектации условны. Изображения созданы для примера и могут отличаться от реальной модели и выбранного цвета.</p><div className="as-product-story"><Photo item={current} kind="lifestyle" alt={`${current.name} в жизни`}/><div><span className="as-eyebrow">СОЗДАНО ДЛЯ ТЕБЯ</span><h2>В твоём<br/>ритме.</h2><p>Вещи, которые становятся частью каждого дня.</p></div></div><div className="as-section-heading"><div><span>СМОТРИ ТАКЖЕ</span><h2>Ещё больше идей.</h2></div><button type="button" onClick={()=>browse()}>В каталог <ArrowRight size={16}/></button></div><div className="as-grid">{list.filter(item=>item.id!==current.id&&item.category!==current.category).slice(0,4).map(item=><ProductCard key={item.id} item={item} favorite={favorites.includes(item.id)} onFavorite={()=>favorite(item.id)} onOpen={()=>openProduct(item.id)}/>)}</div></div></section>}
+    {screen==='profile'&&<section className="as-content as-profile"><span className="as-eyebrow">ЛИЧНОЕ ПРОСТРАНСТВО</span><h1>Твоё<br/>избранное.</h1><p className="as-lead">Вещи, к которым хочется вернуться.</p>{favorites.length?<div className="as-grid as-profile-grid">{list.filter(item=>favorites.includes(item.id)).map(item=><ProductCard key={item.id} item={item} favorite onFavorite={()=>favorite(item.id)} onOpen={()=>openProduct(item.id)}/>)}</div>:<div className="as-empty"><Heart size={25}/><p>Добавляй понравившиеся модели в избранное.</p><button type="button" onClick={()=>browse()}>Открыть каталог <ArrowRight size={15}/></button></div>}<div className="as-order-heading"><h2>Демо-заказы</h2><span>{orders.length}</span></div>{orders.length?orders.map(order=><div className="as-order" key={order.id}><span>{order.id}</span><b>{price(order.total)}</b></div>):<p className="as-small">История демо-заказов появится здесь.</p>}<p className="as-demo-note">Данные хранятся только на этом устройстве.</p></section>}
+    {screen==='checkout'&&<section className="as-content as-checkout"><span className="as-eyebrow">ПОСЛЕДНИЙ ШАГ / ДЕМО</span><h1>Оформление.</h1><p className="as-lead">Посмотри, как будет выглядеть покупка.</p><div className="as-demo-banner">Это демо: данные не отправляются, оплата не списывается.</div><form onSubmit={submit} noValidate><h2>Контакты</h2><label className="as-field">Имя<input ref={nameRef} aria-label="Имя" autoComplete="name" value={name} onChange={e=>setName(e.target.value)} aria-invalid={submitted&&!name.trim()} aria-describedby={submitted&&!name.trim()?'as-name-error':undefined} placeholder="Как тебя зовут"/>{submitted&&!name.trim()&&<span id="as-name-error">Укажи имя.</span>}</label><label className="as-field">Телефон<input ref={phoneRef} aria-label="Телефон" type="tel" autoComplete="tel" value={phone} onChange={e=>setPhone(e.target.value)} aria-invalid={submitted&&phone.replace(/\D/g,'').length<10} aria-describedby={submitted&&phone.replace(/\D/g,'').length<10?'as-phone-error':undefined} placeholder="+7 999 000-00-00"/>{submitted&&phone.replace(/\D/g,'').length<10&&<span id="as-phone-error">Укажи номер телефона.</span>}</label><h2>Твой заказ</h2>{cart.map(row=><div className="as-order" key={`${row.id}-${row.color}-${row.capacity}`}><span>{byId(row.id).name} · {row.quantity} шт.</span><b>{price(byId(row.id).price*row.quantity)}</b></div>)}<div className="as-order as-order-total"><span>Итого</span><b>{price(total)}</b></div>{submitted&&!cart.length&&<p className="as-error">Корзина пуста.</p>}<button type="submit" className="as-primary">ПОДТВЕРДИТЬ ДЕМО-ЗАКАЗ <ArrowRight size={16}/></button></form></section>}
+    {screen==='success'&&<section className="as-content as-success"><span className="as-success-icon"><Check size={24}/></span><span className="as-eyebrow">ГОТОВО / ДЕМО</span><h1>Заказ<br/>оформлен.</h1><p className="as-lead">Это пример покупки: данные не отправлены, оплата не списана.</p>{lastOrder&&<div className="as-order"><span>{lastOrder.id}</span><b>{price(lastOrder.total)}</b></div>}<button type="button" className="as-primary" onClick={()=>browse()}>ПРОДОЛЖИТЬ ВЫБОР <ArrowRight size={16}/></button></section>}
+  </main>{createPortal(<div className="as-portal"><nav className="as-nav" aria-label="Навигация магазина"><button type="button" aria-label="Главная" className={activeScreen==='home'&&!sheet?'is-active':''} onClick={goHome}><Home size={19}/><span>Главная</span></button><button type="button" aria-label="Каталог" className={activeScreen==='catalog'&&!sheet?'is-active':''} onClick={()=>browse()}><Menu size={19}/><span>Каталог</span></button><button type="button" aria-label={`Корзина, товаров: ${count}`} className={sheet==='cart'?'is-active':''} onClick={()=>openSheet('cart')}><span className="as-bag"><ShoppingBag size={19}/>{count>0&&<i>{count}</i>}</span><span>Корзина</span></button><button type="button" aria-label="Профиль" className={activeScreen==='profile'&&!sheet?'is-active':''} onClick={()=>navigate({screen:'profile',sheet:null})}><UserRound size={19}/><span>Профиль</span></button></nav>
+    {sheet&&<div className="as-overlay" onClick={closeSheet}><section className="as-sheet" role="dialog" aria-modal="true" aria-labelledby="as-sheet-title" onClick={event=>event.stopPropagation()}><div className="as-sheet-handle"><span/></div><div className="as-sheet-head"><h2 id="as-sheet-title">{sheet==='cart'?'Корзина':sheet==='filters'?'Фильтр':'Фотографии'}</h2><button type="button" className="as-icon" aria-label="Закрыть" onClick={closeSheet}><X size={20}/></button></div>{sheet==='cart'?<><div className="as-sheet-body">{cart.length?cart.map(row=>{const item=byId(row.id);return <article className="as-cart-row" key={`${row.id}-${row.color}-${row.capacity}`}><button type="button" className="as-cart-image" onClick={()=>openProduct(item.id)} aria-label={`Открыть ${item.name}`}><Photo item={item} kind="product" alt=""/></button><div><strong>{item.name}</strong><p>{row.color}{row.capacity!=='Один размер'&&` · ${row.capacity}`}</p><b>{price(item.price*row.quantity)}</b><div className="as-qty"><button type="button" aria-label={`Уменьшить количество ${item.name}`} onClick={()=>quantity(row,-1)}><Minus size={15}/></button><span>{row.quantity}</span><button type="button" aria-label={`Увеличить количество ${item.name}`} onClick={()=>quantity(row,1)}><Plus size={15}/></button></div></div><button type="button" className="as-icon" onClick={()=>setCart(old=>old.filter(entry=>entry!==row))} aria-label={`Удалить ${item.name}`}><X size={18}/></button></article>; }):<div className="as-empty"><ShoppingBag size={28}/><h3>Пока пусто.</h3><p>Выбери то, что тебе нравится.</p><button type="button" onClick={()=>browse()}>Перейти в каталог <ArrowRight size={16}/></button></div>}</div>{cart.length>0&&<div className="as-sheet-footer"><div><span>Итого</span><strong>{price(total)}</strong></div><button type="button" className="as-primary" onClick={()=>{checkoutOrigin.current=screen;setSubmitted(false);navigate({screen:'checkout',sheet:null});}}>ОФОРМИТЬ ДЕМО-ЗАКАЗ <ArrowRight size={16}/></button><p>Без реальной оплаты и отправки данных.</p></div>}</>:sheet==='filters'?<><div className="as-sheet-body"><p className="as-filter-title">Категория</p><div className="as-filter-options">{(['Все',...cats] as const).map(cat=><button key={cat} type="button" aria-pressed={filterDraft===cat} className={filterDraft===cat?'is-active':''} onClick={()=>setFilterDraft(cat)}>{cat}</button>)}</div><p className="as-filter-title">Цена</p><div className="as-filter-options">{(Object.keys(priceNames) as PriceRange[]).map(range=><button key={range} type="button" aria-pressed={priceDraft===range} className={priceDraft===range?'is-active':''} onClick={()=>setPriceDraft(range)}>{priceNames[range]}</button>)}</div></div><div className="as-sheet-footer"><button type="button" className="as-primary" onClick={()=>{applyingFilters.current={category:filterDraft,priceRange:priceDraft};backOrLocal(()=>{setCategory(filterDraft);setPriceRange(priceDraft);applyingFilters.current=null;setSheet(null);});}}>ПОКАЗАТЬ МОДЕЛИ</button><button type="button" className="as-filter-reset" onClick={()=>{setFilterDraft('Все');setPriceDraft('all');}}>Сбросить фильтры</button></div></>:<div className="as-sheet-body as-photo-viewer"><div className={`as-photo-viewport${photoZoom?' is-zoomed':''}`} tabIndex={0} role="region" aria-label={photoZoom?'Увеличенная фотография, можно прокручивать':'Фотография товара'}><Photo item={current} kind={photo===0?'product':'lifestyle'} alt={`${current.name}: ${photo===0?'товар':'в жизни'}`}/></div><div className="as-photo-controls"><button type="button" className="as-icon" aria-label="Предыдущая фотография" disabled={photo===0} onClick={()=>{setPhoto(0);setPhotoZoom(false);}}><ArrowLeft size={19}/></button><span aria-live="polite">0{photo+1} / 02</span><button type="button" className="as-icon" aria-label="Следующая фотография" disabled={photo===1} onClick={()=>{setPhoto(1);setPhotoZoom(false);}}><ArrowRight size={19}/></button><button type="button" className="as-photo-toggle" aria-pressed={photoZoom} onClick={()=>setPhotoZoom(value=>!value)}>{photoZoom?<ZoomOut size={18}/>:<ZoomIn size={18}/>} {photoZoom?'Уменьшить':'Увеличить'}</button></div>{photoZoom&&<p className="as-small">Перемещай изображение, чтобы рассмотреть детали.</p>}</div>}</section></div>}
+  </div>,document.body)}</div>;
+}
