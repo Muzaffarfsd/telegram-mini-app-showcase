@@ -9,7 +9,7 @@ const base = process.env.APPLE_TEST_URL || 'http://127.0.0.1:53738/';
 const multi = appleCatalog2026.filter(item => item.colors.length > 1);
 const hash = buffer => createHash('sha256').update(buffer).digest('hex');
 const sourceWithoutWidth = value => {
-  try { const url = new URL(value, base); url.searchParams.delete('wid'); url.searchParams.delete('hei'); url.searchParams.delete('fmt'); if (url.pathname.startsWith('/apple-store/products/')) url.pathname=url.pathname.replace(/-\d+\.webp$/, '.webp'); return url.toString(); }
+  try { const url = new URL(value, base); url.searchParams.delete('wid'); url.searchParams.delete('hei'); url.searchParams.delete('fmt'); if (url.pathname.startsWith('/apple-store/generated/')) url.pathname=url.pathname.replace('/generated/sizes/','/generated/').replace(/-(160|480)\.webp$/, '.webp'); return url.toString(); }
   catch { return value; }
 };
 async function loaded(page, previous) {
@@ -97,6 +97,7 @@ async function verifyResponsive(page) {
   await card.waitFor();
   await page.waitForFunction(()=>{let e=document.querySelector('.as-catalog .as-card-picture img');return e?.complete && e.naturalWidth>0},{timeout:30000});
   const src=await card.evaluate(el=>el.currentSrc);
+  if (src.includes('/apple-store/generated/')) assert.match(src, /-(160|480)\.webp$/, 'Catalog loaded an oversized generated image: '+src);
   if (/storeimages\.cdn-apple\.com/.test(src)) {
     const width=Number(new URL(src).searchParams.get('wid'));
     assert.ok(width>0 && width<=480,`Каталог на мобильном загружает слишком большую картинку: ${width}`);
@@ -109,6 +110,7 @@ async function verifyResponsive(page) {
     await thumb.scrollIntoViewIfNeeded();
     await page.waitForFunction(()=>{let e=document.querySelector('.as-gallery-strip img');return e?.complete && e.naturalWidth>0},{timeout:30000});
     const thumbSrc=await thumb.evaluate(el=>el.currentSrc);
+    if (thumbSrc.includes('/apple-store/generated/')) assert.match(thumbSrc, /-160\.webp$/, 'Thumbnail loaded an oversized generated image: '+thumbSrc);
     if (/storeimages\.cdn-apple\.com/.test(thumbSrc)) {
       const width=Number(new URL(thumbSrc).searchParams.get('wid'));
       assert.ok(width>0 && width<=320,`Миниатюра загружает большой оригинал: ${width}`);

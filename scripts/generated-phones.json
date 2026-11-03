@@ -1,0 +1,85 @@
+{
+  "iphone-18-pro-max": {
+    "Чёрный": [
+      "/apple-store/generated/iphone-18-pro-max-black.webp"
+    ],
+    "Бордо": [
+      "/apple-store/generated/iphone-18-pro-max-burgundy.webp"
+    ],
+    "Ледниковый": [
+      "/apple-store/generated/iphone-18-pro-max-glacier.webp"
+    ],
+    "Серебристый": [
+      "/apple-store/generated/iphone-18-pro-max-silver.webp"
+    ]
+  },
+  "iphone-18-pro": {
+    "Бордо": [
+      "/apple-store/generated/iphone-18-pro-burgundy.webp"
+    ],
+    "Ледниковый": [
+      "/apple-store/generated/iphone-18-pro-glacier.webp"
+    ],
+    "Серебристый": [
+      "/apple-store/generated/iphone-18-pro-silver.webp"
+    ],
+    "Чёрный": [
+      "/apple-store/generated/iphone-18-pro-black.webp"
+    ]
+  },
+  "iphone-duo": {
+    "Звёздный белый": [
+      "/apple-store/generated/iphone-duo-star-white.webp"
+    ],
+    "Ночное небо": [
+      "/apple-store/generated/iphone-duo-night-sky.webp"
+    ]
+  },
+  "iphone-air": {
+    "Небесно-голубой": [
+      "/apple-store/generated/iphone-air-skyblue.webp"
+    ],
+    "Светло-золотой": [
+      "/apple-store/generated/iphone-air-gold.webp"
+    ],
+    "Облачный белый": [
+      "/apple-store/generated/iphone-air-white.webp"
+    ],
+    "Чёрный космос": [
+      "/apple-store/generated/iphone-air-black.webp"
+    ]
+  },
+  "iphone-17": {
+    "Лавандовый": [
+      "/apple-store/generated/iphone-17-lavender.webp"
+    ],
+    "Шалфей": [
+      "/apple-store/generated/iphone-17-sage.webp"
+    ],
+    "Туманный голубой": [
+      "/apple-store/generated/iphone-17-blue.webp"
+    ],
+    "Белый": [
+      "/apple-store/generated/iphone-17-white.webp"
+    ],
+    "Чёрный": [
+      "/apple-store/generated/iphone-17-black.webp"
+    ]
+  },
+  "iphone-17e": {
+    "Нежно-розовый": [
+      "/apple-store/generated/iphone-17e-pink.webp"
+    ],
+    "Белый": [
+      "/apple-store/generated/iphone-17e-white.webp"
+    ],
+    "Чёрный": [
+      "/apple-store/generated/iphone-17e-black.webp"
+    ]
+  },
+  "iphone-16": {
+    "Стандартный": [
+      "/apple-store/generated/iphone-16-black.webp"
+    ]
+  }
+}

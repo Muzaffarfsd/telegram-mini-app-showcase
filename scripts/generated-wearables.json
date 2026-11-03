@@ -1,0 +1,96 @@
+{
+  "watch-series-12": {
+    "Стандартный": [
+      "/apple-store/generated/watch-series-12-standard.webp"
+    ]
+  },
+  "watch-ultra-4": {
+    "Стандартный": [
+      "/apple-store/generated/watch-ultra-4-standard.webp"
+    ]
+  },
+  "watch-se-3": {
+    "Стандартный": [
+      "/apple-store/generated/watch-se-3-standard.webp"
+    ]
+  },
+  "watch-hermes-ultra-4": {
+    "Стандартный": [
+      "/apple-store/generated/watch-hermes-ultra-4-standard.webp"
+    ]
+  },
+  "watch-hermes-series-12": {
+    "Стандартный": [
+      "/apple-store/generated/watch-hermes-series-12-standard.webp"
+    ]
+  },
+  "airpods-5-wireless": {
+    "Белый": [
+      "/apple-store/generated/airpods-5-wireless-white.webp"
+    ]
+  },
+  "airpods-5": {
+    "Белый": [
+      "/apple-store/generated/airpods-5-white.webp"
+    ]
+  },
+  "airpods-max-2": {
+    "Фиолетовый": [
+      "/apple-store/generated/airpods-max-2-purple.webp"
+    ],
+    "Тёмная ночь": [
+      "/apple-store/generated/airpods-max-2-midnight.webp"
+    ],
+    "Сияющая звезда": [
+      "/apple-store/generated/airpods-max-2-starlight.webp"
+    ],
+    "Голубой": [
+      "/apple-store/generated/airpods-max-2-blue.webp"
+    ],
+    "Оранжевый": [
+      "/apple-store/generated/airpods-max-2-orange.webp"
+    ]
+  },
+  "airpods-pro-3": {
+    "Белый": [
+      "/apple-store/generated/airpods-pro-3-white.webp"
+    ]
+  },
+  "homeview": {
+    "Розовый": [
+      "/apple-store/generated/homeview-pink.webp"
+    ],
+    "Сияющая звезда": [
+      "/apple-store/generated/homeview-starlight.webp"
+    ],
+    "Серебристый": [
+      "/apple-store/generated/homeview-silver.webp"
+    ],
+    "Серый космос": [
+      "/apple-store/generated/homeview-spacegrey.webp"
+    ]
+  },
+  "apple-tv-4k-4": {
+    "Чёрный": [
+      "/apple-store/generated/apple-tv-4k-4-black.webp"
+    ]
+  },
+  "homeview-wall": {
+    "Серебристый": [
+      "/apple-store/generated/homeview-wall-silver.webp"
+    ],
+    "Серый космос": [
+      "/apple-store/generated/homeview-wall-spacegrey.webp"
+    ]
+  },
+  "homepod": {
+    "Стандартный": [
+      "/apple-store/generated/homepod-standard.webp"
+    ]
+  },
+  "homepod-mini-2": {
+    "Стандартный": [
+      "/apple-store/generated/homepod-mini-2-standard.webp"
+    ]
+  }
+}

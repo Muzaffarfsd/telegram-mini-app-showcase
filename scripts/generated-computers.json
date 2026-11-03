@@ -1,0 +1,106 @@
+{
+  "ipad-pro-13-m5": {
+    "Стандартный": [
+      "/apple-store/generated/ipad-pro-13.webp"
+    ]
+  },
+  "ipad-pro-11-m5": {
+    "Стандартный": [
+      "/apple-store/generated/ipad-pro-11.webp"
+    ]
+  },
+  "ipad-air-13-m4": {
+    "Стандартный": [
+      "/apple-store/generated/ipad-air-13.webp"
+    ]
+  },
+  "ipad-air-11-m4": {
+    "Стандартный": [
+      "/apple-store/generated/ipad-air-11.webp"
+    ]
+  },
+  "ipad-a16": {
+    "Стандартный": [
+      "/apple-store/generated/ipad-a16.webp"
+    ]
+  },
+  "ipad-mini-a20": {
+    "Тёмная ночь": [
+      "/apple-store/generated/ipad-mini-midnight.webp"
+    ],
+    "Сияющая звезда": [
+      "/apple-store/generated/ipad-mini-starlight.webp"
+    ]
+  },
+  "macbook-neo": {
+    "Румянец": [
+      "/apple-store/generated/neo-blush.webp"
+    ],
+    "Серебристый": [
+      "/apple-store/generated/neo-silver.webp"
+    ],
+    "Цитрус": [
+      "/apple-store/generated/neo-citrus.webp"
+    ],
+    "Индиго": [
+      "/apple-store/generated/neo-indigo.webp"
+    ]
+  },
+  "macbook-air-2026": {
+    "Небесно-голубой": [
+      "/apple-store/generated/air-skyblue.webp"
+    ],
+    "Серебристый": [
+      "/apple-store/generated/air-silver.webp"
+    ],
+    "Сияющая звезда": [
+      "/apple-store/generated/air-starlight.webp"
+    ],
+    "Тёмная ночь": [
+      "/apple-store/generated/air-midnight.webp"
+    ]
+  },
+  "macbook-pro-2026": {
+    "Стандартный": [
+      "/apple-store/generated/macbook-pro-standard.webp"
+    ]
+  },
+  "macbook-pro-proled": {
+    "Чёрный космос": [
+      "/apple-store/generated/macbook-proled-black.webp"
+    ],
+    "Серебристый": [
+      "/apple-store/generated/macbook-proled-silver.webp"
+    ]
+  },
+  "imac-2026": {
+    "Стандартный": [
+      "/apple-store/generated/imac-silver.webp"
+    ]
+  },
+  "mac-mini-2026": {
+    "Серебристый": [
+      "/apple-store/generated/mac-mini-silver.webp"
+    ]
+  },
+  "mac-studio-2026": {
+    "Серебристый": [
+      "/apple-store/generated/mac-studio-silver.webp"
+    ]
+  },
+  "studio-display": {
+    "Серебристый": [
+      "/apple-store/generated/studio-display.webp"
+    ]
+  },
+  "studio-display-xdr": {
+    "Серебристый": [
+      "/apple-store/generated/studio-display-xdr.webp"
+    ]
+  },
+  "vision-pro-m5": {
+    "Стандартный": [
+      "/apple-store/generated/vision-pro.webp"
+    ]
+  }
+}
