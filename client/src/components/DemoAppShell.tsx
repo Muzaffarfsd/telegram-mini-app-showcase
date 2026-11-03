@@ -270,6 +270,16 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   const baseAppType = getBaseAppType(demoId);
   const theme = demoDark ? darkTheme : getTheme(baseAppType);
 
+  // LUMI supplies its own appointment navigation inside the WEB4TG header.
+  if (demoId === 'lumi-studio') {
+    const LumiStudio = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<div aria-label="Загрузка студии" style={{ minHeight: '100vh', background: '#fff' }} />}>
+        {LumiStudio && <LumiStudio onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
+
   // The wholesale demo supplies its own navigation inside the WEB4TG header.
   if (demoId === 'opt-market') {
     const OptMarket = getDemoComponent(demoId);

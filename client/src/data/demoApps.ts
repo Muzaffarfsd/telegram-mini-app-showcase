@@ -40,6 +40,17 @@ export interface DemoApp {
 // Топ-10 самых популярных приложений по лайкам
 export const demoApps: DemoApp[] = [
   {
+    id: 'lumi-studio',
+    title: 'LUMI — студия красоты',
+    description: 'Услуги, мастера и удобная запись в студию красоты',
+    category: 'Красота и услуги',
+    image: '/lumi/generated/hero.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
     id: 'opt-market',
     title: 'ПАРТИЯ — оптовые закупки',
     description: 'Каталог поставщика, персональные цены и быстрые заказы для бизнеса',
