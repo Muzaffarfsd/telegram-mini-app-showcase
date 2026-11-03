@@ -107,3 +107,94 @@
   .lumi[data-screen="book"] .lumi-choice img { width:54px; height:60px; }
   .lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-booking-card { padding:16px; }
 }
+
+/* Operational screens: precise monochrome hierarchy makes the visit consistent,
+   recognisable identity while keeping the interaction and its state central. */
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) {
+  --lumi-ink:#151515;
+  --lumi-muted:#606060;
+  --lumi-line:#e4e4e4;
+  --lumi-accent:#151515;
+  --lumi-soft:#f5f5f5;
+}
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) .lumi-eyebrow { color:#5e5e5e; letter-spacing:.11em; }
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) .lumi-title { color:#151515; letter-spacing:-.045em; }
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) .lumi-subtitle { color:#606060; }
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) .lumi-primary { background:#151515; }
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) .lumi-secondary { border-color:#d6d6d6; color:#202020; }
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) :is(button,input,select):focus-visible { outline-color:#202020; }
+
+/* Each stage has an explicit visible label as well as the accessible group label. */
+.lumi[data-screen="book"] .lumi-steps { gap:6px; margin:24px 0 42px; }
+.lumi[data-screen="book"] .lumi-step { position:relative; height:3px; border-radius:3px; background:#e1e1e1; }
+.lumi[data-screen="book"] .lumi-step.active { background:#161616; }
+.lumi[data-screen="book"] .lumi-step::after { position:absolute; top:10px; left:0; color:#646464; font-size:10px; font-weight:600; line-height:1.2; letter-spacing:0; white-space:nowrap; }
+.lumi[data-screen="book"] .lumi-step:nth-child(1)::after { content:'Услуга'; }
+.lumi[data-screen="book"] .lumi-step:nth-child(2)::after { content:'Мастер'; }
+.lumi[data-screen="book"] .lumi-step:nth-child(3)::after { content:'Дата и время'; }
+.lumi[data-screen="book"] .lumi-step:nth-child(4)::after { content:'Подтверждение'; }
+.lumi[data-screen="book"] .lumi-step[aria-current="step"]::after { color:#151515; font-weight:750; }
+.lumi[data-screen="book"] .lumi-choice-list { border-color:#e4e4e4; }
+.lumi[data-screen="book"] .lumi-choice { min-height:90px; gap:15px; border-color:#e4e4e4; }
+.lumi[data-screen="book"] .lumi-choice img { width:64px; height:66px; border-radius:12px; background:#f1f1f1; }
+.lumi[data-screen="book"] .lumi-choice b { color:#151515; letter-spacing:-.015em; }
+.lumi[data-screen="book"] .lumi-choice span small { color:#606060; }
+.lumi[data-screen="book"] .lumi-choice svg { transition:transform .2s ease; }
+@media(hover:hover) { .lumi[data-screen="book"] .lumi-choice:hover svg { transform:translateX(3px); } }
+.lumi[data-screen="book"] .lumi-choice:focus-visible svg { transform:translateX(3px); }
+.lumi[data-screen="book"] .lumi-date-row { scroll-snap-type:x proximity; scrollbar-width:none; }
+.lumi[data-screen="book"] .lumi-date-row::-webkit-scrollbar { display:none; }
+.lumi[data-screen="book"] .lumi-date-row button { scroll-snap-align:start; border-color:#dedede; }
+.lumi[data-screen="book"] .lumi-date-row button span { color:#656565; }
+.lumi[data-screen="book"] .lumi-date-row button[aria-pressed="true"],.lumi[data-screen="book"] .lumi-slot[aria-pressed="true"] { border-color:#151515; background:#151515; color:#fff; box-shadow:0 0 0 1px #151515; }
+.lumi[data-screen="book"] .lumi-date-row button[aria-pressed="true"] span { color:#f2f2f2; }
+.lumi[data-screen="book"] .lumi-slot { border-color:#dedede; font-variant-numeric:tabular-nums; }
+.lumi[data-screen="book"] .lumi-slot:disabled { border-color:#ebebeb; background:#f8f8f8; color:#777777; }
+.lumi[data-screen="book"] .lumi-summary { padding:6px 17px; border:1px solid #e8e8e8; border-radius:16px; background:#f8f8f8; }
+.lumi[data-screen="book"] .lumi-summary>div { padding:12px 0; border-bottom:1px solid #e7e7e7; }
+.lumi[data-screen="book"] .lumi-summary>div:last-child { border-bottom:0; }
+.lumi[data-screen="book"] .lumi-summary span { color:#616161; }
+.lumi[data-screen="book"] .lumi-summary b { color:#151515; }
+.lumi:is([data-screen="book"],[data-screen="admin"]) .lumi-field input { border-color:#dadada; }
+
+/* Portraits lead; captions and visit controls remain visually lightweight. */
+.lumi[data-screen="masters"] .lumi-master-image,.lumi[data-screen="master"] .lumi-detail-master { background:#f1f1f1; }
+.lumi[data-screen="masters"] .lumi-master-body { padding-top:14px; }
+.lumi[data-screen="masters"] .lumi-master-body h2 { letter-spacing:-.025em; }
+.lumi[data-screen="masters"] .lumi-master-body .lumi-eyebrow { color:#606060; letter-spacing:.08em; }
+.lumi[data-screen="master"] .lumi-specialties span { background:#f2f2f2; color:#444444; }
+.lumi[data-screen="master"] .lumi-choice { border-color:#e3e3e3; }
+.lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-booking-card { border-color:#e7e7e7; box-shadow:0 6px 18px rgba(45,34,27,.035); }
+.lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-status { background:#f1f1f1; color:#4b4b4b; }
+.lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-status[data-status="confirmed"] { background:#e9e9e9; color:#222222; }
+.lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-status[data-status="completed"] { background:#f0f0f0; color:#555555; }
+.lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-status[data-status="cancelled"] { background:#f3f3f3; color:#666666; }
+.lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-empty { background:#f7f7f7; }
+.lumi[data-screen="admin"] .lumi-service-settings { border-color:#e4e4e4; }
+.lumi[data-screen="admin"] .lumi-settings-toggle input { accent-color:#303030; }
+.lumi[data-screen="profile"] .lumi-profile-panel { position:relative; overflow:hidden; padding:25px 24px 26px; background:#f7f7f7; }
+.lumi[data-screen="profile"] .lumi-profile-panel>svg { display:none; }
+.lumi[data-screen="profile"] .lumi-profile-panel::before { content:''; display:block; width:30px; height:2px; background:#202020; }
+.lumi[data-screen="profile"] .lumi-profile-panel h2 { margin-top:16px; letter-spacing:-.035em; }
+.lumi[data-screen="profile"] .lumi-profile-panel p { max-width:28ch; color:#606060; line-height:1.5; }
+.lumi[data-screen="profile"] .lumi-profile-links button { border-color:#e4e4e4; }
+.lumi[data-screen="profile"] .lumi-profile-links button>svg:first-child { color:#161616; stroke-width:1.8; }
+.lumi[data-screen="success"] .lumi-success-icon { background:#eee9e4; color:#444444; }
+@media(max-width:350px) {
+  .lumi[data-screen="book"] .lumi-step::after { font-size:9px; }
+  .lumi[data-screen="book"] .lumi-choice img { width:55px; height:60px; }
+}
+@media(prefers-reduced-motion:reduce) { .lumi[data-screen="book"] .lumi-choice svg { transition:none; } }
+
+/* The supplied reference uses a clear black display hierarchy and squared image
+   edges; keep that language in the working screens without changing semantics. */
+.lumi:is([data-screen="masters"],[data-screen="master"],[data-screen="book"],[data-screen="success"],[data-screen="visits"],[data-screen="profile"],[data-screen="admin"]) .lumi-title {
+  color:#111; font-size:clamp(30px,8.8vw,40px); font-weight:650; letter-spacing:-.045em; line-height:1.02; text-transform:uppercase;
+}
+.lumi[data-screen="book"] .lumi-choice img { border-radius:3px; }
+.lumi[data-screen="book"] .lumi-date-row button,.lumi[data-screen="book"] .lumi-slot { border-radius:5px; }
+.lumi[data-screen="book"] .lumi-date-row button[aria-pressed="true"] :is(span,b) { color:#fff; }
+.lumi[data-screen="book"] .lumi-summary { border-radius:4px; }
+.lumi[data-screen="masters"] .lumi-master-image,.lumi[data-screen="master"] .lumi-detail-master,.lumi[data-screen="master"] .lumi-portfolio-card img { border-radius:2px; }
+.lumi[data-screen="master"] .lumi-detail h1 { color:#111; text-transform:uppercase; letter-spacing:-.045em; font-weight:650; }
+.lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-booking-card,.lumi:is([data-screen="visits"],[data-screen="admin"]) .lumi-empty,.lumi[data-screen="profile"] .lumi-profile-panel { border-radius:4px; }
