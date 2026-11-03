@@ -191,9 +191,45 @@ async function runViewport(browser,width,height) {
   } finally { await context.close(); }
 }
 
+async function runTelegramViewport(browser, width, height) {
+  const {context, page, errors} = await contextFor(browser, width, height);
+  try {
+    await page.goto(`${base}#/projects`, {waitUntil:'domcontentloaded'});
+    await page.getByTestId('card-app-nike-sneakers').tap({timeout:30000});
+    await page.getByTestId('royal-step').waitFor({timeout:30000});
+    // The native Telegram buttons can leave less usable space than the stable CSS viewport.
+    const visibleHeight = height - 80;
+    await page.evaluate(({height, visibleHeight}) => {
+      document.documentElement.style.setProperty('--tg-viewport-stable-height', `${height}px`);
+      document.documentElement.style.setProperty('--tg-viewport-height', `${visibleHeight}px`);
+    }, {height, visibleHeight});
+    await nav(page).getByRole('button',{name:'Каталог'}).tap();
+    await assertBottomReachable(page, '.rs-grid > .rs-card');
+    const geometry = await page.evaluate(() => ({
+      rootBottom: document.querySelector('#root').getBoundingClientRect().bottom,
+      navBottom: document.querySelector('.rs-nav').getBoundingClientRect().bottom,
+    }));
+    assert.ok(geometry.rootBottom <= visibleHeight + 1, `Scroll container extends beneath Telegram buttons: ${JSON.stringify(geometry)}`);
+    assert.ok(geometry.navBottom <= visibleHeight + 1, `Store navigation extends beneath Telegram buttons: ${JSON.stringify(geometry)}`);
+    await nav(page).getByRole('button',{name:/Корзина/}).tap();
+    const sheet = await page.getByRole('dialog').boundingBox();
+    assert.ok(sheet && sheet.y + sheet.height <= visibleHeight + 1, 'Cart extends beneath Telegram buttons');
+    await page.getByRole('dialog').getByRole('button',{name:'Закрыть'}).tap();
+
+    // Some Android WebViews resize the window while Telegram retains the old stable height.
+    await page.setViewportSize({width, height:visibleHeight});
+    await page.evaluate(visibleHeight => document.documentElement.style.setProperty('--tg-viewport-height', `${visibleHeight}px`), visibleHeight);
+    await assertBottomReachable(page, '.rs-grid > .rs-card');
+    const resizedRootBottom = await page.locator('#root').evaluate(element => element.getBoundingClientRect().bottom);
+    assert.ok(resizedRootBottom <= visibleHeight + 1, `Scroll container exceeds resized WebView: ${resizedRootBottom}`);
+    assert.deepEqual(errors, []);
+    console.log(`Telegram viewport ${width}x${height}, visible height ${visibleHeight}: scroll and navigation passed`);
+  } finally { await context.close(); }
+}
+
 (async()=>{
   const chrome=await chromium.launch({headless:true});
-  try { await runFull(chrome); await runViewport(chrome,320,568); } finally { await chrome.close(); }
+  try { await runFull(chrome); await runViewport(chrome,320,568); await runTelegramViewport(chrome,390,844); } finally { await chrome.close(); }
   const safari=await webkit.launch({headless:true});
-  try { await runViewport(safari,320,568); await runViewport(safari,430,932); } finally { await safari.close(); }
+  try { await runViewport(safari,320,568); await runViewport(safari,430,932); await runTelegramViewport(safari,390,844); } finally { await safari.close(); }
 })().catch(error=>{console.error(error);process.exitCode=1;});

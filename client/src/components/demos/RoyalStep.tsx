@@ -135,6 +135,8 @@ export default function RoyalStep({ onClose }: { onClose: () => void }) {
     const nodes = [document.documentElement, document.body, document.getElementById('root')].filter((node): node is HTMLElement => !!node);
     const oldColors = nodes.map(node => node.style.backgroundColor);
     nodes.forEach(node => { node.style.backgroundColor = '#fff'; });
+    const root = document.getElementById('root');
+    root?.classList.add('royal-step-scroll-root');
     const tg = (window as any).Telegram?.WebApp;
     const previous = { background: tg?.backgroundColor, header: tg?.headerColor, bottom: tg?.bottomBarColor };
     const setWhite = () => { try { tg?.setBackgroundColor?.('#ffffff'); tg?.setHeaderColor?.('#ffffff'); tg?.setBottomBarColor?.('#ffffff'); } catch { /* Older Telegram clients omit these methods. */ } };
@@ -142,6 +144,7 @@ export default function RoyalStep({ onClose }: { onClose: () => void }) {
     const timeout = window.setTimeout(setWhite, 180);
     return () => {
       window.clearTimeout(timeout);
+      root?.classList.remove('royal-step-scroll-root');
       nodes.forEach((node, index) => { node.style.backgroundColor = oldColors[index]; });
       try { if (previous.background) tg?.setBackgroundColor?.(previous.background); if (previous.header) tg?.setHeaderColor?.(previous.header); if (previous.bottom) tg?.setBottomBarColor?.(previous.bottom); } catch { /* The host controls its own theme. */ }
     };
