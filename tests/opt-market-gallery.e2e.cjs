@@ -37,19 +37,23 @@ async function main() {
       const picture = page.locator('.opt-detail-image img');
       const product = page.getByRole('button', { name: 'Товар', exact: true });
       const scene = page.getByRole('button', { name: 'Иллюстрация', exact: true });
-      assert.equal(await product.getAttribute('aria-pressed'), 'true', `${name} starts on the product image`);
+      assert.equal(await scene.getAttribute('aria-pressed'), 'true', `${name} starts on the creative scene`);
       await picture.evaluate(img => img.decode());
-      const original = await picture.getAttribute('src');
-      await scene.click();
-      assert.equal(await scene.getAttribute('aria-pressed'), 'true', `${name} scene is selected`);
       const creative = await picture.getAttribute('src');
-      assert.notEqual(creative, original, `${name} images differ`);
       assert(creative.includes('-scene-v2.webp'), `${name} points to its creative scene`);
       await picture.evaluate(img => img.decode());
       assert(await picture.evaluate(img => img.naturalWidth > 0 && img.naturalHeight > 0), `${name} creative scene loads`);
       assert.equal(await picture.getAttribute('alt'), `Художественная иллюстрация товара ${name}`);
       await product.click();
       assert.equal(await product.getAttribute('aria-pressed'), 'true');
+      const original = await picture.getAttribute('src');
+      assert.notEqual(creative, original, `${name} images differ`);
+      assert(!original.includes('-scene-v2.webp'), `${name} points to its packaging image`);
+      await picture.evaluate(img => img.decode());
+      await scene.click();
+      assert.equal(await scene.getAttribute('aria-pressed'), 'true');
+      assert.equal(await picture.getAttribute('src'), creative, `${name} returns to creative scene`);
+      await product.click();
       assert.equal(await picture.getAttribute('src'), original, `${name} returns to product image`);
       await picture.evaluate(img => img.decode());
     }

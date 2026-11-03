@@ -59,6 +59,7 @@ async function main() {
     await page.waitForFunction(() => Math.abs(document.querySelector('#root').scrollTop - history.state.__opt.scrollTop) < 20);
     await page.getByRole('button', { name: 'Открыть товар: Lavazza Qualità Oro' }).click();
     await page.getByRole('heading', { name: 'Lavazza Qualità Oro' }).waitFor();
+    await page.getByRole('button', { name: 'Товар', exact: true }).click();
     assert.equal(await page.locator('.opt-detail-image img').evaluate(img => getComputedStyle(img).objectFit), 'contain', 'the full product image must fit within the product view');
     if (process.env.OPT_SCREENSHOT) await page.screenshot({ path: process.env.OPT_SCREENSHOT });
     await assertReachableAboveNav(page, page.getByRole('button', { name: 'Добавить коробку' }), 'product action');
