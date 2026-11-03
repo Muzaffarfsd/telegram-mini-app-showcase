@@ -25,7 +25,7 @@ export function appleImageProps(src:string, context:AppleImageContext):Responsiv
     const name = local[1].slice(0,-5);
     const base = `/apple-store/creative/sizes/${name}`;
     const originalWidth = appleCreativeWidths[local[1]];
-    const set = [`${base}-160.webp 160w`, `${base}-480.webp 480w`, `${src} ${originalWidth}w`].join(', ');
+    const set = [`${base}-160.webp 160w`, `${base}-480.webp 480w`, `${base}-940.webp 940w`, `${src} ${originalWidth}w`].join(', ');
     const fallback = context==='thumbnail' ? `${base}-160.webp` : (context==='zoom' ? src : `${base}-480.webp`);
     return {src:fallback, srcSet:set, sizes:sizes[context]};
   }

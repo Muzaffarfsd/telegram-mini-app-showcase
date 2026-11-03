@@ -36,9 +36,25 @@
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=Russo+One&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <noscript><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=Russo+One&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
 
-  <!-- Preload custom display fonts so they're ready BEFORE first paint -->
-  <link rel="preload" href="/fonts/Stengazeta.ttf" as="font" type="font/ttf" crossorigin>
-  <link rel="preload" href="/fonts/Onder-Regular.ttf" as="font" type="font/ttf" crossorigin>
+  <!-- On a direct Apple demo link, prioritize its first illustration instead of unrelated display fonts. -->
+  <script>
+    (function () {
+      if (/^#\/demos\/apple-store\/app(?:\?|$)/.test(location.hash)) {
+        var image = document.createElement('link');
+        image.rel = 'preload'; image.as = 'image'; image.fetchPriority = 'high';
+        image.href = '/apple-store/generated/sizes/iphone-18-pro-max-black-480.webp';
+        image.setAttribute('imagesrcset', '/apple-store/generated/sizes/iphone-18-pro-max-black-160.webp 160w, /apple-store/generated/sizes/iphone-18-pro-max-black-480.webp 480w, /apple-store/generated/iphone-18-pro-max-black.webp 940w');
+        image.setAttribute('imagesizes', '(max-width: 448px) 55vw, 220px');
+        document.head.appendChild(image);
+      } else {
+        ['/fonts/Stengazeta.ttf', '/fonts/Onder-Regular.ttf'].forEach(function (href) {
+          var font = document.createElement('link');
+          font.rel = 'preload'; font.href = href; font.as = 'font'; font.type = 'font/ttf'; font.crossOrigin = 'anonymous';
+          document.head.appendChild(font);
+        });
+      }
+    })();
+  </script>
 
   <!-- SEO Meta Tags -->
   <meta name="description" content="WEB4TG Studio - Professional Telegram Mini Apps portfolio. 18 full-featured demos for fashion, restaurants, fitness, real estate & AI agents. 24/7 business automation.">
