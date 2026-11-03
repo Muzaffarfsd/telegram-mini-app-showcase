@@ -12,7 +12,8 @@ const products = [
 
 async function main() {
   const browser = await engine.launch();
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce' });
+  // Network failure simulation must not be bypassed by a cached service-worker response.
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce', serviceWorkers: 'block' });
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
