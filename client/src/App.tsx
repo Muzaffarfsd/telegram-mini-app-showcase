@@ -511,7 +511,7 @@ function AppContent() {
   const isRoyalStep = route.component === 'demoApp' && ['nike-sneakers', 'royal-step'].includes(route.params?.id || '');
   const isFashionDemo = route.component === 'demoApp' && route.params?.id === 'muraka-fashion';
   const shouldShowBottomNav = !route.component.includes('demo') && route.component !== 'notFound';
-  const shouldShowSidebar = (!route.component.includes('demo') && route.component !== 'notFound') || isRoyalStep;
+  const shouldShowSidebar = (!route.component.includes('demo') && route.component !== 'notFound') || isRoyalStep || isFashionDemo;
 
   return (
     <>
@@ -526,7 +526,7 @@ function AppContent() {
                 {shouldShowSidebar && (
                   <ErrorBoundary fallback={null}>
                     <GlobalSidebar 
-                      currentRoute={isRoyalStep ? 'showcase' : route.component}
+                      currentRoute={isRoyalStep || isFashionDemo ? 'showcase' : route.component}
                       onNavigate={handleNavigate}
                       user={user}
                     />
@@ -605,9 +605,9 @@ function AppContent() {
 
               <Toaster />
               
-              {(shouldShowBottomNav || isRoyalStep) && route.component !== 'aiProcess' && route.component !== 'aiAgent' && (
+              {(shouldShowBottomNav || isRoyalStep || isFashionDemo) && route.component !== 'aiProcess' && route.component !== 'aiAgent' && (
                 <Suspense fallback={null}>
-                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : route.component === 'showcase' || isRoyalStep ? 'home-ai-surface' : undefined}><AIAgentButton profileMode={isProfile || route.component === 'constructor' || route.component === 'showcase' || isRoyalStep} /></div>
+                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : route.component === 'showcase' || isRoyalStep || isFashionDemo ? 'home-ai-surface' : undefined}><AIAgentButton profileMode={isProfile || route.component === 'constructor' || route.component === 'showcase' || isRoyalStep || isFashionDemo} /></div>
                 </Suspense>
               )}
 

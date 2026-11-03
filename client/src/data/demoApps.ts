@@ -41,7 +41,7 @@ export interface DemoApp {
 export const demoApps: DemoApp[] = [
   {
     id: 'muraka-fashion',
-    title: 'MURAKA',
+    title: 'Магазин одежды',
     description: 'Демо магазина одежды и кроссовок',
     category: 'Электронная коммерция',
     image: '/muraka-fashion/jacket-patchwork-product.webp',

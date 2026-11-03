@@ -28,6 +28,23 @@ async function bottomVisible(page, selector) {
   assert.ok(pos.end <= pos.nav + 1, `Content is hidden by navigation: ${selector} ${JSON.stringify(pos)}`);
 }
 
+async function sharedHeader(page, contentSelector) {
+  assert.equal(await page.getByTestId('header-brand-mark').count(), 1);
+  assert.equal(await page.getByTestId('button-hamburger').count(), 1);
+  await page.getByRole('button',{name:'Chat with Alex'}).waitFor();
+  assert.equal(await page.locator('.mf-header').count(), 0);
+  assert.equal((await page.locator('body').innerText()).includes('MURAKA'), false);
+  for (const inset of [0,54,80]) {
+    await page.evaluate(inset => document.documentElement.style.setProperty('--csat', `${inset}px`), inset);
+    const positions = await page.evaluate(selector => ({
+      header:document.querySelector('.w4-topbar').getBoundingClientRect().bottom,
+      content:document.querySelector(selector).getBoundingClientRect().top,
+    }), contentSelector);
+    assert.ok(positions.content >= positions.header - 1, `Content overlaps shared header: ${JSON.stringify(positions)}`);
+  }
+  await page.evaluate(() => document.documentElement.style.setProperty('--csat','0px'));
+}
+
 async function checkViewport(browser, width, height) {
   const {context,page,errors} = await open(browser,width,height);
   try {
@@ -36,10 +53,12 @@ async function checkViewport(browser, width, height) {
       document.documentElement.style.setProperty('--tg-viewport-stable-height', `${height}px`);
       document.documentElement.style.setProperty('--csab', '34px');
     }, {height});
+    await sharedHeader(page, '.mf-hero-headline');
     const hero = page.locator('.mf-hero-photo img');
     await hero.evaluate(image => image.decode());
     await bottomVisible(page, '.mf-home > .mf-demo-note');
     await page.locator('.mf-nav').getByRole('button',{name:'Каталог'}).tap();
+    await sharedHeader(page, '.mf-page-intro');
     assert.equal(await page.locator('[data-testid^="mf-card-"]').count(), 16);
     await bottomVisible(page, '.mf-grid > .mf-card');
     await page.evaluate(height => { document.querySelector('#root').style.setProperty('min-height', `${height + 40}px`, 'important'); }, height);
@@ -49,6 +68,12 @@ async function checkViewport(browser, width, height) {
     });
     await bottomVisible(page, '.mf-grid > .mf-card');
     await page.evaluate(() => document.querySelector('#root').style.removeProperty('min-height'));
+    await page.getByTestId('mf-card-jeans-blue').getByRole('button',{name:/Открыть/}).tap();
+    await sharedHeader(page, '.mf-page-back');
+    await page.getByRole('button',{name:'В избранное: Джинсы Wide Denim'}).tap();
+    assert.equal(await page.getByRole('button',{name:'Убрать из избранного: Джинсы Wide Denim'}).getAttribute('aria-pressed'), 'true');
+    await page.getByRole('button',{name:'Назад',exact:true}).tap();
+    assert.equal(await page.locator('[data-testid^="mf-card-"]').count(), 16);
     await page.getByTestId('mf-card-jeans-blue').getByRole('button',{name:/Открыть/}).tap();
     const gallery = page.locator('.mf-gallery-main');
     await gallery.evaluate(image => image.decode());
