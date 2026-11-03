@@ -19,6 +19,15 @@ async function main() {
       combined[id] = colors;
     }
   }
+  for (const name of ['generated-extra-phones.json','generated-extra-computers.json','generated-extra-wearables.json']) {
+    let extras;
+    try { extras = JSON.parse(await fs.readFile(path.join('scripts',name),'utf8')); }
+    catch (error) { if (error.code==='ENOENT') continue; throw error; }
+    for (const [id, colors] of Object.entries(extras)) for (const [color, paths] of Object.entries(colors)) {
+      if (!Array.isArray(combined[id]?.[color]) || !Array.isArray(paths)) throw new Error(`Extra image has no matching product and finish: ${id} / ${color}`);
+      combined[id][color].push(...paths);
+    }
+  }
   const root = path.join('client','public');
   const outDir = path.join(root,'apple-store','generated');
   const sizeDir = path.join(outDir,'sizes');

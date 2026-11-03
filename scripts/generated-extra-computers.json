@@ -1,0 +1,59 @@
+{
+  "ipad-air-13-m4": {
+    "Стандартный": [
+      "/apple-store/generated/ipad-air-13-angle2.webp"
+    ]
+  },
+  "ipad-mini-a20": {
+    "Сияющая звезда": [
+      "/apple-store/generated/ipad-mini-starlight-angle2.webp"
+    ]
+  },
+  "macbook-neo": {
+    "Серебристый": [
+      "/apple-store/generated/neo-silver-angle2.webp"
+    ],
+    "Цитрус": [
+      "/apple-store/generated/neo-citrus-angle2.webp"
+    ],
+    "Индиго": [
+      "/apple-store/generated/neo-indigo-angle2.webp"
+    ]
+  },
+  "macbook-air-2026": {
+    "Серебристый": [
+      "/apple-store/generated/air-silver-angle2.webp"
+    ],
+    "Сияющая звезда": [
+      "/apple-store/generated/air-starlight-angle2.webp"
+    ],
+    "Тёмная ночь": [
+      "/apple-store/generated/air-midnight-angle2.webp"
+    ]
+  },
+  "macbook-pro-proled": {
+    "Серебристый": [
+      "/apple-store/generated/macbook-proled-silver-angle2.webp"
+    ]
+  },
+  "mac-mini-2026": {
+    "Серебристый": [
+      "/apple-store/generated/mac-mini-silver-angle2.webp"
+    ]
+  },
+  "apple-pencil-pro-2024": {
+    "Белый": [
+      "/apple-store/generated/apple-pencil-pro-2024-white-angle2.webp"
+    ]
+  },
+  "apple-pencil-usbc-2023": {
+    "Белый": [
+      "/apple-store/generated/apple-pencil-usbc-2023-white-angle2.webp"
+    ]
+  },
+  "magic-keyboard-usbc-2024": {
+    "Белый": [
+      "/apple-store/generated/magic-keyboard-usbc-2024-white-angle2.webp"
+    ]
+  }
+}

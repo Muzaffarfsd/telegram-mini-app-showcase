@@ -1,0 +1,45 @@
+{
+  "airpods-5": {
+    "Белый": [
+      "/apple-store/generated/airpods-5-white-extra.webp"
+    ]
+  },
+  "airpods-5-wireless": {
+    "Белый": [
+      "/apple-store/generated/airpods-5-wireless-white-extra.webp"
+    ]
+  },
+  "airpods-max-2": {
+    "Фиолетовый": [
+      "/apple-store/generated/airpods-max-2-purple-extra.webp"
+    ],
+    "Тёмная ночь": [
+      "/apple-store/generated/airpods-max-2-midnight-extra.webp"
+    ],
+    "Сияющая звезда": [
+      "/apple-store/generated/airpods-max-2-starlight-extra.webp"
+    ],
+    "Голубой": [
+      "/apple-store/generated/airpods-max-2-blue-extra.webp"
+    ],
+    "Оранжевый": [
+      "/apple-store/generated/airpods-max-2-orange-extra.webp"
+    ]
+  },
+  "homeview": {
+    "Сияющая звезда": [
+      "/apple-store/generated/homeview-starlight-extra.webp"
+    ],
+    "Серебристый": [
+      "/apple-store/generated/homeview-silver-extra.webp"
+    ],
+    "Серый космос": [
+      "/apple-store/generated/homeview-spacegrey-extra.webp"
+    ]
+  },
+  "homeview-wall": {
+    "Серебристый": [
+      "/apple-store/generated/homeview-wall-silver-extra.webp"
+    ]
+  }
+}

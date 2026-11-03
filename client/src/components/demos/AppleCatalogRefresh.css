@@ -11,6 +11,8 @@
 .as-category-dark img { padding:0; }
 .as-card-media { border:1px solid #eeeeef; border-radius:16px; background:#fff; }
 .as-card-preorder { position:absolute; z-index:1; left:10px; top:12px; color:#93631e; font-size:10px; font-weight:700; }
+.as-card-archive { position:absolute; z-index:1; left:10px; top:12px; color:#62636b; font-size:11px; font-weight:700; }
+.as-card-picture>.as-image-unavailable { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:20px; color:#62636b; font-size:12px; line-height:1.4; }
 .as-card-picture img { padding:14px; }
 .as-heart { background:#fff; }
 .as-card-name { font-size:14px; line-height:1.2; }

@@ -45,6 +45,7 @@ async function verifyItem(page, item, includeHistoryAndCart) {
   const defaultSrc=await img.evaluate(el=>el.currentSrc);
   const defaultHash=hash(await img.screenshot({animations:'disabled'}));
   const defaultThumbs=await page.locator('.as-gallery-strip img').evaluateAll(a=>a.map(x=>x.getAttribute('src')));
+  assert.ok(defaultThumbs.length>=2,`${item.id}: первый цвет должен иметь не менее двух ракурсов`);
   const seen=new Map([[item.colors[0],defaultSrc]]);
   let previous=defaultSrc;
   for (let index=1;index<item.colors.length;index++) {
@@ -61,6 +62,7 @@ async function verifyItem(page, item, includeHistoryAndCart) {
     for(const [otherName,other] of seen) assert.notEqual(sourceWithoutWidth(current),sourceWithoutWidth(other),`${item.id}: одинаковая картинка для ${otherName} и ${color}`);
     seen.set(color,current); previous=current;
     const thumbs=page.locator('.as-gallery-strip button');
+    assert.ok(await thumbs.count()>=2,`${item.id}: цвет ${color} должен иметь не менее двух ракурсов`);
     if (await thumbs.count()) {
       assert.equal(await thumbs.first().getAttribute('aria-pressed'),'true',`${item.id}: цвет не сбросил позицию галереи`);
       const thumbSrc=await thumbs.first().locator('img').getAttribute('src');
@@ -135,6 +137,5 @@ async function run(engine,items) {
 (async()=>{
  assert.ok(multi.length>=5,'Missing multi-color product fixtures');
  await run(chromium,multi);
- const sample=multi.filter(x=>['iphone-18-pro-max','ipad-mini-a20','macbook-air-2026'].includes(x.id));
- assert.equal(sample.length,3); await run(webkit,sample);
+ await run(webkit,multi);
 })().catch(e=>{console.error(e);process.exitCode=1});

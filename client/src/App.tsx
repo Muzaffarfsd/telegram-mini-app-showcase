@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy, useCallback, useEffect, useLayoutEffect, memo, useMemo } from "react";
+import { useState, Suspense, lazy, useCallback, useEffect, useLayoutEffect, memo, useMemo, useRef } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -427,6 +427,7 @@ function AppContent() {
   const { hapticFeedback, user } = useTelegram();
   
   const { route } = useRouting();
+  const prefetchStarted = useRef(false);
   const isProfile = isProfileRoute(route.component);
   const { trackNavigation } = useNavigationTracking();
 
@@ -453,12 +454,20 @@ function AppContent() {
     if (window.Telegram?.WebApp) {
       document.body.classList.add('tg-app-optimized');
     }
-    if ('requestIdleCallback' in window) {
-      (window as any).requestIdleCallback(prefetchAllRoutes, { timeout: 3000 });
-    } else {
-      setTimeout(prefetchAllRoutes, 1000);
-    }
   }, []);
+
+  useEffect(() => {
+    // A direct demo link needs its own content first, not every other app page.
+    if (prefetchStarted.current || route.component.includes('demo')) return;
+    const start = () => { if (!prefetchStarted.current) { prefetchStarted.current = true; prefetchAllRoutes(); } };
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(start, { timeout: 3000 });
+      return () => window.cancelIdleCallback(id);
+    } else {
+      const id = window.setTimeout(start, 1000);
+      return () => window.clearTimeout(id);
+    }
+  }, [route.component]);
 
   const handleNavigate = useCallback((section: string, data?: any) => {
     if (data) {
@@ -495,7 +504,9 @@ function AppContent() {
 
   const isCachedTab = isCachedTabCheck(route.component);
 
-  const [visitedTabs, setVisitedTabs] = useState<Set<string>>(() => new Set(['showcase']));
+  // Do not mount and download the hidden home page when opening a deep link.
+  // A tab becomes cached after it is actually visited.
+  const [visitedTabs, setVisitedTabs] = useState<Set<string>>(() => new Set(isCachedTabCheck(route.component) ? [route.component] : []));
 
   useEffect(() => {
     if (isCachedTabCheck(route.component)) {
@@ -535,35 +546,35 @@ function AppContent() {
                 )}
                 
                 <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={isRoyalStep || isFashionDemo || isAppleStore ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
-                  {visitedTabs.has('showcase') && (
+                  {(visitedTabs.has('showcase') || route.component === 'showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
                       <Suspense fallback={<StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} />}>
                         <ShowcasePage onOpenDemo={handleOpenDemo} onNavigate={handleNavigate} />
                       </Suspense>
                     </div>
                   )}
-                  {visitedTabs.has('projects') && (
+                  {(visitedTabs.has('projects') || route.component === 'projects') && (
                     <div style={{ display: route.component === 'projects' ? 'block' : 'none' }}>
                       <Suspense fallback={null}>
                         <ProjectsPage onNavigate={handleNavigate} onOpenDemo={handleOpenDemo} />
                       </Suspense>
                     </div>
                   )}
-                  {visitedTabs.has('aiProcess') && (
+                  {(visitedTabs.has('aiProcess') || route.component === 'aiProcess') && (
                     <div style={{ display: route.component === 'aiProcess' ? 'block' : 'none' }}>
                       <Suspense fallback={<AIConsultantSkeleton label={language === 'ru' ? 'Загрузка страницы консультанта' : 'Loading consultant page'} />}>
                         <AIProcessPage onNavigate={handleNavigate} />
                       </Suspense>
                     </div>
                   )}
-                  {visitedTabs.has('constructor') && (
+                  {(visitedTabs.has('constructor') || route.component === 'constructor') && (
                     <div style={{ display: route.component === 'constructor' ? 'block' : 'none' }}>
                       <Suspense fallback={<OrderSkeleton label={language === 'ru' ? 'Загрузка страницы заказа' : 'Loading order page'} />}>
                         <ConstructorPage onNavigate={handleNavigate} />
                       </Suspense>
                     </div>
                   )}
-                  {visitedTabs.has('profile') && (
+                  {(visitedTabs.has('profile') || route.component === 'profile') && (
                     <div style={{ display: route.component === 'profile' ? 'block' : 'none' }}>
                       <Suspense fallback={<ProfileSkeleton label={language === 'ru' ? 'Загрузка профиля' : 'Loading profile'} />}>
                         <ProfilePage onNavigate={handleNavigate} active={route.component === 'profile'} />
