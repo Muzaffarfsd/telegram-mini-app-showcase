@@ -6,7 +6,8 @@ export const appleGeneratedProductImages:Record<string,Record<string,string[]>> 
     ],
     "Бордо": [
       "/apple-store/generated/iphone-18-pro-max-burgundy.webp",
-      "/apple-store/generated/extra-iphone-18-pro-max-burgundy.webp"
+      "/apple-store/generated/extra-iphone-18-pro-max-burgundy.webp",
+      "/apple-store/generated/detail-iphone-18-pro-max-burgundy-front-v2.webp"
     ],
     "Ледниковый": [
       "/apple-store/generated/iphone-18-pro-max-glacier.webp",
