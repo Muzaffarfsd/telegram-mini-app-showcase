@@ -29,6 +29,7 @@ async function test(browser,width) {
   try {
     await page.goto(`${base}#/demos/china-buyer/app`,{waitUntil:'domcontentloaded'});
     await page.getByTestId('china-buyer').waitFor({timeout:30000});
+    await page.locator('.home-ai-surface .alex-fab-breathing').waitFor({state:'visible',timeout:30000});
     assert.equal(await page.locator('.home-ai-surface .alex-fab-breathing').count(),1);
     assert.equal(await nav(page).getByRole('button').count(),4); await geometry(page);
     assert.equal(await page.locator('.cb-home__collage-side img').count(),3);
