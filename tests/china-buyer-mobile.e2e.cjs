@@ -32,15 +32,15 @@ async function test(browser,width) {
     await page.locator('.home-ai-surface .alex-fab-breathing').waitFor({state:'visible',timeout:30000});
     assert.equal(await page.locator('.home-ai-surface .alex-fab-breathing').count(),1);
     assert.equal(await nav(page).getByRole('button').count(),4); await geometry(page);
-    assert.equal(await page.locator('.cbv-hero img').count(),1);
-    assert.equal(await page.locator('.cbv-selection [data-testid^="buyer-item-"]').count(),4);
-    await bottomReachable(page,'.cbv-home > .cb-disclaimer');
-    await page.getByRole('button',{name:'Посмотреть путь клиента'}).tap();
+    assert.equal(await page.locator('.cb4-hero img').count(),1);
+    assert.equal(await page.locator('.cb4-collection [data-testid^="buyer-item-"]').count(),4);
+    await bottomReachable(page,'.cb4-home > .cb-disclaimer');
+    await page.getByRole('button',{name:'Подробнее о процессе'}).tap();
     assert.equal(await page.locator('.cb-process').count(),1);
     await page.getByRole('button',{name:'Назад',exact:true}).tap();
-    await page.getByRole('button',{name:'Открыть коллекцию'}).tap();
-    const totalItems = await page.locator('[data-testid^="buyer-item-"]').count(); assert.equal(totalItems,18);
-    for (const [name,count] of [['Одежда',4],['Обувь',4],['Сумки',4],['Аксессуары',3],['Для дома',3]]) {
+    await page.getByRole('button',{name:'Смотреть подборку'}).tap();
+    const totalItems = await page.locator('[data-testid^="buyer-item-"]').count(); assert.equal(totalItems,20);
+    for (const [name,count] of [['Одежда',5],['Обувь',4],['Сумки',5],['Аксессуары',3],['Для дома',3]]) {
       await page.getByRole('button',{name,exact:true}).tap();
       assert.equal(await page.locator('[data-testid^="buyer-item-"]').count(),count, name);
     }
@@ -108,7 +108,7 @@ async function telegram(browser){
   await context.route('https://telegram.org/js/telegram-web-app.js',r=>r.fulfill({contentType:'text/javascript',body:''}));
   await page.goto(`${base}#/demos/china-buyer/app`,{waitUntil:'domcontentloaded'});await page.getByTestId('china-buyer').waitFor();
   await page.evaluate(()=>{document.documentElement.style.setProperty('--tg-viewport-height','764px');document.documentElement.style.setProperty('--sab','34px');document.documentElement.style.setProperty('--csab','50px');});
-  await geometry(page);await bottomReachable(page,'.cbv-home > .cb-disclaimer');
+  await geometry(page);await bottomReachable(page,'.cb4-home > .cb-disclaimer');
   const bar=await nav(page).boundingBox();assert.ok(bar.y + bar.height <= 764,`telegram navigation too low ${JSON.stringify(bar)}`);
   await context.close();console.log(`PASS ${type.name()} Telegram viewport 764px and safe area`);
 }
