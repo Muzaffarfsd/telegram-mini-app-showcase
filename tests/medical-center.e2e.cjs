@@ -44,8 +44,9 @@ async function run(browser, width, height) {
     catch (error) { throw new Error(`Initial booking did not finish: ${await dialog.textContent()}\nEvents: ${JSON.stringify(await page.evaluate(() => window.__medicalEvents))}\n${error.message}`); }
     assert.match(await dialog.textContent(), /Настоящий приём не забронирован/);
     const saved = await page.evaluate(() => localStorage.getItem('medical-demo-appointments-v1'));
-    assert(saved && !saved.includes('Тестовый пациент') && !saved.includes('900') && !saved.includes('555'), 'patient name and phone are not stored');
+    assert(saved && !saved.includes('Тестовый пациент') && !saved.includes('+7 900 555 44 33') && !saved.includes('79005554433'), 'patient name and phone are not stored');
     const initial = JSON.parse(saved)[0];
+    assert.deepEqual(Object.keys(initial).sort(), ['date', 'doctorId', 'duration', 'id', 'price', 'time'], 'stored records contain only appointment details');
     assert(initial && initial.date && initial.time && initial.doctorId, 'booking is stored locally');
     await dialog.getByRole('button', { name: 'Мои записи' }).click();
     const visits = page.getByRole('dialog', { name: 'Мои демо-записи' });
