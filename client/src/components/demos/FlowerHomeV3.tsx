@@ -1,0 +1,19 @@
+import {ArrowRight, ArrowUpRight} from 'lucide-react';
+import {flowerMoney, type FlowerCatalogItem} from './FlowerCatalogV2';
+import './FlowerHomeV3.css';
+
+type Props={items:FlowerCatalogItem[];renderCard:(item:FlowerCatalogItem)=>React.ReactNode;open:(id:string)=>void;catalog:(category?:string)=>void};
+export default function FlowerHomeV3({items,renderCard,open,catalog}:Props){
+ const byId=(id:string)=>items.find(p=>p.id===id);
+ const picks=['reborn-peony','reborn-calla','reborn-red-rose','reborn-meadow'].map(byId).filter((p):p is FlowerCatalogItem=>!!p);
+ return <div className="fl3-home">
+  <div className="fl3-brand"><strong>FLORA<span>.</span></strong><span>ЦВЕТОЧНАЯ СТУДИЯ</span></div>
+  <section className="fl3-hero"><div className="fl3-hero-head"><p>ЦВЕТЫ ДЛЯ ВАЖНОГО И ПРОСТО ТАК</p><h1>ЦВЕТЫ<br/><span>ДЛЯ ВАС.</span></h1></div><button type="button" className="fl3-hero-picture" aria-label="Открыть букет Пионовый сад" onClick={()=>open('reborn-peony')}><img src="/flower-store/reborn-hero.webp" alt="Пионовый букет в свободной садовой композиции" fetchPriority="high"/></button><div className="fl3-hero-card"><div><span>ВЫБОР СТУДИИ</span><strong>Пионовый сад</strong><small>Коралловые пионы и цветущие ветви</small>{byId('reborn-peony')&&<b>{flowerMoney(byId('reborn-peony')!.price)} · демо</b>}</div><button type="button" onClick={()=>open('reborn-peony')}>СМОТРЕТЬ БУКЕТ <ArrowUpRight size={18}/></button></div><button type="button" className="fl3-all-link" onClick={()=>catalog()}>ВСЕ ЦВЕТЫ <ArrowRight size={18}/></button></section>
+  <section className="fl3-occasions"><div className="fl3-headline"><div><span>С ЧЕГО НАЧНЁМ</span><h2>ПО ПОВОДУ<br/><em>И БЕЗ.</em></h2></div><button type="button" onClick={()=>catalog()}>ВСЕ БУКЕТЫ <ArrowRight size={16}/></button></div><p>Цветы для важной встречи, тёплых слов или просто для себя.</p><div className="fl3-occasion-list">{[['В подарок','01'],['Для дома','02'],['Без повода','03']].map(([name,n])=><button key={name} type="button" onClick={()=>catalog(name)}><span>{n}</span><strong>{name}</strong><ArrowUpRight size={19}/></button>)}</div></section>
+  <section className="fl3-collection"><div className="fl3-headline"><div><span>КОЛЛЕКЦИЯ FLORA</span><h2>ВЫБРАНО<br/><em>С ЛЮБОВЬЮ.</em></h2></div><button type="button" onClick={()=>catalog()}>СМОТРЕТЬ ВСЕ <ArrowRight size={16}/></button></div><div className="fl3-picks">{picks.map(renderCard)}</div></section>
+  <section className="fl3-story"><div className="fl3-story-copy"><span>ОСОБЕННЫЙ БУКЕТ / 01</span><h2>КРАСОТА<br/><em>ЛИНИЙ.</em></h2><p>Белые каллы, длинные стебли и чистый силуэт. Красота формы — в каждой детали.</p><button type="button" onClick={()=>open('reborn-calla')}>ОТКРЫТЬ БУКЕТ <ArrowUpRight size={17}/></button></div><button type="button" className="fl3-story-picture" onClick={()=>open('reborn-calla')} aria-label="Посмотреть букет Белая линия"><img src="/flower-store/reborn-calla-1.webp" alt="Белые каллы с длинными стеблями" loading="lazy"/></button></section>
+  <section className="fl3-guide"><div><span>ВЫБОР СТАНОВИТСЯ ПРОЩЕ</span><h2>НАЙДИТЕ<br/><em>СВОИ ЦВЕТЫ.</em></h2><p>Выберите повод, оттенок или бюджет — покажем подходящие композиции.</p><button type="button" onClick={()=>catalog()}>ПОДОБРАТЬ БУКЕТ <ArrowRight size={18}/></button></div><img src="/flower-store/reborn-red-rose-3.webp" alt="" loading="lazy"/></section>
+  <section className="fl3-care"><span>ЦВЕТЫ / ЗАБОТА</span><h2>ПУСТЬ ЦВЕТЫ<br/><em>РАДУЮТ ДОЛЬШЕ.</em></h2><div><p><strong>Чистая вода.</strong> Регулярно меняйте воду и мойте вазу.</p><p><strong>Бережное место.</strong> Уберите букет от прямого солнца и источников тепла.</p><p><strong>Свежий срез.</strong> Уход зависит от цветов — уточняйте рекомендации у флориста.</p></div></section>
+  <p className="fl3-disclaimer">Демонстрационная витрина: изображения сгенерированы, цены и ассортимент примерные. Заказы, доставка и оплата не подключены.</p>
+ </div>
+}
