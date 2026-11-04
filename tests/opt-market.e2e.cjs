@@ -12,7 +12,7 @@ async function run(browser, width, height) {
     await p.goto(url, { waitUntil: 'domcontentloaded' });
     await p.getByTestId('opt-market').waitFor();
     await p.locator('.opt-hero-image').evaluate(i => i.decode());
-    assert.ok((await p.locator('.opt-hero-image').getAttribute('src')).includes('hero-orbit-v2.webp'), 'updated product hero must load');
+    assert.ok((await p.locator('.opt-hero-image').getAttribute('src')).includes('partiya-v2-hero.webp'), 'updated product hero must load');
     const nav = await p.locator('.opt-nav').boundingBox();
     assert(nav && nav.x >= 0 && nav.x + nav.width <= width, `navigation outside viewport: ${JSON.stringify(nav)}`);
     assert.equal(await p.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'horizontal overflow');
@@ -43,7 +43,8 @@ async function run(browser, width, height) {
     await p.getByRole('button', { name: 'Создать демо-заказ' }).click();
     await p.getByRole('heading', { name: 'Заказ собран.' }).waitFor();
     await p.getByRole('button', { name: 'Посмотреть историю' }).click();
-    await p.getByRole('button', { name: 'Добавить заказ в корзину' }).click();
+    await p.getByRole('button', { name: 'Проверить и повторить заказ' }).click();
+    await p.getByRole('button', { name: 'Добавить доступные товары' }).click();
     await p.getByText('Lavazza Qualità Oro', { exact: true }).waitFor();
     await p.reload({ waitUntil: 'domcontentloaded' });
     await p.getByTestId('opt-market').waitFor();

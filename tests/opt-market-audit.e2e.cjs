@@ -70,7 +70,7 @@ async function main() {
     // A low-value carton cannot reach checkout; increasing quantity updates the total.
     await page.getByRole('button', { name: 'Добавить коробку: Barilla Penne Rigate' }).click();
     await page.locator('.opt-nav').getByRole('button', { name: /^Заказ,/ }).click();
-    await page.getByText('Минимальный заказ', { exact: false }).waitFor();
+    await page.locator('.opt-minimum').waitFor();
     assert.equal(await page.getByRole('button', { name: 'Оформить заказ' }).isDisabled(), true);
     await page.getByRole('button', { name: 'Увеличить количество: Barilla Penne Rigate' }).click();
     assert.equal(await page.getByRole('button', { name: 'Оформить заказ' }).isDisabled(), true);
@@ -97,7 +97,7 @@ async function main() {
     assert.equal(parsed.cart.length, 0, 'cart clears after checkout');
     await page.getByRole('button', { name: 'Посмотреть историю' }).click();
     await audit(page, 'order history');
-    await page.getByRole('button', { name: 'Добавить заказ в корзину' }).click();
+    await page.getByRole('button', { name: 'Проверить и повторить заказ' }).click(); await page.getByRole('button', { name: 'Добавить доступные товары' }).click();
     await page.reload();
     await page.locator('.opt-nav').getByRole('button', { name: /^Заказ,/ }).click();
     await page.getByText('Barilla Penne Rigate', { exact: true }).waitFor();

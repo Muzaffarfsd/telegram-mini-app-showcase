@@ -1,0 +1,77 @@
+/* Purchase tools share the quiet green product language of the wholesale catalog. */
+.partiya-workflow {color:#1e3022;}
+.partiya-workflow button,.partiya-workflow input {font:inherit;}
+.partiya-workflow button {cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.partiya-workflow button:disabled {opacity:.45;cursor:not-allowed;}
+.partiya-workflow button:focus-visible,.partiya-workflow input:focus-visible,.partiya-workflow summary:focus-visible,.partiya-favorite:focus-visible {outline:2px solid #315c3c;outline-offset:3px;}
+.partiya-kicker {color:#59715b;font-size:10px;font-weight:800;letter-spacing:.1em;}
+.partiya-workflow p {line-height:1.5;}
+.partiya-favorite {display:inline-grid;place-items:center;flex:none;width:44px;height:44px;padding:0;border:1px solid #dbe4d9;border-radius:50%;background:#fff;color:#304c34;cursor:pointer;}
+.partiya-favorite[aria-pressed=true] {background:#eaf0e8;color:#355c3d;}
+.partiya-progress {margin-top:22px;padding:17px;border:1px solid #dfe8dc;border-radius:15px;background:#f4f8f2;}
+.partiya-progress-head {display:flex;align-items:center;justify-content:space-between;gap:10px;color:#536e56;font-size:9px;font-weight:800;letter-spacing:.07em;}
+.partiya-progress-head strong {color:#304c34;text-align:right;font-size:11px;letter-spacing:0;}
+.partiya-progress-track {height:5px;overflow:hidden;margin-top:13px;border-radius:8px;background:#d8e4d5;}
+.partiya-progress-track i {display:block;height:100%;border-radius:8px;background:#355c3d;transition:width .2s ease;}
+.partiya-progress>p {margin-top:9px!important;color:#4e6550;font-size:11px;}
+.partiya-save-box {margin-top:26px;padding:20px;border:1px solid #e2e9df;border-radius:16px;background:#f8faf6;}
+.partiya-save-box h2,.partiya-saved-section h2 {margin-top:7px;color:#1d3021;font-size:23px;line-height:1.1;letter-spacing:-.04em;}
+.partiya-save-box>p,.partiya-intro {margin-top:9px!important;color:#586a59;font-size:13px;line-height:1.5;}
+.partiya-save-form {margin-top:17px;}
+.partiya-save-form label {display:block;font-size:12px;font-weight:750;}
+.partiya-save-form>div {display:flex;gap:8px;margin-top:8px;}
+.partiya-save-form input {min-width:0;flex:1;height:48px;padding:0 10px;border:1px solid #dce4d9;border-radius:10px;background:#fff;color:#263a29;font-size:16px;}
+.partiya-save-form button {display:flex;align-items:center;justify-content:center;gap:5px;min-height:48px;padding:0 12px;border:0;border-radius:10px;background:#2c4831;color:#fff;font-size:11px;font-weight:750;}
+.partiya-save-form small {display:block;margin-top:8px;color:#657365;font-size:11px;line-height:1.4;}
+.partiya-save-form p {margin-top:7px!important;color:#38583d;font-size:12px;}
+body:has(.partiya-save-form input:focus) .opt-nav {visibility:hidden;}
+.partiya-action-outline,.partiya-action-solid {display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;margin-top:12px;padding:8px 12px;border:1px solid #d5e1d2;border-radius:10px;background:#fff;color:#304d35;font-size:12px;font-weight:750;}
+.partiya-action-solid {border-color:#2d4933;background:#2d4933;color:#fff;}
+.partiya-repeat {margin-top:12px;}
+.partiya-review {margin-top:12px;padding:16px;border-radius:14px;background:#f4f7f1;}
+.partiya-review h3 {font-size:16px;letter-spacing:-.02em;}
+.partiya-review>p,.partiya-muted {margin-top:9px!important;color:#637164;font-size:11px;line-height:1.5;}
+.partiya-review-lines {margin-top:12px;border-top:1px solid #dfe7dc;}
+.partiya-review-lines>div {display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #dfe7dc;}
+.partiya-review-lines>div>div:first-child {min-width:0;}
+.partiya-review-lines strong {display:block;font-size:12px;line-height:1.35;overflow-wrap:anywhere;}
+.partiya-review-lines small {display:block;margin-top:4px;color:#687668;font-size:10px;line-height:1.4;}
+.partiya-review-lines b {display:block;color:#2b4430;font-size:11px;text-align:right;white-space:nowrap;}
+.partiya-review-lines em {display:block;margin-top:4px;color:#935735;font-size:10px;font-style:normal;text-align:right;}
+.partiya-alert {margin-top:12px!important;padding:10px 12px;border-radius:9px;background:#f8efe7;color:#80502f;font-size:11px;line-height:1.45;}
+.partiya-saved {padding-bottom:36px;}
+.partiya-saved h1 {margin-top:17px;font-size:clamp(36px,10vw,44px);font-weight:760;line-height:1;letter-spacing:-.055em;}
+.partiya-saved-section {margin-top:36px;}
+.partiya-section-heading {display:flex;align-items:end;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid #dfe7dc;}
+.partiya-section-heading>span {color:#758574;font-size:11px;font-weight:750;}
+.partiya-favorites-list article {display:flex;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid #e5ebe2;}
+.partiya-favorite-product {display:flex;align-items:center;gap:12px;min-width:0;flex:1;padding:0;border:0;background:none;text-align:left;color:inherit;}
+.partiya-favorite-image {display:grid;place-items:center;flex:0 0 76px;height:82px;overflow:hidden;border-radius:10px;background:#f3f6f0;}
+.partiya-favorite-image img {width:100%;height:100%;object-fit:contain;}
+.partiya-favorite-product strong {display:block;font-size:13px;line-height:1.25;overflow-wrap:anywhere;}
+.partiya-favorite-product small {display:block;margin-top:5px;color:#697969;font-size:10px;line-height:1.35;}
+.partiya-favorite-product b {display:block;margin-top:8px;font-size:11px;}
+.partiya-empty {padding:25px 17px;border-radius:0 0 14px 14px;background:#f5f8f3;color:#4d6751;}
+.partiya-empty p {max-width:260px;margin-top:10px;font-size:12px;}
+.partiya-empty button {display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0;border:0;background:none;color:#304d35;font-size:12px;font-weight:750;}
+.partiya-lists {display:grid;gap:10px;margin-top:14px;}
+.partiya-lists article {padding:17px;border:1px solid #e1e9df;border-radius:14px;background:#fafcf9;}
+.partiya-list-head {display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.partiya-list-head>div {min-width:0;}
+.partiya-list-head span {color:#708370;font-size:9px;font-weight:800;letter-spacing:.09em;}
+.partiya-list-head h3,.partiya-saved-form h3 {margin-top:7px;font-size:17px;letter-spacing:-.03em;overflow-wrap:anywhere;}
+.partiya-list-head p {margin-top:6px;color:#617361;font-size:11px;}
+.partiya-delete {display:grid;place-items:center;flex:none;width:44px;height:44px;padding:0;border:0;background:none;color:#6c7d6b;}
+.partiya-delete-confirm {margin-top:12px;padding:11px;border-radius:10px;background:#f6ede8;font-size:12px;overflow-wrap:anywhere;}
+.partiya-delete-confirm button {min-height:44px;margin-right:12px;padding:0 8px;border:0;background:none;color:#70402b;font-size:12px;font-weight:750;}
+.partiya-lists details {margin-top:13px;}
+.partiya-lists summary {display:flex;align-items:center;justify-content:space-between;min-height:44px;border-top:1px solid #dfe8dd;color:#3c5a40;font-size:12px;font-weight:750;cursor:pointer;list-style:none;}
+.partiya-lists summary::-webkit-details-marker {display:none;}
+.partiya-lists summary span {font-size:18px;font-weight:400;}
+.partiya-saved-form {margin-top:22px;padding:17px;border-radius:14px;background:#f2f6f0;}
+@media(max-width:350px){.partiya-save-form>div{flex-wrap:wrap}.partiya-save-form input{flex-basis:100%}.partiya-save-form button{width:100%}.partiya-progress-head{align-items:flex-start;flex-direction:column;gap:5px}}
+@media(prefers-reduced-motion:reduce){.partiya-progress-track i{transition:none}}
+.partiya-line-quantity {display:inline-flex;align-items:center;gap:3px;margin-top:6px;border:1px solid #d8e2d6;border-radius:8px;background:#fff;}
+.partiya-line-quantity button {display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;background:none;color:#34523b;font-size:19px;}
+.partiya-line-quantity span {min-width:24px;text-align:center;color:#263d2b;font-size:12px;font-weight:750;}
+.partiya-missing button {min-height:44px;padding:0;border:0;background:none;color:#395b40;font-size:12px;font-weight:750;}
