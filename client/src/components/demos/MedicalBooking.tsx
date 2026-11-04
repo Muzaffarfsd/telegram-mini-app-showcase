@@ -59,14 +59,16 @@ export default function MedicalBooking({ doctors, initialDoctorId, initialMode =
   const [error, setError] = useState('');
   const [cancelId, setCancelId] = useState('');
   const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
   const doctor = doctors.find(item => item.id === doctorId);
   const dates = useMemo(createDates, []);
 
   useEffect(() => {
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    dialogRef.current?.focus();
+    dialogRef.current?.focus({ preventScroll: true });
     const listener = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') { onClose(); return; }
+      if (event.key === 'Escape') { closeRef.current(); return; }
       if (event.key !== 'Tab' || !dialogRef.current) return;
       const focusable = Array.from(dialogRef.current.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), [href], [tabindex]:not([tabindex="-1"])'));
       if (!focusable.length) { event.preventDefault(); return; }
@@ -76,7 +78,7 @@ export default function MedicalBooking({ doctors, initialDoctorId, initialMode =
     };
     window.addEventListener('keydown', listener);
     return () => { window.removeEventListener('keydown', listener); previous?.focus(); };
-  }, [onClose]);
+  }, []);
   useEffect(() => { const sync = (event: StorageEvent) => { if (event.key === STORAGE_KEY) setRows(readAppointments()); }; window.addEventListener('storage', sync); return () => window.removeEventListener('storage', sync); }, []);
 
   function changeStep(next: Step) {
