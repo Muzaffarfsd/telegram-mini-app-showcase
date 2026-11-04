@@ -9,6 +9,10 @@ export interface DemoComponent {
 
 // Demo registry with lazy loading
 export const demoRegistry: Record<string, DemoComponent> = {
+  'medical-center': {
+    component: lazy(() => import('./MedicalCenter')),
+    preload: () => import('./MedicalCenter')
+  },
   'lumi-studio': {
     component: lazy(() => import('./LumiStudio')),
     preload: () => import('./LumiStudio')

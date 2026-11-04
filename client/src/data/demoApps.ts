@@ -40,6 +40,17 @@ export interface DemoApp {
 // Топ-10 самых популярных приложений по лайкам
 export const demoApps: DemoApp[] = [
   {
+    id: 'medical-center',
+    title: 'Частный медицинский центр',
+    description: 'Специалисты, услуги и удобная запись на приём',
+    category: 'Здоровье',
+    image: '/medical-center/hero.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
     id: 'lumi-studio',
     title: 'LUMI — студия красоты',
     description: 'Услуги, мастера и удобная запись в студию красоты',

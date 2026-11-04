@@ -133,6 +133,7 @@ export const translations = {
       footer: 'Web4TG · Telegram Mini Apps · 2025',
       // Demo app descriptions for project cards
       appDescriptions: {
+        'medical-center': 'Медицинский центр: специалисты, услуги и запись на приём',
         'lumi-studio': 'Студия красоты: услуги, мастера и запись',
         'opt-market': 'Оптовые закупки: каталог, цены и повтор заказа',
         'apple-store': 'Магазин техники Apple с каталогом и корзиной',
@@ -1856,6 +1857,7 @@ export const translations = {
       footer: 'Web4TG · Telegram Mini Apps · 2025',
       // Demo app descriptions for project cards
       appDescriptions: {
+        'medical-center': 'Medical center: specialists, services and appointments',
         'lumi-studio': 'Beauty studio: services, specialists and appointments',
         'opt-market': 'Wholesale purchasing: catalog, pricing and repeat orders',
         'apple-store': 'Apple technology store with catalog and shopping bag',

@@ -524,8 +524,9 @@ function AppContent() {
   const isAppleStore = route.component === 'demoApp' && route.params?.id === 'apple-store';
   const isOptMarket = route.component === 'demoApp' && route.params?.id === 'opt-market';
   const isLumiStudio = route.component === 'demoApp' && route.params?.id === 'lumi-studio';
+  const isMedicalCenter = route.component === 'demoApp' && route.params?.id === 'medical-center';
   const shouldShowBottomNav = !route.component.includes('demo') && route.component !== 'notFound';
-  const shouldShowSidebar = (!route.component.includes('demo') && route.component !== 'notFound') || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio;
+  const shouldShowSidebar = (!route.component.includes('demo') && route.component !== 'notFound') || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter;
 
   return (
     <>
@@ -540,14 +541,14 @@ function AppContent() {
                 {shouldShowSidebar && (
                   <ErrorBoundary fallback={null}>
                     <GlobalSidebar 
-                      currentRoute={isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio ? 'showcase' : route.component}
+                      currentRoute={isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter ? 'showcase' : route.component}
                       onNavigate={handleNavigate}
                       user={user}
                     />
                   </ErrorBoundary>
                 )}
                 
-                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
+                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
                   {(visitedTabs.has('showcase') || route.component === 'showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
                       <Suspense fallback={<StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} />}>
@@ -619,9 +620,9 @@ function AppContent() {
 
               <Toaster />
               
-              {(shouldShowBottomNav || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio) && route.component !== 'aiProcess' && route.component !== 'aiAgent' && (
+              {(shouldShowBottomNav || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter) && route.component !== 'aiProcess' && route.component !== 'aiAgent' && (
                 <Suspense fallback={null}>
-                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio ? 'home-ai-surface' : undefined}><AIAgentButton profileMode={isProfile || route.component === 'constructor' || route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio} /></div>
+                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter ? 'home-ai-surface' : undefined}><AIAgentButton profileMode={isProfile || route.component === 'constructor' || route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter} /></div>
                 </Suspense>
               )}
 

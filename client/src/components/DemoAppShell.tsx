@@ -270,6 +270,16 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   const baseAppType = getBaseAppType(demoId);
   const theme = demoDark ? darkTheme : getTheme(baseAppType);
 
+  // The medical center supplies its own appointment navigation inside the WEB4TG header.
+  if (demoId === 'medical-center') {
+    const MedicalCenter = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<div aria-label="Загрузка медицинского центра" style={{ minHeight: '100vh', background: '#fff' }} />}>
+        {MedicalCenter && <MedicalCenter onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
+
   // LUMI supplies its own appointment navigation inside the WEB4TG header.
   if (demoId === 'lumi-studio') {
     const LumiStudio = getDemoComponent(demoId);
