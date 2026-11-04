@@ -152,7 +152,7 @@ export default function MedicalBooking({ doctors, initialDoctorId, initialMode =
             <label className="medical-booking__field">Телефон<input value={phone} onChange={event => setPhone(event.target.value)} autoComplete="tel" inputMode="tel" placeholder="+7 (___) ___-__-__" maxLength={30} required /></label>
             <p className="medical-booking__demo-note">Это демо: данные формы никуда не отправляются и не сохраняются. Запись остаётся только в этом браузере.</p>
             {error && <p className="medical-booking__error" role="alert">{error}</p>}
-            <button type="submit" className="medical-booking__primary">Сохранить демо-запись <ArrowRight size={18}/></button>
+            <button type="submit" className="medical-booking__primary" onMouseDown={event => { if (document.activeElement instanceof HTMLInputElement) event.preventDefault(); }}>Сохранить демо-запись <ArrowRight size={18}/></button>
           </form>
         </section>}
         {step === 'success' && success && <section className="medical-booking__success">

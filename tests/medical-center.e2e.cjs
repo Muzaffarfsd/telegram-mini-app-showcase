@@ -7,6 +7,7 @@ const engine = process.env.MEDICAL_ENGINE === 'webkit' ? webkit : chromium;
 async function run(browser, width, height) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: true, hasTouch: true, reducedMotion: 'reduce', serviceWorkers: 'block' });
   const page = await context.newPage();
+  page.setDefaultTimeout(10000);
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   try {
@@ -35,8 +36,12 @@ async function run(browser, width, height) {
     await checkContrast();
     await dialog.getByLabel('Ваше имя').fill('Тестовый пациент');
     await dialog.getByLabel('Телефон').fill('+7 900 555 44 33');
-    await dialog.getByRole('button', { name: 'Сохранить демо-запись' }).click();
-    await dialog.getByText(/Настоящий приём не забронирован/).waitFor();
+    await page.evaluate(() => { window.__medicalEvents = []; const originalFocus = HTMLElement.prototype.focus; HTMLElement.prototype.focus = function (...args) { if (this.classList.contains('medical-booking')) window.__medicalEvents.push({ type: 'focus-call', stack: new Error().stack }); return originalFocus.apply(this, args); }; for (const name of ['pointerdown','pointerup','mousedown','mouseup','click','submit','focusin','focusout']) document.addEventListener(name, event => { const target = event.target; window.__medicalEvents.push({ type: event.type, tag: target?.tagName, class: target?.className, text: target?.textContent?.slice(0, 40), active: document.activeElement?.tagName }); }, true); });
+    if (process.env.MEDICAL_SUBMIT === 'enter') await dialog.getByLabel('Телефон').press('Enter');
+    else if (process.env.MEDICAL_SUBMIT === 'mouse') await dialog.getByRole('button', { name: 'Сохранить демо-запись' }).click();
+    else await dialog.getByRole('button', { name: 'Сохранить демо-запись' }).tap();
+    try { await dialog.getByText(/Настоящий приём не забронирован/).waitFor(); }
+    catch (error) { throw new Error(`Initial booking did not finish: ${await dialog.textContent()}\nEvents: ${JSON.stringify(await page.evaluate(() => window.__medicalEvents))}\n${error.message}`); }
     assert.match(await dialog.textContent(), /Настоящий приём не забронирован/);
     const saved = await page.evaluate(() => localStorage.getItem('medical-demo-appointments-v1'));
     assert(saved && !saved.includes('Тестовый пациент') && !saved.includes('900') && !saved.includes('555'), 'patient name and phone are not stored');
@@ -62,8 +67,10 @@ async function run(browser, width, height) {
     await dialog.getByRole('button', { name: 'Продолжить' }).click();
     await dialog.getByLabel('Ваше имя').fill('Другой пациент');
     await dialog.getByLabel('Телефон').fill('+7 900 555 66 77');
-    await page.evaluate(() => { window.__medicalEvents = []; const originalFocus = HTMLElement.prototype.focus; HTMLElement.prototype.focus = function (...args) { if (this.classList.contains('medical-booking')) window.__medicalEvents.push({ type: 'focus-call', stack: new Error().stack }); return originalFocus.apply(this, args); }; for (const name of ['pointerdown','pointerup','mousedown','mouseup','click','submit','focusin','focusout']) document.addEventListener(name, event => { const target = event.target; window.__medicalEvents.push({ type: event.type, tag: target?.tagName, class: target?.className, text: target?.textContent?.slice(0, 40), active: document.activeElement?.tagName }); }, true); });
-    await dialog.getByRole('button', { name: 'Сохранить демо-запись' }).click();
+    await page.evaluate(() => { window.__medicalEvents = []; });
+    if (process.env.MEDICAL_SUBMIT === 'enter') await dialog.getByLabel('Телефон').press('Enter');
+    else if (process.env.MEDICAL_SUBMIT === 'mouse') await dialog.getByRole('button', { name: 'Сохранить демо-запись' }).click();
+    else await dialog.getByRole('button', { name: 'Сохранить демо-запись' }).tap();
     try { await dialog.getByText(/Настоящий приём не забронирован/).waitFor({ timeout: 10000 }); }
     catch (error) { throw new Error(`Rescheduling did not finish: ${await dialog.textContent()}\nEvents: ${JSON.stringify(await page.evaluate(() => window.__medicalEvents))}\n${error.message}`); }
     assert.equal(await page.evaluate(() => window.__medicalEvents.some(event => event.type === 'focus-call')), false, 'dialog does not steal focus during form submission');
@@ -93,7 +100,8 @@ async function run(browser, width, height) {
     assert.match(await visits.textContent(), /Специалист/, 'unknown specialist has a safe fallback');
     assert.deepEqual(errors, [], 'no uncaught JavaScript errors');
     console.log(`${engine.name()} ${width}x${height}: booking, rescheduling, deletion, privacy and keyboard passed`);
-  } finally { await context.close(); }
+  } catch (error) { console.error('Test failed before browser cleanup:', error); throw error; }
+  finally { await context.close(); }
 }
 
 (async () => {
