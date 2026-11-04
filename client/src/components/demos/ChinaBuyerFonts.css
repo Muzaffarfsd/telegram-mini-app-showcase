@@ -1,0 +1,22 @@
+/* Static instances of Google Sans Core (SIL OFL 1.1), scoped to the buyer demo.
+   opsz 18 and GRAD 0; fixes variable-weight rendering in Windows WebKit. */
+@font-face {
+  font-family: 'Buyer Sans Local';
+  src: url('/china-buyer/BuyerSans-Regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Buyer Sans Local';
+  src: url('/china-buyer/BuyerSans-Bold.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+.china-buyer, .cb-nav,
+.china-buyer :is(h1, h2, h3, h4, h5, h6, button, input, textarea, select),
+html:is(.lang-ru, .lang-en) .china-buyer :is(h1, h2, h3, h4, h5, h6),
+.cb-nav button {
+  font-family: 'Buyer Sans Local', 'Google Sans App', system-ui, sans-serif;
+}

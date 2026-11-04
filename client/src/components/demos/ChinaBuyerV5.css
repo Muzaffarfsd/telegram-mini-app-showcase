@@ -1,0 +1,58 @@
+/* Product-first editorial presentation for the China buyer demo. */
+.cb5-home {overflow:hidden;padding:17px 20px 0;}
+.cb5-intro {display:flex;align-items:end;justify-content:space-between;gap:12px;}
+.cb5-eyebrow {font-size:9px!important;line-height:1.35;font-weight:750;letter-spacing:.13em;color:#7e7c7a;}
+.cb5-intro h1 {margin:10px 0 0;font-size:clamp(34px,9.4vw,41px);font-weight:750;letter-spacing:-.055em;line-height:.98;}
+.cb5-intro h1 span,.cb5-home h2 span {font-weight:420;}
+.cb5-search {width:46px;height:46px;display:grid;place-items:center;border:1px solid #e7e6e4;border-radius:50%;background:white;color:#191919;flex:none;}
+.cb5-feature {position:relative;height:260px;margin-top:22px;overflow:hidden;border-radius:16px;background:#f1f0ed;isolation:isolate;}
+.cb5-feature::before {content:'';position:absolute;right:-34px;top:31px;width:215px;height:215px;border-radius:50%;background:#dedad4;z-index:-1;}
+.cb5-feature__ink {position:absolute;right:20px;top:9px;color:#a62c30;opacity:.15;font-family:'Buyer Brush',serif;font-size:100px;line-height:1;z-index:0;}
+.cb5-feature__text {position:absolute;left:18px;top:22px;z-index:2;width:54%;}
+.cb5-feature__text>span {font-size:9px;letter-spacing:.1em;font-weight:750;color:#8f3335;}
+.cb5-feature__text h2 {font-size:clamp(27px,7.6vw,34px);line-height:1.02;letter-spacing:-.055em;font-weight:740;margin:11px 0 0;}
+.cb5-feature__text p {max-width:138px;margin-top:10px!important;font-size:12px;line-height:1.4;color:#65625f;}
+.cb5-feature__text button {display:flex;align-items:center;gap:6px;min-height:44px;margin-top:12px;padding:0;border:0;background:transparent;color:#1b1b1b;font-size:11px!important;font-weight:750!important;text-align:left;}
+.cb5-feature__visual {position:absolute;right:-5px;bottom:7px;width:60%;height:72%;padding:0;border:0;background:transparent;z-index:1;}
+.cb5-feature__visual img {width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 13px 13px rgba(40,24,20,.18));}
+.cb5-feature__seal {position:absolute;right:14px;bottom:14px;display:grid;place-items:center;width:28px;height:28px;background:#a72d31;color:white;font-size:21px;line-height:1;z-index:2;}
+.cb5-discover,.cb5-categories,.cb5-selection,.cb5-how {margin-top:52px;}
+.cb5-section-head {display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:18px;}
+.cb5-section-head h2,.cb5-story h2,.cb5-how h2 {margin-top:8px;font-size:clamp(26px,7.4vw,32px);line-height:1.04;letter-spacing:-.055em;font-weight:750;}
+.cb5-section-head>button {display:flex;align-items:center;gap:5px;min-width:44px;min-height:44px;flex:none;padding:0;border:0;background:none;color:#1e1e1e;font-size:11px!important;font-weight:750!important;}
+.cb5-mosaic {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:25px 11px;align-items:start;}
+.cb5-editorial-tile {position:relative;display:block;min-height:0;aspect-ratio:4/6.55;overflow:hidden;padding:0;border:0;border-radius:12px;background:#c9b1a4;text-align:left;color:white;}
+.cb5-editorial-tile img {width:100%;height:100%;object-fit:cover;object-position:center;}
+.cb5-editorial-tile::after {content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(28,20,20,.65),transparent 60%);}
+.cb5-editorial-tile__copy {position:absolute;z-index:1;left:13px;right:10px;top:15px;display:flex;flex-direction:column;align-items:start;}
+.cb5-editorial-tile small {font-size:9px;font-weight:750;letter-spacing:.1em;}
+.cb5-editorial-tile strong {margin-top:9px;font-size:23px;line-height:1.01;letter-spacing:-.045em;}
+.cb5-editorial-tile__copy>span {display:flex;gap:5px;align-items:center;margin-top:10px;font-size:11px;font-weight:700;}
+.cb5-home .cb-card__image {border-radius:12px;background:#f1f1ef;}
+.cb5-home .cb-card__body>span {font-size:9px;}
+.cb5-home .cb-card__body>button {min-height:44px;font-size:13px;line-height:1.25;}
+.cb5-home .cb-card__body>p {font-size:12px;}
+.cb5-category-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;}
+.cb5-category-grid button {min-width:0;padding:0;border:0;background:none;color:#1b1b1b;text-align:left;}
+.cb5-category-grid button>span {display:block;aspect-ratio:3/4;overflow:hidden;border-radius:9px;background:#f1f1ef;}
+.cb5-category-grid img {width:100%;height:100%;object-fit:cover;}
+.cb5-category-grid strong {display:inline-block;padding-top:9px;font-size:11px;line-height:1.2;}
+.cb5-category-grid svg {display:none;}
+.cb5-story {margin:64px -20px 0;background:#f3f2ee;}
+.cb5-story__image {position:relative;aspect-ratio:1.15;overflow:hidden;}
+.cb5-story__image img {width:100%;height:100%;object-fit:cover;object-position:center 45%;}
+.cb5-story__image span {position:absolute;left:20px;bottom:16px;color:white;text-shadow:0 1px 7px #0009;font-size:9px;font-weight:750;letter-spacing:.12em;}
+.cb5-story__body {padding:28px 20px 32px;}
+.cb5-story__body>p:not(.cb5-eyebrow) {max-width:340px;margin-top:14px!important;color:#666;font-size:13px;line-height:1.55;}
+.cb5-story__body button,.cb5-how>button {display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;margin-top:20px;padding:0 18px;border:0;border-radius:24px;background:#a62c30;color:white;font-size:12px!important;font-weight:750!important;}
+.cb5-selection .cb-card-grid {gap:24px 11px;}
+.cb5-how {padding:24px 20px 26px;background:#f4f3f1;border-radius:14px;}
+.cb5-how h2 {margin:10px 0 18px;}
+.cb5-how>div {display:flex;gap:12px;align-items:start;padding:14px 0;border-top:1px solid #deddd9;}
+.cb5-how>div>span {font-size:10px;font-weight:750;color:#a32e31;}
+.cb5-how>div>p {display:flex;flex-direction:column;gap:4px;}
+.cb5-how strong {font-size:13px;line-height:1.35;}
+.cb5-how small {font-size:12px;line-height:1.45;color:#70706e;}
+.cb5-how>button {background:#1d1d1d;}
+.cb5-disclaimer {margin-top:22px!important;}
+@media(max-width:350px){.cb5-home {padding-left:16px;padding-right:16px;}.cb5-feature {height:244px;}.cb5-feature__text h2 {font-size:26px;}.cb5-feature__text {left:15px;}.cb5-feature__visual {width:61%;}.cb5-story {margin-left:-16px;margin-right:-16px;}.cb5-category-grid strong {font-size:10px;}}
