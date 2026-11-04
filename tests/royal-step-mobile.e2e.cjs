@@ -45,9 +45,9 @@ async function assertEverydayCard(page) {
     objectFit:getComputedStyle(element.querySelector('img')).objectFit,
     text:element.textContent.trim(),
   }));
-  assert.equal(layout.childCount, 1, 'The poster should not have extra overlays');
-  assert.equal(layout.objectFit, 'contain', 'The complete poster should be visible');
-  assert.equal(layout.text, '', 'The poster should not have extra text');
+  assert.equal(layout.childCount, 2, 'The category card should have an image and readable interface copy');
+  assert.equal(layout.objectFit, 'cover', 'The new editorial image should fill the category card');
+  assert.match(layout.text, /На каждый\s*день/, 'The category title should remain readable');
   await card.tap();
   assert.equal(await page.getByRole('heading',{name:'Найдите свою пару'}).isVisible(), true);
   assert.ok(await page.locator('[data-testid^="royal-card-"]').count() > 0);

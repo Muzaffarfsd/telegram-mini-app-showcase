@@ -41,8 +41,13 @@
 .rs-editorial > span { max-width:100%; font-size:13px; line-height:1.2; letter-spacing:.02em; font-weight:750; position:relative; z-index:2; }
 .rs-editorial > strong { font-size:18px; line-height:1.06; letter-spacing:-.035em; margin-top:auto; position:relative; z-index:2; }
 .rs-editorial > i { position:absolute; bottom:14px; right:14px; width:32px; height:32px; border-radius:50%; display:grid; place-items:center; background:rgba(255,255,255,.82); font-style:normal; }
-.rs-editorial--everyday { padding:0; background:#ddf8db; }
-.rs-editorial--everyday img { position:absolute; inset:0; width:100%; height:100%; max-width:none; object-fit:contain; }
+.rs-editorial--everyday { padding:0; background:#f0f1f3; }
+.rs-editorial--everyday img { position:absolute; inset:0; width:100%; height:100%; max-width:none; object-fit:cover; }
+.rs-editorial--everyday::after { content:''; position:absolute; inset:0; background:linear-gradient(to bottom,rgba(225,226,229,.98) 0%,rgba(225,226,229,.96) 32%,rgba(225,226,229,0) 54%); pointer-events:none; }
+.rs-editorial--everyday .rs-everyday__copy { position:absolute; inset:0; z-index:2; display:flex; flex-direction:column; align-items:flex-start; padding:16px 14px; color:#191a1d; }
+.rs-everyday__copy small { font-size:9px; font-weight:700; line-height:1.2; letter-spacing:.06em; }
+.rs-everyday__copy strong { margin-top:8px; font-size:clamp(19px,5.2vw,22px); font-weight:800; letter-spacing:-.045em; line-height:.98; }
+.rs-everyday__copy i { display:flex; align-items:center; gap:5px; margin-top:9px; font-size:11px; font-style:normal; line-height:1.2; font-weight:700; }
 .rs-editorial--poster { padding:0; background:#f43b0a; }
 .rs-editorial--poster img { position:absolute; inset:0; width:100%; height:100%; max-width:none; object-fit:cover; }
 .rs-home__discover, .rs-home__picks { margin-top:38px; }
