@@ -15,6 +15,11 @@ export type MedicalDoctor = {
 type Appointment = { id: string; doctorId: string; date: string; time: string; duration: number; price: number };
 type Step = 'doctors' | 'time' | 'contact' | 'success' | 'appointments';
 type Props = { doctors: MedicalDoctor[]; initialDoctorId?: string; initialMode?: 'booking' | 'appointments'; onClose: () => void };
+type FlowSnapshot = { step: Step; doctorId: string; date: string; time: string; editingId: string; success: Appointment | null; cancelId: string };
+type FlowSession = { id: string; mode: 'booking' | 'appointments'; next: number; states: Map<number, FlowSnapshot> };
+type FlowMarker = { id: string; mode: 'booking' | 'appointments'; token: number; depth: number };
+// Only appointment choices are kept transiently in memory; contacts never enter browser history or localStorage.
+const flowSessions = new Map<string, FlowSession>();
 
 const STORAGE_KEY = 'medical-demo-appointments-v1';
 const SLOTS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
@@ -47,52 +52,99 @@ function hasConflict(rows: Appointment[], doctor: MedicalDoctor, date: string, t
 /** initialMode="appointments" opens the saved demo visits; initialDoctorId preselects a doctor. */
 export default function MedicalBooking({ doctors, initialDoctorId, initialMode = 'booking', onClose }: Props) {
   const initialDoctor = doctors.find(doctor => doctor.id === initialDoctorId);
-  const [step, setStep] = useState<Step>(initialMode === 'appointments' ? 'appointments' : initialDoctor ? 'time' : 'doctors');
-  const [doctorId, setDoctorId] = useState(initialDoctor?.id || '');
+  const entry = (typeof history !== 'undefined' ? history.state?.__medicalFlow : null) as FlowMarker | null;
+  const reusable = entry?.mode === initialMode ? flowSessions.get(entry.id) : undefined;
+  const validEntry = !!(entry && reusable && reusable.states.has(entry.token));
+  const flowRef = useRef<FlowSession>(validEntry ? reusable! : {id:`medical-flow-${Date.now()}-${Math.random()}`,mode:initialMode,next:0,states:new Map()});
+  const restored = validEntry ? flowRef.current.states.get(entry!.token) : undefined;
+  const tokenRef = useRef(validEntry ? entry!.token : 0);
+  const depthRef = useRef(validEntry ? entry!.depth : 0);
+  const [step, setStep] = useState<Step>(restored?.step || (initialMode === 'appointments' ? 'appointments' : initialDoctor ? 'time' : 'doctors'));
+  const [doctorId, setDoctorId] = useState(restored?.doctorId || initialDoctor?.id || '');
   const [rows, setRows] = useState<Appointment[]>(readAppointments);
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
+  const [date, setDate] = useState(restored?.date || '');
+  const [time, setTime] = useState(restored?.time || '');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [editingId, setEditingId] = useState('');
-  const [success, setSuccess] = useState<Appointment | null>(null);
+  const [editingId, setEditingId] = useState(restored?.editingId || '');
+  const [success, setSuccess] = useState<Appointment | null>(restored?.success || null);
   const [error, setError] = useState('');
-  const [cancelId, setCancelId] = useState('');
+  const [cancelId, setCancelId] = useState(restored?.cancelId || '');
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef(onClose);
+  const backRef = useRef<() => void>(() => {});
+  const exitRef = useRef<() => void>(() => {});
   closeRef.current = onClose;
   const doctor = doctors.find(item => item.id === doctorId);
   const dates = useMemo(createDates, []);
 
   useEffect(() => {
+    flowRef.current.states.set(tokenRef.current, {step,doctorId,date,time,editingId,success,cancelId});
+  }, [step,doctorId,date,time,editingId,success,cancelId]);
+  useEffect(() => {
+    const flow = flowRef.current;
+    flowSessions.set(flow.id, flow);
+    while (flowSessions.size > 12) { const oldest = flowSessions.keys().next().value; if (!oldest) break; flowSessions.delete(oldest); }
+    const currentEntry = history.state?.__medicalFlow as FlowMarker | undefined;
+    if (!currentEntry || currentEntry.id !== flow.id || currentEntry.mode !== initialMode || !flow.states.has(currentEntry.token)) {
+      history.replaceState({...history.state, __medicalFlow:{id:flow.id,mode:flow.mode,token:0,depth:0}},'',location.href);
+    }
+    const onPop = (event: PopStateEvent) => {
+      const marker = event.state?.__medicalFlow as FlowMarker | undefined;
+      if (!marker || marker.id !== flow.id || marker.mode !== flow.mode) return;
+      const saved = flow.states.get(marker.token);
+      if (!saved) return;
+      tokenRef.current = marker.token; depthRef.current = marker.depth;
+      setStep(saved.step); setDoctorId(saved.doctorId); setDate(saved.date); setTime(saved.time);
+      setEditingId(saved.editingId); setSuccess(saved.success); setCancelId(saved.cancelId); setError('');
+      requestAnimationFrame(() => document.querySelector('.medical-booking__scroll')?.scrollTo({top:0,behavior:'auto'}));
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+  useEffect(() => {
     const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     dialogRef.current?.focus({ preventScroll: true });
     const listener = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') { closeRef.current(); return; }
-      if (event.key !== 'Tab' || !dialogRef.current) return;
-      const focusable = Array.from(dialogRef.current.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), [href], [tabindex]:not([tabindex="-1"])'));
-      if (!focusable.length) { event.preventDefault(); return; }
-      const first = focusable[0], last = focusable[focusable.length - 1];
-      if (event.shiftKey && (document.activeElement === first || document.activeElement === dialogRef.current)) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      if (event.key === 'Escape' && dialogRef.current?.contains(document.activeElement)) { exitRef.current(); }
     };
     window.addEventListener('keydown', listener);
-    return () => { window.removeEventListener('keydown', listener); previous?.focus(); };
+    return () => { window.removeEventListener('keydown', listener); if (previous?.isConnected) previous.focus({preventScroll:true}); };
   }, []);
   useEffect(() => { const sync = (event: StorageEvent) => { if (event.key === STORAGE_KEY) setRows(readAppointments()); }; window.addEventListener('storage', sync); return () => window.removeEventListener('storage', sync); }, []);
+  useEffect(() => {
+    const button = (window as any).Telegram?.WebApp?.BackButton;
+    if (!button) return;
+    const handler = () => backRef.current();
+    button.onClick?.(handler); button.show?.();
+    return () => { button.offClick?.(handler); button.hide?.(); };
+  }, []);
 
   function changeStep(next: Step) {
     setError('');
+    const flow = flowRef.current;
+    const token = ++flow.next; const depth = depthRef.current + 1;
+    tokenRef.current = token; depthRef.current = depth;
+    history.pushState({...history.state,__medicalFlow:{id:flow.id,mode:flow.mode,token,depth}},'',location.href);
     setStep(next);
     requestAnimationFrame(() => document.querySelector('.medical-booking__scroll')?.scrollTo({ top: 0, behavior: 'auto' }));
   }
+  function exitFlow() {
+    const marker = history.state?.__medicalFlow as FlowMarker | undefined;
+    if (marker?.id === flowRef.current.id && marker.depth > 0) history.go(-marker.depth - 1);
+    else closeRef.current();
+  }
   function chooseDoctor(id: string) { setDoctorId(id); setDate(''); setTime(''); changeStep('time'); }
   function back() {
-    if (step === 'doctors' || step === 'appointments' || step === 'success') return onClose();
+    if (step === 'success' || step === 'appointments') return exitFlow();
+    if (depthRef.current > 0) { history.back(); return; }
+    if (step === 'doctors') return exitFlow();
+    if (step === 'time' && initialDoctor && initialMode === 'booking') return exitFlow();
     if (step === 'contact') return changeStep('time');
     if (editingId) { setEditingId(''); return changeStep('appointments'); }
     return changeStep('doctors');
   }
+  backRef.current = back; exitRef.current = exitFlow;
   function persist(next: Appointment[]) {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); setRows(next); return true; }
     catch { setError('Не удалось сохранить демо-запись в этом браузере. Проверьте настройки хранения данных.'); return false; }
@@ -117,12 +169,12 @@ export default function MedicalBooking({ doctors, initialDoctorId, initialMode =
     setEditingId(row.id); setDoctorId(row.doctorId); setDate(''); setTime(''); setName(''); setPhone(''); changeStep('time');
   }
 
-  return <div ref={dialogRef} tabIndex={-1} className="medical-booking" role="dialog" aria-modal="true" aria-label={step === 'appointments' ? 'Мои демо-записи' : 'Запись к специалисту'}>
+  return <div ref={dialogRef} tabIndex={-1} className="medical-booking" role="dialog" aria-modal="false" aria-label={step === 'appointments' ? 'Мои демо-записи' : 'Запись к специалисту'}>
     <div className="medical-booking__shell">
       <header className="medical-booking__header">
         <button className="medical-booking__icon" type="button" onClick={back} aria-label="Назад"><ArrowLeft size={21} strokeWidth={1.6} /></button>
         <span>{step === 'appointments' ? 'МОИ ЗАПИСИ' : step === 'success' ? 'ГОТОВО' : 'ЗАПИСЬ НА ПРИЁМ'}</span>
-        <button className="medical-booking__icon" type="button" onClick={onClose} aria-label="Закрыть"><X size={21} strokeWidth={1.6} /></button>
+        <button className="medical-booking__icon" type="button" onClick={exitFlow} aria-label="Закрыть"><X size={21} strokeWidth={1.6} /></button>
       </header>
       <main className="medical-booking__scroll">
         {step !== 'appointments' && step !== 'success' && <div className="medical-booking__progress" aria-label={`Шаг ${step === 'doctors' ? 1 : step === 'time' ? 2 : 3} из 3`}><span className="is-active"/><span className={step !== 'doctors' ? 'is-active' : ''}/><span className={step === 'contact' ? 'is-active' : ''}/></div>}
@@ -142,23 +194,21 @@ export default function MedicalBooking({ doctors, initialDoctorId, initialMode =
           {date ? <div className="medical-booking__times">{SLOTS.map(slot => { const unavailable = slotIsPast(date, slot) || hasConflict(rows, doctor, date, slot, editingId); return <button type="button" key={slot} disabled={unavailable} className={time === slot ? 'is-selected' : ''} aria-pressed={time === slot} onClick={() => { setTime(slot); setError(''); }}>{slot}</button>; })}</div> : <p className="medical-booking__hint">Сначала выберите дату, чтобы увидеть время.</p>}
           <p className="medical-booking__demo-note">Время демонстрационное и не отражает реальное расписание клиники.</p>
           {error && <p className="medical-booking__error" role="alert">{error}</p>}
-          <button type="button" className="medical-booking__primary" disabled={!date || !time} onClick={() => changeStep('contact')}>Продолжить <ArrowRight size={18}/></button>
         </section>}
         {step === 'contact' && doctor && <section>
           <p className="medical-booking__eyebrow">03 / КОНТАКТЫ</p><h1>Почти готово</h1><p className="medical-booking__intro">Проверьте детали и заполните контактные данные.</p>
           <div className="medical-booking__summary"><span>{doctor.specialty}</span><strong>{doctor.name}</strong><p><CalendarDays size={16}/> {fullDate(date)}, {time}</p><p><Clock size={16}/> {doctor.duration} мин · {formatPrice(doctor.price)}</p></div>
-          <form onSubmit={submit} noValidate>
+          <form id="medical-booking-contact" onSubmit={submit} noValidate>
             <label className="medical-booking__field">Ваше имя<input value={name} onChange={event => setName(event.target.value)} autoComplete="name" placeholder="Как к вам обращаться" maxLength={80} required /></label>
             <label className="medical-booking__field">Телефон<input value={phone} onChange={event => setPhone(event.target.value)} autoComplete="tel" inputMode="tel" placeholder="+7 (___) ___-__-__" maxLength={30} required /></label>
             <p className="medical-booking__demo-note">Это демо: данные формы никуда не отправляются и не сохраняются. Запись остаётся только в этом браузере.</p>
             {error && <p className="medical-booking__error" role="alert">{error}</p>}
-            <button type="submit" className="medical-booking__primary" onMouseDown={event => { if (document.activeElement instanceof HTMLInputElement) event.preventDefault(); }}>Сохранить демо-запись <ArrowRight size={18}/></button>
           </form>
         </section>}
         {step === 'success' && success && <section className="medical-booking__success">
           <div className="medical-booking__check"><Check size={26} strokeWidth={1.6}/></div><p className="medical-booking__eyebrow">ДЕМОНСТРАЦИОННАЯ ЗАПИСЬ</p><h1>Готово</h1><p className="medical-booking__intro">Вы сохранили пример записи в этом браузере. Настоящий приём не забронирован.</p>
           <div className="medical-booking__summary"><span>{doctors.find(item => item.id === success.doctorId)?.specialty}</span><strong>{doctors.find(item => item.id === success.doctorId)?.name}</strong><p><CalendarDays size={16}/> {fullDate(success.date)}, {success.time}</p><p><Clock size={16}/> {success.duration} мин · {formatPrice(success.price)}</p></div>
-          <button className="medical-booking__primary" type="button" onClick={() => changeStep('appointments')}>Мои записи <ArrowRight size={18}/></button><button className="medical-booking__text-button" type="button" onClick={onClose}>Закрыть</button>
+          <button className="medical-booking__primary" type="button" onClick={() => changeStep('appointments')}>Мои записи <ArrowRight size={18}/></button><button className="medical-booking__text-button" type="button" onClick={exitFlow}>Закрыть</button>
         </section>}
         {step === 'appointments' && <section><p className="medical-booking__eyebrow">ЛИЧНЫЙ КАБИНЕТ</p><h1>Мои записи</h1><p className="medical-booking__intro">Демо-записи сохраняются только в этом браузере и не являются бронированием.</p>
           {rows.length === 0 ? <div className="medical-booking__empty"><CalendarDays size={25} strokeWidth={1.4}/><h2>Пока нет записей</h2><p>Выберите специалиста и удобное время.</p><button type="button" onClick={() => { setEditingId(''); changeStep('doctors'); }}>Выбрать специалиста <ArrowRight size={16}/></button></div> : <div className="medical-booking__appointments">{rows.map(row => { const item = doctors.find(entry => entry.id === row.doctorId); return <article className="medical-booking__appointment" key={row.id}><div className="medical-booking__appointment-top"><span>ДЕМО-ЗАПИСЬ</span><span>{formatPrice(row.price)}</span></div><h2>{item?.name || 'Специалист'}</h2><p>{item?.specialty || 'Приём'} · {row.duration} мин</p><div className="medical-booking__appointment-date"><CalendarDays size={17}/>{fullDate(row.date)}, {row.time}</div><div className="medical-booking__actions"><button type="button" onClick={() => reschedule(row)}>Перенести</button><button type="button" onClick={() => setCancelId(row.id)}>Удалить</button></div>{cancelId === row.id && <div className="medical-booking__cancel"><p>Удалить эту демо-запись?</p><button type="button" onClick={() => cancel(row.id)}>Да, удалить</button><button type="button" onClick={() => setCancelId('')}>Оставить</button></div>}</article>; })}</div>}
@@ -166,6 +216,8 @@ export default function MedicalBooking({ doctors, initialDoctorId, initialMode =
           {rows.length > 0 && <button type="button" className="medical-booking__secondary" onClick={() => { setEditingId(''); changeStep('doctors'); }}>Новая демо-запись <ArrowRight size={18}/></button>}
         </section>}
       </main>
+      {step === 'time' && <div className="medical-booking__footer"><button type="button" className="medical-booking__primary" disabled={!date || !time} onClick={() => changeStep('contact')}>Продолжить <ArrowRight size={18}/></button></div>}
+      {step === 'contact' && <div className="medical-booking__footer"><button type="submit" form="medical-booking-contact" className="medical-booking__primary" onMouseDown={event => { if (document.activeElement instanceof HTMLInputElement) event.preventDefault(); }}>Сохранить демо-запись <ArrowRight size={18}/></button></div>}
     </div>
   </div>;
 }

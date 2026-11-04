@@ -1,13 +1,13 @@
-.medical-booking { position: fixed; z-index: 200; inset: 0; background: rgba(15, 34, 33, .4); color: #182927; font-family: 'Manrope', Arial, sans-serif; }
+.medical-booking { position: fixed; z-index: 200; top: calc(max(env(safe-area-inset-top,0px), var(--csat,0px), 12px) + 74px); left: 0; right: 0; bottom: max(0px, calc(100dvh - var(--tg-viewport-height,100dvh))); background: rgba(15, 34, 33, .4); color: #182927; font-family: 'Manrope', Arial, sans-serif; }
 .medical-booking * { box-sizing: border-box; }
 .medical-booking button, .medical-booking input { font: inherit; }
 .medical-booking button { cursor: pointer; }
 .medical-booking button:focus-visible, .medical-booking input:focus-visible { outline: 2px solid #16866f; outline-offset: 3px; }
 .medical-booking__shell { max-width: 540px; height: 100%; margin: auto; background: #fafbf9; display: flex; flex-direction: column; }
-.medical-booking__header { flex: 0 0 auto; height: 70px; padding: max(env(safe-area-inset-top), 0px) 19px 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #e2e9e4; }
+.medical-booking__header { flex: 0 0 auto; height: 58px; padding: 0 19px; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #e2e9e4; }
 .medical-booking__header > span { font-size: 10px; font-weight: 800; letter-spacing: .11em; }
 .medical-booking__icon { flex: 0 0 40px; width: 40px; height: 40px; display: grid; place-items: center; background: transparent; border: 0; color: inherit; }
-.medical-booking__scroll { overflow-y: auto; overscroll-behavior: contain; flex: 1 1 auto; padding: 0 23px max(32px, env(safe-area-inset-bottom)); }
+.medical-booking__scroll { overflow-y: auto; overscroll-behavior: contain; flex: 1 1 auto; padding: 0 23px calc(104px + max(env(safe-area-inset-bottom,0px),var(--sab,0px),var(--csab,0px))); }
 .medical-booking__progress { display: flex; gap: 5px; padding: 22px 0 34px; }
 .medical-booking__progress span { flex: 1; height: 3px; background: #e4ebe6; }
 .medical-booking__progress .is-active { background: #407d6b; }
@@ -41,6 +41,9 @@
 .medical-booking__hint, .medical-booking__demo-note { font-size: 12px; color: #4b665b; line-height: 1.55; }
 .medical-booking__demo-note { background: #eef4f0; padding: 13px 14px; margin: 22px 0; }
 .medical-booking__primary, .medical-booking__secondary { width: 100%; min-height: 56px; border: 0; display: flex; justify-content: space-between; align-items: center; padding: 0 18px; background: #245e4c; color: white; text-align: left; font-size: 13px; font-weight: 750; }
+.medical-booking__footer { flex: 0 0 auto; padding: 10px 23px calc(81px + max(env(safe-area-inset-bottom,0px),var(--sab,0px),var(--csab,0px))); background:#fafbf9; border-top:1px solid #e2e9e4; }
+.medical-booking__shell:has(.medical-booking__footer) .medical-booking__scroll { min-height:0; padding-bottom:24px; }
+body:has(.medical-booking input:focus) .medical-booking__footer { padding-bottom:max(12px,env(safe-area-inset-bottom,0px)); }
 .medical-booking__primary:disabled { background: #c5d3ca; color: white; cursor: not-allowed; }
 .medical-booking__secondary { background: transparent; color: #245e4c; border: 1px solid #aebfb4; margin-top: 20px; }
 .medical-booking__summary { padding: 20px; background: #eef3ef; display: grid; gap: 8px; margin: 24px 0; }
@@ -70,4 +73,6 @@
 .medical-booking__cancel { border-top: 1px solid #d1e0d5; margin-top: 16px; padding-top: 4px; }
 .medical-booking__cancel p { font-size: 13px; }
 .medical-booking__cancel button + button { margin-left: 8px; }
-@media (max-width: 360px) { .medical-booking__scroll { padding-left: 17px; padding-right: 17px; } .medical-booking__times { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 360px) { .medical-booking__scroll, .medical-booking__footer { padding-left: 17px; padding-right: 17px; } .medical-booking__times { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* Booking is a non-modal app page: the actual WEB4TG header remains visible and usable. */
+body:has(.medical-booking) .home-ai-surface { visibility: visible !important; }
