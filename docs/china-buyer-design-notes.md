@@ -1,0 +1,7 @@
+# Бюро поиска — art direction and demo notes
+
+The intended experience is a premium personal buying service for clients searching for goods in China. The opening uses bold, readable type and a hero portrait accompanied by three small editorial details. It draws on F-20261104-021 (depth, hierarchy and photography, adapted rather than copied) and F-20261104-027 (the user's shared compact bottom navigation). The structure follows the user's explicit F-20261104-033 instruction: customers browse items and prepare a request. Muted stone, dark tailoring and a restrained wine accent connect the images without decorative flags or invented brand identity.
+
+All imagery under `client/public/china-buyer/` was generated for this demo using the built-in imagegen tool. Hero, city, sourcing and styling images are editorial concepts, not actual staff, suppliers or locations; catalog images are illustrative concepts, not confirmed stock. The interface states that no real request is submitted, and leaves price, availability and delivery terms unconfirmed. No personal contact information is required. Draft fields are held in memory; confirmed demo requests and favorites are stored locally if storage is available.
+
+Review targets: check real mobile crops and hierarchy, especially portrait faces, titles and the 1+3 opening; verify the shared header and bottom nav, catalog filters, request prefill, link-only requests, draft recovery, local storage fallback and Telegram viewport behavior.

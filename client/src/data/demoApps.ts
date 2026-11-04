@@ -40,6 +40,17 @@ export interface DemoApp {
 // Топ-10 самых популярных приложений по лайкам
 export const demoApps: DemoApp[] = [
   {
+    id: 'china-buyer',
+    title: 'Бюро поиска — байер из Китая',
+    description: 'Поиск товаров, выкуп и сопровождение заказа из Китая',
+    category: 'Электронная коммерция',
+    image: '/china-buyer/hero.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
     id: 'medical-center',
     title: 'Частный медицинский центр',
     description: 'Специалисты, услуги и удобная запись на приём',
