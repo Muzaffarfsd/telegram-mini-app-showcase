@@ -1,124 +1,29 @@
-const { chromium, webkit } = require('playwright');
+const {chromium, webkit} = require('playwright');
 const assert = require('node:assert/strict');
-const { createHash } = require('node:crypto');
-
+const {createHash} = require('node:crypto');
 const base = (process.env.FLOWER_TEST_URL || 'http://127.0.0.1:53744/').replace(/\/?$/, '/');
-const products = ['peony', 'tulip', 'rose', 'calla', 'hydrangea', 'spring', 'lilac', 'mixed', 'orchid', 'pink-rose', 'anemone', 'sunflower'];
-const names = ['Пионовое утро', 'Белый свет', 'Винный вечер', 'Линия света', 'Голубой воздух', 'Солнечный день', 'Сиреневый час', 'Персиковый сад', 'Тихая орхидея', 'Розовый жест', 'Контраст', 'К солнцу'];
-
-async function geometry(page) {
-  const value = await page.evaluate(() => {
-    const nav = document.querySelector('.fs-nav').getBoundingClientRect();
-    const buttons = [...document.querySelectorAll('.fs-nav button')].map(x => x.getBoundingClientRect().toJSON());
-    return {width: document.documentElement.scrollWidth, viewport: document.documentElement.clientWidth, height: innerHeight, nav: nav.toJSON(), buttons};
-  });
-  assert.ok(value.width <= value.viewport + 1, `horizontal overflow: ${JSON.stringify(value)}`);
-  assert.ok(value.nav.left >= 0 && value.nav.right <= value.viewport && value.nav.top >= 0 && value.nav.bottom <= value.height, 'navigation outside viewport');
-  for (const button of value.buttons) assert.ok(button.width >= 44 && button.height >= 44, 'navigation target too small');
-}
-
-async function test(browser, width) {
-  const context = await browser.newContext({viewport: {width, height: 844}, isMobile: true, hasTouch: true, locale: 'ru-RU', reducedMotion: 'reduce', serviceWorkers: 'block'});
-  await context.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({contentType:'text/javascript', body:''}));
-  const page = await context.newPage();
-  const errors = [];
-  page.on('pageerror', error => errors.push(error.message));
-  const nav = name => page.locator('.fs-nav').getByRole('button', {name, exact:true});
-  const heading = () => page.locator('.flower-store h1').first();
-  const reveal = locator => locator.evaluate(el => { const root = document.getElementById('root'); root.scrollTop += el.getBoundingClientRect().top - 180; });
-  try {
-    await page.goto(`${base}#/demos/flower-store/app`, {waitUntil:'domcontentloaded'});
-    await page.getByTestId('flower-store').waitFor({timeout:30000});
-    assert.match(await heading().textContent(), /ЦВЕТЫ/);
-    await geometry(page);
-    await nav('Каталог').tap();
-    assert.equal(await page.locator('.fs-card').count(), 12);
-
-    // Each item exposes three selectable, decodable images in the actual detail UI.
-    for (let i = 0; i < products.length; i++) {
-      const open = page.getByRole('button', {name:`Открыть букет ${names[i]}`});
-      // WebKit's automatic scrolling can miss the nested #root scroller.
-      await reveal(open);
-      await open.tap();
-      await page.waitForFunction(name => document.querySelector('.flower-store h1')?.textContent === name, names[i]);
-      assert.equal(await heading().textContent(), names[i]);
-      const thumbs = page.locator('.flower-detail__thumbs button');
-      assert.equal(await thumbs.count(), 3, names[i]);
-      const sources = [];
-      for (let frame = 0; frame < 3; frame++) {
-        await thumbs.nth(frame).tap();
-        const image = page.locator('.flower-detail__image img');
-        sources.push(await image.getAttribute('src'));
-        assert.ok(await image.evaluate(async img => { try { await img.decode(); return img.naturalWidth > 0; } catch { return false; } }), `${names[i]} image ${frame + 1}`);
-      }
-      assert.equal(new Set(sources).size, 3, names[i]);
-      const digests = [];
-      for (const src of sources) {
-        const response = await context.request.get(new URL(src, base).href);
-        assert.equal(response.status(), 200, src);
-        assert.match(response.headers()['content-type'] || '', /image\/webp/, src);
-        const bytes = await response.body();
-        assert.ok(bytes.length > 1000, `${src} is empty or incomplete`);
-        digests.push(createHash('sha256').update(bytes).digest('hex'));
-      }
-      assert.equal(new Set(digests).size, 3, `${names[i]}: displayed images must be different files`);
-      await page.getByRole('button', {name:'Назад', exact:true}).tap();
-      assert.equal(await page.locator('.fs-card').count(), 12);
-    }
-
-    const search = page.getByRole('searchbox', {name:'Поиск букета'});
-    await search.fill('пион');
-    assert.equal(await page.locator('.fs-card').count(), 1);
-    assert.equal(await page.getByRole('button', {name:'Открыть букет Пионовое утро'}).count(), 1);
-    await search.fill('');
-    await page.getByRole('button', {name:'В избранное: Пионовое утро'}).tap();
-    await nav('Избранное').tap();
-    assert.equal(await page.getByRole('button', {name:'Открыть букет Пионовое утро'}).count(), 1);
-    await page.getByRole('button', {name:'Открыть букет Пионовое утро'}).tap();
-    const size = page.getByRole('button', {name:'L Объёмный'});
-    await reveal(size); await size.tap();
-    const note = page.getByLabel(/Текст открытки/);
-    await reveal(note); await note.fill('С любовью и теплом');
-    const add = page.getByRole('button', {name:/Добавить в корзину/});
-    await reveal(add); await add.tap();
-    assert.match(await page.locator('.fs-cart-item').textContent(), /РАЗМЕР L/);
-    assert.match(await page.locator('.fs-cart-item').textContent(), /С любовью и теплом/);
-    assert.match(await page.locator('.fs-cart-total').textContent(), /11\s?100/);
-    await page.reload({waitUntil:'domcontentloaded'});
-    await page.getByTestId('flower-store').waitFor();
-    await page.locator('.fs-nav').getByRole('button', {name:/Корзина/}).tap();
-    assert.match(await page.locator('.fs-cart-item').textContent(), /С любовью и теплом/);
-    await nav('Избранное').tap();
-    assert.equal(await page.getByRole('button', {name:'Открыть букет Пионовое утро'}).count(), 1);
-    await geometry(page);
-    assert.deepEqual(errors, []);
-    console.log(`PASS ${browser.browserType().name()} ${width}px catalog, galleries, search, favorites and persistent cart`);
-  } finally { await context.close(); }
-}
-
-async function history(browser) {
-  const context = await browser.newContext({viewport:{width:390,height:844}, reducedMotion:'reduce'});
-  const page = await context.newPage();
-  try {
-    await page.goto(`${base}#/demos/flower-store/app`, {waitUntil:'domcontentloaded'});
-    await page.getByTestId('flower-store').waitFor();
-    await page.locator('.fs-nav').getByRole('button',{name:'Каталог',exact:true}).click();
-    await page.getByRole('button',{name:'Открыть букет Пионовое утро'}).click();
-    for (const [direction, screen] of [['back','catalog'],['back','home'],['forward','catalog'],['forward','detail']]) {
-      await (direction === 'back' ? page.goBack() : page.goForward());
-      await page.waitForFunction(expected => history.state?.flowerView?.screen === expected, screen);
-      const expected = screen === 'detail' ? /Пионовое утро/ : screen === 'home' ? /ЦВЕТЫ/ : /НАЙДИТЕ/;
-      assert.match(await page.locator('.flower-store h1').first().textContent(), expected);
-    }
-    console.log(`PASS ${browser.browserType().name()} browser Back and Forward`);
-  } finally { await context.close(); }
-}
-
-(async () => {
-  const engines = process.env.FLOWER_ENGINE === 'webkit' ? [webkit] : process.env.FLOWER_ENGINE === 'chromium' ? [chromium] : [chromium, webkit];
-  for (const engine of engines) {
-    const browser = await engine.launch({headless:true});
-    try { for (const width of [320, 390]) await test(browser, width); await history(browser); }
-    finally { await browser.close(); }
-  }
-})().catch(error => { console.error(error); process.exitCode = 1; });
+const path = `${base}#/demos/flower-store/app`;
+const testNames = ['Белая линия','Облако сада','Вишня и крем','Первый свет','Сирень в пространстве','Дикий луг','Один выразительный цветок','Солнечная линия','Пионовое утро','Белый свет','Винный вечер','Линия света','Голубой воздух','Солнечный день','Сиреневый час','Персиковый сад','Тихая орхидея','Розовый жест','Контраст','К солнцу'];
+const nav = (page,name) => page.locator('.fs-nav').getByRole('button',{name,exact:true});
+async function reveal(loc){await loc.evaluate(el=>{const root=document.getElementById('root');root.scrollTop+=el.getBoundingClientRect().top-160});}
+async function tap(loc){await loc.page().waitForTimeout(120);await reveal(loc);await loc.tap();}
+async function geometry(page){const v=await page.evaluate(()=>{const nav=document.querySelector('.fs-nav').getBoundingClientRect();return{scrollWidth:document.documentElement.scrollWidth,width:document.documentElement.clientWidth,height:innerHeight,nav:nav.toJSON(),buttons:[...document.querySelectorAll('.fs-nav button')].map(b=>b.getBoundingClientRect().toJSON())}});assert.ok(v.scrollWidth<=v.width+1,`horizontal overflow: ${JSON.stringify(v)}`);assert.ok(v.nav.left>=0&&v.nav.right<=v.width&&v.nav.top>=0&&v.nav.bottom<=v.height,`navigation outside viewport: ${JSON.stringify(v.nav)}`);for(const b of v.buttons)assert.ok(b.width>=44&&b.height>=44,'navigation tap target under 44px');}
+async function sourceCheck(page,context,src){const r=await context.request.get(new URL(src,base).href);assert.equal(r.status(),200,src);assert.match(r.headers()['content-type']||'',/image\/webp/,src);const bytes=await r.body();assert.ok(bytes.length>1000,`${src}: insufficient bytes`);assert.ok(await page.evaluate(async src=>{const image=new Image();image.src=src;try{await image.decode();return image.naturalWidth>0}catch{return false}},src),`${src}: decoding failed`);return createHash('sha256').update(bytes).digest('hex')}
+async function interaction(browser,width){
+ const c=await browser.newContext({viewport:{width,height:844},isMobile:true,hasTouch:true,locale:'ru-RU',reducedMotion:'reduce',serviceWorkers:'block'});const p=await c.newPage();p.setDefaultTimeout(12000);p.setDefaultNavigationTimeout(12000);const errors=[];p.on('pageerror',e=>errors.push(e.message));try{
+  await p.goto(path,{waitUntil:'domcontentloaded'});await p.getByTestId('flower-store').waitFor({timeout:30000});console.log('START',browser.browserType().name(),width);assert.match(await p.locator('.flower-store h1').first().textContent(),/ЦВЕТЫ/);await geometry(p);
+  const mood=p.getByRole('button',{name:/Нежные/}).first();await tap(mood);await p.getByTestId('flower-catalog-v2').waitFor();const moodCount=await p.locator('.fc-card').count();assert.ok(moodCount>0&&moodCount<20,'mood selection not applied');await p.getByRole('button',{name:'Сбросить всё'}).click();assert.equal(await p.locator('.fc-card').count(),20);
+  await p.getByRole('button',{name:/ФИЛЬТРЫ/}).click();await p.getByLabel('ОТТЕНОК').selectOption({label:'Бордовый'});assert.equal(await p.locator('.fc-card').count(),3);await p.getByLabel('ПОВОД').selectOption({label:'День рождения'});assert.equal(await p.locator('.fc-card').count(),2);await p.getByLabel('БЮДЖЕТ').selectOption('5000');assert.equal(await p.locator('.fc-card').count(),0);await tap(p.getByRole('button',{name:'ПОКАЗАТЬ ВСЕ БУКЕТЫ'}));assert.equal(await p.locator('.fc-card').count(),20);
+  await p.getByLabel('Сортировка букетов').selectOption('low');const prices=await p.locator('.fc-card-info strong').allTextContents();assert.ok(parseInt(prices[0].replace(/\D/g,''))<=parseInt(prices[1].replace(/\D/g,'')));await p.getByLabel('РАЗМЕР').selectOption('L');const first=p.locator('.fc-card').first();const price=(await first.locator('.fc-card-info strong').textContent()).trim();await tap(first.locator('.fc-open-photo'));await p.getByTestId('flower-detail').waitFor();assert.equal((await p.locator('.flower-detail__sizes button[aria-pressed=true] b').textContent()).trim(),'L');assert.equal((await p.locator('.flower-detail__intro strong').textContent()).trim(),price);
+  await p.locator('textarea').fill('С любовью и теплом');const detailUrl=p.url();assert.match(detailUrl,/product=/);await nav(p,'Избранное').tap();await p.goBack({waitUntil:'domcontentloaded'});await p.getByTestId('flower-detail').waitFor();assert.equal(await p.locator('textarea').inputValue(),'С любовью и теплом');await p.goBack({waitUntil:'domcontentloaded'});await p.getByTestId('flower-catalog-v2').waitFor();await p.goForward({waitUntil:'domcontentloaded'});await p.getByTestId('flower-detail').waitFor();await p.reload({waitUntil:'domcontentloaded'});await p.getByTestId('flower-detail').waitFor();await p.waitForTimeout(1000);assert.equal(p.url(),detailUrl);
+  await p.getByRole('button',{name:'Назад',exact:true}).click();await p.getByTestId('flower-catalog-v2').waitFor();await p.waitForTimeout(250);const peony=p.getByRole('button',{name:'Открыть букет Пионовое утро'});await p.waitForTimeout(120);await reveal(peony);await peony.evaluate(el=>el.addEventListener('pointerdown',()=>{window.__flowerClickScroll=document.querySelector('#root').scrollTop},{capture:true,once:true}));await peony.tap();const prior=await p.evaluate(()=>window.__flowerClickScroll);await p.getByTestId('flower-detail').waitFor();await p.getByRole('button',{name:'Назад',exact:true}).click();await p.getByTestId('flower-catalog-v2').waitFor();await p.waitForFunction(value=>Math.abs(document.querySelector('#root').scrollTop-value)<100,prior,{timeout:2500});const restored=await p.locator('#root').evaluate(el=>el.scrollTop);assert.ok(Math.abs(prior-restored)<100,`catalog scroll ${prior} -> ${restored}`);
+  await tap(p.getByRole('button',{name:'Открыть букет Пионовое утро'}));await p.getByTestId('flower-detail').waitFor();await tap(p.locator('.flower-detail__sizes button').nth(2));await p.locator('textarea').fill('Первая открытка');await p.locator('.flower-detail__sticky button').tap();await p.getByTestId('flower-cart-v2').waitFor();assert.match(await p.locator('.fv-cart-item').textContent(),/Первая открытка/);await tap(p.getByRole('button',{name:'Изменить параметры'}));await p.getByTestId('flower-detail').waitFor();assert.equal(await p.locator('textarea').inputValue(),'Первая открытка');await p.locator('textarea').fill('Пусть будет радость');await p.locator('.flower-detail__sticky button').tap();await p.getByTestId('flower-cart-v2').waitFor();assert.match(await p.locator('.fv-cart-item').textContent(),/Пусть будет радость/);
+  const quantity=p.locator('.fv-quantity button').last();const size=await quantity.boundingBox();assert.ok(size.width>=44&&size.height>=44);await tap(quantity);assert.match(await p.locator('.fv-cart-item').textContent(),/2/);await p.reload({waitUntil:'domcontentloaded'});await p.getByTestId('flower-store').waitFor();await p.locator('.fs-nav').getByRole('button',{name:/Корзина/}).tap();assert.match(await p.locator('.fv-cart-item').textContent(),/Пусть будет радость/);
+  await tap(p.getByRole('button',{name:'ПРОДОЛЖИТЬ',exact:true}));await p.getByLabel('Контакт для связи').fill('test123');await tap(p.getByRole('button',{name:'Самовывоз пример выбора'}));await tap(p.getByRole('button',{name:'ПРОВЕРИТЬ ДЕТАЛИ'}));assert.match(await p.locator('.fv-review').textContent(),/test123/);await p.getByRole('button',{name:'Изменить детали'}).click();assert.equal(await p.getByLabel('Контакт для связи').inputValue(),'test123');await p.getByRole('button',{name:'К корзине'}).click();await tap(p.getByRole('button',{name:'ПРОДОЛЖИТЬ',exact:true}));assert.equal(await p.getByLabel('Контакт для связи').inputValue(),'');assert.ok(!JSON.stringify(await p.evaluate(()=>localStorage)).includes('test123'));await geometry(p);assert.deepEqual(errors,[]);console.log(`PASS ${browser.browserType().name()} ${width}px filters, deep links, drafts, catalog scroll, cart and checkout`);
+ } finally {await c.close()}}
+async function images(browser){const c=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});const p=await c.newPage();try{
+ await p.goto(path,{waitUntil:'domcontentloaded'});await p.getByTestId('flower-store').waitFor();for(const selector of ['.fs2-hero-art img','.fs2-process-img img']){const src=await p.locator(selector).getAttribute('src');await sourceCheck(p,c,src)}
+ await nav(p,'Каталог').tap();await p.getByTestId('flower-catalog-v2').waitFor();assert.equal(await p.locator('.fc-card').count(),20);for(const name of testNames){const card=p.getByRole('button',{name:`Открыть букет ${name}`});await tap(card);await p.getByTestId('flower-detail').waitFor();const thumbs=p.locator('.flower-detail__thumbs button');const frameCount=await thumbs.count();assert.ok(frameCount>=3,`${name}: fewer than three images`);const sources=[];for(let i=0;i<frameCount;i++){await tap(thumbs.nth(i));const img=p.locator('.flower-detail__image img');const src=await img.getAttribute('src');assert.ok(await img.evaluate(async el=>{try{await el.decode();return el.naturalWidth>0}catch{return false}}),`${name} image ${i+1}`);sources.push(src)}assert.equal(new Set(sources).size,frameCount,name);const digests=[];for(const src of sources)digests.push(await sourceCheck(p,c,src));assert.equal(new Set(digests).size,frameCount,`${name}: repeated image bytes`);await p.getByRole('button',{name:'Назад',exact:true}).tap();await p.getByTestId('flower-catalog-v2').waitFor()}
+ console.log(`PASS ${browser.browserType().name()} 20 product galleries (all displayed images) and home hero/florist`);
+ }finally{await c.close()}}
+(async()=>{const engines=process.env.FLOWER_ENGINE==='webkit'?[webkit]:process.env.FLOWER_ENGINE==='chromium'?[chromium]:[chromium,webkit];for(const engine of engines){const browser=await engine.launch({headless:true});try{for(const width of [320,390])await interaction(browser,width);if(process.env.FLOWER_SKIP_IMAGES!=='1')await images(browser)}finally{await browser.close()}}})().catch(error=>{console.error(error);process.exitCode=1});
