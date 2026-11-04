@@ -33,7 +33,7 @@ async function sharedHeader(page, contentSelector) {
   assert.equal(await page.getByTestId('button-hamburger').count(), 1);
   await page.getByRole('button',{name:'Chat with Alex'}).waitFor();
   assert.equal(await page.locator('.mf-header').count(), 0);
-  assert.equal((await page.locator('body').innerText()).includes('MURAKA'), false);
+  assert.equal((await page.locator('.w4-topbar').innerText()).includes('MURAKA'), false, 'shared header has no store wordmark');
   for (const inset of [0,54,80]) {
     await page.evaluate(inset => document.documentElement.style.setProperty('--csat', `${inset}px`), inset);
     const positions = await page.evaluate(selector => ({
