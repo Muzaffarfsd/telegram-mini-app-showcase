@@ -10,8 +10,8 @@ async function run(browser,width,height){
   await page.getByTestId('medical-center').waitFor();
   await page.getByRole('navigation',{name:'Разделы медицинского центра'}).getByRole('button',{name:'Услуги'}).click();
   await page.locator('.medsvc-catalog').waitFor();
-  assert.equal(await page.locator('.medsvc-list-item').count(),4,'four bookable consultation types');
-  const search=page.getByLabel('Поиск направления');await search.fill('кардиолог');assert.equal(await page.locator('.medsvc-list-item').count(),1,'search filters relevant service');await search.fill('');
+  assert.equal(await page.locator('.medsvc-list-item').count(),7,'seven bookable services');
+  const search=page.getByLabel('Поиск услуги');await search.fill('кардиолог');assert.equal(await page.locator('.medsvc-list-item').count(),1,'search filters relevant service');await search.fill('');
   await page.getByRole('button',{name:'Открыть услугу: Консультация кардиолога'}).click();
   const detail=page.locator('.medsvc-detail');await detail.waitFor();
   assert.match(await detail.locator('h1').textContent(),/КАРДИОЛОГА/);
@@ -27,7 +27,7 @@ async function run(browser,width,height){
   await main.click();const lightbox=page.getByRole('dialog',{name:'Фотографии: Консультация кардиолога'});await lightbox.waitFor();assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('aria-label')),'Закрыть фотографии');
   await page.keyboard.press('ArrowRight');assert.notEqual(await lightbox.locator('img').getAttribute('src'),cover);await page.keyboard.press('Escape');await lightbox.waitFor({state:'hidden'});assert.equal(await page.evaluate(()=>document.activeElement?.classList.contains('medsvc-gallery-main')),true);
   const faq=detail.locator('details').first();await faq.locator('summary').click();assert.equal(await faq.getAttribute('open'),'');
-  const cta=detail.locator('.medsvc-book-row button');await cta.scrollIntoViewIfNeeded();const cb=await cta.boundingBox(), nb=await page.getByRole('navigation',{name:'Разделы медицинского центра'}).boundingBox();assert(cb&&nb&&cb.y>=0&&cb.y+cb.height<=nb.y,'booking CTA remains visible above navigation');await cta.click();await page.getByRole('dialog',{name:'Запись к специалисту'}).waitFor();assert.match(await page.locator('.medical-booking__selected').textContent(),/Кардиолог/);await page.keyboard.press('Escape');await page.getByRole('dialog',{name:'Запись к специалисту'}).waitFor({state:'hidden'});
+  const cta=detail.locator('.medsvc-book-row button');await cta.scrollIntoViewIfNeeded();const cb=await cta.boundingBox(), nb=await page.getByRole('navigation',{name:'Разделы медицинского центра'}).boundingBox();assert(cb&&nb&&cb.y>=0&&cb.y+cb.height<=nb.y,'booking CTA remains visible above navigation');await cta.click();await page.getByRole('dialog',{name:'Запись к специалисту'}).waitFor();assert.match(await page.locator('.medical-booking__selected').textContent(),/кардиолог/i);await page.keyboard.press('Escape');await page.getByRole('dialog',{name:'Запись к специалисту'}).waitFor({state:'hidden'});
   await detail.getByRole('button',{name:'Открыть услугу: Консультация невролога'}).click();assert.match(await detail.locator('h1').textContent(),/НЕВРОЛОГА/);await detail.getByRole('button',{name:'Назад'}).click();await page.locator('.medsvc-catalog').waitFor();
   await page.getByRole('button',{name:'Открыть услугу: Консультация терапевта'}).click();await detail.getByRole('button',{name:/Открыть профиль специалиста/}).click();assert.match(await page.locator('.meddoc h1').textContent(),/Анна Морозова/);
   assert.deepEqual(errors,[],'no uncaught JS errors');

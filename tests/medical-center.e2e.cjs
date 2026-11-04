@@ -45,6 +45,7 @@ async function run(browser, width, height) {
     await page.getByTestId('button-hamburger').focus();
     assert.equal(await page.getByTestId('button-hamburger').evaluate(el => document.activeElement === el), true, 'header is keyboard accessible during booking');
     if (hasTelegramStub) await page.waitForFunction(() => window.__medicalBack.handlers.size === 1 && window.__medicalBack.visible);
+    await dialog.locator('.medical-booking__service-row').filter({hasText:'Консультация терапевта'}).click();
     await dialog.locator('.medical-booking__doctor-row').first().click();
     await checkContrast();
     await dialog.locator('.medical-booking__dates button').nth(1).click();
@@ -62,6 +63,10 @@ async function run(browser, width, height) {
     assert.equal(await dialog.locator('.medical-booking__times button').first().getAttribute('aria-pressed'), 'true', 'Back restores selected time');
     await page.goBack();
     await dialog.getByText('К кому вы', { exact: false }).waitFor();
+    await page.goBack();
+    await dialog.getByText('Что вы хотите', { exact: false }).waitFor();
+    await page.goForward();
+    await dialog.getByText('К кому вы', { exact: false }).waitFor();
     await page.goForward();
     await dialog.getByText('Выберите удобное', { exact: false }).waitFor();
     await page.goForward();
@@ -70,7 +75,7 @@ async function run(browser, width, height) {
     await page.getByTestId('button-hamburger').focus();
     await page.locator('.medical-navigation').getByRole('button', { name: 'Главная' }).click();
     await page.locator('[data-med-book="hero"]').click();
-    await dialog.getByText('К кому вы', { exact: false }).waitFor();
+    await dialog.getByText('Что вы хотите', { exact: false }).waitFor();
     await page.goBack();
     await page.locator('[data-med-book="hero"]').waitFor();
     await page.goBack();
@@ -91,12 +96,14 @@ async function run(browser, width, height) {
     const saved = await page.evaluate(() => localStorage.getItem('medical-demo-appointments-v1'));
     assert(saved && !saved.includes('Тестовый пациент') && !saved.includes('+7 900 555 44 33') && !saved.includes('79005554433'), 'patient name and phone are not stored');
     const initial = JSON.parse(saved)[0];
-    assert.deepEqual(Object.keys(initial).sort(), ['date', 'doctorId', 'duration', 'id', 'price', 'time'], 'stored records contain only appointment details');
+    assert.deepEqual(Object.keys(initial).sort(), ['date', 'doctorId', 'duration', 'id', 'price', 'serviceId', 'time'], 'stored records contain only appointment details');
+    assert.equal(initial.serviceId, 'therapy', 'service is stored with its physician and time');
     assert(initial && initial.date && initial.time && initial.doctorId, 'booking is stored locally');
     await dialog.getByRole('button', { name: 'Мои записи' }).click();
     const visits = dialog;
     assert.equal(await visits.locator('.medical-booking__appointment').count(), 1);
     await visits.getByRole('button', { name: 'Новая демо-запись' }).click();
+    await dialog.locator('.medical-booking__service-row').filter({hasText:'Консультация терапевта'}).click();
     await dialog.locator('.medical-booking__doctor-row').first().click();
     await dialog.locator('.medical-booking__dates button').nth(1).click();
     assert.equal(await dialog.locator('.medical-booking__times button').first().isDisabled(), true, 'same doctor and time cannot be booked twice');
