@@ -2,3 +2,45 @@
 
 .flower-store .f3-gallery-main{aspect-ratio:auto;height:clamp(390px,145vw,555px)}.flower-store .f3-heading .f3-heading-price{margin-top:9px;font-size:17px;font-weight:750;letter-spacing:-.03em;color:#1b211d}.flower-store .f3-heading-price small{font-size:11px;font-weight:400;letter-spacing:0;color:#5a675c;margin-left:5px}
 .flower-store .f3-gallery-main{height:clamp(360px,52svh,540px)}
+
+/* Editorial detail: keep every image linked to this product, with an explicit demo context. */
+.flower-store .f3-heading h1{font-size:clamp(39px,10.4vw,50px);letter-spacing:-.065em;line-height:.98;overflow-wrap:anywhere}
+.flower-store .f3-gallery-main{background:#f5f5f2}
+.flower-store .f3-closer{margin-top:62px;padding-top:19px;border-top:1px solid #dfe4de}
+.flower-store .f3-content .f3-closer h2{font-size:clamp(36px,9.5vw,47px);line-height:.98;margin:20px 0 14px;letter-spacing:-.06em}
+.flower-store .f3-closer h2 em{font-style:normal;font-weight:400;color:#758174}
+.flower-store .f3-closer-intro{max-width:30ch;font-size:14px;line-height:1.55;color:#526054}
+.flower-store .f3-editorial-frames{display:grid;grid-template-columns:1.15fr 1fr;gap:10px;align-items:start;margin-top:24px}
+.flower-store .f3-editorial-frames figure{min-width:0;margin:0}
+.flower-store .f3-editorial-frames figure:nth-child(2){padding-top:38px}
+.flower-store .f3-editorial-frames figure>button{position:relative;display:block;width:100%;aspect-ratio:3/4;padding:0;overflow:hidden;border:0;background:#f4f5f1}
+.flower-store .f3-editorial-frames figure>button img{display:block;width:100%;height:100%;object-fit:contain}
+.flower-store .f3-editorial-frames figure>button>span{position:absolute;right:8px;bottom:8px;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#fff;color:#1c271e}
+.flower-store .f3-editorial-frames figcaption{display:flex;flex-direction:column;gap:7px;padding-top:11px}
+.flower-store .f3-editorial-frames figcaption span{font-size:9px;line-height:1.3;letter-spacing:.08em;font-weight:750;color:#607064}
+.flower-store .f3-editorial-frames figcaption strong{font-size:15px;line-height:1.2;letter-spacing:-.03em}
+.flower-store .f3-editorial-note{margin:18px 0 0!important;font-size:11px;line-height:1.5;color:#68736a}
+.flower-store .f3-delivery{margin-top:58px;padding:21px 19px 22px;background:#f4f6f2}
+.flower-store .f3-content .f3-delivery h2{font-size:clamp(32px,8.8vw,42px);line-height:1;margin:22px 0 25px}
+.flower-store .f3-delivery-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.flower-store .f3-delivery-grid>div{min-width:0;padding-top:12px;border-top:1px solid #cbd4ca}
+.flower-store .f3-delivery-grid span{display:block;font-size:10px;font-weight:750;letter-spacing:.08em;color:#6d796e}
+.flower-store .f3-delivery-grid strong{display:block;margin-top:12px;font-size:14px;line-height:1.25;letter-spacing:-.02em}
+.flower-store .f3-delivery-grid p{margin-top:7px;font-size:12px;line-height:1.48;color:#59665a}
+.flower-store .f3-delivery-note{margin-top:21px!important;font-size:11px;line-height:1.45;color:#69766a}
+@media(max-width:340px){.flower-store .f3-heading h1{font-size:37px}.flower-store .f3-editorial-frames figcaption span{font-size:8px}.flower-store .f3-delivery{padding-inline:15px}.flower-store .f3-delivery-grid{gap:12px}}
+.flower-store .f3-gallery-main,.flower-store .f3-editorial-frames figure>button{background:#fff}
+.flower-lightbox{background:#fff;color:#18211a}.flower-lightbox button{background:#f0f2ef;color:#18211a}
+.flower-store .f3-thumbs button{background:#fff}
+
+/* Flower-specific notes stay with the illustrated composition. */
+.flower-store .f3-botanical{margin-top:55px;padding-top:19px;border-top:1px solid #dfe4de}
+.flower-store .f3-content .f3-botanical h2{max-width:11ch;margin:20px 0 23px;font-size:clamp(33px,8.8vw,42px);line-height:1.02;letter-spacing:-.055em}
+.flower-store .f3-botanical h2 span{color:#a54e48}
+.flower-store .f3-botanical-list{border-top:1px solid #dfe4de}
+.flower-store .f3-botanical-row{display:grid;grid-template-columns:43px 1fr;gap:12px;padding:17px 0;border-bottom:1px solid #e6e9e4}
+.flower-store .f3-botanical-index{padding-top:3px;font-size:10px;font-weight:750;letter-spacing:.08em;color:#798679}
+.flower-store .f3-botanical-row h3{font-size:17px;line-height:1.2;letter-spacing:-.035em;font-weight:750}
+.flower-store .f3-botanical-row p{max-width:35ch;margin-top:6px;font-size:13px;line-height:1.55;color:#4c594e}
+.flower-store .f3-botanical-note{margin-top:14px!important;font-size:11px;line-height:1.5;color:#657167}
+@media(max-width:340px){.flower-store .f3-botanical-row{grid-template-columns:33px 1fr;gap:8px}.flower-store .f3-botanical-row p{font-size:13px}}

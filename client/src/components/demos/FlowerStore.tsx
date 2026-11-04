@@ -8,8 +8,9 @@ import FlowerHomeV4 from './FlowerHomeV4';
 import {flowerItems as archivedItems} from './flowerDataV2';
 import {flowerItemsV3} from './flowerDataV3';
 import {flowerHomeRefItems} from './FlowerHomeRefData';
-const items=[...flowerHomeRefItems,...flowerItemsV3];
-const allItems=[...items,...archivedItems];
+import {popularFlowers} from './flowerPopularV5';
+const items=popularFlowers;
+const allItems=[...items,...flowerHomeRefItems,...flowerItemsV3,...archivedItems];
 import './FlowerStore.css';
 
 type Screen='home'|'catalog'|'detail'|'favorites'|'cart';

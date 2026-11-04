@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const base = (process.env.FLOWER_TEST_URL || 'http://127.0.0.1:53744/').replace(/\/?$/, '/');
 const app = `${base}#/demos/flower-store/app`;
 const targets = ['Корзины', 'Вазы', 'Сборные'];
-const expectedIds = ['ref-sun-basket','ref-vase','ref-pink-basket','ref-red-rose','ref-spring'];
+const expectedIds = ['sunflower-basket','vase-roses','pink-rose-basket','red-roses','pink-mix'];
 const waitIndex = (page, n) => page.waitForFunction(n => document.querySelector('.fh4-counter strong')?.textContent === String(n).padStart(2,'0'), n, {timeout: 10000});
 async function home(page) { await page.locator('.fs-nav').getByRole('button',{name:'Главная',exact:true}).click(); await page.getByTestId('flower-home-v4').waitFor(); await waitIndex(page,2); }
 async function gesture(page, context, width, direction) {
@@ -30,7 +30,7 @@ async function run(engine,width) {
   for(let i=3;i<=5;i++){await next.click();await waitIndex(page,i)}assert.equal(await next.isDisabled(),true);await previous.click();await waitIndex(page,4);
   if(engine===chromium){await previous.click();await waitIndex(page,3);await previous.click();await waitIndex(page,2);await gesture(page,context,width,'left');await waitIndex(page,3);await gesture(page,context,width,'right');await waitIndex(page,2);}
   for(const [label,category] of [['КОРЗИНАХ','Корзины'],['В ВАЗАХ','Вазы'],['СБОРНЫЕ','Сборные']]){await page.locator('.fh4-category').filter({hasText:label}).click();await page.getByTestId('flower-catalog-v2').waitFor();assert.ok(await page.locator('.fc-card').count()>0,`empty ${category} category`);assert.match(await page.locator('.fc-results h2').textContent(),new RegExp(category,'i'));await home(page);}
-  const item=slides.nth(1);await item.locator('.fh4-product').click();await page.getByTestId('flower-detail').waitFor();assert.equal((await page.locator('.f3-heading h1').textContent()).trim(),'Цветочная история');assert.ok(page.url().includes('product=ref-vase'));
+  const item=slides.nth(1);await item.locator('.fh4-product').click();await page.getByTestId('flower-detail').waitFor();assert.equal((await page.locator('.f3-heading h1').textContent()).trim(),'Розы в вазе');assert.ok(page.url().includes('product=popular-vase-roses'));
   assert.deepEqual(errors,[]);
   console.log(`PASS ${engine.name()} ${width}: slider controls, categories, product, image loading${engine===chromium?', touch swipe':''}`);
  } finally { await context.close();await browser.close(); }
