@@ -4,9 +4,11 @@ import {ArrowRight, ArrowUpRight, Flower2, Heart, House, ShoppingBag} from 'luci
 import {FlowerProductDetail, type FlowerSelection} from './FlowerProductDetail';
 import {FlowerCatalogV2, defaultFlowerFilters, flowerMoney, flowerSizePrice, type FlowerCatalogFilters, type FlowerCatalogItem} from './FlowerCatalogV2';
 import {FlowerCartV2, type FlowerCartLine} from './FlowerCartV2';
-import FlowerHomeV3 from './FlowerHomeV3';
+import FlowerHomeV4 from './FlowerHomeV4';
 import {flowerItems as archivedItems} from './flowerDataV2';
-import {flowerItemsV3 as items} from './flowerDataV3';
+import {flowerItemsV3} from './flowerDataV3';
+import {flowerHomeRefItems} from './FlowerHomeRefData';
+const items=[...flowerHomeRefItems,...flowerItemsV3];
 const allItems=[...items,...archivedItems];
 import './FlowerStore.css';
 
@@ -40,7 +42,7 @@ export default function FlowerStore({onClose}:{onClose:()=>void}){
  function add(selection:FlowerSelection){if(editingKey){setCart(v=>v.map(line=>line.key===editingKey?{...line,selection}:line));setNotice('Параметры букета обновлены')}else{setCart(v=>[...v,{key:`${Date.now()}-${Math.random().toString(36).slice(2)}`,id:selected.id,selection,quantity:1}]);setNotice('Букет добавлен в корзину')}go('cart')}
  const count=cart.reduce((sum,x)=>sum+x.quantity,0);
  return <div className="flower-store" lang="ru" data-testid="flower-store"><main className="fs-main">
- {screen==='home'&&<FlowerHomeV3 items={items} renderCard={card} open={open} catalog={catalog}/>}
+ {screen==='home'&&<FlowerHomeV4 items={items} open={open} catalog={catalog}/>}
  {screen==='catalog'&&<FlowerCatalogV2 items={items} favorites={favorites} filters={filters} onFiltersChange={setFilters} onOpen={open} onFavorite={toggle} expanded={filtersExpanded} onExpandedChange={setFiltersExpanded}/>}
  {screen==='detail'&&<FlowerProductDetail key={`${selected.id}:${editingKey||'new'}`} item={selected} favorite={favorites.includes(selected.id)} onFavorite={()=>toggle(selected.id)} onBack={()=>go(previous,{restore:true})} initialSelection={drafts[draftKey]} onDraftChange={selection=>setDrafts(v=>({...v,[draftKey]:selection}))} editing={!!editingKey} onAdd={add}/>}
  {screen==='favorites'&&<section className="fs-page"><div className="fs-page-heading"><span>FLORA / СОХРАНЕНО</span><h1>ВАШИ<br/>ИЗБРАННЫЕ.</h1><p>Букеты, к которым хочется вернуться.</p></div>{favorites.length?<div className="fs-grid">{allItems.filter(x=>favorites.includes(x.id)).map(card)}</div>:<div className="fs-empty"><Heart size={26}/><h2>Здесь будут ваши любимые цветы.</h2><p>Нажмите на сердечко у букета, чтобы сохранить его.</p><button type="button" onClick={()=>catalog()}>Выбрать цветы <ArrowRight size={16}/></button></div>}</section>}
