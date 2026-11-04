@@ -270,6 +270,16 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   const baseAppType = getBaseAppType(demoId);
   const theme = demoDark ? darkTheme : getTheme(baseAppType);
 
+  // The flower store supplies its own navigation inside the shared WEB4TG header.
+  if (demoId === 'flower-store') {
+    const FlowerStore = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<div aria-label="Загрузка цветочного магазина" style={{ minHeight: '100vh', background: '#fff' }} />}>
+        {FlowerStore && <FlowerStore onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
+
   // The buyer demo supplies its own navigation inside the shared WEB4TG header.
   if (demoId === 'china-buyer') {
     const ChinaBuyer = getDemoComponent(demoId);

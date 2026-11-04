@@ -40,6 +40,17 @@ export interface DemoApp {
 // Топ-10 самых популярных приложений по лайкам
 export const demoApps: DemoApp[] = [
   {
+    id: 'flower-store',
+    title: 'Цветочный магазин',
+    description: 'Букеты и цветочные композиции для любого повода',
+    category: 'Электронная коммерция',
+    image: '/flower-store/hero.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
     id: 'china-buyer',
     title: 'Бюро поиска — байер из Китая',
     description: 'Поиск товаров, выкуп и сопровождение заказа из Китая',

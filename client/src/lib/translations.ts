@@ -133,6 +133,7 @@ export const translations = {
       footer: 'Web4TG · Telegram Mini Apps · 2025',
       // Demo app descriptions for project cards
       appDescriptions: {
+        'flower-store': 'Цветочная студия: букеты для каждого момента',
         'china-buyer': 'Байер из Китая: поиск товаров и сопровождение заказа',
         'medical-center': 'Медицинский центр: специалисты, услуги и запись на приём',
         'lumi-studio': 'Студия красоты: услуги, мастера и запись',
@@ -1858,6 +1859,7 @@ export const translations = {
       footer: 'Web4TG · Telegram Mini Apps · 2025',
       // Demo app descriptions for project cards
       appDescriptions: {
+        'flower-store': 'Flower studio: bouquets for every moment',
         'china-buyer': 'China sourcing: finding products and managing requests',
         'medical-center': 'Medical center: specialists, services and appointments',
         'lumi-studio': 'Beauty studio: services, specialists and appointments',
