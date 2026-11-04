@@ -42,7 +42,7 @@
 .rs-editorial > strong { font-size:18px; line-height:1.06; letter-spacing:-.035em; margin-top:auto; position:relative; z-index:2; }
 .rs-editorial > i { position:absolute; bottom:14px; right:14px; width:32px; height:32px; border-radius:50%; display:grid; place-items:center; background:rgba(255,255,255,.82); font-style:normal; }
 .rs-editorial--everyday { padding:0; background:#f0f1f3; }
-.rs-editorial--everyday img { position:absolute; inset:0; width:100%; height:100%; max-width:none; object-fit:cover; }
+.rs-editorial--everyday img { position:absolute; inset:0; width:100%; height:100%; max-width:none; object-fit:cover; object-position:right center; }
 .rs-editorial--everyday::after { content:''; position:absolute; inset:0; background:linear-gradient(to bottom,rgba(225,226,229,.98) 0%,rgba(225,226,229,.96) 32%,rgba(225,226,229,0) 54%); pointer-events:none; }
 .rs-editorial--everyday .rs-everyday__copy { position:absolute; inset:0; z-index:2; display:flex; flex-direction:column; align-items:flex-start; padding:16px 14px; color:#191a1d; }
 .rs-everyday__copy small { font-size:9px; font-weight:700; line-height:1.2; letter-spacing:.06em; }
