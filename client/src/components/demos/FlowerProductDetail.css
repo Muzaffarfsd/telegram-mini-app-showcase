@@ -44,3 +44,48 @@
 .flower-store .f3-botanical-row p{max-width:35ch;margin-top:6px;font-size:13px;line-height:1.55;color:#4c594e}
 .flower-store .f3-botanical-note{margin-top:14px!important;font-size:11px;line-height:1.5;color:#657167}
 @media(max-width:340px){.flower-store .f3-botanical-row{grid-template-columns:33px 1fr;gap:8px}.flower-store .f3-botanical-row p{font-size:13px}}
+
+/* A product narrative led by the actual illustration and its composition notes. */
+.flower-store .f3-macro{margin-top:60px;padding-top:20px;border-top:1px solid #dfe4de}
+.flower-store .f3-content .f3-macro h2,.flower-store .f3-content .f3-recommend h2{font-size:clamp(38px,10.2vw,48px);line-height:.98;letter-spacing:-.06em;margin:20px 0 14px;overflow-wrap:anywhere}
+.flower-store .f3-macro h2 em,.flower-store .f3-recommend h2 em{font-style:normal;font-weight:400;color:#728074}
+.flower-store .f3-macro>p:not(.f3-macro-caption),.flower-store .f3-recommend>p{max-width:33ch;font-size:14px;line-height:1.55;color:#536054}
+.flower-store .f3-macro-image{display:block;position:relative;width:100%;height:clamp(310px,98vw,430px);margin-top:22px;padding:0;border:0;background:#fff}
+.flower-store .f3-macro-image img{display:block;width:100%;height:100%;object-fit:contain}
+.flower-store .f3-macro-image>span,.flower-store .f3-feature-frame button>span{position:absolute;right:10px;bottom:10px;display:grid;place-items:center;width:44px;height:44px;border:1px solid #e1e7df;border-radius:50%;background:#fff;color:#202a21}
+.flower-store .f3-macro-caption{margin-top:10px!important;font-size:10px;line-height:1.5;letter-spacing:.05em;font-weight:700;color:#69766a}
+.flower-store .f3-botanical-row h3{font-size:20px}
+.flower-store .f3-botanical-row p{font-size:14px}
+.flower-store .f3-feature-frame{margin:24px 0 0}
+.flower-store .f3-feature-frame button{position:relative;display:block;width:100%;height:clamp(320px,95vw,410px);padding:0;border:0;background:#fff}
+.flower-store .f3-feature-frame img{display:block;width:100%;height:100%;object-fit:contain}
+.flower-store .f3-feature-frame figcaption{display:flex;flex-direction:column;gap:8px;border-top:1px solid #dfe4de;padding:13px 0 0}
+.flower-store .f3-feature-frame figcaption span{font-size:10px;font-weight:750;letter-spacing:.07em;color:#617064}
+.flower-store .f3-feature-frame figcaption strong{font-size:20px;letter-spacing:-.04em;line-height:1.15}
+.flower-store .f3-feature-frame figcaption p{max-width:38ch;font-size:13px;line-height:1.5;color:#536054}
+.flower-store .f3-recommend{margin-top:60px;padding-top:20px;border-top:1px solid #dfe4de}
+.flower-store .f3-recommend-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px}
+.flower-store .f3-recommend-controls>span{font-size:10px;font-weight:750;letter-spacing:.07em;color:#617064}
+.flower-store .f3-recommend-controls>div{display:flex;gap:8px}
+.flower-store .f3-recommend-controls button{display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid #ced7cd;border-radius:50%;background:#fff;color:#1b211d;cursor:pointer}
+.flower-store .f3-recommend-controls button:disabled{opacity:.32;cursor:default}
+.flower-store .f3-recommend-controls button:focus-visible,.flower-store .f3-recommend-track:focus-visible{outline:2px solid #305e3b;outline-offset:3px}
+.flower-store .f3-recommend-track{display:flex;gap:10px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;scroll-padding-left:0;margin:8px -17px 0 0;padding:0 17px 12px 0}
+.flower-store .f3-recommend-track article{flex:0 0 min(56%,200px);min-width:0;scroll-snap-align:start}
+.flower-store .f3-recommend-track article>button{display:flex;flex-direction:column;align-items:flex-start;width:100%;padding:0;border:0;text-align:left;background:none;color:#1b211d}
+.flower-store .f3-recommend-image{display:block;width:100%;aspect-ratio:4/4.6;background:#fff}
+.flower-store .f3-recommend-image img{display:block;width:100%;height:100%;object-fit:contain}
+.flower-store .f3-recommend-category{margin-top:11px;font-size:10px;line-height:1.35;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:#617064}
+.flower-store .f3-recommend-track strong{margin-top:5px;font-size:16px;line-height:1.25;letter-spacing:-.03em}
+.flower-store .f3-recommend-price{margin-top:8px;font-size:14px;font-weight:750}.flower-store .f3-recommend-price small{font-size:10px;color:#627064;font-weight:400}
+@media(max-width:340px){.flower-store .f3-recommend-track{margin-right:-13px;padding-right:13px}.flower-store .f3-recommend-track article{flex-basis:59%}.flower-store .f3-content .f3-macro h2,.flower-store .f3-content .f3-recommend h2{font-size:36px}}
+
+/* Each species has a readable note and its own generous botanical illustration. */
+.flower-store .f3-botanical-row.has-image{padding:22px 0 17px;align-items:start}
+.flower-store .f3-botanical-image{grid-column:1/-1;display:grid;place-items:center;width:100%;height:clamp(235px,72vw,320px);margin-top:9px;background:#fff}
+.flower-store .f3-botanical-image img{display:block;width:100%;height:100%;object-fit:contain}
+.flower-store .f3-botanical-copy h3{font-size:clamp(20px,5vw,25px);line-height:1.15;letter-spacing:-.045em}
+.flower-store .f3-botanical-copy p{font-size:14px;line-height:1.5;max-width:34ch}
+
+/* Avoid grid intrinsic sizing making tall botanical images spill into the next section. */
+.flower-store .f3-botanical-image{display:block}

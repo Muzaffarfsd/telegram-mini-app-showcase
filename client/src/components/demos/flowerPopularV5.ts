@@ -2,8 +2,8 @@ import type {FlowerCatalogItem} from './FlowerCatalogV2';
 
 type PopularFlower = FlowerCatalogItem & {homeImage?:string};
 const product=(id:string,name:string,category:string,price:number,subtitle:string,composition:string,description:string,tone:string,occasion:string[],featured=false):PopularFlower=>{
- const base=`/flower-store/popular-v5/${id}`;
- return {id:`popular-${id}`,name,category,price,subtitle,composition,description,tone,occasion,moods:[tone==='Белый'?'Нежные':'Яркие'],images:[`${base}.webp`,`${base}-scale.webp`,`${base}-detail.webp`],...(featured?{homeImage:`${base}.webp`}:{})};
+ const base=`/flower-store/flowers-v6/${id}`;
+ return {id:`popular-${id}`,name,category,price,subtitle,composition,description,tone,occasion,moods:[tone==='Белый'?'Нежные':'Яркие'],images:[`${base}.webp`,`${base}-angle.webp`,id==='pink-mix'?`${base}-detail-v7.webp`:`${base}-macro.webp`],...(featured?{homeImage:`${base}.webp`}:{})};
 };
 // Prices and availability are illustrative. The picture is a generated concept, not stock photography of a real product.
 export const popularFlowers:PopularFlower[]=[

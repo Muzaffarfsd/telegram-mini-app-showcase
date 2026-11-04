@@ -1,0 +1,13 @@
+.flower-composition-map{padding:52px 0;border-top:1px solid #dce1da;color:#1a211c}
+.flower-map-kicker{display:flex;justify-content:space-between;gap:12px;font-size:10px;font-weight:700;letter-spacing:.08em;color:#5d6a60}
+.flower-composition-map h2{font-size:clamp(32px,9vw,50px);line-height:.96;letter-spacing:-.055em;margin:24px 0 14px;font-weight:700}
+.flower-composition-map h2 em{font-style:normal;color:#536f5b}
+.flower-map-intro{max-width:32ch;color:#58645b;line-height:1.5;font-size:14px}
+.flower-map-portrait{position:relative;min-height:320px;aspect-ratio:1/1.04;background:#f3f6f1;display:grid;place-items:center;margin:24px 0 0;overflow:hidden}
+.flower-map-portrait img{width:92%;height:92%;object-fit:contain;position:absolute;inset:4%}
+.flower-map-portrait span{position:absolute;bottom:14px;left:16px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.flower-map-parts{display:grid;grid-template-columns:1fr;gap:0}
+.flower-map-parts>div{display:grid;grid-template-columns:110px 1fr;gap:12px;padding:17px 0;border-bottom:1px solid #dce1da}
+.flower-map-parts span{font-size:10px;line-height:1.4;letter-spacing:.04em;font-weight:700;color:#68766c}
+.flower-map-parts p{margin:0;font-size:15px;line-height:1.4;font-weight:600}
+.flower-map-disclaimer{font-size:12px;line-height:1.5;color:#657268;margin:14px 0 0}
