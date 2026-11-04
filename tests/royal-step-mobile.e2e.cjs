@@ -99,13 +99,13 @@ async function runFull(browser) {
     assert.equal(await page.getByRole('heading',{name:"Nike Air Force 1 '07"}).isVisible(),true);
     await page.getByRole('button',{name:'Добавить в корзину'}).tap();
     assert.match(await page.getByRole('alert').innerText(),/Выберите размер/);
-    for (let index=1; index<=4; index++) {
-      await page.getByRole('button',{name:`Фотография ${index} из 4`}).tap();
+    for (let index=2; index<=4; index++) {
+      await page.getByRole('button',{name:`Показать фотографию ${index} из 4`}).tap();
       const photo=page.locator('.rs-product__photo img');
       await page.waitForFunction(expected => { const image=document.querySelector('.rs-product__photo img'); return image && image.complete && image.naturalWidth > 0 && image.src.includes(expected); }, `airforce-${index}.webp`);
       assert.match(await photo.getAttribute('src'),new RegExp(`airforce-${index}\\.webp`));
     }
-    await page.getByRole('button',{name:'Фотография 1 из 4'}).tap();
+    await page.getByRole('button',{name:'Показать фотографию 1 из 4'}).tap();
     await page.locator('.rs-product__photo').evaluate(element => {
       const make=(x,y)=>new Touch({identifier:1,target:element,clientX:x,clientY:y});
       element.dispatchEvent(new TouchEvent('touchstart',{touches:[make(300,150)],changedTouches:[make(300,150)],bubbles:true}));
@@ -124,14 +124,14 @@ async function runFull(browser) {
     await page.getByRole('button',{name:'42',exact:true}).tap();
     await page.getByRole('button',{name:'Добавить в корзину'}).tap();
     let dialog=page.getByRole('dialog');
-    assert.equal(await dialog.getByText('Размер 42 EU').isVisible(),true);
+    assert.equal(await dialog.getByRole('combobox',{name: "Изменить размер Nike Air Force 1 '07"}).inputValue(),'42');
     await dialog.getByRole('button',{name:"Увеличить количество Nike Air Force 1 '07, размер 42"}).tap();
     assert.match(normal(await dialog.textContent()),/29 800 ₽/);
     await page.reload();
     await page.getByTestId('royal-step').waitFor();
     await nav(page).getByRole('button',{name:/Корзина, товаров: 2/}).tap();
     dialog=page.getByRole('dialog');
-    await dialog.getByText('Размер 42 EU').waitFor();
+    assert.equal(await dialog.getByRole('combobox',{name: "Изменить размер Nike Air Force 1 '07"}).inputValue(),'42');
     assert.match(normal(await dialog.textContent()),/29 800 ₽/);
     await dialog.getByRole('button',{name:'Оформить демо-заказ'}).tap();
     await page.getByRole('button',{name:'Подтвердить демо-заказ'}).tap();
@@ -146,11 +146,11 @@ async function runFull(browser) {
     const stored=await page.evaluate(() => localStorage.getItem('royal-step-demo-v1'));
     assert.ok(!stored.includes('900 123') && !stored.includes('Примерная') && !stored.includes('Тестовый покупатель'));
     await page.getByRole('button',{name:'Посмотреть историю'}).tap();
-    assert.match(await page.locator('.rs-order-list').textContent(),/DEMO-/);
+    assert.match(await page.locator('.rs-order-history').textContent(),/DEMO-/);
     assert.equal(await page.locator('[data-testid^="royal-card-"]').count(),1);
     await page.reload(); await page.getByTestId('royal-step').waitFor();
     try { await nav(page).getByRole('button',{name:'Профиль'}).tap({timeout:10000}); } catch (error) { console.log('NAV DEBUG',await page.evaluate(() => ({nav:document.querySelector('.rs-nav')?.getBoundingClientRect().toJSON(), root:document.querySelector('#root')?.getBoundingClientRect().toJSON(), vv:window.visualViewport && {height:visualViewport.height,offsetTop:visualViewport.offsetTop}, windowY:scrollY, innerHeight}))); throw error; }
-    assert.match(await page.locator('.rs-order-list').textContent(),/DEMO-/);
+    assert.match(await page.locator('.rs-order-history').textContent(),/DEMO-/);
     assert.equal(await page.locator('[data-testid^="royal-card-"]').count(),1);
     await nav(page).getByRole('button',{name:/Корзина, товаров: 0/}).tap();
     assert.equal(await page.getByText('Пока пусто').isVisible(),true);
@@ -160,7 +160,8 @@ async function runFull(browser) {
     for (const id of ids) {
       await page.getByTestId(`royal-card-${id}`).getByRole('button',{name:/Открыть/}).tap();
       await page.locator('.rs-photo-thumbs').waitFor();
-      assert.equal(await page.locator('.rs-photo-thumbs button').count(),4,`${id}: 4 photographs`);
+      assert.equal(await page.locator('.rs-photo-thumbs button').count(),3,`${id}: 3 alternate photographs`);
+      assert.equal(await page.locator('.rs-photo-main img').count(),1,`${id}: main photograph`);
       assert.equal(await page.getByText('Пример отзыва',{exact:true}).isVisible(),true,`${id}: example review`);
       assert.ok((await page.locator('.rs-related__row small').count()) >= 1,`${id}: related prices`);
       if (id === 'airforce') assert.equal(await page.getByText('Нравятся форма и светлый цвет этой модели.').isVisible(),true);
@@ -201,7 +202,7 @@ async function runViewport(browser,width,height) {
     await assertBottomReachable(page, '.rs-related');
     await page.getByRole('button',{name:'42',exact:true}).tap();
     await page.getByRole('button',{name:'Добавить в корзину'}).tap();
-    assert.equal(await page.getByRole('dialog').getByText('Размер 42 EU').isVisible(),true);
+    assert.equal(await page.getByRole('dialog').getByRole('combobox',{name:'Изменить размер Nike Dunk Low Retro'}).inputValue(),'42');
     await page.getByRole('dialog').getByRole('button',{name:'Удалить Nike Dunk Low Retro, размер 42'}).tap();
     assert.equal(await page.getByText('Пока пусто').isVisible(),true);
     await page.getByRole('dialog').getByRole('button',{name:'Закрыть'}).tap();
