@@ -35,7 +35,7 @@ export function BuyerProductDetail({ item, favorite, related, onFavorite, onRequ
     </div>
     <p className="bpd-gallery-note">{hasGallery ? 'Сгенерированные иллюстрации одной идеи: мелкие детали могут различаться.' : 'Три кадрирования одного изображения — чтобы рассмотреть идею ближе.'}</p>
     <div className="bpd-body">
-      <div className="bpd-title-line"><p>{item.category.toUpperCase()} / КОЛЛЕКЦИЯ</p><span>ДЕМО / 01</span></div>
+      <div className="bpd-title-line"><p>{item.category.toUpperCase()} / КОЛЛЕКЦИЯ</p><span>ДЕМО / 01 <i className="bpd-title-seal cb-ink-font" lang="zh-Hans" aria-hidden="true">选</i></span></div>
       <h1>{item.name}</h1><p className="bpd-subtitle">{item.caption}</p>
       <div className="bpd-availability"><span className="bpd-dot"/><div><strong>Цена и наличие уточняются</strong><small>Визуальная идея для индивидуального поиска</small></div></div>
       <p className="bpd-story">{item.story}</p>

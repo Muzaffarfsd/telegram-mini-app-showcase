@@ -15,7 +15,7 @@
 .cbv-hero__bottom p {font-size:13px;line-height:1.5;color:#55565a;}
 .cbv-hero__bottom button {border:0;background:#181818;color:#fff;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;flex:none;}
 .cbv-ticker {display:flex;gap:15px;align-items:center;overflow:hidden;white-space:nowrap;background:#1b1b1b;color:#fff;padding:13px 20px;font-size:9px;font-weight:750;letter-spacing:.1em;}
-.cbv-ticker i {color:#e05249;font-style:normal;font-size:12px;}
+.cbv-ticker i {display:block;width:10px;height:10px;flex:none;background:#e05249;clip-path:polygon(50% 0,60% 35%,85% 15%,65% 40%,100% 50%,65% 60%,85% 85%,60% 65%,50% 100%,40% 65%,15% 85%,35% 60%,0 50%,35% 40%,15% 15%,40% 35%);}
 .cbv-selection,.cbv-buyer,.cbv-process {padding:0 20px;margin-top:57px;}
 .cbv-section-top {border-top:1px solid #1e1e1e;padding-top:11px;color:#767779;}
 .cbv-heading {display:flex;justify-content:space-between;align-items:end;gap:12px;margin:24px 0 23px;}
@@ -48,3 +48,28 @@
 .cbv-process .cb-button {margin-top:12px;}
 .cbv-disclaimer {padding:0 20px;margin-top:25px!important;}
 @media (max-width:350px) {.cbv-masthead,.cbv-hero,.cbv-selection,.cbv-buyer,.cbv-process {padding-left:16px;padding-right:16px;}.cbv-hero h1 {font-size:47px;}.cbv-heading h2,.cbv-editorial h2,.cbv-buyer h2,.cbv-process h2 {font-size:29px;}.cbv-heading p {max-width:82px;font-size:10px;}.cbv-art {height:300px;}.cbv-editorial__copy {padding-left:16px;padding-right:16px;}}
+/* Authored Chinese accents: decorative characters are bundled to render consistently. */
+@font-face {font-family:'Buyer Brush';src:url('/china-buyer/ma-shan-zheng-subset.woff2') format('woff2');font-weight:400;font-style:normal;font-display:block;}
+.cb-ink-font {font-family:'Buyer Brush',serif!important;font-weight:400!important;}
+.cbv-art__seal {font-size:26px;line-height:1;}
+.cbv-hero__bottom button {background:#a82c2e;}
+.cbv-cloud-divider {position:relative;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:112px;margin:43px 20px 0;border-top:1px solid #dedddd;border-bottom:1px solid #dedddd;overflow:hidden;}
+.cbv-cloud-divider>div {position:relative;z-index:1;display:flex;flex-direction:column;gap:3px;flex:none;}
+.cbv-cloud-divider>div>span {font-size:49px;line-height:1;color:#a82c2e;letter-spacing:.03em;}
+.cbv-cloud-divider small {font-size:8px;font-weight:750;color:#797474;letter-spacing:.11em;}
+.cbv-cloud-divider img {width:min(55%,210px);max-height:100px;object-fit:contain;opacity:.72;transform:rotate(-5deg);}
+.cbv-cloud-divider + .cbv-editorial {margin-top:25px;}
+.cb-catalog {position:relative;isolation:isolate;}
+.cb-catalog__ink {position:absolute;top:6px;right:14px;width:49%;height:96px;z-index:-1;pointer-events:none;overflow:hidden;}
+.cb-catalog__ink span {position:absolute;right:0;top:4px;font-size:clamp(62px,19vw,78px);line-height:1;white-space:nowrap;color:#a82c2e;opacity:.22;transform:rotate(-8deg);}
+.cb-catalog__ink img {position:absolute;right:-7%;bottom:0;width:100%;height:34px;object-fit:contain;opacity:.13;transform:rotate(-7deg);}
+.cb-card__body {position:relative;isolation:isolate;}
+.cb-card__body::after {content:'选';position:absolute;right:4px;bottom:-3px;z-index:-1;pointer-events:none;font-family:'Buyer Brush',serif;font-weight:400;font-size:62px;line-height:1;color:rgba(168,44,46,.12);}
+.cb-card__body>span {color:#963234;}
+.cb-categories button.is-active {background:#a82c2e;border-color:#a82c2e;}
+.bpd-title-line>span {display:flex;align-items:center;gap:7px;}
+.bpd-title-seal {font-size:19px;font-style:normal;line-height:1;color:#a82c2e;}
+.bpd-brief {position:relative;isolation:isolate;}
+.bpd-brief::before {content:'';position:absolute;z-index:-1;right:4px;top:4px;width:100px;height:52px;background:url('/china-buyer/v3-cloud-ink.webp') no-repeat right top / contain;opacity:.14;pointer-events:none;}
+.bpd-request {background:#a82c2e;border-color:#a82c2e;}
+@media (max-width:350px) {.cbv-cloud-divider {margin-left:16px;margin-right:16px;}.cb-catalog__ink {right:8px;}}
