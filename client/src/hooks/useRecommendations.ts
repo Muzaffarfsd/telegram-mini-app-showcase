@@ -47,7 +47,7 @@ function calculateRecommendationScore(
 
   // 4. Popularity boost for new users (10% weight)
   if (behavior.sessionCount < 3) {
-    const popularDemos = ['muraka-fashion', 'tech-nova', 'lumi-studio', 'fitness'];
+    const popularDemos = ['muraka-fashion', 'flower-store', 'lumi-studio', 'fitness'];
     if (popularDemos.includes(demo.id)) {
       score += 0.1;
       reasons.push('Popular choice');

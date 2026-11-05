@@ -18,7 +18,7 @@ const businessApps = [
     visual: "smartphone"
   },
   {
-    id: "tech-nova",
+    id: "muraka-fashion",
     title: "Интернет-магазин под ключ",
     description: "Продажи с первого дня",
     categories: ["E-COMMERCE", "HOT"],
@@ -111,11 +111,11 @@ export default function BusinessCards({ onOpenDemo }: BusinessCardsProps) {
       </Card3D>
 
       {/* E-commerce Card */}
-      <Card3D onClick={() => onOpenDemo('tech-nova')} intensity={12}>
+      <Card3D onClick={() => onOpenDemo('muraka-fashion')} intensity={12}>
       <div 
         className="relative bg-black rounded-3xl p-4 overflow-hidden cursor-pointer group transition-all duration-300"
-        onMouseEnter={() => preloadDemo('tech-nova')}
-        onTouchStart={() => preloadDemo('tech-nova')}
+        onMouseEnter={() => preloadDemo('muraka-fashion')}
+        onTouchStart={() => preloadDemo('muraka-fashion')}
         style={{
           backgroundImage: `radial-gradient(circle at 70% 30%, rgba(255, 179, 0, 0.08) 0%, transparent 60%)`
         }}

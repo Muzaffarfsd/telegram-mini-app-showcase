@@ -45,10 +45,6 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./RoyalStep')),
     preload: () => import('./RoyalStep')
   },
-  'restaurant': {
-    component: lazy(() => import('./Restaurant')),
-    preload: () => import('./Restaurant')
-  },
   'fitness': {
     component: lazy(() => import('./Fitness')),
     preload: () => import('./Fitness')
@@ -89,22 +85,6 @@ export const demoRegistry: Record<string, DemoComponent> = {
   // Aliases for compatibility with demoApps.ts IDs
   
   // Futuristic Fashion Collection (4 premium full stores)
-  'futuristic-fashion-1': {
-    component: lazy(() => import('./RascalStore')),
-    preload: () => import('./RascalStore')
-  },
-  'futuristic-fashion-2': {
-    component: lazy(() => import('./StoreBlack')),
-    preload: () => import('./StoreBlack')
-  },
-  'futuristic-fashion-3': {
-    component: lazy(() => import('./LabSurvivalist')),
-    preload: () => import('./LabSurvivalist')
-  },
-  'futuristic-fashion-4': {
-    component: lazy(() => import('./NikeACG')),
-    preload: () => import('./NikeACG')
-  },
   
   // Premium Design Collection - New Apps
   'oxyz-nft': {
@@ -123,10 +103,6 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./StreetwearStore')),
     preload: () => import('./StreetwearStore')
   },
-  'tech-nova': {
-    component: lazy(() => import('./TechStore')),
-    preload: () => import('./TechStore')
-  }
 };
 
 const preloadedSet = new Set<string>();

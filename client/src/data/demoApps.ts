@@ -139,17 +139,6 @@ export const demoApps: DemoApp[] = [
     badgeColor: 'bg-black',
   },
   {
-    id: 'tech-nova',
-    title: 'NOVA',
-    description: 'Магазин премиальной электроники: смартфоны, ноутбуки, планшеты',
-    category: 'Электронная коммерция',
-    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_171258_791a20a6-9c96-4e85-bec2-e4813052ec93_min.webp',
-    creator: 'WEB4TG',
-    likes: '14.2k',
-    badge: 'Новинка',
-    badgeColor: 'bg-black',
-  },
-  {
     id: 'streetwear-vanta',
     title: 'VANTA',
     description: 'Премиальный стритвир-бутик: кроссовки, куртки, худи',
@@ -171,91 +160,9 @@ export const demoApps: DemoApp[] = [
     badge: 'Новинка',
     badgeColor: 'bg-black',
   },
-  {
-    id: 'restaurant',
-    title: 'DeluxeDine',
-    description: 'Ресторан с доставкой',
-    category: 'Еда и рестораны',
-    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-    creator: 'WEB4TG',
-    likes: '8.9k',
-    badge: 'Мишлен',
-    badgeColor: 'bg-yellow-500',
-    home: {
-      hero: {
-        title: 'Добро пожаловать в DeluxeDine',
-        subtitle: 'Незабываемые вкусы высокой кухни',
-        image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-        bgClass: 'bg-gradient-to-r from-yellow-500 to-orange-600'
-      },
-      banners: [
-        {
-          title: 'Сезонное меню',
-          subtitle: 'Блюда от шеф-повара',
-          image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&auto=format,compress&q=80&dpr=2',
-          bgClass: 'bg-gradient-to-r from-emerald-500 to-teal-600'
-        },
-        {
-          title: 'Бесплатная доставка',
-          subtitle: 'При заказе от 2000₽',
-          bgClass: 'bg-gradient-to-r from-blue-500 to-indigo-600'
-        }
-      ],
-      services: [
-        { id: 'menu', title: 'Меню', priceText: 'Наши блюда', iconName: 'utensils' },
-        { id: 'reservations', title: 'Бронирование', priceText: 'Забронировать стол', iconName: 'calendar' },
-        { id: 'delivery', title: 'Доставка', priceText: 'Заказать на дом', iconName: 'truck' },
-        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
-      ]
-    }
-  },
   // НОВЫЕ E-COMMERCE ПРИЛОЖЕНИЯ
   
   // Futuristic Fashion Collection - 4 Premium Designs
-  {
-    id: 'futuristic-fashion-1',
-    title: 'Rascal®',
-    description: 'Футуристический магазин waterproof jacket',
-    category: 'Электронная коммерция',
-    image: '/attached_assets/stock_images/futuristic_techwear__e958e42c.jpg',
-    creator: 'WEB4TG',
-    likes: '24.1k',
-    badge: 'Футуристика',
-    badgeColor: 'bg-gradient-to-r from-green-600 to-emerald-700'
-  },
-  {
-    id: 'futuristic-fashion-2',
-    title: 'STORE',
-    description: 'Минималистичный черный магазин',
-    category: 'Электронная коммерция',
-    image: '/attached_assets/stock_images/cyberpunk_fashion_ho_8df162c4.jpg',
-    creator: 'WEB4TG',
-    likes: '22.8k',
-    badge: 'Минимализм',
-    badgeColor: 'bg-black'
-  },
-  {
-    id: 'futuristic-fashion-3',
-    title: 'lab. SURVIVALIST',
-    description: 'Черно-белый минималистичный магазин',
-    category: 'Электронная коммерция',
-    image: '/attached_assets/stock_images/futuristic_fashion_m_331bf630.jpg',
-    creator: 'WEB4TG',
-    likes: '26.5k',
-    badge: 'Премиум',
-    badgeColor: 'bg-gray-900'
-  },
-  {
-    id: 'futuristic-fashion-4',
-    title: 'Nike ACG',
-    description: 'Карточный дизайн с 3D эффектами',
-    category: 'Электронная коммерция',
-    image: '/attached_assets/stock_images/futuristic_fashion_m_4203db1e.jpg',
-    creator: 'WEB4TG',
-    likes: '28.3k',
-    badge: 'Интерактив',
-    badgeColor: 'bg-gradient-to-r from-gray-800 to-black'
-  },
   
   // Premium Lifestyle Collection
 ];

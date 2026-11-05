@@ -80,11 +80,6 @@ const CATEGORIES_RU = ['Все', 'E-Commerce', 'Финтех', 'Еда', 'Бук
 const CATEGORIES_EN = ['All', 'E-Commerce', 'Fintech', 'Food', 'Booking', 'AI', 'Crypto'];
 
 const APP_ICONS: Record<string, { emoji: string; grad: string }> = {
-  'restaurant':        { emoji: '🍽', grad: 'linear-gradient(135deg, #1a1408, #2a2010)' },
-  'futuristic-fashion-1': { emoji: '🔮', grad: 'linear-gradient(135deg, #120a1e, #1a1230)' },
-  'futuristic-fashion-2': { emoji: '🖤', grad: 'linear-gradient(135deg, #0a0a0a, #1a1a1a)' },
-  'futuristic-fashion-3': { emoji: '◻️', grad: 'linear-gradient(135deg, #121212, #1e1e1e)' },
-  'futuristic-fashion-4': { emoji: '💎', grad: 'linear-gradient(135deg, #0a0e1a, #141e30)' },
   'medical':           { emoji: '🏥', grad: 'linear-gradient(135deg, #0a1a1a, #0e2828)' },
 };
 const DEFAULT_ICON = { emoji: '📱', grad: 'linear-gradient(135deg, #111, #1a1a1a)' };
@@ -205,7 +200,6 @@ AppCard.displayName = 'AppCard';
 const verticalImageItems: VerticalImageItem[] = [
   { id: 2, src: "/attached_assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg", alt: "Nike Destiny — Sportswear" },
   { id: 3, src: "/attached_assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg", alt: "Nike Green — Sustainable" },
-  { id: 4, src: "/attached_assets/e81eb2add9c19398a4711b33670141ec_1763720062375.jpg", alt: "Rascal — Urban streetwear" },
   { id: 5, src: "/attached_assets/82a7adf27f8d0e1758ca0f797349db48_1763719506416.jpg", alt: "Studio Collection" },
 ];
 

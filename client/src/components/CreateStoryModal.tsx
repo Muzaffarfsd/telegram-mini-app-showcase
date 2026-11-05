@@ -28,9 +28,8 @@ type Category = {
 
 const DEMO_OPTIONS: DemoOption[] = [
   { id: 'muraka-fashion', title: { en: 'Fashion Store', ru: 'Магазин одежды' }, Icon: Store },
-  { id: 'tech-nova', title: { en: 'Electronics', ru: 'Электроника' }, Icon: Smartphone },
+  { id: 'apple-store', title: { en: 'Electronics', ru: 'Электроника' }, Icon: Smartphone },
   { id: 'lumi-studio', title: { en: 'Beauty Salon', ru: 'Салон красоты' }, Icon: Sparkles },
-  { id: 'restaurant', title: { en: 'Restaurant', ru: 'Ресторан' }, Icon: UtensilsCrossed },
   { id: 'fitness', title: { en: 'Fitness Club', ru: 'Фитнес клуб' }, Icon: Dumbbell },
   { id: 'real-estate', title: { en: 'Real Estate', ru: 'Недвижимость' }, Icon: Home },
   { id: 'travel', title: { en: 'Travel Agency', ru: 'Турагентство' }, Icon: Plane },

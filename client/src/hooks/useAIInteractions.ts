@@ -297,7 +297,7 @@ const VOICE_NAV_COMMANDS: Array<{
   patterns: RegExp[];
   path: string;
 }> = [
-  { patterns: [/демо\s*рестор/i, /restaurant\s*demo/i, /покажи.*рестор/i, /show.*restaurant/i], path: "/demos/restaurant/app" },
+  { patterns: [/демо\s*рестор/i, /restaurant\s*demo/i, /покажи.*рестор/i, /show.*restaurant/i], path: "/projects" },
   { patterns: [/демо\s*магаз/i, /shop\s*demo/i, /покажи.*магаз/i, /show.*shop/i], path: "/demos/shop/app" },
   { patterns: [/проект/i, /project/i, /портфолио/i, /portfolio/i], path: "/projects" },
   { patterns: [/конструктор/i, /constructor/i, /builder/i], path: "/constructor" },
