@@ -215,7 +215,7 @@ export function initTelegramPrefetch(): void {
     const connection = (navigator as { connection?: { effectiveType?: string; saveData?: boolean } }).connection;
     if (connection?.effectiveType === '4g' && !connection?.saveData) {
       setTimeout(() => {
-        const additionalDemos = ['restaurant', 'fitness', 'beauty'];
+        const additionalDemos = ['restaurant', 'fitness', 'lumi-studio'];
         additionalDemos.forEach(demoId => queueDemoPrefetch(demoId));
         processQueue();
       }, 3000);

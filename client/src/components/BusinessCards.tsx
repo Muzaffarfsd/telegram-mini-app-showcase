@@ -8,17 +8,17 @@ interface BusinessCardsProps {
 
 const businessApps = [
   {
-    id: "luxury-watches",
-    title: "CHRONOS Watch Store",
-    subtitle: "Премиум часы 2025",
-    description: "Роскошный магазин часов",
+    id: "apple-store",
+    title: "Apple Store",
+    subtitle: "Техника и аксессуары",
+    description: "Магазин техники",
     categories: ["PREMIUM", "NEW", "LUXURY"],
     icon: Smartphone,
-    stats: "2,453+ запущено",
+    stats: "Интерактивное демо",
     visual: "smartphone"
   },
   {
-    id: "electronics", 
+    id: "tech-nova",
     title: "Интернет-магазин под ключ",
     description: "Продажи с первого дня",
     categories: ["E-COMMERCE", "HOT"],
@@ -26,10 +26,10 @@ const businessApps = [
     visual: "cart"
   },
   {
-    id: "beauty",
-    title: "AI-помощник для бизнеса",
-    description: "24/7 автоматизация",
-    categories: ["AI", "AUTOMATION"],
+    id: "lumi-studio",
+    title: "LUMI — студия красоты",
+    description: "Услуги и запись онлайн",
+    categories: ["BEAUTY", "BOOKING"],
     icon: Code,
     visual: "gear"
   }
@@ -41,13 +41,13 @@ export default function BusinessCards({ onOpenDemo }: BusinessCardsProps) {
       {/* Main Large Card */}
       <Card3D 
         className="col-span-2"
-        onClick={() => onOpenDemo('luxury-watches')}
+        onClick={() => onOpenDemo('apple-store')}
         intensity={10}
       >
       <div 
         className="relative bg-black rounded-3xl p-6 overflow-hidden cursor-pointer group transition-all duration-300"
-        onMouseEnter={() => preloadDemo('luxury-watches')}
-        onTouchStart={() => preloadDemo('luxury-watches')}
+        onMouseEnter={() => preloadDemo('apple-store')}
+        onTouchStart={() => preloadDemo('apple-store')}
         style={{
           backgroundImage: `
             radial-gradient(circle at 20% 20%, rgba(77, 208, 225, 0.05) 0%, transparent 50%),
@@ -111,11 +111,11 @@ export default function BusinessCards({ onOpenDemo }: BusinessCardsProps) {
       </Card3D>
 
       {/* E-commerce Card */}
-      <Card3D onClick={() => onOpenDemo('electronics')} intensity={12}>
+      <Card3D onClick={() => onOpenDemo('tech-nova')} intensity={12}>
       <div 
         className="relative bg-black rounded-3xl p-4 overflow-hidden cursor-pointer group transition-all duration-300"
-        onMouseEnter={() => preloadDemo('electronics')}
-        onTouchStart={() => preloadDemo('electronics')}
+        onMouseEnter={() => preloadDemo('tech-nova')}
+        onTouchStart={() => preloadDemo('tech-nova')}
         style={{
           backgroundImage: `radial-gradient(circle at 70% 30%, rgba(255, 179, 0, 0.08) 0%, transparent 60%)`
         }}
@@ -155,11 +155,11 @@ export default function BusinessCards({ onOpenDemo }: BusinessCardsProps) {
       </Card3D>
 
       {/* Automation Card */}
-      <Card3D onClick={() => onOpenDemo('beauty')} intensity={12}>
+      <Card3D onClick={() => onOpenDemo('lumi-studio')} intensity={12}>
       <div 
         className="relative bg-black rounded-3xl p-4 overflow-hidden cursor-pointer group transition-all duration-300"
-        onMouseEnter={() => preloadDemo('beauty')}
-        onTouchStart={() => preloadDemo('beauty')}
+        onMouseEnter={() => preloadDemo('lumi-studio')}
+        onTouchStart={() => preloadDemo('lumi-studio')}
         style={{
           backgroundImage: `radial-gradient(circle at 30% 70%, rgba(239, 83, 80, 0.06) 0%, transparent 60%)`
         }}

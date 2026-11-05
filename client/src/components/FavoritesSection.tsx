@@ -40,7 +40,7 @@ export const FavoritesSection = memo(function FavoritesSection({
     await toggle(demoId);
   };
 
-  if (isLoading || favorites.length === 0) {
+  if (isLoading || favoriteDemos.length === 0) {
     return null;
   }
 
@@ -92,7 +92,7 @@ export const FavoritesSection = memo(function FavoritesSection({
                 className="text-[12px]"
                 style={{ color: 'rgba(167, 139, 250, 0.8)' }}
               >
-                {favorites.length} {getPluralApps(favorites.length)}
+                {favoriteDemos.length} {getPluralApps(favoriteDemos.length)}
               </p>
             </div>
           </div>

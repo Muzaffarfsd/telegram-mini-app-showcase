@@ -1,13 +1,7 @@
 # WEB4TG - Код 13 бизнес-приложений для анализа ИИ
 
 ## Список приложений (13 штук)
-1. **Radiance** (clothing-store) - Магазин одежды → StoreBlack.tsx
-2. **TechMart** (electronics) - Электроника → Electronics.tsx
-3. **GlowSpa** (beauty) - Салон красоты → Beauty.tsx
 4. **DeluxeDine** (restaurant) - Ресторан → Restaurant.tsx
-5. **TimeElite** (luxury-watches) - Элитные часы → TimeElite.tsx
-6. **SneakerVault** (sneaker-store) - Кроссовки → SneakerVault.tsx
-7. **FragranceRoyale** (luxury-perfume) - Парфюмерия → FragranceRoyale.tsx
 8. **Rascal®** (futuristic-fashion-1) - Футуристика → RascalStore.tsx
 9. **lab. SURVIVALIST** (futuristic-fashion-3) - Минимализм → LabSurvivalist.tsx
 10. **Nike ACG** (futuristic-fashion-4) - 3D карточки → NikeACG.tsx
@@ -1128,1618 +1122,6 @@ function StoreBlack({ activeTab }: StoreBlackProps) {
 export default memo(StoreBlack);
 ```
 
-### Electronics.tsx
-```tsx
-import { useState, useEffect, memo } from "react";
-import { m } from "framer-motion";
-import { 
-  Smartphone, 
-  Heart, 
-  Star, 
-  ShoppingCart, 
-  X,
-  Zap,
-  TrendingUp,
-  Monitor,
-  Headphones,
-  Camera,
-  Sparkles,
-  Package,
-  User,
-  Settings,
-  LogOut,
-  CreditCard,
-  MapPin,
-  ChevronLeft,
-  Cpu,
-  Battery,
-  Wifi,
-  Search,
-  Filter,
-  Menu
-} from "lucide-react";
-import { ConfirmDrawer } from "../ui/modern-drawer";
-import { Skeleton } from "../ui/skeleton";
-import { useFilter } from "@/hooks/useFilter";
-
-interface ElectronicsProps {
-  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
-}
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-}
-
-interface Order {
-  id: number;
-  items: CartItem[];
-  total: number;
-  date: string;
-  status: 'processing' | 'shipped' | 'delivered';
-}
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  oldPrice?: number;
-  image: string;
-  hoverImage: string;
-  description: string;
-  category: string;
-  brand: string;
-  inStock: number;
-  rating: number;
-  specs: string[];
-  isNew?: boolean;
-  isTrending?: boolean;
-}
-
-const products: Product[] = [
-  { 
-    id: 1, 
-    name: 'iPhone 15 Pro Max', 
-    price: 109900, 
-    oldPrice: 129900, 
-    image: 'https://images.unsplash.com/photo-1678652197950-37846b632180?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800&h=1200&fit=crop&q=90',
-    description: 'Флагманский смартфон Apple с чипом A17 Pro и титановым корпусом', 
-    category: 'Смартфоны', 
-    brand: 'Apple', 
-    inStock: 15, 
-    rating: 4.9, 
-    specs: ['6.7" Super Retina XDR', 'A17 Pro чип', '256GB накопитель', '48MP камера', 'Титановый корпус'], 
-    isNew: true, 
-    isTrending: true 
-  },
-  { 
-    id: 2, 
-    name: 'Samsung Galaxy S24 Ultra', 
-    price: 99900, 
-    oldPrice: 119900, 
-    image: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800&h=1200&fit=crop&q=90',
-    description: 'Премиальный Android-смартфон с S Pen и AI-функциями', 
-    category: 'Смартфоны', 
-    brand: 'Samsung', 
-    inStock: 12, 
-    rating: 4.8, 
-    specs: ['6.8" Dynamic AMOLED', 'Snapdragon 8 Gen 3', '512GB памяти', '200MP камера', 'S Pen в комплекте'], 
-    isNew: true, 
-    isTrending: true 
-  },
-  { 
-    id: 3, 
-    name: 'MacBook Pro 16"', 
-    price: 249900, 
-    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=800&h=1200&fit=crop&q=90',
-    description: 'Мощный ноутбук для профессионалов с чипом M3 Max', 
-    category: 'Ноутбуки', 
-    brand: 'Apple', 
-    inStock: 8, 
-    rating: 4.9, 
-    specs: ['16.2" Liquid Retina XDR', 'M3 Max чип', '32GB unified memory', '1TB SSD', '22 часа работы'], 
-    isTrending: true 
-  },
-  { 
-    id: 4, 
-    name: 'Dell XPS 15', 
-    price: 129900, 
-    image: 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=800&h=1200&fit=crop&q=90',
-    description: 'Компактный и производительный ультрабук для работы', 
-    category: 'Ноутбуки', 
-    brand: 'Dell', 
-    inStock: 10, 
-    rating: 4.7, 
-    specs: ['15.6" OLED 3.5K', 'Intel Core i7-13700H', '16GB DDR5', '512GB NVMe SSD', 'NVIDIA RTX 4050'] 
-  },
-  { 
-    id: 5, 
-    name: 'iPad Pro 12.9"', 
-    price: 109900, 
-    image: 'https://images.unsplash.com/photo-1585790050230-5dd28404f120?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&h=1200&fit=crop&q=90',
-    description: 'Профессиональный планшет с M2 чипом и поддержкой Apple Pencil', 
-    category: 'Планшеты', 
-    brand: 'Apple', 
-    inStock: 14, 
-    rating: 4.8, 
-    specs: ['12.9" Liquid Retina XDR', 'M2 чип', '128GB памяти', 'Apple Pencil (2-го поколения)', 'Face ID'], 
-    isNew: true 
-  },
-  { 
-    id: 6, 
-    name: 'Sony WH-1000XM5', 
-    price: 35900, 
-    image: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=1200&fit=crop&q=90',
-    description: 'Беспроводные наушники с лучшим шумоподавлением', 
-    category: 'Наушники', 
-    brand: 'Sony', 
-    inStock: 25, 
-    rating: 4.8, 
-    specs: ['30 часов работы', 'Bluetooth 5.2', 'HD шумоподавление', '8 микрофонов', 'Быстрая зарядка'], 
-    isTrending: true 
-  },
-  { 
-    id: 7, 
-    name: 'AirPods Pro 2', 
-    price: 24900, 
-    image: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=800&h=1200&fit=crop&q=90',
-    description: 'Беспроводные наушники Apple с адаптивным шумоподавлением', 
-    category: 'Наушники', 
-    brand: 'Apple', 
-    inStock: 30, 
-    rating: 4.7, 
-    specs: ['H2 чип', '6 часов работы', 'Пространственный звук', 'Адаптивное шумоподавление', 'MagSafe зарядка'] 
-  },
-  { 
-    id: 8, 
-    name: 'Sony Alpha A7 IV', 
-    price: 249900, 
-    image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&h=1200&fit=crop&q=90',
-    description: 'Профессиональная беззеркальная камера для фото и видео', 
-    category: 'Камеры', 
-    brand: 'Sony', 
-    inStock: 6, 
-    rating: 4.9, 
-    specs: ['33MP полнокадровая матрица', '4K 60p видео', '5-осевая стабилизация', '693 точки AF', '10fps серийная съёмка'] 
-  },
-];
-
-const categories = ['Все', 'Смартфоны', 'Ноутбуки', 'Планшеты', 'Наушники', 'Камеры'];
-const genderFilters = ['All', 'Popular', 'New', 'Sale'];
-
-export default memo(function Electronics({ activeTab }: ElectronicsProps) {
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('Все');
-  const [selectedFilter, setSelectedFilter] = useState('All');
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
-  const [showCheckoutSuccess, setShowCheckoutSuccess] = useState(false);
-  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
-
-  const { filteredItems, searchQuery, handleSearch } = useFilter({
-    items: products,
-    searchFields: ['name', 'description', 'category', 'brand'] as (keyof Product)[],
-  });
-
-  useEffect(() => {
-    if (activeTab !== 'catalog') {
-      setSelectedProduct(null);
-    }
-    if (activeTab !== 'home') {
-      setSelectedFilter('All');
-    }
-  }, [activeTab]);
-
-  const filteredProducts = filteredItems.filter(p => {
-    const categoryMatch = selectedCategory === 'Все' || p.category === selectedCategory;
-    
-    if (activeTab === 'home') {
-      const filterMatch = selectedFilter === 'All' || 
-                         (selectedFilter === 'New' && p.isNew) ||
-                         (selectedFilter === 'Popular' && p.isTrending) ||
-                         (selectedFilter === 'Sale' && p.oldPrice);
-      return categoryMatch && filterMatch;
-    }
-    
-    return categoryMatch;
-  });
-
-  const handleImageLoad = (productId: number) => {
-    setLoadedImages(prev => new Set(prev).add(productId));
-  };
-
-  const toggleFavorite = (productId: number) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(productId)) {
-      newFavorites.delete(productId);
-    } else {
-      newFavorites.add(productId);
-    }
-    setFavorites(newFavorites);
-  };
-
-  const openProduct = (product: Product) => {
-    setSelectedProduct(product);
-  };
-
-  const addToCart = () => {
-    if (!selectedProduct) return;
-    
-    const cartItem: CartItem = {
-      id: Date.now(),
-      name: selectedProduct.name,
-      price: selectedProduct.price,
-      quantity: 1,
-      image: selectedProduct.image
-    };
-    
-    setCartItems([...cartItems, cartItem]);
-    setSelectedProduct(null);
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ru-RU', {
-      style: 'currency',
-      currency: 'RUB',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
-  };
-
-  const handleCheckout = () => {
-    if (cartItems.length === 0) return;
-    
-    const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const newOrder: Order = {
-      id: Date.now(),
-      items: [...cartItems],
-      total: total,
-      date: new Date().toLocaleDateString('ru-RU'),
-      status: 'processing'
-    };
-    
-    setOrders([newOrder, ...orders]);
-    setCartItems([]);
-    setShowCheckoutSuccess(true);
-    setTimeout(() => setShowCheckoutSuccess(false), 3000);
-  };
-
-  // PRODUCT PAGE - УЛУЧШЕННАЯ
-  if (activeTab === 'catalog' && selectedProduct) {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
-        <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
-          <button 
-            onClick={() => setSelectedProduct(null)}
-            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/10"
-            data-testid="button-back"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleFavorite(selectedProduct.id);
-            }}
-            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/10"
-            data-testid={`button-favorite-${selectedProduct.id}`}
-          >
-            <Heart 
-              className={`w-5 h-5 ${favorites.has(selectedProduct.id) ? 'fill-white text-white' : 'text-white'}`}
-            />
-          </button>
-        </div>
-
-        <div className="relative h-[60vh] bg-gradient-to-br from-white/5 to-transparent">
-          <img
-            src={selectedProduct.hoverImage}
-            alt={selectedProduct.name}
-            className="w-full h-full object-contain p-8"
-            loading="lazy"
-          />
-        </div>
-
-        <div className="bg-white/5 backdrop-blur-xl rounded-t-3xl p-6 space-y-6 pb-32">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm text-[#00D4FF] font-semibold">{selectedProduct.brand}</span>
-              {selectedProduct.isNew && (
-                <span className="px-2 py-1 bg-[#00D4FF] text-black text-xs font-bold rounded-full">
-                  NEW
-                </span>
-              )}
-            </div>
-            <h2 className="text-2xl font-bold mb-3">{selectedProduct.name}</h2>
-            <div className="flex items-center gap-3 mb-4">
-              <p className="text-3xl font-bold">{formatPrice(selectedProduct.price)}</p>
-              {selectedProduct.oldPrice && (
-                <p className="text-xl text-white/50 line-through">{formatPrice(selectedProduct.oldPrice)}</p>
-              )}
-            </div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className={`w-4 h-4 ${i < Math.floor(selectedProduct.rating) ? 'fill-[#00D4FF] text-[#00D4FF]' : 'text-gray-600'}`} />
-                ))}
-              </div>
-              <span className="text-sm text-white/70">{selectedProduct.rating}</span>
-            </div>
-          </div>
-
-          <p className="text-sm text-white/70 leading-relaxed">{selectedProduct.description}</p>
-
-          <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-              <Cpu className="w-4 h-4 text-[#00D4FF]" />
-              Характеристики
-            </h3>
-            <div className="space-y-3">
-              {selectedProduct.specs.map((spec, idx) => (
-                <div key={idx} className="flex items-start gap-3 text-sm">
-                  <Zap className="w-4 h-4 text-[#00D4FF] mt-0.5 flex-shrink-0" />
-                  <span className="text-white/80">{spec}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 text-sm text-white/60">
-            <div className="flex items-center gap-1">
-              <Package className="w-4 h-4" />
-              <span>В наличии: {selectedProduct.inStock} шт</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Battery className="w-4 h-4" />
-              <span>Гарантия 1 год</span>
-            </div>
-          </div>
-
-          <ConfirmDrawer
-            trigger={
-              <button
-                className="w-full bg-[#00D4FF] text-black font-bold py-4 rounded-full hover:bg-[#00BFEB] transition-all flex items-center justify-center gap-2"
-                data-testid="button-buy-now"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                Добавить в корзину
-              </button>
-            }
-            title="Добавить в корзину?"
-            description={`${selectedProduct.name} — ${new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB', minimumFractionDigits: 0 }).format(selectedProduct.price)}`}
-            confirmText="Добавить"
-            cancelText="Отмена"
-            variant="default"
-            onConfirm={addToCart}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // HOME PAGE
-  if (activeTab === 'home') {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
-        <div className="p-6 pb-4">
-          <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <button aria-label="Меню" data-testid="button-view-menu">
-              <Menu className="w-6 h-6" />
-            </button>
-            <div className="flex items-center gap-3">
-              <button aria-label="Корзина" data-testid="button-view-cart">
-                <ShoppingCart className="w-6 h-6" />
-              </button>
-              <button aria-label="Избранное" data-testid="button-view-favorites">
-                <Heart className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <Zap className="w-6 h-6 text-[#00D4FF]" />
-            </div>
-            <h1 className="text-4xl font-black tracking-tight text-white">
-              TECH
-            </h1>
-            <h1 className="text-4xl font-black tracking-tight text-white">
-              STORE
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-4 mb-6">
-            <button 
-              className="p-2 bg-white rounded-full"
-              aria-label="Главная"
-              data-testid="button-view-home"
-            >
-              <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-              </svg>
-            </button>
-            {genderFilters.map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setSelectedFilter(filter)}
-                className={`text-sm font-medium transition-colors ${
-                  selectedFilter === filter
-                    ? 'text-white'
-                    : 'text-white/40'
-                }`}
-                data-testid={`button-filter-${filter.toLowerCase()}`}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 bg-white/5 rounded-full px-4 py-3 flex items-center gap-2 border border-white/10">
-              <Search className="w-5 h-5 text-white/50" />
-              <input
-                type="text"
-                placeholder="Поиск гаджетов..."
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                className="bg-transparent text-white placeholder:text-white/50 outline-none flex-1 text-sm"
-                data-testid="input-search"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden" style={{ height: '500px' }}>
-          <img
-            src="https://images.unsplash.com/photo-1678652197950-37846b632180?w=800&h=1000&fit=crop&q=90"
-            alt="Hero"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-          
-          <div className="absolute bottom-0 left-0 right-0 p-8">
-            <m.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <Cpu className="w-7 h-7 text-[#00D4FF]" />
-              </div>
-              <h2 className="text-5xl font-black tracking-tight leading-tight text-white">
-                НОВИНКИ
-              </h2>
-              <h2 className="text-5xl font-black mb-3 tracking-tight leading-tight text-white">
-                2025
-              </h2>
-              <p className="text-base text-white/70 mb-6 flex items-center gap-2" style={{ letterSpacing: '0.05em' }}>
-                <Wifi className="w-4 h-4 text-[#00D4FF]" />
-                Передовые технологии
-              </p>
-              <button 
-                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105 bg-[#00D4FF]"
-                data-testid="button-view-new"
-              >
-                Смотреть новинки
-              </button>
-            </m.div>
-          </div>
-        </div>
-
-        <div className="px-6 space-y-4">
-          {filteredProducts.slice(0, 3).map((product, idx) => (
-            <m.div
-              key={product.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              onClick={() => openProduct(product)}
-              className="relative cursor-pointer group rounded-3xl overflow-hidden"
-              style={{ height: idx === 0 ? '400px' : '320px' }}
-              data-testid={`featured-product-${product.id}`}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent">
-                {!loadedImages.has(product.id) && (
-                  <Skeleton className="w-full h-full absolute inset-0" />
-                )}
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${!loadedImages.has(product.id) ? 'opacity-0' : 'opacity-100'}`}
-                  loading="lazy"
-                  onLoad={() => handleImageLoad(product.id)}
-                />
-              </div>
-
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-
-              <div className="absolute top-4 left-4">
-                <div className="px-3 py-1 bg-black/50 backdrop-blur-md rounded-full border border-white/10">
-                  <span className="text-xs font-semibold text-white/90">
-                    {product.brand}
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleFavorite(product.id);
-                }}
-                aria-label="Избранное"
-                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/10"
-                data-testid={`button-favorite-${product.id}`}
-              >
-                <Heart 
-                  className={`w-5 h-5 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
-                />
-              </button>
-
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <div className="flex items-end justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold mb-2 leading-tight">
-                      {product.name}
-                    </h3>
-                    <p className="text-sm text-white/70 mb-4 flex items-center gap-1">
-                      <Cpu className="w-4 h-4 text-[#00D4FF]" />
-                      {product.category}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openProduct(product);
-                    }}
-                    aria-label="Добавить в корзину"
-                    className="w-14 h-14 rounded-full bg-[#00D4FF] flex items-center justify-center transition-all hover:scale-110"
-                    data-testid={`button-add-to-cart-${product.id}`}
-                  >
-                    <ShoppingCart className="w-6 h-6 text-black" />
-                  </button>
-                </div>
-
-                <div className="mt-3">
-                  <p className="text-lg font-bold text-white">{formatPrice(product.price)}</p>
-                </div>
-              </div>
-            </m.div>
-          ))}
-        </div>
-
-        <div className="h-8"></div>
-      </div>
-    );
-  }
-
-  // CATALOG PAGE
-  if (activeTab === 'catalog') {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <h1 className="text-2xl font-bold">Каталог</h1>
-            <div className="flex items-center gap-3">
-              <button className="p-2" aria-label="Поиск" data-testid="button-view-search">
-                <Search className="w-6 h-6" />
-              </button>
-              <button className="p-2" aria-label="Фильтр" data-testid="button-view-filter">
-                <Filter className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-[#00D4FF] text-black'
-                    : 'bg-white/10 text-white/70 hover:bg-white/15'
-                }`}
-                data-testid={`button-filter-${cat.toLowerCase()}`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            {filteredProducts.map((product, idx) => (
-              <m.div
-                key={product.id}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => openProduct(product)}
-                className={`relative cursor-pointer scroll-fade-in-delay-${Math.min((idx % 4) + 2, 5)}`}
-                data-testid={`product-card-${product.id}`}
-              >
-                <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white/5">
-                  {!loadedImages.has(product.id) && (
-                    <Skeleton className="w-full h-full absolute inset-0" />
-                  )}
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className={`w-full h-full object-cover transition-opacity ${!loadedImages.has(product.id) ? 'opacity-0' : 'opacity-100'}`}
-                    loading="lazy"
-                    onLoad={() => handleImageLoad(product.id)}
-                  />
-                  
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(product.id);
-                    }}
-                    aria-label="Избранное"
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
-                    data-testid={`button-favorite-catalog-${product.id}`}
-                  >
-                    <Heart 
-                      className={`w-4 h-4 ${favorites.has(product.id) ? 'fill-white text-white' : 'text-white'}`}
-                    />
-                  </button>
-
-                  {product.isNew && (
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-[#00D4FF] text-black text-xs font-bold rounded-full">
-                      NEW
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <p className="text-xs text-white/50 mb-1">{product.brand}</p>
-                  <p className="text-sm font-semibold mb-1 truncate">{product.name}</p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-base font-bold">{formatPrice(product.price)}</p>
-                    {product.oldPrice && (
-                      <p className="text-xs text-white/40 line-through">{formatPrice(product.oldPrice)}</p>
-                    )}
-                  </div>
-                </div>
-              </m.div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // CART PAGE
-  if (activeTab === 'cart') {
-    const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-6">Корзина</h1>
-
-          {cartItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <ShoppingCart className="w-20 h-20 text-white/20 mb-4" />
-              <p className="text-white/50 text-center">Ваша корзина пуста</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {cartItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4"
-                  data-testid={`cart-item-${item.id}`}
-                >
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-20 h-20 rounded-xl object-cover"
-                    loading="lazy"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-semibold mb-1">{item.name}</h3>
-                    <p className="text-lg font-bold">{formatPrice(item.price)}</p>
-                  </div>
-                  <button
-                    onClick={() => setCartItems(cartItems.filter(i => i.id !== item.id))}
-                    aria-label="Удалить"
-                    className="w-8 h-8"
-                    data-testid={`button-remove-${item.id}`}
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-              ))}
-
-              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[#0A0A0A] border-t border-white/10">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-lg font-semibold">Итого:</span>
-                  <span className="text-2xl font-bold">{formatPrice(total)}</span>
-                </div>
-                <ConfirmDrawer
-                  trigger={
-                    <button
-                      className="w-full bg-[#00D4FF] text-black font-bold py-4 rounded-full hover:bg-[#00BFEB] transition-all"
-                      data-testid="button-checkout"
-                    >
-                      Оформить заказ
-                    </button>
-                  }
-                  title="Оформить заказ?"
-                  description={`${cartItems.length} товаров на сумму ${formatPrice(total)}`}
-                  confirmText="Оформить"
-                  cancelText="Отмена"
-                  variant="default"
-                  onConfirm={handleCheckout}
-                />
-              </div>
-              {showCheckoutSuccess && (
-                <div className="fixed top-20 left-4 right-4 bg-[#00D4FF] text-black p-4 rounded-2xl text-center font-bold z-50 animate-pulse">
-                  Заказ успешно оформлен!
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // PROFILE PAGE
-  if (activeTab === 'profile') {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
-        <div className="p-6 bg-white/5 border-b border-white/10">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-[#00D4FF] rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-black" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold">Иван Петров</h2>
-              <p className="text-sm text-muted-foreground">+7 (999) 123-45-67</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
-              <p className="text-sm text-white/70 mb-1">Заказы</p>
-              <p className="text-2xl font-bold">{orders.length}</p>
-            </div>
-            <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
-              <p className="text-sm text-white/70 mb-1">Избранное</p>
-              <p className="text-2xl font-bold">{favorites.size}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-4 space-y-4">
-          <div className="scroll-fade-in">
-            <h3 className="text-lg font-bold mb-4">Мои заказы</h3>
-            {orders.length === 0 ? (
-              <div className="text-center py-8 text-white/50">
-                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>У вас пока нет заказов</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {orders.map((order) => (
-                  <div key={order.id} className="bg-white/10 rounded-xl p-4" data-testid={`order-${order.id}`}>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-white/70">Заказ #{order.id.toString().slice(-6)}</span>
-                      <span className="text-sm text-white/70">{order.date}</span>
-                    </div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-white/80">{order.items.length} товаров</span>
-                      <span className="font-bold">{formatPrice(order.total)}</span>
-                    </div>
-                    <div className="mt-2">
-                      <span className="text-xs px-2 py-1 bg-[#00D4FF]/20 text-[#00D4FF] rounded-full">
-                        {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-orders">
-            <div className="flex items-center gap-3">
-              <Package className="w-5 h-5 text-white/70" />
-              <span className="font-medium">История заказов</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
-
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-favorites">
-            <div className="flex items-center gap-3">
-              <Heart className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Избранное</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
-
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-addresses">
-            <div className="flex items-center gap-3">
-              <MapPin className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Адреса доставки</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
-
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-payment">
-            <div className="flex items-center gap-3">
-              <CreditCard className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Способы оплаты</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
-
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-settings">
-            <div className="flex items-center gap-3">
-              <Settings className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Настройки</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
-
-          <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-logout">
-            <div className="flex items-center gap-3">
-              <LogOut className="w-5 h-5 text-white/70" />
-              <span className="font-medium">Выход</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-          </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
-});
-```
-
-### Beauty.tsx
-```tsx
-import { useState, useEffect, memo } from "react";
-import { m } from "framer-motion";
-import { 
-  Heart, 
-  Star, 
-  X,
-  Sparkles,
-  Calendar,
-  Clock,
-  User,
-  Gift,
-  MapPin,
-  Phone,
-  Mail,
-  ChevronLeft,
-  Check,
-  Package,
-  Search,
-  Filter,
-  Menu
-} from "lucide-react";
-import { ConfirmDrawer } from "../ui/modern-drawer";
-import { Skeleton } from "../ui/skeleton";
-import { useFilter } from "@/hooks/useFilter";
-
-interface BeautyProps {
-  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
-}
-
-interface Booking {
-  id: number;
-  serviceName: string;
-  specialist: string;
-  date: string;
-  time: string;
-  price: number;
-  image: string;
-}
-
-interface Order {
-  id: number;
-  items: Booking[];
-  total: number;
-  date: string;
-  status: 'processing' | 'shipped' | 'delivered';
-}
-
-interface Service {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-  description: string;
-  category: string;
-  duration: string;
-  specialist: string;
-  rating: number;
-  isPopular?: boolean;
-  isNew?: boolean;
-}
-
-const services: Service[] = [
-  { id: 1, name: 'Классическая стрижка', price: 2500, image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=800&h=1200&fit=crop&q=90', description: 'Профессиональная стрижка с мытьем головы и укладкой от мастера салона', category: 'Парикмахерские', duration: '60 мин', specialist: 'Анна Смирнова', rating: 4.9, isPopular: true },
-  { id: 2, name: 'Окрашивание волос', price: 6500, image: 'https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=800&h=1200&fit=crop&q=90', description: 'Профессиональное окрашивание премиум красками Wella с уходом', category: 'Парикмахерские', duration: '180 мин', specialist: 'Елена Козлова', rating: 4.8, isPopular: true },
-  { id: 3, name: 'Балаяж', price: 8900, image: 'https://images.unsplash.com/photo-1522337094846-8a818192de1f?w=800&h=1200&fit=crop&q=90', description: 'Модное окрашивание балаяж с плавными переходами', category: 'Парикмахерские', duration: '240 мин', specialist: 'Мария Петрова', rating: 4.9, isNew: true, isPopular: true },
-  { id: 4, name: 'Маникюр + гель-лак', price: 1900, image: 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=800&h=1200&fit=crop&q=90', description: 'Маникюр с покрытием гель-лак и дизайном на выбор', category: 'Маникюр', duration: '90 мин', specialist: 'Ольга Иванова', rating: 4.8, isPopular: true },
-  { id: 5, name: 'Френч маникюр', price: 2200, image: 'https://images.unsplash.com/photo-1610992015732-2449b2604950?w=800&h=1200&fit=crop&q=90', description: 'Элегантный французский маникюр с укреплением ногтевой пластины', category: 'Маникюр', duration: '75 мин', specialist: 'Наталья Волкова', rating: 4.9 },
-  { id: 6, name: 'Дизайн ногтей', price: 3500, image: 'https://images.unsplash.com/photo-1604654894610-df63bc138bb9?w=800&h=1200&fit=crop&q=90', description: 'Художественный дизайн ногтей любой сложности', category: 'Маникюр', duration: '120 мин', specialist: 'Дарья Кузнецова', rating: 4.7 },
-  { id: 7, name: 'СПА педикюр', price: 3200, image: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?w=800&h=1200&fit=crop&q=90', description: 'Расслабляющий СПА педикюр с массажем стоп и уходом', category: 'Педикюр', duration: '100 мин', specialist: 'Светлана Белова', rating: 4.9, isPopular: true },
-  { id: 8, name: 'Аппаратный педикюр', price: 2800, image: 'https://images.unsplash.com/photo-1587662784763-0021b5f0b1b7?w=800&h=1200&fit=crop&q=90', description: 'Профессиональный аппаратный педикюр с покрытием', category: 'Педикюр', duration: '80 мин', specialist: 'Татьяна Морозова', rating: 4.8 },
-  { id: 9, name: 'Чистка лица', price: 4500, image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&h=1200&fit=crop&q=90', description: 'Глубокая чистка лица с увлажняющей маской и массажем', category: 'Косметология', duration: '90 мин', specialist: 'Юлия Титова', rating: 4.8, isPopular: true },
-  { id: 10, name: 'Химический пилинг', price: 5500, image: 'https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=800&h=1200&fit=crop&q=90', description: 'Профессиональный химический пилинг для обновления кожи', category: 'Косметология', duration: '60 мин', specialist: 'Анна Соколова', rating: 4.7 },
-  { id: 11, name: 'Массаж лица', price: 3200, image: 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800&h=1200&fit=crop&q=90', description: 'Антивозрастной массаж лица с серумами премиум класса', category: 'Косметология', duration: '45 мин', specialist: 'Валентина Крылова', rating: 4.6, isNew: true },
-  { id: 12, name: 'Ботокс для волос', price: 7500, image: 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?w=800&h=1200&fit=crop&q=90', description: 'Восстанавливающая процедура для гладкости и блеска волос', category: 'Парикмахерские', duration: '120 мин', specialist: 'Анна Смирнова', rating: 4.9, isNew: true },
-  { id: 13, name: 'Наращивание ресниц', price: 4900, image: 'https://images.unsplash.com/photo-1583001931096-959e90c3d930?w=800&h=1200&fit=crop&q=90', description: 'Классическое наращивание ресниц 2D-3D эффект', category: 'Косметология', duration: '150 мин', specialist: 'Ирина Павлова', rating: 4.8 },
-  { id: 14, name: 'Вечерняя укладка', price: 3800, image: 'https://images.unsplash.com/photo-1560869713-7d0a29430803?w=800&h=1200&fit=crop&q=90', description: 'Роскошная вечерняя укладка на любой случай', category: 'Парикмахерские', duration: '90 мин', specialist: 'Мария Петрова', rating: 4.7 },
-  { id: 15, name: 'Массаж тела', price: 6500, image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&h=1200&fit=crop&q=90', description: 'Расслабляющий массаж всего тела с ароматическими маслами', category: 'Массаж', duration: '60 мин', specialist: 'Ольга Смирнова', rating: 4.9, isPopular: true },
-  { id: 16, name: 'Антицеллюлитный массаж', price: 7200, image: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=800&h=1200&fit=crop&q=90', description: 'Эффективный массаж против целлюлита с разогревом', category: 'Массаж', duration: '75 мин', specialist: 'Марина Белова', rating: 4.6 },
-];
-
-const categories = ['Все', 'Парикмахерские', 'Маникюр', 'Педикюр', 'Косметология', 'Массаж'];
-
-// Featured collections for homepage
-const collections = [
-  {
-    id: 1,
-    title: 'Уход за волосами',
-    subtitle: 'Стрижка + окрашивание',
-    image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=1200&h=800&fit=crop&q=90',
-    gradient: 'from-pink-500/30 to-rose-500/30',
-    accentColor: '#EC4899',
-    services: [1, 2, 3]
-  },
-  {
-    id: 2,
-    title: 'Маникюр & Педикюр',
-    subtitle: 'Идеальные ногти',
-    image: 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=1200&h=800&fit=crop&q=90',
-    gradient: 'from-purple-500/30 to-pink-500/30',
-    accentColor: '#A855F7',
-    services: [4, 5, 6]
-  },
-  {
-    id: 3,
-    title: 'SPA & Релакс',
-    subtitle: 'Массаж и уход',
-    image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&h=800&fit=crop&q=90',
-    gradient: 'from-violet-500/30 to-purple-500/30',
-    accentColor: '#8B5CF6',
-    services: [15, 16]
-  },
-];
-
-export default memo(function Beauty({ activeTab }: BeautyProps) {
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('Все');
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
-  const [showCheckoutSuccess, setShowCheckoutSuccess] = useState(false);
-  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
-
-  const { filteredItems, searchQuery, handleSearch } = useFilter({
-    items: services,
-    searchFields: ['name', 'description', 'category', 'specialist'] as (keyof Service)[],
-  });
-
-  useEffect(() => {
-    if (activeTab !== 'catalog') {
-      setSelectedService(null);
-    }
-  }, [activeTab]);
-
-  const filteredServices = filteredItems.filter(s => 
-    selectedCategory === 'Все' || s.category === selectedCategory
-  );
-
-  const handleImageLoad = (serviceId: number) => {
-    setLoadedImages(prev => new Set(prev).add(serviceId));
-  };
-
-  const toggleFavorite = (serviceId: number) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(serviceId)) {
-      newFavorites.delete(serviceId);
-    } else {
-      newFavorites.add(serviceId);
-    }
-    setFavorites(newFavorites);
-  };
-
-  const openService = (service: Service) => {
-    setSelectedService(service);
-  };
-
-  const bookService = () => {
-    if (!selectedService) return;
-    
-    const booking: Booking = {
-      id: Date.now(),
-      serviceName: selectedService.name,
-      specialist: selectedService.specialist,
-      date: 'Уточняется',
-      time: 'Согласуем',
-      price: selectedService.price,
-      image: selectedService.image
-    };
-    
-    setBookings([...bookings, booking]);
-    setSelectedService(null);
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ru-RU', {
-      style: 'currency',
-      currency: 'RUB',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
-  };
-
-  const handleCheckout = () => {
-    if (bookings.length === 0) return;
-    
-    const total = bookings.reduce((sum, booking) => sum + booking.price, 0);
-    const newOrder: Order = {
-      id: Date.now(),
-      items: [...bookings],
-      total: total,
-      date: new Date().toLocaleDateString('ru-RU'),
-      status: 'processing'
-    };
-    
-    setOrders([newOrder, ...orders]);
-    setBookings([]);
-    setShowCheckoutSuccess(true);
-    setTimeout(() => setShowCheckoutSuccess(false), 3000);
-  };
-
-  // SERVICE DETAIL PAGE
-  if (activeTab === 'catalog' && selectedService) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24">
-        <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
-          <button 
-            onClick={() => setSelectedService(null)}
-            className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
-            data-testid="button-back"
-            aria-label="Назад"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleFavorite(selectedService.id);
-            }}
-            className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
-            data-testid={`button-favorite-${selectedService.id}`}
-            aria-label="Добавить в избранное"
-          >
-            <Heart 
-              className={`w-5 h-5 ${favorites.has(selectedService.id) ? 'fill-pink-400 text-pink-400' : 'text-white'}`}
-            />
-          </button>
-        </div>
-
-        <div className="relative h-[60vh] overflow-hidden">
-          <img
-            src={selectedService.image}
-            alt={selectedService.name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
-        </div>
-
-        <div className="bg-black/40 backdrop-blur-xl rounded-t-3xl -mt-8 relative z-10 p-6 space-y-6 pb-32">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm text-pink-300 font-semibold">{selectedService.category}</span>
-              {selectedService.isNew && (
-                <span className="px-2 py-1 bg-pink-500/20 text-pink-300 text-xs font-bold rounded-full flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" />
-                  NEW
-                </span>
-              )}
-              {selectedService.isPopular && (
-                <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs font-bold rounded-full">
-                  Популярно
-                </span>
-              )}
-            </div>
-            <h2 className="text-2xl font-bold mb-3">{selectedService.name}</h2>
-            <div className="flex items-center gap-3 mb-4">
-              <p className="text-3xl font-bold text-pink-400">{formatPrice(selectedService.price)}</p>
-            </div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className={`w-4 h-4 ${i < Math.floor(selectedService.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}`} />
-                ))}
-              </div>
-              <span className="text-sm text-white/70">{selectedService.rating}</span>
-            </div>
-          </div>
-
-          <p className="text-sm text-white/80 leading-relaxed">{selectedService.description}</p>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white/5 backdrop-blur-xl rounded-xl p-3 border border-white/10">
-              <Clock className="w-5 h-5 text-pink-400 mb-2" />
-              <p className="text-xs text-white/60">Длительность</p>
-              <p className="text-sm font-semibold">{selectedService.duration}</p>
-            </div>
-            <div className="bg-white/5 backdrop-blur-xl rounded-xl p-3 border border-white/10">
-              <User className="w-5 h-5 text-pink-400 mb-2" />
-              <p className="text-xs text-white/60">Мастер</p>
-              <p className="text-sm font-semibold">{selectedService.specialist}</p>
-            </div>
-          </div>
-
-          <button
-            onClick={bookService}
-            className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold py-4 rounded-xl hover:shadow-lg hover:shadow-pink-500/50 transition-all"
-            data-testid="button-book-now"
-          >
-            Записаться на процедуру
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // HOME PAGE - Liquid Glass 2025
-  if (activeTab === 'home') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24">
-        <div className="p-6 space-y-6">
-          
-          {/* Collections Grid - Liquid Glass Cards */}
-          <div className="space-y-4 pt-4">
-            {collections.map((collection, idx) => (
-              <m.div
-                key={collection.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="relative group cursor-pointer overflow-hidden rounded-3xl"
-                style={{ height: idx === 0 ? '280px' : '180px' }}
-                data-testid={`collection-${collection.id}`}
-              >
-                {/* Background Image */}
-                <img
-                  src={collection.image}
-                  alt={collection.title}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
-                />
-                
-                {/* Gradient Overlay */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${collection.gradient} opacity-70`}></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
-                
-                {/* Liquid Glass Effect */}
-                <div className="absolute inset-0 bg-white/5 backdrop-blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                
-                {/* Glow on Hover */}
-                <div 
-                  className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-2xl"
-                  style={{ backgroundColor: collection.accentColor }}
-                ></div>
-                
-                {/* Content */}
-                <div className="absolute inset-0 p-6 flex flex-col justify-end">
-                  <div className="space-y-2">
-                    {idx === 0 && (
-                      <div className="flex items-center gap-2 mb-2">
-                        <Sparkles className="w-5 h-5" style={{ color: collection.accentColor }} />
-                        <span 
-                          className="text-xs font-semibold uppercase tracking-wider"
-                          style={{ color: collection.accentColor }}
-                        >
-                          Популярные услуги
-                        </span>
-                      </div>
-                    )}
-                    <h3 className="text-3xl font-bold leading-tight">{collection.title}</h3>
-                    <p className="text-sm text-white/80">{collection.subtitle}</p>
-                  </div>
-                </div>
-              </m.div>
-            ))}
-          </div>
-
-          {/* Popular Services */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-pink-400" />
-                <h3 className="text-xl font-bold">Популярное</h3>
-              </div>
-              <button className="text-sm text-white/60 hover:text-white transition-colors" data-testid="button-view-all-popular">
-                Все
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {services.filter(s => s.isPopular).slice(0, 4).map((service, idx) => (
-                <m.div
-                  key={service.id}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => openService(service)}
-                  className="relative cursor-pointer group"
-                  data-testid={`popular-service-${service.id}`}
-                >
-                  {/* Glass Card */}
-                  <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10">
-                    <img
-                      src={service.image}
-                      alt={service.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      loading="lazy"
-                    />
-                    
-                    {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    
-                    {/* Badges */}
-                    <div className="absolute top-2 left-2 flex gap-2">
-                      {service.isNew && (
-                        <div className="px-2 py-1 bg-pink-500/90 text-white text-xs font-bold rounded-full flex items-center gap-1 backdrop-blur-xl">
-                          <Sparkles className="w-3 h-3" />
-                          NEW
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Favorite */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleFavorite(service.id);
-                      }}
-                      className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
-                      data-testid={`button-favorite-${service.id}`}
-                      aria-label="Добавить в избранное"
-                    >
-                      <Heart 
-                        className={`w-4 h-4 ${favorites.has(service.id) ? 'fill-pink-400 text-pink-400' : 'text-white'}`}
-                      />
-                    </button>
-                  </div>
-
-                  {/* Service Info */}
-                  <div className="mt-2">
-                    <p className="text-xs text-pink-300 mb-1">{service.category}</p>
-                    <p className="text-sm font-medium text-white/90 truncate">{service.name}</p>
-                    <div className="flex items-center justify-between mt-1">
-                      <p className="text-base font-bold text-pink-400">{formatPrice(service.price)}</p>
-                      <p className="text-xs text-white/40">{service.duration}</p>
-                    </div>
-                  </div>
-                </m.div>
-              ))}
-            </div>
-          </div>
-
-          <div className="h-4"></div>
-        </div>
-      </div>
-    );
-  }
-
-  // CATALOG PAGE
-  if (activeTab === 'catalog') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24">
-        <div className="p-6 pb-4">
-          <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <h1 className="text-xl font-bold">Услуги</h1>
-            <Sparkles className="w-6 h-6 text-pink-400" />
-          </div>
-
-          {/* Search */}
-          <div className="relative mb-4">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
-            <input
-              type="text"
-              placeholder="Поиск услуг..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-xl border border-white/10 rounded-xl text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-pink-500/50"
-              data-testid="input-search"
-              aria-label="Поиск услуг"
-            />
-          </div>
-
-          {/* Hero Banner */}
-          <div className="relative h-48 rounded-2xl overflow-hidden mb-6">
-            <img
-              src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80"
-              alt="Banner"
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-            <div className="absolute bottom-4 left-4">
-              <h2 className="text-3xl font-bold tracking-tight text-pink-300 mb-1">
-                Весенние<br/>Спецпредложения
-              </h2>
-              <p className="text-sm text-white/80">Скидки до 30%</p>
-            </div>
-          </div>
-
-          {/* Categories */}
-          <div className="flex gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white'
-                    : 'bg-white/10 text-white/70 hover:bg-white/20 backdrop-blur-xl'
-                }`}
-                data-testid={`button-filter-${cat.toLowerCase()}`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Services Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            {filteredServices.map((service, idx) => (
-              <m.div
-                key={service.id}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => openService(service)}
-                className="relative cursor-pointer"
-                data-testid={`service-card-${service.id}`}
-              >
-                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-2 bg-white/5 backdrop-blur-xl border border-white/10">
-                  {!loadedImages.has(service.id) && (
-                    <Skeleton className="absolute inset-0 rounded-2xl bg-white/10" />
-                  )}
-                  <img
-                    src={service.image}
-                    alt={service.name}
-                    className={`w-full h-full object-cover transition-opacity duration-300 ${loadedImages.has(service.id) ? 'opacity-100' : 'opacity-0'}`}
-                    loading="lazy"
-                    onLoad={() => handleImageLoad(service.id)}
-                  />
-                  
-                  {service.isNew && (
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-pink-500/90 text-white text-xs font-bold rounded-full backdrop-blur-xl">
-                      NEW
-                    </div>
-                  )}
-                  
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(service.id);
-                    }}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center hover:bg-white/10 transition-all"
-                    data-testid={`button-favorite-${service.id}`}
-                    aria-label="Добавить в избранное"
-                  >
-                    <Heart 
-                      className={`w-4 h-4 ${favorites.has(service.id) ? 'fill-pink-400 text-pink-400' : 'text-white'}`}
-                    />
-                  </button>
-                </div>
-
-                <div>
-                  <p className="text-xs text-pink-300 mb-1">{service.category}</p>
-                  <p className="text-sm font-medium text-white/90 truncate mb-1">{service.name}</p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-base font-bold text-pink-400">{formatPrice(service.price)}</p>
-                    <p className="text-xs text-white/40">{service.duration}</p>
-                  </div>
-                </div>
-              </m.div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // CART (BOOKINGS) PAGE
-  if (activeTab === 'cart') {
-    const total = bookings.reduce((sum, booking) => sum + booking.price, 0);
-
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-32">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-6">Мои записи</h1>
-
-          {bookings.length === 0 ? (
-            <div className="text-center py-20">
-              <Calendar className="w-16 h-16 mx-auto mb-4 text-white/20" />
-              <p className="text-white/60 mb-4">У вас пока нет записей</p>
-            </div>
-          ) : (
-            <>
-              <div className="space-y-4 mb-24">
-                {bookings.map((booking) => (
-                  <div key={booking.id} className="flex gap-4 bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
-                    <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
-                      <img
-                        src={booking.image}
-                        alt={booking.serviceName}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold mb-1">{booking.serviceName}</h3>
-                      <p className="text-sm text-white/60 mb-1">{booking.specialist}</p>
-                      <p className="text-xs text-white/50 mb-2">{booking.date} • {booking.time}</p>
-                      <p className="font-bold text-pink-400">{formatPrice(booking.price)}</p>
-                    </div>
-                    <button
-                      onClick={() => setBookings(bookings.filter(b => b.id !== booking.id))}
-                      className="p-2 h-fit hover:bg-white/10 rounded-lg transition-colors"
-                      data-testid={`button-cancel-${booking.id}`}
-                      aria-label="Отменить запись"
-                    >
-                      <X className="w-5 h-5 text-white/40" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              <div className="fixed bottom-24 left-0 right-0 bg-black/60 backdrop-blur-xl border-t border-white/10 p-6">
-                <div className="max-w-md mx-auto">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-lg">Итого:</span>
-                    <span className="text-2xl font-bold text-pink-400">{formatPrice(total)}</span>
-                  </div>
-                  <ConfirmDrawer
-                    trigger={
-                      <button
-                        className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold py-4 rounded-xl hover:shadow-lg hover:shadow-pink-500/50 transition-all"
-                        data-testid="button-checkout"
-                      >
-                        Подтвердить записи
-                      </button>
-                    }
-                    title="Подтвердить записи?"
-                    description={`${bookings.length} услуг на сумму ${formatPrice(total)}`}
-                    confirmText="Подтвердить"
-                    cancelText="Отмена"
-                    variant="default"
-                    onConfirm={handleCheckout}
-                  />
-                </div>
-              </div>
-              {showCheckoutSuccess && (
-                <div className="fixed top-20 left-4 right-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white p-4 rounded-2xl text-center font-bold z-50 animate-pulse">
-                  Записи успешно подтверждены!
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // PROFILE PAGE
-  if (activeTab === 'profile') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-950 text-white overflow-auto pb-24">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-2xl font-bold">Профиль</h1>
-          </div>
-
-          <div className="text-center mb-8">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 mx-auto mb-4 flex items-center justify-center">
-              <User className="w-12 h-12 text-white" />
-            </div>
-            <h2 className="text-xl font-bold mb-1">Анна Иванова</h2>
-            <p className="text-sm text-white/60">anna.ivanova@example.com</p>
-          </div>
-
-          <div className="grid grid-cols-3 gap-4 mb-8">
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 text-center border border-white/10">
-              <Calendar className="w-6 h-6 mx-auto mb-2 text-pink-400" />
-              <p className="text-2xl font-bold mb-1">{orders.length}</p>
-              <p className="text-xs text-white/60">Заказов</p>
-            </div>
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 text-center border border-white/10">
-              <Heart className="w-6 h-6 mx-auto mb-2 text-pink-400" />
-              <p className="text-2xl font-bold mb-1">{favorites.size}</p>
-              <p className="text-xs text-white/60">Избранное</p>
-            </div>
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 text-center border border-white/10">
-              <Gift className="w-6 h-6 mx-auto mb-2 text-pink-400" />
-              <p className="text-2xl font-bold mb-1">350</p>
-              <p className="text-xs text-white/60">Бонусов</p>
-            </div>
-          </div>
-
-          <div className="scroll-fade-in mb-6">
-            <h3 className="text-lg font-bold mb-4">Мои заказы</h3>
-            {orders.length === 0 ? (
-              <div className="text-center py-8 text-white/50">
-                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>У вас пока нет заказов</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {orders.map((order) => (
-                  <div key={order.id} className="bg-white/10 rounded-xl p-4" data-testid={`order-${order.id}`}>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm text-white/70">Заказ #{order.id.toString().slice(-6)}</span>
-                      <span className="text-sm text-white/70">{order.date}</span>
-                    </div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-white/80">{order.items.length} услуг</span>
-                      <span className="font-bold text-pink-400">{formatPrice(order.total)}</span>
-                    </div>
-                    <div className="mt-2">
-                      <span className="text-xs px-2 py-1 bg-pink-500/20 text-pink-400 rounded-full">
-                        {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Выполняется' : 'Завершено'}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <button className="w-full flex items-center gap-4 bg-white/5 backdrop-blur-xl rounded-2xl p-4 hover:bg-white/10 transition-all border border-white/10" data-testid="button-my-bookings">
-              <Package className="w-5 h-5 text-pink-400" />
-              <span className="flex-1 text-left font-medium">История заказов</span>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/40" />
-            </button>
-
-            <button className="w-full flex items-center gap-4 bg-white/5 backdrop-blur-xl rounded-2xl p-4 hover:bg-white/10 transition-all border border-white/10" data-testid="button-loyalty">
-              <Gift className="w-5 h-5 text-pink-400" />
-              <span className="flex-1 text-left font-medium">Программа лояльности</span>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/40" />
-            </button>
-
-            <button className="w-full flex items-center gap-4 bg-white/5 backdrop-blur-xl rounded-2xl p-4 hover:bg-white/10 transition-all border border-white/10" data-testid="button-contacts">
-              <Phone className="w-5 h-5 text-pink-400" />
-              <span className="flex-1 text-left font-medium">Контакты</span>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/40" />
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
-});
-```
-
 ### Restaurant.tsx
 ```tsx
 import { useState, useEffect, memo } from "react";
@@ -3448,2405 +1830,6 @@ export default memo(function Restaurant({ activeTab }: RestaurantProps) {
 
   return null;
 });
-```
-
-### TimeElite.tsx
-```tsx
-import { useState } from "react";
-import { 
-  Heart, 
-  Star, 
-  X, 
-  Watch,
-  Award,
-  TrendingUp,
-  Package,
-  User,
-  CreditCard,
-  MapPin,
-  Settings,
-  LogOut,
-  ChevronLeft,
-  Search
-} from "lucide-react";
-import { OptimizedImage } from "../OptimizedImage";
-import { useImagePreloader } from "../../hooks/useImagePreloader";
-import { ConfirmDrawer } from "../ui/modern-drawer";
-import { useFilter } from "@/hooks/useFilter";
-import { Skeleton } from "@/components/ui/skeleton";
-
-interface TimeEliteProps {
-  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
-}
-
-interface CartItem {
-  id: number;
-  name: string;
-  brand: string;
-  price: number;
-  image: string;
-  quantity: number;
-}
-
-interface Order {
-  id: number;
-  items: CartItem[];
-  total: number;
-  date: string;
-  status: 'processing' | 'shipped' | 'delivered';
-}
-
-const products = [
-  { id: 1, name: 'Rolex Submariner', brand: 'Rolex', price: 1125000, image: 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format,compress&fm=webp&q=75&w=400', description: 'Легендарные дайверские часы с водонепроницаемостью 300м', category: 'Rolex', inStock: 3, rating: 4.9, movement: 'Автоматический', waterResistance: '300м', material: 'Сталь 904L', diameter: '40мм' },
-  { id: 2, name: 'Patek Philippe Calatrava', brand: 'Patek Philippe', price: 2565000, image: 'https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format,compress&fm=webp&q=75&w=400', description: 'Элегантные часы с вечным дизайном и филигранной отделкой', category: 'Patek', inStock: 2, rating: 4.95, movement: 'Механический', waterResistance: '30м', material: 'Белое золото', diameter: '39мм' },
-  { id: 3, name: 'Omega Speedmaster', brand: 'Omega', price: 585000, image: 'https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format,compress&fm=webp&q=75&w=400', description: 'Легендарные часы астронавтов, первые на Луне', category: 'Omega', inStock: 5, rating: 4.8, movement: 'Механический', waterResistance: '50м', material: 'Сталь', diameter: '42мм' },
-  { id: 4, name: 'Cartier Santos', brand: 'Cartier', price: 765000, image: 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format,compress&fm=webp&q=75&w=400', description: 'Первые наручные часы в истории с квадратным корпусом', category: 'Cartier', inStock: 4, rating: 4.7, movement: 'Автоматический', waterResistance: '100м', material: 'Сталь', diameter: '39.8мм' },
-  { id: 5, name: 'Audemars Piguet Royal Oak', brand: 'Audemars Piguet', price: 3150000, image: 'https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format,compress&fm=webp&q=75&w=400', description: 'Икона часового дизайна с восьмиугольным безелем', category: 'Люкс', inStock: 2, rating: 4.92, movement: 'Автоматический', waterResistance: '50м', material: 'Сталь', diameter: '41мм' },
-  { id: 6, name: 'Rolex Datejust', brand: 'Rolex', price: 882000, image: 'https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format,compress&fm=webp&q=75&w=400', description: 'Классические часы с датой и циклопом', category: 'Rolex', inStock: 6, rating: 4.85, movement: 'Автоматический', waterResistance: '100м', material: 'Сталь и золото', diameter: '41мм' },
-  { id: 7, name: 'Jaeger-LeCoultre Reverso', brand: 'Jaeger-LeCoultre', price: 1620000, image: 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format,compress&fm=webp&q=75&w=400', description: 'Уникальный переворачивающийся корпус Art Deco', category: 'Люкс', inStock: 3, rating: 4.85, movement: 'Механический', waterResistance: '30м', material: 'Розовое золото', diameter: '26мм x 42мм' },
-  { id: 8, name: 'Vacheron Constantin Patrimony', brand: 'Vacheron Constantin', price: 2880000, image: 'https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format,compress&fm=webp&q=75&w=400', description: 'Воплощение утонченности и классического стиля', category: 'Люкс', inStock: 1, rating: 4.9, movement: 'Механический', waterResistance: '30м', material: 'Розовое золото', diameter: '40мм' },
-  { id: 9, name: 'Omega Seamaster', brand: 'Omega', price: 468000, image: 'https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format,compress&fm=webp&q=75&w=400', description: 'Дайверские часы Джеймса Бонда', category: 'Omega', inStock: 7, rating: 4.75, movement: 'Автоматический', waterResistance: '300м', material: 'Сталь', diameter: '42мм' },
-  { id: 10, name: 'Cartier Tank', brand: 'Cartier', price: 648000, image: 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format,compress&fm=webp&q=75&w=400', description: 'Прямоугольные часы, вдохновленные танком', category: 'Cartier', inStock: 5, rating: 4.8, movement: 'Кварцевый', waterResistance: '30м', material: 'Желтое золото', diameter: '29.5 x 22мм' },
-  { id: 11, name: 'Rolex GMT-Master II', brand: 'Rolex', price: 1278000, image: 'https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format,compress&fm=webp&q=75&w=400', description: 'Часы для путешественников с двумя часовыми поясами', category: 'Rolex', inStock: 4, rating: 4.88, movement: 'Автоматический', waterResistance: '100м', material: 'Сталь и золото', diameter: '40мм' },
-  { id: 12, name: 'Patek Philippe Nautilus', brand: 'Patek Philippe', price: 3780000, image: 'https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format,compress&fm=webp&q=75&w=400', description: 'Спортивно-элегантные часы с иллюминаторным дизайном', category: 'Patek', inStock: 1, rating: 4.98, movement: 'Автоматический', waterResistance: '120м', material: 'Сталь', diameter: '40мм' },
-  { id: 13, name: 'A. Lange & Söhne Lange 1', brand: 'A. Lange & Söhne', price: 3420000, image: 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format,compress&fm=webp&q=75&w=400', description: 'Немецкое часовое совершенство с большой датой', category: 'Люкс', inStock: 2, rating: 4.95, movement: 'Механический', waterResistance: '30м', material: 'Розовое золото', diameter: '38.5мм' },
-  { id: 14, name: 'Omega Constellation', brand: 'Omega', price: 432000, image: 'https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format,compress&fm=webp&q=75&w=400', description: 'Элегантные часы со звездным символом', category: 'Omega', inStock: 8, rating: 4.65, movement: 'Автоматический', waterResistance: '50м', material: 'Сталь и золото', diameter: '38мм' },
-  { id: 15, name: 'Cartier Ballon Bleu', brand: 'Cartier', price: 855000, image: 'https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format,compress&fm=webp&q=75&w=400', description: 'Часы с сапфировой короной и выпуклым стеклом', category: 'Cartier', inStock: 6, rating: 4.72, movement: 'Автоматический', waterResistance: '30м', material: 'Сталь', diameter: '42мм' },
-  { id: 16, name: 'Rolex Daytona', brand: 'Rolex', price: 1665000, image: 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format,compress&fm=webp&q=75&w=400', description: 'Хронограф для гоночных трасс', category: 'Rolex', inStock: 2, rating: 4.93, movement: 'Автоматический', waterResistance: '100м', material: 'Сталь', diameter: '40мм' },
-  { id: 17, name: 'Patek Philippe Aquanaut', brand: 'Patek Philippe', price: 2250000, image: 'https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format,compress&fm=webp&q=75&w=400', description: 'Спортивно-шикарные часы с каучуковым ремешком', category: 'Patek', inStock: 3, rating: 4.87, movement: 'Автоматический', waterResistance: '120м', material: 'Сталь', diameter: '40мм' },
-  { id: 18, name: 'Zenith El Primero', brand: 'Zenith', price: 648000, image: 'https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format,compress&fm=webp&q=75&w=400', description: 'Первый автоматический хронограф высокой частоты', category: 'Хронографы', inStock: 5, rating: 4.8, movement: 'Автоматический', waterResistance: '100м', material: 'Сталь', diameter: '42мм' },
-  { id: 19, name: 'Tudor Black Bay', brand: 'Tudor', price: 315000, image: 'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format,compress&fm=webp&q=75&w=400', description: 'Винтажно-вдохновленные дайверские часы', category: 'Спорт', inStock: 10, rating: 4.6, movement: 'Автоматический', waterResistance: '200м', material: 'Сталь', diameter: '41мм' },
-  { id: 20, name: 'IWC Pilot\'s Watch', brand: 'IWC', price: 378000, image: 'https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format,compress&fm=webp&q=75&w=400', description: 'Классические часы пилотов с большой заводной головкой', category: 'Авиация', inStock: 6, rating: 4.6, movement: 'Автоматический', waterResistance: '60м', material: 'Сталь', diameter: '43мм' }
-];
-
-const categories = ['Все', 'Rolex', 'Omega', 'Cartier', 'Patek', 'Люкс', 'Спорт'];
-
-export default function TimeElite({ activeTab }: TimeEliteProps) {
-  const [selectedProduct, setSelectedProduct] = useState<typeof products[0] | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('Все');
-  const [favorites, setFavorites] = useState<number[]>([1, 4, 11]);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
-
-  const { filteredItems, searchQuery, handleSearch } = useFilter({
-    items: products,
-    searchFields: ['name', 'description', 'category', 'brand'],
-  });
-
-  const handleImageLoad = (id: number) => {
-    setLoadedImages(prev => new Set([...Array.from(prev), id]));
-  };
-
-  useImagePreloader({
-    images: products.slice(0, 6).map(p => p.image),
-    priority: true
-  });
-
-  const openProductModal = (product: typeof products[0]) => {
-    setSelectedProduct(product);
-    setIsModalOpen(true);
-  };
-
-  const closeProductModal = () => {
-    setIsModalOpen(false);
-    setTimeout(() => setSelectedProduct(null), 300);
-  };
-
-  const toggleFavorite = (productId: number) => {
-    setFavorites(prev => 
-      prev.includes(productId) 
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    );
-  };
-
-  const addToCart = (product: typeof products[0]) => {
-    const cartItem: CartItem = {
-      id: Date.now(),
-      name: product.name,
-      brand: product.brand,
-      price: product.price,
-      image: product.image,
-      quantity: 1
-    };
-    setCart([...cart, cartItem]);
-    closeProductModal();
-  };
-
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-  const handleCheckout = () => {
-    if (cart.length === 0) return;
-    
-    const newOrder: Order = {
-      id: Date.now(),
-      items: [...cart],
-      total: cartTotal,
-      date: new Date().toLocaleDateString('ru-RU'),
-      status: 'processing'
-    };
-    
-    setOrders([newOrder, ...orders]);
-    setCart([]);
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ru-RU', {
-      style: 'currency',
-      currency: 'RUB',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
-  };
-
-  const filteredProducts = selectedCategory === 'Все' 
-    ? (searchQuery ? filteredItems : products)
-    : (searchQuery ? filteredItems : products).filter(p => p.category === selectedCategory);
-
-  const renderHomeTab = () => (
-    <div className="min-h-screen bg-white font-montserrat pb-24">
-      <div className="max-w-md mx-auto px-4 py-8 space-y-8">
-        <div className="text-center space-y-4 scroll-fade-in">
-          <div className="w-20 h-20 bg-gradient-to-br from-yellow-600 to-amber-700 rounded-3xl mx-auto flex items-center justify-center shadow-lg">
-            <Watch className="w-10 h-10 text-white" strokeWidth={2} />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">TimeElite</h1>
-            <p className="text-sm text-gray-500">Коллекция премиум часов</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 scroll-fade-in">
-          <div className="flex-1 bg-gray-100 rounded-full px-4 py-3 flex items-center gap-2">
-            <Search className="w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              placeholder="Поиск часов..."
-              className="bg-transparent text-gray-900 placeholder:text-gray-400 outline-none flex-1 text-sm"
-              data-testid="input-search"
-            />
-          </div>
-        </div>
-
-        <div className="relative bg-gradient-to-br from-yellow-600 to-amber-700 rounded-3xl p-8 text-white overflow-hidden scroll-fade-in">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-          <div className="relative z-10">
-            <h2 className="text-2xl font-bold mb-3">Swiss Luxury 2025</h2>
-            <p className="text-white/90 mb-4">Эксклюзивные модели от ведущих мануфактур</p>
-            <button 
-              onClick={() => setSelectedCategory('Rolex')}
-              className="px-6 py-3 bg-white text-amber-700 rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
-              data-testid="button-view-collection"
-            >
-              Смотреть коллекцию
-            </button>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="flex items-center justify-between scroll-fade-in">
-            <h2 className="text-2xl font-bold text-gray-900">Бренды</h2>
-            <TrendingUp className="w-5 h-5 text-yellow-600" />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div 
-              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer scroll-fade-in"
-              onClick={() => setSelectedCategory('Rolex')}
-              data-testid="button-filter-rolex"
-            >
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                <Award className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-center font-semibold text-gray-900 mb-1">Rolex</h3>
-              <p className="text-center text-sm text-gray-500">18 моделей</p>
-            </div>
-
-            <div 
-              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer scroll-fade-in"
-              onClick={() => setSelectedCategory('Omega')}
-              data-testid="button-filter-omega"
-            >
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                <Star className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-center font-semibold text-gray-900 mb-1">Omega</h3>
-              <p className="text-center text-sm text-gray-500">12 моделей</p>
-            </div>
-
-            <div 
-              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer scroll-fade-in"
-              onClick={() => setSelectedCategory('Cartier')}
-              data-testid="button-filter-cartier"
-            >
-              <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                <Heart className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-center font-semibold text-gray-900 mb-1">Cartier</h3>
-              <p className="text-center text-sm text-gray-500">8 моделей</p>
-            </div>
-
-            <div 
-              className="group bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 cursor-pointer scroll-fade-in"
-              onClick={() => setSelectedCategory('Patek')}
-              data-testid="button-filter-patek"
-            >
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                <Watch className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-center font-semibold text-gray-900 mb-1">Patek Philippe</h3>
-              <p className="text-center text-sm text-gray-500">6 моделей</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-gray-900 scroll-fade-in">Популярное</h2>
-          <div className="grid grid-cols-2 gap-4">
-            {filteredProducts.slice(0, 6).map((product, index) => (
-              <div 
-                key={product.id}
-                className={`group bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 ${index < 4 ? 'scroll-fade-in' : `scroll-fade-in-delay-${Math.min(index - 3, 2)}`}`}
-                onClick={() => openProductModal(product)}
-                data-testid={`product-card-${product.id}`}
-              >
-                <div className="relative aspect-square overflow-hidden bg-gray-100">
-                  {!loadedImages.has(product.id) && (
-                    <Skeleton className="absolute inset-0 rounded-lg" />
-                  )}
-                  <OptimizedImage 
-                    src={product.image}
-                    alt={product.name}
-                    className={`w-full h-full object-cover group-hover:scale-110 transition-all duration-500 ${
-                      loadedImages.has(product.id) ? 'opacity-100' : 'opacity-0'
-                    }`}
-                    priority={product.id <= 4}
-                    onLoad={() => handleImageLoad(product.id)}
-                  />
-                  <button 
-                    className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(product.id);
-                    }}
-                    aria-label="Избранное"
-                    data-testid={`button-favorite-${product.id}`}
-                  >
-                    <Heart 
-                      className={`w-5 h-5 ${favorites.includes(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} 
-                      strokeWidth={2}
-                    />
-                  </button>
-                </div>
-                <div className="p-4 space-y-2">
-                  <div className="text-xs font-medium text-amber-600 mb-1">{product.brand}</div>
-                  <h3 className="font-semibold text-gray-900 line-clamp-2 text-sm">{product.name}</h3>
-                  <div className="flex items-center justify-between">
-                    <p className="text-lg font-bold text-gray-900">{formatPrice(product.price)}</p>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-xs text-gray-600">{product.rating}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderCatalogTab = () => (
-    <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
-      <div className="sticky top-0 z-20 bg-white border-b border-gray-200 py-5 px-4">
-        <div className="max-w-md mx-auto space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="flex-1 bg-gray-100 rounded-full px-4 py-3 flex items-center gap-2">
-              <Search className="w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
-                placeholder="Поиск часов..."
-                className="bg-transparent text-gray-900 placeholder:text-gray-400 outline-none flex-1 text-sm"
-                data-testid="input-search-catalog"
-              />
-            </div>
-          </div>
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full whitespace-nowrap transition-all duration-300 font-medium text-sm ${
-                  selectedCategory === cat 
-                    ? 'bg-gradient-to-r from-yellow-600 to-amber-700 text-white shadow-lg' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-                data-testid={`button-filter-${cat.toLowerCase()}`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-md mx-auto px-4 py-6">
-        <div className="mb-4">
-          <p className="text-sm text-gray-600">Найдено {filteredProducts.length} часов</p>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          {filteredProducts.map((product, index) => (
-            <div 
-              key={product.id}
-              className={`group bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer ${index < 4 ? '' : `scroll-fade-in-delay-${Math.min((index - 4) % 4 + 1, 3)}`}`}
-              onClick={() => openProductModal(product)}
-              data-testid={`product-${product.id}`}
-            >
-              <div className="relative aspect-square overflow-hidden bg-gray-100">
-                {!loadedImages.has(product.id) && (
-                  <Skeleton className="absolute inset-0 rounded-lg" />
-                )}
-                <OptimizedImage 
-                  src={product.image}
-                  alt={product.name}
-                  className={`w-full h-full object-cover group-hover:scale-110 transition-all duration-500 ${
-                    loadedImages.has(product.id) ? 'opacity-100' : 'opacity-0'
-                  }`}
-                  priority={product.id <= 4}
-                  onLoad={() => handleImageLoad(product.id)}
-                />
-                <button 
-                  className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleFavorite(product.id);
-                  }}
-                  aria-label="Избранное"
-                  data-testid={`button-favorite-${product.id}`}
-                >
-                  <Heart 
-                    className={`w-5 h-5 ${favorites.includes(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}`}
-                    strokeWidth={2}
-                  />
-                </button>
-              </div>
-              <div className="p-4 space-y-2">
-                <div className="text-xs font-medium text-amber-600 mb-1">{product.brand}</div>
-                <h3 className="font-semibold text-gray-900 line-clamp-2 text-sm">{product.name}</h3>
-                <div className="flex items-center justify-between">
-                  <p className="text-lg font-bold text-gray-900">{formatPrice(product.price)}</p>
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="text-xs text-gray-600">{product.rating}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderCartTab = () => (
-    <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
-      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
-        <h1 className="text-2xl font-bold text-gray-900 scroll-fade-in">Корзина</h1>
-        
-        {cart.length === 0 ? (
-          <div className="text-center py-16">
-            <Watch className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">Корзина пуста</p>
-          </div>
-        ) : (
-          <>
-            <div className="space-y-4">
-              {cart.map((item, index) => (
-                <div 
-                  key={item.id} 
-                  className={`bg-white rounded-2xl p-4 flex gap-4 shadow-sm scroll-fade-in-delay-${Math.min(index + 1, 5)}`}
-                  data-testid={`cart-item-${item.id}`}
-                >
-                  <OptimizedImage 
-                    src={item.image}
-                    alt={item.name}
-                    className="w-20 h-20 rounded-xl object-cover"
-                  />
-                  <div className="flex-1">
-                    <p className="text-xs text-amber-600 font-medium mb-1">{item.brand}</p>
-                    <h3 className="font-semibold text-gray-900 mb-1">{item.name}</h3>
-                    <p className="text-lg font-bold text-gray-900">{formatPrice(item.price)}</p>
-                  </div>
-                  <button
-                    onClick={() => setCart(cart.filter(i => i.id !== item.id))}
-                    className="w-8 h-8 flex items-center justify-center"
-                    aria-label="Удалить"
-                    data-testid={`button-remove-${item.id}`}
-                  >
-                    <X className="w-5 h-5 text-gray-400" />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            <div className="fixed bottom-24 left-0 right-0 p-4 bg-white border-t border-gray-200">
-              <div className="max-w-md mx-auto">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-lg font-semibold text-gray-900">Итого:</span>
-                  <span className="text-2xl font-bold text-amber-600">{formatPrice(cartTotal)}</span>
-                </div>
-                <ConfirmDrawer
-                  trigger={
-                    <button
-                      className="w-full py-4 bg-gradient-to-r from-yellow-600 to-amber-700 text-white rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300"
-                      data-testid="button-checkout"
-                    >
-                      Оформить заказ
-                    </button>
-                  }
-                  title="Оформить заказ?"
-                  description={`${cart.length} товаров на сумму ${formatPrice(cartTotal)}`}
-                  confirmText="Подтвердить"
-                  cancelText="Отмена"
-                  variant="default"
-                  onConfirm={handleCheckout}
-                />
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-
-  const renderProfileTab = () => (
-    <div className="min-h-screen bg-gray-50 font-montserrat pb-24">
-      <div className="max-w-md mx-auto px-4 py-6 space-y-6">
-        <div className="bg-white rounded-2xl p-6 scroll-fade-in">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-yellow-600 to-amber-700 rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">Александр Иванов</h2>
-              <p className="text-sm text-gray-500">+7 (999) 123-45-67</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 bg-gray-50 rounded-xl">
-              <p className="text-sm text-gray-500 mb-1">Заказы</p>
-              <p className="text-2xl font-bold text-gray-900">{orders.length}</p>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-xl">
-              <p className="text-sm text-gray-500 mb-1">Избранное</p>
-              <p className="text-2xl font-bold text-gray-900">{favorites.length}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="scroll-fade-in-delay-1">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Мои заказы</h3>
-          {orders.length === 0 ? (
-            <div className="text-center py-8 bg-white rounded-2xl">
-              <Package className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p className="text-gray-500">У вас пока нет заказов</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {orders.map((order) => (
-                <div key={order.id} className="bg-white rounded-2xl p-4" data-testid={`order-${order.id}`}>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-gray-900 font-medium">Заказ #{order.id.toString().slice(-6)}</span>
-                    <span className="text-gray-500">{order.date}</span>
-                  </div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-gray-600">{order.items.length} товаров</span>
-                    <span className="font-bold text-amber-600">{formatPrice(order.total)}</span>
-                  </div>
-                  <div className="mt-2">
-                    <span className="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-full">
-                      {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-2 scroll-fade-in-delay-2">
-          <button className="w-full p-4 bg-white rounded-2xl flex items-center justify-between" aria-label="Избранное" data-testid="button-favorites">
-            <div className="flex items-center gap-3">
-              <Heart className="w-5 h-5 text-gray-400" />
-              <span className="font-medium text-gray-900">Избранное</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-gray-400" />
-          </button>
-
-          <button className="w-full p-4 bg-white rounded-2xl flex items-center justify-between" aria-label="Способы оплаты" data-testid="button-payment">
-            <div className="flex items-center gap-3">
-              <CreditCard className="w-5 h-5 text-gray-400" />
-              <span className="font-medium text-gray-900">Способы оплаты</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-gray-400" />
-          </button>
-
-          <button className="w-full p-4 bg-white rounded-2xl flex items-center justify-between" aria-label="Адреса доставки" data-testid="button-address">
-            <div className="flex items-center gap-3">
-              <MapPin className="w-5 h-5 text-gray-400" />
-              <span className="font-medium text-gray-900">Адреса доставки</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-gray-400" />
-          </button>
-
-          <button className="w-full p-4 bg-white rounded-2xl flex items-center justify-between" aria-label="Настройки" data-testid="button-settings">
-            <div className="flex items-center gap-3">
-              <Settings className="w-5 h-5 text-gray-400" />
-              <span className="font-medium text-gray-900">Настройки</span>
-            </div>
-            <ChevronLeft className="w-5 h-5 rotate-180 text-gray-400" />
-          </button>
-
-          <button className="w-full p-4 bg-red-50 rounded-2xl flex items-center justify-between mt-4" aria-label="Выйти" data-testid="button-logout">
-            <div className="flex items-center gap-3">
-              <LogOut className="w-5 h-5 text-red-500" />
-              <span className="font-medium text-red-500">Выйти</span>
-            </div>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderProductModal = () => {
-    if (!selectedProduct) return null;
-
-    return (
-      <div 
-        className={`fixed inset-0 z-50 bg-white transition-all duration-300 ${
-          isModalOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-        style={{ overflowY: 'auto' }}
-      >
-        <div className="max-w-md mx-auto">
-          <button 
-            onClick={closeProductModal}
-            className="fixed top-4 right-4 z-10 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-            aria-label="Закрыть"
-            data-testid="button-back"
-          >
-            <X className="w-6 h-6 text-gray-900" />
-          </button>
-
-          <div className="relative aspect-square overflow-hidden bg-gray-100">
-            {!loadedImages.has(selectedProduct.id + 100) && (
-              <Skeleton className="absolute inset-0" />
-            )}
-            <OptimizedImage 
-              src={selectedProduct.image}
-              alt={selectedProduct.name}
-              className={`w-full h-full object-cover transition-opacity duration-300 ${
-                loadedImages.has(selectedProduct.id + 100) ? 'opacity-100' : 'opacity-0'
-              }`}
-              onLoad={() => handleImageLoad(selectedProduct.id + 100)}
-            />
-          </div>
-
-          <div className="p-6 space-y-6">
-            <div className="inline-block px-4 py-2 bg-gradient-to-r from-yellow-600 to-amber-700 text-white rounded-full text-sm font-semibold">
-              {selectedProduct.brand}
-            </div>
-
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold text-gray-900">{selectedProduct.name}</h1>
-              <div className="flex items-center justify-between">
-                <p className="text-3xl font-bold text-amber-600">{formatPrice(selectedProduct.price)}</p>
-                <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  <span className="text-lg font-semibold text-gray-900">{selectedProduct.rating}</span>
-                  <span className="text-gray-500">(128)</span>
-                </div>
-              </div>
-            </div>
-
-            <p className="text-gray-700 leading-relaxed">{selectedProduct.description}</p>
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Характеристики</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-sm text-gray-500 mb-1">Механизм</p>
-                  <p className="font-semibold text-gray-900">{selectedProduct.movement}</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-sm text-gray-500 mb-1">Водонепроницаемость</p>
-                  <p className="font-semibold text-gray-900">{selectedProduct.waterResistance}</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-sm text-gray-500 mb-1">Материал</p>
-                  <p className="font-semibold text-gray-900">{selectedProduct.material}</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-sm text-gray-500 mb-1">Диаметр</p>
-                  <p className="font-semibold text-gray-900">{selectedProduct.diameter}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-green-600 font-medium">В наличии {selectedProduct.inStock} шт</span>
-            </div>
-
-            <ConfirmDrawer
-              trigger={
-                <button 
-                  className="w-full py-4 bg-gradient-to-r from-yellow-600 to-amber-700 text-white rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300"
-                  data-testid={`button-add-to-cart-${selectedProduct.id}`}
-                >
-                  Добавить в корзину
-                </button>
-              }
-              title="Добавить в корзину?"
-              description={`${selectedProduct.name} — ${formatPrice(selectedProduct.price)}`}
-              confirmText="Добавить"
-              cancelText="Отмена"
-              variant="default"
-              onConfirm={() => addToCart(selectedProduct)}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  return (
-    <>
-      {activeTab === 'home' && renderHomeTab()}
-      {activeTab === 'catalog' && renderCatalogTab()}
-      {activeTab === 'cart' && renderCartTab()}
-      {activeTab === 'profile' && renderProfileTab()}
-      {renderProductModal()}
-    </>
-  );
-}
-```
-
-### SneakerVault.tsx
-```tsx
-import { useState, useEffect, memo } from "react";
-import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu } from "lucide-react";
-import { OptimizedImage } from "../OptimizedImage";
-import { ConfirmDrawer } from "../ui/modern-drawer";
-import greenNikeImage from "@assets/загруженное-_4__1761733573240.jpg";
-import blueNikeImage from "@assets/загруженное-_3__1761733577054.jpg";
-import whiteJordanImage from "@assets/загруженное-_2__1761733579316.jpg";
-import tealJordanImage from "@assets/NIKE-AIR-JORDAN-V2-e-V3-_designer_designergrafico-_design-_nikeair-_airjordan-_socialmedia-_natural-_1761733582395.jpg";
-
-// Video served from public/videos/ to reduce Docker image size
-const sneakerVideo = "/videos/ae01958370d099047455d799eba60389_1762352751328.mp4";
-
-interface SneakerVaultProps {
-  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
-}
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  size: string;
-  quantity: number;
-  image: string;
-  brand: string;
-}
-
-interface Order {
-  id: number;
-  items: CartItem[];
-  total: number;
-  date: string;
-  status: 'processing' | 'shipped' | 'delivered';
-}
-
-interface Sneaker {
-  id: number;
-  name: string;
-  price: number;
-  oldPrice?: number;
-  image: string;
-  hoverImage: string;
-  description: string;
-  sizes: string[];
-  brand: string;
-  category: string;
-  gender: 'Men' | 'Woman' | 'Unisex';
-  inStock: number;
-  rating: number;
-  isNew?: boolean;
-  isTrending?: boolean;
-  colorway: string;
-}
-
-const sneakers: Sneaker[] = [
-  { 
-    id: 1, 
-    name: 'Daisy Dream Dunk', 
-    price: 18900, 
-    oldPrice: 22900,
-    image: greenNikeImage, 
-    hoverImage: greenNikeImage,
-    description: 'Свежие Nike Dunk с природной эстетикой ромашек', 
-    sizes: ['7', '8', '9', '10', '11', '12'], 
-    brand: 'Nike',
-    category: 'Лайфстайл', 
-    gender: 'Unisex',
-    inStock: 8, 
-    rating: 5.0, 
-    isNew: true,
-    isTrending: true,
-    colorway: 'Green/Beige'
-  },
-  { 
-    id: 2, 
-    name: 'Sky Water Dunk', 
-    price: 17900, 
-    oldPrice: 21900,
-    image: blueNikeImage, 
-    hoverImage: blueNikeImage,
-    description: 'Голубые Nike Dunk с небесной палитрой', 
-    sizes: ['7', '8', '9', '10', '11', '12'], 
-    brand: 'Nike',
-    category: 'Лайфстайл', 
-    gender: 'Unisex',
-    inStock: 12, 
-    rating: 4.9, 
-    isNew: true,
-    isTrending: true,
-    colorway: 'Sky Blue'
-  },
-  { 
-    id: 3, 
-    name: 'Forest Air Jordan 1', 
-    price: 25900, 
-    oldPrice: 29900,
-    image: whiteJordanImage, 
-    hoverImage: whiteJordanImage,
-    description: 'Белые Air Jordan 1 High с мистической атмосферой', 
-    sizes: ['7', '8', '9', '10', '11', '12'], 
-    brand: 'Jordan',
-    category: 'Баскетбол', 
-    gender: 'Men',
-    inStock: 6, 
-    rating: 5.0, 
-    isNew: true,
-    isTrending: true,
-    colorway: 'White/Silver'
-  },
-  { 
-    id: 4, 
-    name: 'Butterfly Jordan 1', 
-    price: 26900, 
-    oldPrice: 31900,
-    image: tealJordanImage, 
-    hoverImage: tealJordanImage,
-    description: 'Бирюзовые Air Jordan 1 с природной энергией', 
-    sizes: ['7', '8', '9', '10', '11', '12'], 
-    brand: 'Jordan',
-    category: 'Баскетбол', 
-    gender: 'Men',
-    inStock: 5, 
-    rating: 5.0, 
-    isNew: true,
-    isTrending: true,
-    colorway: 'Teal/Black'
-  },
-  { 
-    id: 5, 
-    name: 'Air Max 90 Essential', 
-    price: 15900, 
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=1200&fit=crop&q=90',
-    description: 'Классические Air Max 90 с видимой подушкой Air', 
-    sizes: ['7', '8', '9', '10', '11', '12'], 
-    brand: 'Nike',
-    category: 'Беговые', 
-    gender: 'Unisex',
-    inStock: 15, 
-    rating: 4.8, 
-    isTrending: true,
-    colorway: 'White/Red'
-  },
-  { 
-    id: 6, 
-    name: 'Yeezy Boost 350 V2', 
-    price: 32900, 
-    image: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=800&h=1200&fit=crop&q=90',
-    description: 'Инновационные кроссовки с технологией Boost', 
-    sizes: ['7', '8', '9', '10', '11'], 
-    brand: 'Adidas',
-    category: 'Лайфстайл', 
-    gender: 'Unisex',
-    inStock: 4, 
-    rating: 4.7, 
-    isNew: true,
-    colorway: 'Zebra'
-  },
-  { 
-    id: 7, 
-    name: 'Air Force 1 Low', 
-    price: 13900, 
-    image: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=800&h=1200&fit=crop&q=90',
-    description: 'Самые популярные кроссовки Nike всех времен', 
-    sizes: ['7', '8', '9', '10', '11', '12'], 
-    brand: 'Nike',
-    category: 'Баскетбол', 
-    gender: 'Unisex',
-    inStock: 20, 
-    rating: 4.9, 
-    colorway: 'All White'
-  },
-  { 
-    id: 8, 
-    name: 'Travis Scott x Jordan', 
-    price: 89900, 
-    image: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?w=800&h=1200&fit=crop&q=90',
-    description: 'Эксклюзивная коллаборация с Трэвисом Скоттом', 
-    sizes: ['8', '9', '10', '11'], 
-    brand: 'Jordan',
-    category: 'Коллаб', 
-    gender: 'Men',
-    inStock: 2, 
-    rating: 5.0, 
-    isNew: true,
-    colorway: 'Brown/Black'
-  },
-];
-
-const categories = ['Все', 'Лайфстайл', 'Баскетбол', 'Беговые', 'Коллаб'];
-const genderFilters = ['All', 'Men', 'Woman', 'Unisex'];
-
-function SneakerVault({ activeTab }: SneakerVaultProps) {
-  const [selectedSneaker, setSelectedSneaker] = useState<Sneaker | null>(null);
-  const [selectedSize, setSelectedSize] = useState<string>('');
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('Все');
-  const [selectedGender, setSelectedGender] = useState<string>('All');
-
-  useEffect(() => {
-    if (activeTab !== 'catalog') {
-      setSelectedSneaker(null);
-    }
-    // Reset gender filter when leaving home page
-    if (activeTab !== 'home') {
-      setSelectedGender('All');
-    }
-  }, [activeTab]);
-
-  // Filter sneakers based on current tab
-  const filteredSneakers = sneakers.filter(s => {
-    const categoryMatch = selectedCategory === 'Все' || s.category === selectedCategory;
-    
-    // Apply gender filter only on home page
-    if (activeTab === 'home') {
-      const genderMatch = selectedGender === 'All' || s.gender === selectedGender;
-      return categoryMatch && genderMatch;
-    }
-    
-    // On catalog page, show all genders
-    return categoryMatch;
-  });
-
-  const toggleFavorite = (sneakerId: number) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(sneakerId)) {
-      newFavorites.delete(sneakerId);
-    } else {
-      newFavorites.add(sneakerId);
-    }
-    setFavorites(newFavorites);
-  };
-
-  const openSneaker = (sneaker: Sneaker) => {
-    setSelectedSneaker(sneaker);
-    setSelectedSize(sneaker.sizes[0]);
-    // Note: User can manually navigate to catalog tab via bottom navigation
-  };
-
-  const addToCart = () => {
-    if (!selectedSneaker) return;
-    
-    const cartItem: CartItem = {
-      id: Date.now(),
-      name: selectedSneaker.name,
-      price: selectedSneaker.price,
-      size: selectedSize,
-      quantity: 1,
-      image: selectedSneaker.image,
-      brand: selectedSneaker.brand
-    };
-    
-    setCart([...cart, cartItem]);
-    setSelectedSneaker(null);
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ru-RU', {
-      style: 'currency',
-      currency: 'RUB',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
-  };
-
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-  const handleCheckout = () => {
-    if (cart.length === 0) return;
-    
-    const newOrder: Order = {
-      id: Date.now(),
-      items: [...cart],
-      total: cartTotal,
-      date: new Date().toLocaleDateString('ru-RU'),
-      status: 'processing'
-    };
-    
-    setOrders([newOrder, ...orders]);
-    setCart([]);
-  };
-
-  // PRODUCT DETAIL PAGE
-  if (activeTab === 'catalog' && selectedSneaker) {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
-        <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
-          <button 
-            onClick={() => setSelectedSneaker(null)}
-            className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center border border-white/20"
-            data-testid="button-back"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleFavorite(selectedSneaker.id);
-            }}
-            className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center border border-white/20"
-            data-testid={`button-favorite-${selectedSneaker.id}`}
-          >
-            <Heart 
-              className={`w-5 h-5 ${favorites.has(selectedSneaker.id) ? 'fill-white text-white' : 'text-white'}`}
-            />
-          </button>
-        </div>
-
-        <div className="relative h-[60vh]">
-          <img
-            src={selectedSneaker.hoverImage}
-            alt={selectedSneaker.name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        </div>
-
-        <div className="bg-black/90 backdrop-blur-xl rounded-t-3xl p-6 space-y-6 pb-32">
-          <div className="text-center">
-            <p className="text-sm text-white/60 mb-2">{selectedSneaker.brand}</p>
-            <h2 className="text-2xl font-bold mb-2">{selectedSneaker.name}</h2>
-            <div className="flex items-center justify-center gap-3">
-              <p className="text-3xl font-bold">{formatPrice(selectedSneaker.price)}</p>
-              {selectedSneaker.oldPrice && (
-                <p className="text-xl text-white/50 line-through">{formatPrice(selectedSneaker.oldPrice)}</p>
-              )}
-            </div>
-          </div>
-
-          <p className="text-sm text-white/80 text-center">{selectedSneaker.description}</p>
-
-          <div>
-            <p className="text-sm mb-3 text-white/80 text-center">Выберите размер (US):</p>
-            <div className="flex items-center justify-center gap-2 flex-wrap">
-              {selectedSneaker.sizes.map((size) => (
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={`w-12 h-12 rounded-full font-semibold transition-all ${
-                    selectedSize === size
-                      ? 'bg-[#CDFF38] text-black'
-                      : 'bg-black/40 text-white hover:bg-black/60 border border-white/20'
-                  }`}
-                  data-testid={`button-size-${size}`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <ConfirmDrawer
-            trigger={
-              <button
-                className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
-                data-testid="button-buy-now"
-              >
-                Добавить в корзину
-              </button>
-            }
-            title="Добавить в корзину?"
-            description={`${selectedSneaker.name} • ${selectedSneaker.brand} • Размер ${selectedSize}`}
-            confirmText="Добавить"
-            cancelText="Отмена"
-            variant="default"
-            onConfirm={addToCart}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // HOME PAGE - REAL TIME SHOPPING STYLE
-  if (activeTab === 'home') {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
-        {/* Header */}
-        <div className="p-6 pb-4">
-          <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <Menu className="w-6 h-6" data-testid="button-menu" />
-            <div className="flex items-center gap-3">
-              <ShoppingBag className="w-6 h-6" data-testid="button-view-cart" />
-              <Heart className="w-6 h-6" data-testid="button-view-favorites" />
-            </div>
-          </div>
-
-          {/* Title */}
-          <div className="mb-6 scroll-fade-in">
-            <h1 className="text-4xl font-black mb-1 tracking-tight">
-              SNEAKER<br/>
-              VAULT
-            </h1>
-          </div>
-
-          {/* Gender Filters */}
-          <div className="flex items-center gap-4 mb-6 scroll-fade-in">
-            <button 
-              className="p-2 bg-[#CDFF38] rounded-full"
-              data-testid="button-view-home"
-            >
-              <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-              </svg>
-            </button>
-            {genderFilters.map((gender) => (
-              <button
-                key={gender}
-                onClick={() => setSelectedGender(gender)}
-                aria-pressed={selectedGender === gender}
-                className={`text-sm font-medium transition-all relative ${
-                  selectedGender === gender
-                    ? 'text-white font-bold'
-                    : 'text-white/40'
-                }`}
-                data-testid={`button-filter-${gender.toLowerCase()}`}
-              >
-                {gender}
-                {selectedGender === gender && (
-                  <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#CDFF38] rounded-full"></div>
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* Search Bar */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 bg-black/40 backdrop-blur-xl rounded-full px-4 py-3 flex items-center gap-2 border border-white/20">
-              <Search className="w-5 h-5 text-white/50" />
-              <input
-                type="text"
-                placeholder="Поиск кроссовок..."
-                className="bg-transparent text-white placeholder:text-white/50 outline-none flex-1 text-sm"
-                data-testid="input-search"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Video Hero Banner */}
-        <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden scroll-fade-in" style={{ height: '500px' }}>
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-            data-testid="video-hero-banner-sneaker"
-          >
-            <source src={sneakerVideo} type="video/mp4" />
-          </video>
-          
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-          
-          {/* Content Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-8">
-            <m.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <h2 className="text-5xl font-black mb-3 tracking-tight leading-tight">
-                LIMITED<br/>
-                EDITION
-              </h2>
-              <p className="text-lg text-white/80 mb-6" style={{ letterSpacing: '0.1em' }}>
-                Эксклюзивные релизы 2025
-              </p>
-              <button 
-                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105"
-                style={{
-                  background: '#CDFF38',
-                  boxShadow: '0 0 30px rgba(205, 255, 56, 0.4)'
-                }}
-                data-testid="button-hero-shop-sneakers"
-              >
-                Смотреть коллекцию
-              </button>
-            </m.div>
-          </div>
-        </div>
-
-        {/* Featured Sneaker Cards */}
-        <div className="px-6 space-y-4">
-          {filteredSneakers.slice(0, 3).map((sneaker, idx) => (
-            <m.div
-              key={sneaker.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              onClick={() => openSneaker(sneaker)}
-              className={`relative cursor-pointer group rounded-3xl overflow-hidden ${idx === 0 ? 'scroll-fade-in' : ''}`}
-              style={{ height: idx === 0 ? '400px' : '320px' }}
-              data-testid={`featured-sneaker-${sneaker.id}`}
-            >
-              {/* Background Image */}
-              <div className="absolute inset-0">
-                <img
-                  src={sneaker.image}
-                  alt={sneaker.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
-                />
-              </div>
-
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-
-              {/* Badge */}
-              <div className="absolute top-4 left-4">
-                <div className="px-3 py-1 bg-black/60 backdrop-blur-xl rounded-full border border-white/20">
-                  <span className="text-xs font-semibold text-white">
-                    {sneaker.isNew ? 'New' : sneaker.category}
-                  </span>
-                </div>
-              </div>
-
-              {/* Favorite */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleFavorite(sneaker.id);
-                }}
-                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/60 backdrop-blur-xl flex items-center justify-center border border-white/20"
-                data-testid={`button-favorite-${sneaker.id}`}
-              >
-                <Heart 
-                  className={`w-5 h-5 ${favorites.has(sneaker.id) ? 'fill-white text-white' : 'text-white'}`}
-                />
-              </button>
-
-              {/* Content */}
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <div className="flex items-end justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm text-white/70 mb-1">{sneaker.brand}</p>
-                    <h3 className="text-2xl font-bold mb-2 leading-tight">
-                      {sneaker.name}
-                    </h3>
-                    <p className="text-sm text-white/80 mb-4">{sneaker.colorway}</p>
-                  </div>
-
-                  {/* Buy Button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openSneaker(sneaker);
-                    }}
-                    className="w-14 h-14 rounded-full bg-[#CDFF38] flex items-center justify-center hover:bg-[#B8E633] transition-all hover:scale-110"
-                    data-testid={`button-add-to-cart-${sneaker.id}`}
-                  >
-                    <ShoppingBag className="w-6 h-6 text-black" />
-                  </button>
-                </div>
-
-                {/* Price */}
-                <div className="mt-3">
-                  <p className="text-lg font-bold">{formatPrice(sneaker.price)}</p>
-                </div>
-              </div>
-            </m.div>
-          ))}
-        </div>
-
-        {/* Bottom Spacer */}
-        <div className="h-8"></div>
-      </div>
-    );
-  }
-
-  // CATALOG PAGE
-  if (activeTab === 'catalog') {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <h1 className="text-2xl font-bold">Каталог</h1>
-            <div className="flex items-center gap-3">
-              <button className="p-2" data-testid="button-view-search">
-                <Search className="w-6 h-6" />
-              </button>
-              <button className="p-2" data-testid="button-view-filter">
-                <Filter className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-
-          {/* Categories */}
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-[#CDFF38] text-black'
-                    : 'bg-black/40 text-white/70 hover:bg-black/60 border border-white/20'
-                }`}
-                data-testid={`button-filter-${cat.toLowerCase()}`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Sneakers Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            {filteredSneakers.map((sneaker, index) => (
-              <m.div
-                key={sneaker.id}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => openSneaker(sneaker)}
-                className={`relative cursor-pointer ${index < 4 ? '' : `scroll-fade-in-delay-${Math.min((index - 4) % 3 + 1, 3)}`}`}
-                data-testid={`sneaker-card-${sneaker.id}`}
-              >
-                <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-black/40 border border-white/10">
-                  <img
-                    src={sneaker.image}
-                    alt={sneaker.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  
-                  {/* Favorite */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(sneaker.id);
-                    }}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 backdrop-blur-xl flex items-center justify-center border border-white/20"
-                    data-testid={`button-favorite-${sneaker.id}`}
-                  >
-                    <Heart 
-                      className={`w-4 h-4 ${favorites.has(sneaker.id) ? 'fill-white text-white' : 'text-white'}`}
-                    />
-                  </button>
-
-                  {/* Badge */}
-                  {sneaker.isNew && (
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-[#CDFF38] text-black text-xs font-bold rounded-full">
-                      NEW
-                    </div>
-                  )}
-                </div>
-
-                {/* Sneaker Info */}
-                <div>
-                  <p className="text-xs text-white/60 mb-1">{sneaker.brand}</p>
-                  <p className="text-sm font-semibold mb-1 truncate">{sneaker.name}</p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-base font-bold">{formatPrice(sneaker.price)}</p>
-                    {sneaker.oldPrice && (
-                      <p className="text-xs text-white/40 line-through">{formatPrice(sneaker.oldPrice)}</p>
-                    )}
-                  </div>
-                </div>
-              </m.div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // CART PAGE
-  if (activeTab === 'cart') {
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-6">Корзина</h1>
-
-          {cart.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <ShoppingBag className="w-20 h-20 text-white/20 mb-4" />
-              <p className="text-white/50 text-center">Ваша корзина пуста</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {cart.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-black/40 backdrop-blur-xl rounded-2xl p-4 flex gap-4 border border-white/10"
-                  data-testid={`cart-item-${item.id}`}
-                >
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-20 h-20 rounded-xl object-cover"
-                    loading="lazy"
-                  />
-                  <div className="flex-1">
-                    <p className="text-xs text-white/60 mb-1">{item.brand}</p>
-                    <h3 className="font-semibold mb-1">{item.name}</h3>
-                    <p className="text-sm text-white/60 mb-2">
-                      Размер: {item.size}
-                    </p>
-                    <p className="text-lg font-bold">{formatPrice(item.price)}</p>
-                  </div>
-                  <button
-                    onClick={() => setCart(cart.filter(i => i.id !== item.id))}
-                    className="w-8 h-8"
-                    data-testid={`button-remove-${item.id}`}
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-              ))}
-
-              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[#0A0A0A] border-t border-white/10">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-lg font-semibold">Итого:</span>
-                  <span className="text-2xl font-bold">{formatPrice(cartTotal)}</span>
-                </div>
-                <ConfirmDrawer
-                  trigger={
-                    <button
-                      className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
-                      data-testid="button-checkout"
-                    >
-                      Оформить заказ
-                    </button>
-                  }
-                  title="Оформить заказ?"
-                  description={`${cart.length} товаров на сумму ${formatPrice(cartTotal)}`}
-                  confirmText="Подтвердить"
-                  cancelText="Отмена"
-                  variant="default"
-                  onConfirm={handleCheckout}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // PROFILE PAGE
-  if (activeTab === 'profile') {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
-        <div className="p-6 bg-black/80 backdrop-blur-xl border-b border-white/10">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-[#CDFF38] to-[#B8E633] rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-black" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold">Дмитрий Смирнов</h2>
-              <p className="text-sm text-white/70">+7 (999) 555-77-88</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/20">
-              <p className="text-sm text-white/70 mb-1">Заказы</p>
-              <p className="text-2xl font-bold">{orders.length}</p>
-            </div>
-            <div className="p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/20">
-              <p className="text-sm text-white/70 mb-1">Избранное</p>
-              <p className="text-2xl font-bold">{favorites.size}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-4 space-y-4">
-          <div className="scroll-fade-in">
-            <h3 className="text-lg font-bold mb-4">Мои заказы</h3>
-            {orders.length === 0 ? (
-              <div className="text-center py-8 text-white/50">
-                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>У вас пока нет заказов</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {orders.map((order) => (
-                  <div key={order.id} className="bg-black/40 backdrop-blur-xl rounded-xl p-4 border border-white/10" data-testid={`order-${order.id}`}>
-                    <div className="flex justify-between gap-2 mb-2">
-                      <span className="text-white/80">Заказ #{order.id.toString().slice(-6)}</span>
-                      <span className="text-white/60">{order.date}</span>
-                    </div>
-                    <div className="flex justify-between gap-2 mb-2">
-                      <span className="text-white/60">{order.items.length} товаров</span>
-                      <span className="font-bold text-[#CDFF38]">{formatPrice(order.total)}</span>
-                    </div>
-                    <div className="mt-2">
-                      <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">
-                        {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-favorites">
-              <div className="flex items-center gap-3">
-                <Heart className="w-5 h-5 text-white/70" />
-                <span className="font-medium">Избранное</span>
-              </div>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-            </button>
-
-            <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-payment">
-              <div className="flex items-center gap-3">
-                <CreditCard className="w-5 h-5 text-white/70" />
-                <span className="font-medium">Способы оплаты</span>
-              </div>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-            </button>
-
-            <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-address">
-              <div className="flex items-center gap-3">
-                <MapPin className="w-5 h-5 text-white/70" />
-                <span className="font-medium">Адреса доставки</span>
-              </div>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-            </button>
-
-            <button className="w-full p-4 bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-settings">
-              <div className="flex items-center gap-3">
-                <Settings className="w-5 h-5 text-white/70" />
-                <span className="font-medium">Настройки</span>
-              </div>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-            </button>
-
-            <button className="w-full p-4 bg-red-500/10 backdrop-blur-xl rounded-xl border border-red-500/20 flex items-center justify-between hover-elevate active-elevate-2 mt-4" data-testid="button-logout">
-              <div className="flex items-center gap-3">
-                <LogOut className="w-5 h-5 text-red-400" />
-                <span className="font-medium text-red-400">Выйти</span>
-              </div>
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
-}
-
-export default memo(SneakerVault);
-```
-
-### FragranceRoyale.tsx
-```tsx
-import { useState, useEffect, memo } from "react";
-import { m, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag, X, ChevronLeft, Filter, Star, Package, CreditCard, MapPin, Settings, LogOut, User, Sparkles, TrendingUp, Zap, Search, Menu, Flower2, Crown, Droplets } from "lucide-react";
-import { OptimizedImage } from "../OptimizedImage";
-import { ConfirmDrawer } from "../ui/modern-drawer";
-
-interface FragranceRoyaleProps {
-  activeTab: 'home' | 'catalog' | 'cart' | 'profile';
-}
-
-interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  volume: string;
-  quantity: number;
-  image: string;
-  concentration: string;
-}
-
-interface Order {
-  id: number;
-  items: CartItem[];
-  total: number;
-  date: string;
-  status: 'processing' | 'shipped' | 'delivered';
-}
-
-interface Perfume {
-  id: number;
-  name: string;
-  price: number;
-  oldPrice?: number;
-  image: string;
-  hoverImage: string;
-  description: string;
-  volumes: string[];
-  concentrations: string[];
-  concentrationColors: string[];
-  category: string;
-  gender: 'Men' | 'Woman' | 'Unisex';
-  inStock: number;
-  rating: number;
-  brand: string;
-  isNew?: boolean;
-  isTrending?: boolean;
-}
-
-const perfumes: Perfume[] = [
-  { 
-    id: 1, 
-    name: 'Black Orchid', 
-    price: 29500, 
-    oldPrice: 35000,
-    image: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59d75?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=1200&fit=crop&q=90',
-    description: 'Роскошный аромат с нотами черной орхидеи и пачули', 
-    volumes: ['50ml', '100ml'], 
-    concentrations: ['Eau de Parfum', 'Intense'], 
-    concentrationColors: ['#9333EA', '#7E22CE'],
-    category: 'Oriental', 
-    gender: 'Unisex',
-    inStock: 15, 
-    rating: 5.0, 
-    brand: 'TOM FORD',
-    isNew: true,
-    isTrending: true
-  },
-  { 
-    id: 2, 
-    name: 'Aventus', 
-    price: 44500, 
-    oldPrice: 52000,
-    image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=800&h=1200&fit=crop&q=90',
-    description: 'Легендарный фруктово-мускусный аромат успеха', 
-    volumes: ['50ml', '100ml', '250ml'], 
-    concentrations: ['Eau de Parfum', 'Cologne'], 
-    concentrationColors: ['#9333EA', '#C084FC'],
-    category: 'Fresh', 
-    gender: 'Men',
-    inStock: 8, 
-    rating: 4.9, 
-    brand: 'CREED',
-    isNew: true,
-    isTrending: true
-  },
-  { 
-    id: 3, 
-    name: 'No. 5', 
-    price: 18500, 
-    oldPrice: 24000,
-    image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800&h=1200&fit=crop&q=90',
-    description: 'Легендарный цветочный аромат абсолютной элегантности', 
-    volumes: ['50ml', '100ml'], 
-    concentrations: ['Eau de Parfum', 'Parfum'], 
-    concentrationColors: ['#DB2777', '#BE185D'],
-    category: 'Floral', 
-    gender: 'Woman',
-    inStock: 5, 
-    rating: 5.0, 
-    brand: 'CHANEL',
-    isNew: true,
-    isTrending: true
-  },
-  { 
-    id: 4, 
-    name: 'Santal 33', 
-    price: 38500, 
-    oldPrice: 45000,
-    image: 'https://images.unsplash.com/photo-1563170351-be82bc888aa4?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=800&h=1200&fit=crop&q=90',
-    description: 'Культовый древесный унисекс аромат с нотами сандала', 
-    volumes: ['50ml', '100ml'], 
-    concentrations: ['Eau de Parfum'], 
-    concentrationColors: ['#78716C'],
-    category: 'Woody', 
-    gender: 'Unisex',
-    inStock: 8, 
-    rating: 4.9, 
-    brand: 'LE LABO',
-    isNew: true,
-    isTrending: true
-  },
-  { 
-    id: 5, 
-    name: 'Baccarat Rouge 540', 
-    price: 34000, 
-    image: 'https://images.unsplash.com/photo-1528821128474-27f963b062bf?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1595425970377-9ab5d25e8f97?w=800&h=1200&fit=crop&q=90',
-    description: 'Роскошный амбровый аромат с нотами жасмина', 
-    volumes: ['70ml', '200ml'], 
-    concentrations: ['Extrait', 'Eau de Parfum'], 
-    concentrationColors: ['#DC2626', '#EF4444'],
-    category: 'Amber', 
-    gender: 'Unisex',
-    inStock: 10, 
-    rating: 5.0, 
-    brand: 'MAISON FRANCIS',
-    isTrending: true
-  },
-  { 
-    id: 6, 
-    name: 'Oud Wood', 
-    price: 43000, 
-    image: 'https://images.unsplash.com/photo-1587017539504-67cfbddac569?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1615634282785-30dd924e9ca0?w=800&h=1200&fit=crop&q=90',
-    description: 'Роскошный восточный аромат с нотами уда', 
-    volumes: ['50ml', '100ml'], 
-    concentrations: ['Eau de Parfum', 'Intense'], 
-    concentrationColors: ['#78350F', '#92400E'],
-    category: 'Oriental', 
-    gender: 'Unisex',
-    inStock: 6, 
-    rating: 4.8, 
-    brand: 'TOM FORD' 
-  },
-  { 
-    id: 7, 
-    name: 'Sauvage', 
-    price: 14500, 
-    image: 'https://images.unsplash.com/photo-1565375473883-12c4e0b8dc8c?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1592417817038-d13bb0b0143d?w=800&h=1200&fit=crop&q=90',
-    description: 'Свежий пряный аромат дикой природы', 
-    volumes: ['60ml', '100ml', '200ml'], 
-    concentrations: ['Eau de Toilette', 'Parfum'], 
-    concentrationColors: ['#3B82F6', '#1D4ED8'],
-    category: 'Fresh', 
-    gender: 'Men',
-    inStock: 12, 
-    rating: 4.9, 
-    brand: 'DIOR',
-    isNew: true
-  },
-  { 
-    id: 8, 
-    name: 'Coco Mademoiselle', 
-    price: 16500, 
-    image: 'https://images.unsplash.com/photo-1619994122354-102eeb8c9cb8?w=800&h=1200&fit=crop&q=90', 
-    hoverImage: 'https://images.unsplash.com/photo-1561053720-76cd73ff22c3?w=800&h=1200&fit=crop&q=90',
-    description: 'Изысканный цветочно-фруктовый аромат', 
-    volumes: ['50ml', '100ml'], 
-    concentrations: ['Eau de Parfum', 'Intense'], 
-    concentrationColors: ['#F472B6', '#EC4899'],
-    category: 'Floral', 
-    gender: 'Woman',
-    inStock: 4, 
-    rating: 5.0, 
-    brand: 'CHANEL' 
-  },
-];
-
-const categories = ['Все', 'Fresh', 'Oriental', 'Floral', 'Woody', 'Amber'];
-const genderFilters = ['All', 'Men', 'Woman', 'Unisex'];
-
-function FragranceRoyale({ activeTab }: FragranceRoyaleProps) {
-  const [selectedPerfume, setSelectedPerfume] = useState<Perfume | null>(null);
-  const [selectedVolume, setSelectedVolume] = useState<string>('');
-  const [selectedConcentration, setSelectedConcentration] = useState<string>('');
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('Все');
-  const [selectedGender, setSelectedGender] = useState<string>('All');
-
-  useEffect(() => {
-    if (activeTab !== 'catalog') {
-      setSelectedPerfume(null);
-    }
-    if (activeTab !== 'home') {
-      setSelectedGender('All');
-    }
-  }, [activeTab]);
-
-  const filteredPerfumes = perfumes.filter(p => {
-    const categoryMatch = selectedCategory === 'Все' || p.category === selectedCategory;
-    
-    if (activeTab === 'home') {
-      const genderMatch = selectedGender === 'All' || p.gender === selectedGender;
-      return categoryMatch && genderMatch;
-    }
-    
-    return categoryMatch;
-  });
-
-  const toggleFavorite = (perfumeId: number) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(perfumeId)) {
-      newFavorites.delete(perfumeId);
-    } else {
-      newFavorites.add(perfumeId);
-    }
-    setFavorites(newFavorites);
-  };
-
-  const openPerfume = (perfume: Perfume) => {
-    setSelectedPerfume(perfume);
-    setSelectedVolume(perfume.volumes[0]);
-    setSelectedConcentration(perfume.concentrations[0]);
-  };
-
-  const addToCart = () => {
-    if (!selectedPerfume) return;
-    
-    const cartItem: CartItem = {
-      id: Date.now(),
-      name: selectedPerfume.name,
-      price: selectedPerfume.price,
-      volume: selectedVolume,
-      quantity: 1,
-      image: selectedPerfume.image,
-      concentration: selectedConcentration
-    };
-    
-    setCart([...cart, cartItem]);
-    setSelectedPerfume(null);
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ru-RU', {
-      style: 'currency',
-      currency: 'RUB',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
-  };
-
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-  const handleCheckout = () => {
-    if (cart.length === 0) return;
-    
-    const newOrder: Order = {
-      id: Date.now(),
-      items: [...cart],
-      total: cartTotal,
-      date: new Date().toLocaleDateString('ru-RU'),
-      status: 'processing'
-    };
-    
-    setOrders([newOrder, ...orders]);
-    setCart([]);
-  };
-
-  // PRODUCT PAGE
-  if (activeTab === 'catalog' && selectedPerfume) {
-    const bgColor = selectedPerfume.concentrationColors[selectedPerfume.concentrations.indexOf(selectedConcentration)] || '#9333EA';
-    
-    return (
-      <div className="min-h-screen text-white overflow-auto pb-24" style={{ backgroundColor: bgColor }}>
-        <div className="absolute top-0 left-0 right-0 z-10 demo-nav-safe flex items-center justify-between">
-          <button 
-            onClick={() => setSelectedPerfume(null)}
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
-            data-testid="button-back"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleFavorite(selectedPerfume.id);
-            }}
-            className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center"
-            data-testid={`button-favorite-${selectedPerfume.id}`}
-          >
-            <Heart 
-              className={`w-5 h-5 ${favorites.has(selectedPerfume.id) ? 'fill-white text-white' : 'text-white'}`}
-            />
-          </button>
-        </div>
-
-        <div className="relative h-[60vh]">
-          <img
-            src={selectedPerfume.hoverImage}
-            alt={selectedPerfume.name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        </div>
-
-        <div className="bg-white/10 backdrop-blur-xl rounded-t-3xl p-6 space-y-6 pb-32">
-          <div className="text-center">
-            <p className="text-sm text-white/70 mb-2">{selectedPerfume.brand}</p>
-            <h2 className="text-2xl font-bold mb-2">{selectedPerfume.name}</h2>
-            <div className="flex items-center justify-center gap-3">
-              <p className="text-3xl font-bold">{formatPrice(selectedPerfume.price)}</p>
-              {selectedPerfume.oldPrice && (
-                <p className="text-xl text-white/50 line-through">{formatPrice(selectedPerfume.oldPrice)}</p>
-              )}
-            </div>
-          </div>
-
-          <p className="text-sm text-white/80 text-center">{selectedPerfume.description}</p>
-
-          <div>
-            <p className="text-sm mb-3 text-white/80 text-center">Выберите концентрацию:</p>
-            <div className="flex items-center justify-center gap-3">
-              {selectedPerfume.concentrations.map((concentration, idx) => (
-                <button
-                  key={concentration}
-                  onClick={() => setSelectedConcentration(concentration)}
-                  className={`px-4 py-2 rounded-full border-2 transition-all text-sm ${
-                    selectedConcentration === concentration
-                      ? 'border-white scale-105'
-                      : 'border-white/30'
-                  }`}
-                  data-testid={`button-concentration-${concentration}`}
-                >
-                  {concentration}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="text-sm mb-3 text-white/80 text-center">Выберите объем:</p>
-            <div className="flex items-center justify-center gap-3">
-              {selectedPerfume.volumes.map((volume) => (
-                <button
-                  key={volume}
-                  onClick={() => setSelectedVolume(volume)}
-                  className={`w-16 h-12 rounded-full font-semibold transition-all text-sm ${
-                    selectedVolume === volume
-                      ? 'bg-[#CDFF38] text-black'
-                      : 'bg-white/20 text-white hover:bg-white/30'
-                  }`}
-                  data-testid={`button-volume-${volume}`}
-                >
-                  {volume}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <ConfirmDrawer
-            trigger={
-              <button
-                className="w-full bg-[#CDFF38] text-black font-bold py-4 rounded-full hover:bg-[#B8E633] transition-all"
-                data-testid="button-buy-now"
-              >
-                Добавить в корзину
-              </button>
-            }
-            title="Добавить в корзину?"
-            description={`${selectedPerfume.name} • ${selectedConcentration} • ${selectedVolume}`}
-            confirmText="Добавить"
-            cancelText="Отмена"
-            variant="default"
-            onConfirm={addToCart}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // HOME PAGE
-  if (activeTab === 'home') {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
-        <div className="p-6 pb-4">
-          <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <Menu className="w-6 h-6" data-testid="button-menu" />
-            <div className="flex items-center gap-3">
-              <ShoppingBag className="w-6 h-6" data-testid="button-view-cart" />
-              <Heart className="w-6 h-6" data-testid="button-view-favorites" />
-            </div>
-          </div>
-
-          <div className="mb-6 scroll-fade-in">
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-6 h-6 text-[#C9B037]" />
-            </div>
-            <h1 className="text-4xl font-black tracking-tight text-white">
-              LUXURY
-            </h1>
-            <h1 className="text-4xl font-black tracking-tight text-white">
-              FRAGRANCE
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-4 mb-6 scroll-fade-in">
-            <button 
-              className="p-2 bg-white rounded-full"
-              data-testid="button-view-home"
-            >
-              <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-              </svg>
-            </button>
-            {genderFilters.map((gender) => (
-              <button
-                key={gender}
-                onClick={() => setSelectedGender(gender)}
-                className={`text-sm font-medium transition-colors ${
-                  selectedGender === gender
-                    ? 'text-white'
-                    : 'text-white/40'
-                }`}
-                data-testid={`button-filter-${gender.toLowerCase()}`}
-              >
-                {gender}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 bg-white/5 rounded-full px-4 py-3 flex items-center gap-2 border border-white/10">
-              <Search className="w-5 h-5 text-white/50" />
-              <input
-                type="text"
-                placeholder="Поиск ароматов..."
-                className="bg-transparent text-white placeholder:text-white/50 outline-none flex-1 text-sm"
-                data-testid="input-search"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="relative mb-6 mx-6 rounded-3xl overflow-hidden scroll-fade-in" style={{ height: '500px' }}>
-          <img
-            src="https://images.unsplash.com/photo-1588405748880-12d1d2a59d75?w=800&h=1000&fit=crop&q=90"
-            alt="Hero"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-          
-          <div className="absolute bottom-0 left-0 right-0 p-8">
-            <m.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <Crown className="w-7 h-7 text-[#C9B037]" />
-              </div>
-              <h2 className="text-5xl font-black tracking-tight leading-tight text-white">
-                НОВАЯ
-              </h2>
-              <h2 className="text-5xl font-black mb-3 tracking-tight leading-tight text-white">
-                КОЛЛЕКЦИЯ
-              </h2>
-              <p className="text-base text-white/70 mb-6 flex items-center gap-2" style={{ letterSpacing: '0.05em' }}>
-                <Droplets className="w-4 h-4 text-[#C9B037]" />
-                Эксклюзивные ароматы 2025
-              </p>
-              <button 
-                className="px-8 py-4 rounded-full font-bold text-black transition-all hover:scale-105 bg-[#C9B037]"
-                data-testid="button-hero-shop-now"
-              >
-                Смотреть коллекцию
-              </button>
-            </m.div>
-          </div>
-        </div>
-
-        <div className="px-6 space-y-4">
-          {filteredPerfumes.slice(0, 3).map((perfume, idx) => (
-            <m.div
-              key={perfume.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              onClick={() => openPerfume(perfume)}
-              className={`relative cursor-pointer group rounded-3xl overflow-hidden ${idx === 0 ? 'scroll-fade-in' : ''}`}
-              style={{ height: idx === 0 ? '400px' : '320px' }}
-              data-testid={`featured-perfume-${perfume.id}`}
-            >
-              <div className="absolute inset-0">
-                <img
-                  src={perfume.image}
-                  alt={perfume.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
-                />
-              </div>
-
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-
-              <div className="absolute top-4 left-4">
-                <div className="px-3 py-1 bg-black/50 backdrop-blur-md rounded-full border border-white/10">
-                  <span className="text-xs font-semibold text-white/90">
-                    {perfume.brand}
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleFavorite(perfume.id);
-                }}
-                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center border border-white/10"
-                data-testid={`button-favorite-${perfume.id}`}
-              >
-                <Heart 
-                  className={`w-5 h-5 ${favorites.has(perfume.id) ? 'fill-white text-white' : 'text-white'}`}
-                />
-              </button>
-
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <div className="flex items-end justify-between">
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold mb-2 leading-tight">
-                      {perfume.name}
-                    </h3>
-                    <p className="text-sm text-white/70 mb-4 flex items-center gap-1">
-                      <Droplets className="w-4 h-4 text-[#C9B037]" />
-                      {perfume.category}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openPerfume(perfume);
-                    }}
-                    className="w-14 h-14 rounded-full bg-[#C9B037] flex items-center justify-center transition-all hover:scale-110"
-                    data-testid={`button-add-to-cart-${perfume.id}`}
-                  >
-                    <ShoppingBag className="w-6 h-6 text-black" />
-                  </button>
-                </div>
-
-                <div className="mt-3">
-                  <p className="text-lg font-bold text-white">{formatPrice(perfume.price)}</p>
-                </div>
-              </div>
-            </m.div>
-          ))}
-        </div>
-
-        <div className="h-8"></div>
-      </div>
-    );
-  }
-
-  // CATALOG PAGE
-  if (activeTab === 'catalog') {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6 scroll-fade-in">
-            <h1 className="text-2xl font-bold">Каталог</h1>
-            <div className="flex items-center gap-3">
-              <button className="p-2" data-testid="button-view-search">
-                <Search className="w-6 h-6" />
-              </button>
-              <button className="p-2" data-testid="button-view-filter">
-                <Filter className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-[#C9B037] text-black'
-                    : 'bg-white/10 text-white/70 hover:bg-white/15'
-                }`}
-                data-testid={`button-filter-${cat.toLowerCase()}`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            {filteredPerfumes.map((perfume, index) => (
-              <m.div
-                key={perfume.id}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => openPerfume(perfume)}
-                className={`relative cursor-pointer ${index < 4 ? '' : `scroll-fade-in-delay-${Math.min((index - 4) % 3 + 1, 3)}`}`}
-                data-testid={`perfume-card-${perfume.id}`}
-              >
-                <div className="relative aspect-[3/4] rounded-3xl overflow-hidden mb-3 bg-white/5">
-                  <img
-                    src={perfume.image}
-                    alt={perfume.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(perfume.id);
-                    }}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/40 backdrop-blur-xl flex items-center justify-center"
-                    data-testid={`button-favorite-${perfume.id}`}
-                  >
-                    <Heart 
-                      className={`w-4 h-4 ${favorites.has(perfume.id) ? 'fill-white text-white' : 'text-white'}`}
-                    />
-                  </button>
-
-                  {perfume.isNew && (
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-[#C9B037] text-black text-xs font-bold rounded-full">
-                      NEW
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <p className="text-xs text-white/50 mb-1">{perfume.brand}</p>
-                  <p className="text-sm font-semibold mb-1 truncate">{perfume.name}</p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-base font-bold">{formatPrice(perfume.price)}</p>
-                    {perfume.oldPrice && (
-                      <p className="text-xs text-white/40 line-through">{formatPrice(perfume.oldPrice)}</p>
-                    )}
-                  </div>
-                </div>
-              </m.div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // CART PAGE
-  if (activeTab === 'cart') {
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-32">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-6">Корзина</h1>
-
-          {cart.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <ShoppingBag className="w-20 h-20 text-white/20 mb-4" />
-              <p className="text-white/50 text-center">Ваша корзина пуста</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {cart.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 flex gap-4"
-                  data-testid={`cart-item-${item.id}`}
-                >
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-20 h-20 rounded-xl object-cover"
-                    loading="lazy"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-semibold mb-1">{item.name}</h3>
-                    <p className="text-sm text-white/60 mb-2">
-                      {item.concentration} • {item.volume}
-                    </p>
-                    <p className="text-lg font-bold">{formatPrice(item.price)}</p>
-                  </div>
-                  <button
-                    onClick={() => setCart(cart.filter(i => i.id !== item.id))}
-                    className="w-8 h-8"
-                    data-testid={`button-remove-${item.id}`}
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-              ))}
-
-              <div className="fixed bottom-24 left-0 right-0 p-6 bg-[#0A0A0A] border-t border-white/10">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-lg font-semibold">Итого:</span>
-                  <span className="text-2xl font-bold">{formatPrice(cartTotal)}</span>
-                </div>
-                <ConfirmDrawer
-                  trigger={
-                    <button
-                      className="w-full bg-[#C9B037] text-black font-bold py-4 rounded-full hover:bg-[#B8A033] transition-all"
-                      data-testid="button-checkout"
-                    >
-                      Оформить заказ
-                    </button>
-                  }
-                  title="Оформить заказ?"
-                  description={`${cart.length} товаров на сумму ${formatPrice(cartTotal)}`}
-                  confirmText="Подтвердить"
-                  cancelText="Отмена"
-                  variant="default"
-                  onConfirm={handleCheckout}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // PROFILE PAGE
-  if (activeTab === 'profile') {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white overflow-auto pb-24">
-        <div className="p-6 bg-white/5 border-b border-white/10">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-[#C9B037] rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-black" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold">Анна Смирнова</h2>
-              <p className="text-sm text-muted-foreground">+7 (999) 888-77-66</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
-              <p className="text-sm text-white/70 mb-1">Заказы</p>
-              <p className="text-2xl font-bold">{orders.length}</p>
-            </div>
-            <div className="p-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20">
-              <p className="text-sm text-white/70 mb-1">Избранное</p>
-              <p className="text-2xl font-bold">{favorites.size}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-4 space-y-4">
-          <div className="scroll-fade-in">
-            <h3 className="text-lg font-bold mb-4">Мои заказы</h3>
-            {orders.length === 0 ? (
-              <div className="text-center py-8 text-white/50">
-                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>У вас пока нет заказов</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {orders.map((order) => (
-                  <div key={order.id} className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10" data-testid={`order-${order.id}`}>
-                    <div className="flex justify-between gap-2 mb-2">
-                      <span className="text-white/80">Заказ #{order.id.toString().slice(-6)}</span>
-                      <span className="text-white/60">{order.date}</span>
-                    </div>
-                    <div className="flex justify-between gap-2 mb-2">
-                      <span className="text-white/60">{order.items.length} товаров</span>
-                      <span className="font-bold text-[#C9B037]">{formatPrice(order.total)}</span>
-                    </div>
-                    <div className="mt-2">
-                      <span className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">
-                        {order.status === 'processing' ? 'В обработке' : order.status === 'shipped' ? 'Отправлен' : 'Доставлен'}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-favorites">
-              <div className="flex items-center gap-3">
-                <Heart className="w-5 h-5 text-white/70" />
-                <span className="font-medium">Избранное</span>
-              </div>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-            </button>
-
-            <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-addresses">
-              <div className="flex items-center gap-3">
-                <MapPin className="w-5 h-5 text-white/70" />
-                <span className="font-medium">Адреса доставки</span>
-              </div>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-            </button>
-
-            <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-payment">
-              <div className="flex items-center gap-3">
-                <CreditCard className="w-5 h-5 text-white/70" />
-                <span className="font-medium">Способы оплаты</span>
-              </div>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-            </button>
-
-            <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-settings">
-              <div className="flex items-center gap-3">
-                <Settings className="w-5 h-5 text-white/70" />
-                <span className="font-medium">Настройки</span>
-              </div>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-            </button>
-
-            <button className="w-full p-4 bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-between hover-elevate active-elevate-2" data-testid="button-logout">
-              <div className="flex items-center gap-3">
-                <LogOut className="w-5 h-5 text-white/70" />
-                <span className="font-medium">Выход</span>
-              </div>
-              <ChevronLeft className="w-5 h-5 rotate-180 text-white/50" />
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return null;
-}
-
-export default memo(FragranceRoyale);
 ```
 
 ### RascalStore.tsx
@@ -10795,12 +6778,15 @@ export default memo(EmilyCarterAI);
 
 ### DemoAppShell.tsx (оболочка демо)
 ```tsx
-import { useState, Suspense, memo, useEffect } from "react";
+import { useState, Suspense, memo, useEffect, useCallback, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Home, Grid3X3, ShoppingCart, User } from "lucide-react";
 import { demoApps } from "../data/demoApps";
 import { useTelegram } from "../hooks/useTelegram";
 import { getDemoComponent, isDemoAvailable } from "./demos/DemoRegistry";
 import { LiquidHomeButton } from "./ui/liquid-home-button";
+import { scrollToTop } from "@/hooks/useScrollToTop";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface DemoAppShellProps {
   demoId: string;
@@ -10809,66 +6795,203 @@ interface DemoAppShellProps {
 
 type TabType = 'home' | 'catalog' | 'cart' | 'profile';
 
-const navItems: { id: TabType; icon: any; label: string }[] = [
-  { id: 'home', icon: Home, label: 'Главная' },
-  { id: 'catalog', icon: Grid3X3, label: 'Каталог' },
-  { id: 'cart', icon: ShoppingCart, label: 'Корзина' },
-  { id: 'profile', icon: User, label: 'Профиль' },
-];
+interface DemoTheme {
+  background: string;
+  isDark: boolean;
+  activeIconColor: string;
+  inactiveIconColor: string;
+  navOverlay: string;
+  accent: string;
+  onAccent: string;
+}
+
+const darkTheme: DemoTheme = {
+  background: '#101114',
+  isDark: true,
+  activeIconColor: '#fff',
+  inactiveIconColor: 'rgba(255,255,255,0.45)',
+  navOverlay: 'rgba(20, 20, 22, 0.65)',
+  accent: '#FFFFFF',
+  onAccent: '#161616',
+};
+
+const lightTheme: DemoTheme = {
+  background: '#F5F3F0',
+  isDark: false,
+  activeIconColor: 'rgba(0,0,0,0.85)',
+  inactiveIconColor: 'rgba(0,0,0,0.35)',
+  navOverlay: 'rgba(255, 255, 255, 0.65)',
+  accent: '#1C1C1E',
+  onAccent: '#FFFFFF',
+};
+
+const demoThemes: Record<string, Partial<DemoTheme>> = {
+  'stray-store': { background: '#F6F6F4', isDark: false, accent: '#0A0A0B', onAccent: '#FFFFFF' },
+  'tea-house': { background: '#FAF6F1', isDark: false },
+  'interior-lux': { background: '#F5F3F0', isDark: false },
+  'restaurant': { background: '#0A0A0A', isDark: true },
+  'futuristic-fashion-1': { background: '#0A0A0A', isDark: true },
+  'futuristic-fashion-2': { background: '#000000', isDark: true },
+  'futuristic-fashion-3': { background: '#0A0A0A', isDark: true },
+  'futuristic-fashion-4': { background: '#0A0A0A', isDark: true },
+  'skincare-aura': { background: '#FFFFFF', isDark: false, accent: '#A3E635', onAccent: '#1A2E05' },
+  'streetwear-vanta': { background: '#FFFFFF', isDark: false, accent: '#0B0B0B', onAccent: '#FFFFFF' },
+  'tech-nova': { background: '#FFFFFF', isDark: false, accent: '#161618', onAccent: '#FFFFFF' },
+};
+
+const getTheme = (demoId: string): DemoTheme => {
+  const custom = demoThemes[demoId] || {};
+  const base = custom.isDark === false ? lightTheme : darkTheme;
+  return { ...base, ...custom };
+};
+
+// Theme-aware demos (skincare-aura) follow the system colour scheme.
+// Pre-match it so the shell never flashes a mismatched colour on entry.
+const initialDemoDark = (id: string): boolean => {
+  if (!id.startsWith('skincare-aura')) return false;
+  try {
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg && tg.colorScheme) return tg.colorScheme === 'dark';
+    return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  } catch { return false; }
+};
+
+const DemoLiquidGlassFilter = () => (
+  <svg style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
+    <filter id="demo-glass-distortion" x="-5%" y="-5%" width="110%" height="110%" filterUnits="objectBoundingBox">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02 0.015" numOctaves="2" seed="23" result="turbulence" />
+      <feGaussianBlur in="turbulence" stdDeviation="4" result="softMap" />
+      <feDisplacementMap in="SourceGraphic" in2="softMap" scale="6" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+);
+
+interface DemoNavTabProps {
+  onClick: () => void;
+  isActive: boolean;
+  ariaLabel: string;
+  testId: string;
+  label: string;
+  activeColor: string;
+  inactiveColor: string;
+  badge?: number;
+  badgeBg?: string;
+  badgeFg?: string;
+  children: React.ReactNode;
+}
+
+const DemoNavTab = ({ onClick, isActive, ariaLabel, testId, label, activeColor, inactiveColor, badge, badgeBg = '#1C1C1E', badgeFg = '#FFFFFF', children }: DemoNavTabProps) => (
+  <button
+    type="button"
+    className="relative z-30 flex items-center justify-center rounded-[14px] gpu-layer"
+    style={{
+      height: '44px',
+      minWidth: '44px',
+      appearance: 'none',
+      border: 'none',
+      background: isActive ? (activeColor === '#fff' ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.06)') : 'transparent',
+      padding: isActive ? '0 14px' : '0 12px',
+      outline: 'none',
+      cursor: 'pointer',
+      gap: isActive ? '7px' : '0',
+      transition: 'background 0.22s ease-out, padding 0.28s ease-out, gap 0.28s ease-out',
+      WebkitTapHighlightColor: 'transparent',
+    }}
+    onClick={onClick}
+    aria-label={ariaLabel}
+    data-testid={testId}
+  >
+    <div className="relative z-10 flex-shrink-0 nav-tab-icon">
+      {children}
+      {badge ? (
+        <span style={{
+          position: 'absolute', top: '-6px', right: '-9px', minWidth: '16px', height: '16px',
+          padding: '0 4px', borderRadius: '999px', background: badgeBg, color: badgeFg,
+          fontSize: '10px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1,
+        }}>{badge > 99 ? '99+' : badge}</span>
+      ) : null}
+    </div>
+    <span
+      className="relative z-10 leading-none overflow-hidden whitespace-nowrap"
+      style={{
+        fontSize: '12px',
+        fontWeight: 600,
+        letterSpacing: '0.01em',
+        color: activeColor,
+        maxWidth: isActive ? '80px' : '0',
+        opacity: isActive ? 1 : 0,
+        transition: 'max-width 0.28s ease-out, opacity 0.18s ease-out',
+      }}
+    >
+      {label}
+    </span>
+  </button>
+);
 
 const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShellProps) {
   const [activeTab, setActiveTab] = useState<TabType>('home');
+  const [cartCount, setCartCount] = useState(0);
+  const [demoDark, setDemoDark] = useState(() => initialDemoDark(demoId));
   const { hapticFeedback } = useTelegram();
-  
-  // Scroll to top when demo opens - single optimized call
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    });
-  }, [demoId]);
-  
-  // Extract base app type from ID to support variants (e.g., 'clothing-store-2' → 'clothing-store')
-  const getBaseAppType = (id: string): string => {
-    // Remove variant suffixes (-2, -3, etc.) to get base type
-    return id.replace(/-\d+$/, '');
-  };
+  const { t } = useLanguage();
 
-  // Find demo app - first try exact match, then base type fallback
-  const demoApp = demoApps.find(app => app.id === demoId) || 
-                  demoApps.find(app => app.id === getBaseAppType(demoId));
-  
+  // Scroll to top when demo opens
+  useEffect(() => {
+    scrollToTop();
+    setCartCount(0);
+    setDemoDark(initialDemoDark(demoId));
+  }, [demoId]);
+
+  const getBaseAppType = useCallback((id: string): string => {
+    return id.replace(/-\d+$/, '');
+  }, []);
+
+  const demoApp = useMemo(() =>
+    demoApps.find(app => app.id === (demoId === 'royal-step' ? 'nike-sneakers' : demoId)) ||
+    demoApps.find(app => app.id === getBaseAppType(demoId)),
+    [demoId, getBaseAppType]
+  );
+
   if (!demoApp) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
         <div className="bg-white/5 border border-white/10 rounded-3xl p-6 mx-4 text-center">
-          <h3 className="text-lg font-semibold text-white mb-2">Демо не найдено</h3>
+          <h3 className="text-lg font-semibold text-white mb-2">{t('demo.notFound')}</h3>
           <p className="text-sm text-white/50">
-            Приложение временно недоступно
+            {t('demo.appUnavailable')}
           </p>
+          <button type="button" onClick={onClose} className="mt-5 px-5 py-3 rounded-full bg-white text-black font-semibold">{t('demo.back')}</button>
         </div>
       </div>
     );
   }
 
-  const handleTabSwitch = (tab: TabType) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const handleTabSwitch = useCallback((tab: TabType) => {
     setActiveTab(tab);
-    if (hapticFeedback?.selection) {
-      hapticFeedback.selection();
+    scrollToTop();
+    const el = contentRef.current;
+    if (el) {
+      el.classList.remove('demo-tab-enter');
+      void el.offsetWidth;
+      el.classList.add('demo-tab-enter');
     }
-  };
+    if (hapticFeedback?.selection) {
+      queueMicrotask(() => hapticFeedback.selection());
+    }
+  }, [hapticFeedback]);
 
-  const handleStringNavigation = (tab: string) => {
-    const tabType = tab as TabType;
-    handleTabSwitch(tabType);
-  };
+  const handleStringNavigation = useCallback((tab: string) => {
+    handleTabSwitch(tab as TabType);
+  }, [handleTabSwitch]);
 
-  // Navigate to main app (showcase page) using hash-based routing
-  const handleNavigateHome = () => {
+  const handleNavigateHome = useCallback(() => {
     window.location.hash = '#/';
     if (hapticFeedback?.medium) {
-      hapticFeedback.medium();
+      queueMicrotask(() => hapticFeedback.medium());
     }
-  };
+  }, [hapticFeedback]);
 
   // No loading screen - instant load
   const DemoLoader = () => null;
@@ -10877,15 +7000,15 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     // First try exact ID match, then fallback to base type
     const exactMatch = isDemoAvailable(demoId);
     const baseAppType = exactMatch ? demoId : getBaseAppType(demoId);
-    
+
     // Check if demo is available in registry
     if (!isDemoAvailable(baseAppType)) {
       return (
         <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
           <div className="bg-white/5 border border-white/10 rounded-3xl p-6 mx-4 text-center">
-            <h3 className="text-lg font-semibold text-white mb-2">Демо недоступно</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">{t('demo.unavailable')}</h3>
             <p className="text-sm text-white/50">
-              Приложение {baseAppType} временно недоступно
+              {t('demo.appTypeUnavailable').replace('{type}', baseAppType)}
             </p>
           </div>
         </div>
@@ -10894,14 +7017,14 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
 
     // Get dynamic component from registry
     const DemoComponent = getDemoComponent(baseAppType);
-    
+
     if (!DemoComponent) {
       return (
         <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
           <div className="bg-white/5 border border-white/10 rounded-3xl p-6 mx-4 text-center">
-            <h3 className="text-lg font-semibold text-white mb-2">Ошибка загрузки</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">{t('demo.loadError')}</h3>
             <p className="text-sm text-white/50">
-              Не удалось загрузить приложение
+              {t('demo.loadErrorDesc')}
             </p>
           </div>
         </div>
@@ -10910,268 +7033,270 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
 
     return (
       <Suspense fallback={null}>
-        <DemoComponent activeTab={activeTab} onTabChange={handleStringNavigation} />
+        <DemoComponent activeTab={activeTab} onTabChange={handleStringNavigation} onCartCount={setCartCount} onTheme={setDemoDark} />
       </Suspense>
     );
-    
+
   };
 
-  // All apps use dark theme by default for premium look
-  const isDarkTheme = true;
-  
-  // Theme colors for each app
-  const getThemeColors = () => {
-    if (demoId.includes('clothing-store')) {
-      return {
-        accentColor: '#C5E1A5',
-        glowColor: 'rgba(197, 225, 165, 0.6)',
-      };
-    } else if (demoId.includes('electronics')) {
-      return {
-        accentColor: '#00D4FF',
-        glowColor: 'rgba(0, 212, 255, 0.6)',
-      };
-    } else if (demoId.includes('beauty')) {
-      return {
-        accentColor: '#EC4899',
-        glowColor: 'rgba(236, 72, 153, 0.6)',
-      };
-    } else if (demoId.includes('restaurant')) {
-      return {
-        accentColor: '#D97706',
-        glowColor: 'rgba(217, 119, 6, 0.6)',
-      };
-    }
-    return {
-      accentColor: '#10B981',
-      glowColor: 'rgba(16, 185, 129, 0.6)',
-    };
-  };
-  
-  const theme = getThemeColors();
-  
-  // Get background gradient based on app - all dark by default
-  const getBackgroundGradient = () => {
-    // All demos use pure black background for consistent dark premium look
-    return 'bg-[#0A0A0A]';
-  };
+  // Get theme for current demo
+  const baseAppType = getBaseAppType(demoId);
+  const theme = demoDark ? darkTheme : getTheme(baseAppType);
+
+  // The flower store supplies its own navigation inside the shared WEB4TG header.
+  if (demoId === 'flower-store') {
+    const FlowerStore = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<div aria-label="Загрузка цветочного магазина" style={{ minHeight: '100vh', background: '#fff' }} />}>
+        {FlowerStore && <FlowerStore onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
+
+  // The buyer demo supplies its own navigation inside the shared WEB4TG header.
+  if (demoId === 'china-buyer') {
+    const ChinaBuyer = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<div aria-label="Загрузка бюро поиска" style={{ minHeight: '100vh', background: '#fff' }} />}>
+        {ChinaBuyer && <ChinaBuyer onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
+
+  // The medical center supplies its own appointment navigation inside the WEB4TG header.
+  if (demoId === 'medical-center') {
+    const MedicalCenter = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<div aria-label="Загрузка медицинского центра" style={{ minHeight: '100vh', background: '#fff' }} />}>
+        {MedicalCenter && <MedicalCenter onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
+
+  // LUMI supplies its own appointment navigation inside the WEB4TG header.
+  if (demoId === 'lumi-studio') {
+    const LumiStudio = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<div aria-label="Загрузка студии" style={{ minHeight: '100vh', background: '#fff' }} />}>
+        {LumiStudio && <LumiStudio onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
+
+  // The wholesale demo supplies its own navigation inside the WEB4TG header.
+  if (demoId === 'opt-market') {
+    const OptMarket = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<div aria-label="Загрузка магазина" style={{ minHeight: '100vh', background: '#fff' }} />}>
+        {OptMarket && <OptMarket onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
+
+  // Apple store supplies its own storefront navigation, inside the WEB4TG header.
+  if (demoId === 'apple-store') {
+    const AppleStore = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<div aria-label="Загрузка магазина" style={{ minHeight: '100vh', background: '#fff' }} />}>
+        {AppleStore && <AppleStore onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
+
+  // MURAKA supplies its own storefront header and navigation.
+  if (demoId === 'muraka-fashion') {
+    const MurakaFashion = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<div aria-label="Загрузка магазина" style={{ minHeight: '100vh', background: '#fff' }} />}>
+        {MurakaFashion && <MurakaFashion onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
+
+  // This standalone store uses its own navigation so it can reproduce the
+  // requested shop experience, including a full-screen basket sheet.
+  if (demoId === 'royal-step' || demoId === 'nike-sneakers') {
+    const RoyalStep = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<div aria-label="Загрузка магазина" style={{ minHeight: '100vh', background: '#fff' }} />}>
+        {RoyalStep && <RoyalStep onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
 
   return (
-    <div className={`min-h-screen flex flex-col ${isDarkTheme ? 'bg-[#0A0A0A]' : 'bg-gray-100'}`}>
-      {/* Mobile Container - Max width for desktop view */}
-      <div className={`w-full max-w-md mx-auto ${isDarkTheme ? getBackgroundGradient() : 'bg-white'} min-h-screen flex flex-col relative shadow-2xl`}>
-        
-        {/* Demo Content Area - Telegram safe area bottom */}
-        <div className="flex-1 tg-content-safe-bottom" style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }} data-testid="demo-content">
-          {renderDemoContent()}
-        </div>
+    <>
+      {/* Fixed background layer - covers entire viewport including bottom edge */}
+      <div className="fixed inset-0 -z-10" style={{ backgroundColor: theme.background }} />
 
-        {/* Sticky Home Button */}
-        <div 
-          className="sticky right-5 z-50 pointer-events-none"
-          style={{
-            bottom: 'calc(100px + max(0px, env(safe-area-inset-bottom, 0px)))',
-            marginLeft: 'auto',
-            width: 'fit-content'
-          }}
-        >
-          <div className="pointer-events-auto">
-            <LiquidHomeButton onNavigateHome={handleNavigateHome} />
+      {/* ALWAYS add 'dark' class to force dark CSS variables for ALL demos, regardless of main app theme */}
+      <div className="demo-app-shell dark min-h-screen flex flex-col" style={{ backgroundColor: theme.background }}>
+        {/* Mobile Container - Max width for desktop view */}
+        <div className="w-full max-w-md mx-auto min-h-screen flex flex-col relative shadow-2xl" style={{ backgroundColor: theme.background }}>
+
+          {/* Demo Content Area - Telegram safe area bottom with GPU optimization */}
+          <div
+            ref={contentRef}
+            className="flex-1 tg-content-safe-bottom"
+            style={{ paddingBottom: 'max(6rem, var(--csab, 0px))' }}
+            data-testid="demo-content"
+            data-scroll-container="true"
+          >
+            {renderDemoContent()}
           </div>
-        </div>
+
+          </div>
       </div>
 
-      {/* Liquid Glass Bottom Navigation - Same style as main page */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-auto">
-        <div className="relative">
-          {/* Animated Background Glow */}
-          <div 
-            className="absolute -inset-2 rounded-full opacity-20"
-            style={{
-              background: `radial-gradient(circle, ${theme.glowColor} 0%, ${theme.glowColor.replace('0.6', '0.2')} 50%, transparent 70%)`,
-              filter: 'blur(20px)',
-              animation: 'pulse 3s ease-in-out infinite',
-            }}
+      {/* Fixed UI via Portal - bypasses all transform/contain ancestors */}
+      {createPortal(
+        <>
+          <DemoLiquidGlassFilter />
+
+          {/* Solid bottom backing — keeps the floating nav on the app background colour
+              so content never shows through dark behind it */}
+          <div
+            className="fixed left-0 right-0 z-[9990] pointer-events-none"
+            style={{ bottom: 0, height: 'calc(106px + env(safe-area-inset-bottom, 0px))', background: theme.background }}
           />
-          
-          {/* Liquid Glass Container */}
-          <div 
-            className={`relative backdrop-blur-xl rounded-full border px-4 py-3 shadow-2xl ${
-              isDarkTheme 
-                ? 'border-white/20' 
-                : 'border-white/30'
-            }`}
+
+          {/* Fixed Home Button */}
+          <div
+            className="fixed z-[9999] pointer-events-none flex justify-end"
             style={{
-              background: isDarkTheme 
-                ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%)'
-                : 'linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%)',
-              boxShadow: isDarkTheme 
-                ? `0 8px 32px rgba(0, 0, 0, 0.6),
-                   inset 0 1px 0 rgba(255, 255, 255, 0.2),
-                   inset 0 -1px 0 rgba(0, 0, 0, 0.3),
-                   0 0 60px ${theme.glowColor.replace('0.6', '0.15')}`
-                : `0 8px 32px rgba(0, 0, 0, 0.4),
-                   inset 0 1px 0 rgba(255, 255, 255, 0.3),
-                   inset 0 -1px 0 rgba(0, 0, 0, 0.2),
-                   0 0 60px ${theme.glowColor.replace('0.6', '0.2')}`,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 'min(100%, 448px)',
+              paddingRight: '16px',
+              bottom: 'calc(100px + max(0px, env(safe-area-inset-bottom, 0px)))',
             }}
           >
-            {/* Inner Highlight */}
-            <div 
-              className="absolute top-1 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent rounded-full"
-            />
-            
-            <nav className="relative flex items-center justify-center gap-2" role="navigation" aria-label="Навигация демо">
-              {/* Liquid Glass Blob - анимированная капля под активной иконкой */}
-              <div 
-                className="absolute transition-all duration-500 ease-out pointer-events-none"
+            <div className="pointer-events-auto">
+              <LiquidHomeButton onNavigateHome={handleNavigateHome} />
+            </div>
+          </div>
+
+          {/* Bottom Navigation — Liquid Glass */}
+          <div
+            className="fixed bottom-0 left-0 right-0 flex justify-center z-[9999]"
+            style={{
+              isolation: 'isolate',
+              paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
+              paddingLeft: '12px',
+              paddingRight: '12px',
+              paddingTop: '8px',
+            }}
+          >
+            <nav
+              className="relative flex items-center rounded-[22px] gpu-layer"
+              style={{
+                padding: '5px 6px',
+                gap: '2px',
+                boxShadow: '0 6px 18px rgba(0, 0, 0, 0.16)',
+                background: theme.navOverlay,
+              }}
+              role="navigation"
+              aria-label={t('nav.navigation')}
+            >
+              <div
+                className="absolute inset-0 z-0 rounded-[22px] pointer-events-none"
                 style={{
-                  left: activeTab === 'home' ? '-2px' :
-                        activeTab === 'catalog' ? '54px' :
-                        activeTab === 'cart' ? '110px' :
-                        activeTab === 'profile' ? '166px' : '-2px',
-                  top: '-2px',
-                  width: '52px',
-                  height: '52px',
-                  zIndex: 1,
+                  backdropFilter: 'blur(40px) saturate(1.4)',
+                  WebkitBackdropFilter: 'blur(40px) saturate(1.4)',
+                  filter: 'url(#demo-glass-distortion)',
                 }}
-              >
-                {/* Основной слой капли */}
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    background: `radial-gradient(ellipse 100% 90% at 50% 45%, ${theme.glowColor.replace('0.6', '0.35')} 0%, ${theme.glowColor.replace('0.6', '0.22')} 40%, transparent 70%)`,
-                    borderRadius: '45% 55% 50% 50% / 50% 50% 45% 55%',
-                    filter: 'blur(12px)',
-                    animation: 'liquid-morph 4s ease-in-out infinite',
-                  }}
-                />
-                {/* Второй слой капли */}
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    background: `radial-gradient(ellipse at center, ${theme.glowColor.replace('0.6', '0.28')} 0%, ${theme.glowColor.replace('0.6', '0.15')} 50%, transparent 70%)`,
-                    borderRadius: '50% 45% 55% 50% / 55% 50% 50% 45%',
-                    filter: 'blur(16px)',
-                    animation: 'liquid-morph-reverse 5s ease-in-out infinite',
-                  }}
-                />
-                {/* Внутреннее свечение */}
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    background: `radial-gradient(circle at center, ${theme.glowColor.replace('0.6', '0.4')} 0%, ${theme.glowColor.replace('0.6', '0.18')} 30%, transparent 60%)`,
-                    borderRadius: '50%',
-                    filter: 'blur(8px)',
-                  }}
-                />
-              </div>
-              
-              {/* Главная */}
-              <button
+              />
+              <div
+                className="absolute inset-0 z-10 rounded-[22px] pointer-events-none"
+                style={{
+                  border: theme.isDark ? '0.5px solid rgba(255,255,255,0.10)' : '0.5px solid rgba(0,0,0,0.07)',
+                }}
+              />
+
+              <DemoNavTab
                 onClick={() => handleTabSwitch('home')}
-                className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${
-                  isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-white/10'
-                }`}
-                style={{ zIndex: 10 }}
-                aria-label="Главная"
-                aria-current={activeTab === 'home' ? 'page' : undefined}
-                data-testid="nav-home"
+                isActive={activeTab === 'home'}
+                ariaLabel={t('nav.home')}
+                testId="nav-home"
+                label={t('nav.home')}
+                activeColor={theme.activeIconColor}
+                inactiveColor={theme.inactiveIconColor}
               >
                 <Home
-                  className={`transition-all duration-300 ${
-                    activeTab === 'home' 
-                      ? 'w-6 h-6' 
-                      : 'w-5 h-5'
-                  } ${
-                    isDarkTheme 
-                      ? (activeTab === 'home' ? 'text-white' : 'text-white/70 hover:text-white')
-                      : (activeTab === 'home' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900')
-                  }`}
-                  strokeWidth={2}
+                  className="w-[21px] h-[21px]"
+                  style={{
+                    color: activeTab === 'home' ? theme.activeIconColor : theme.inactiveIconColor,
+                    transition: 'color 0.2s ease-out',
+                  }}
+                  strokeWidth={activeTab === 'home' ? 2 : 1.5}
                 />
-              </button>
-              
-              {/* Каталог */}
-              <button
+              </DemoNavTab>
+
+              <DemoNavTab
                 onClick={() => handleTabSwitch('catalog')}
-                className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${
-                  isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-white/10'
-                }`}
-                style={{ zIndex: 10 }}
-                aria-label="Каталог"
-                aria-current={activeTab === 'catalog' ? 'page' : undefined}
-                data-testid="nav-catalog"
+                isActive={activeTab === 'catalog'}
+                ariaLabel={t('nav.catalog')}
+                testId="nav-catalog"
+                label={t('nav.catalog')}
+                activeColor={theme.activeIconColor}
+                inactiveColor={theme.inactiveIconColor}
               >
                 <Grid3X3
-                  className={`transition-all duration-300 ${
-                    activeTab === 'catalog' 
-                      ? 'w-6 h-6' 
-                      : 'w-5 h-5'
-                  } ${
-                    isDarkTheme 
-                      ? (activeTab === 'catalog' ? 'text-white' : 'text-white/70 hover:text-white')
-                      : (activeTab === 'catalog' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900')
-                  }`}
-                  strokeWidth={2}
+                  className="w-[21px] h-[21px]"
+                  style={{
+                    color: activeTab === 'catalog' ? theme.activeIconColor : theme.inactiveIconColor,
+                    transition: 'color 0.2s ease-out',
+                  }}
+                  strokeWidth={activeTab === 'catalog' ? 2 : 1.5}
                 />
-              </button>
-              
-              {/* Корзина */}
-              <button
+              </DemoNavTab>
+
+              <DemoNavTab
                 onClick={() => handleTabSwitch('cart')}
-                className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${
-                  isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-white/10'
-                }`}
-                style={{ zIndex: 10 }}
-                aria-label="Корзина"
-                aria-current={activeTab === 'cart' ? 'page' : undefined}
-                data-testid="nav-cart"
+                isActive={activeTab === 'cart'}
+                ariaLabel={t('nav.cart')}
+                testId="nav-cart"
+                label={t('nav.cart')}
+                activeColor={theme.activeIconColor}
+                inactiveColor={theme.inactiveIconColor}
+                badge={cartCount}
+                badgeBg={theme.accent}
+                badgeFg={theme.onAccent}
               >
                 <ShoppingCart
-                  className={`transition-all duration-300 ${
-                    activeTab === 'cart' 
-                      ? 'w-6 h-6' 
-                      : 'w-5 h-5'
-                  } ${
-                    isDarkTheme 
-                      ? (activeTab === 'cart' ? 'text-white' : 'text-white/70 hover:text-white')
-                      : (activeTab === 'cart' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900')
-                  }`}
-                  strokeWidth={2}
+                  className="w-[21px] h-[21px]"
+                  style={{
+                    color: activeTab === 'cart' ? theme.activeIconColor : theme.inactiveIconColor,
+                    transition: 'color 0.2s ease-out',
+                  }}
+                  strokeWidth={activeTab === 'cart' ? 2 : 1.5}
                 />
-              </button>
-              
-              {/* Профиль */}
-              <button
+              </DemoNavTab>
+
+              <DemoNavTab
                 onClick={() => handleTabSwitch('profile')}
-                className={`relative flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${
-                  isDarkTheme ? 'hover:bg-white/5' : 'hover:bg-white/10'
-                }`}
-                style={{ zIndex: 10 }}
-                aria-label="Профиль"
-                aria-current={activeTab === 'profile' ? 'page' : undefined}
-                data-testid="nav-profile"
+                isActive={activeTab === 'profile'}
+                ariaLabel={t('nav.profile')}
+                testId="nav-profile"
+                label={t('nav.profile')}
+                activeColor={theme.activeIconColor}
+                inactiveColor={theme.inactiveIconColor}
               >
                 <User
-                  className={`transition-all duration-300 ${
-                    activeTab === 'profile' 
-                      ? 'w-6 h-6' 
-                      : 'w-5 h-5'
-                  } ${
-                    isDarkTheme 
-                      ? (activeTab === 'profile' ? 'text-white' : 'text-white/70 hover:text-white')
-                      : (activeTab === 'profile' ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900')
-                  }`}
-                  strokeWidth={2}
+                  className="w-[21px] h-[21px]"
+                  style={{
+                    color: activeTab === 'profile' ? theme.activeIconColor : theme.inactiveIconColor,
+                    transition: 'color 0.2s ease-out',
+                  }}
+                  strokeWidth={activeTab === 'profile' ? 2 : 1.5}
                 />
-              </button>
-              
+              </DemoNavTab>
             </nav>
           </div>
-        </div>
-      </div>
-    </div>
+        </>,
+        document.body
+      )}
+    </>
   );
 });
 
@@ -11179,7 +7304,7 @@ export default DemoAppShell;
 ```
 
 ### DemoRegistry.ts (реестр демо)
-```tsx
+```ts
 // Dynamic demo registry for lazy loading
 import { lazy, ComponentType } from 'react';
 
@@ -11191,21 +7316,41 @@ export interface DemoComponent {
 
 // Demo registry with lazy loading
 export const demoRegistry: Record<string, DemoComponent> = {
-  'clothing-store': {
-    component: lazy(() => import('./PremiumFashionStore')),
-    preload: () => import('./PremiumFashionStore')
+  'flower-store': {
+    component: lazy(() => import('./FlowerStore')),
+    preload: () => import('./FlowerStore')
   },
-  'premium-fashion': {
-    component: lazy(() => import('./PremiumFashionStore')),
-    preload: () => import('./PremiumFashionStore')
+  'china-buyer': {
+    component: lazy(() => import('./ChinaBuyer')),
+    preload: () => import('./ChinaBuyer')
   },
-  'electronics': {
-    component: lazy(() => import('./Electronics')),
-    preload: () => import('./Electronics')
+  'medical-center': {
+    component: lazy(() => import('./MedicalCenter')),
+    preload: () => import('./MedicalCenter')
   },
-  'beauty': {
-    component: lazy(() => import('./Beauty')),
-    preload: () => import('./Beauty')
+  'lumi-studio': {
+    component: lazy(() => import('./LumiStudio')),
+    preload: () => import('./LumiStudio')
+  },
+  'opt-market': {
+    component: lazy(() => import('./OptMarket')),
+    preload: () => import('./OptMarket')
+  },
+  'apple-store': {
+    component: lazy(() => import('./AppleStore')),
+    preload: () => import('./AppleStore')
+  },
+  'muraka-fashion': {
+    component: lazy(() => import('./MurakaFashion')),
+    preload: () => import('./MurakaFashion')
+  },
+  'nike-sneakers': {
+    component: lazy(() => import('./RoyalStep')),
+    preload: () => import('./RoyalStep')
+  },
+  'royal-step': {
+    component: lazy(() => import('./RoyalStep')),
+    preload: () => import('./RoyalStep')
   },
   'restaurant': {
     component: lazy(() => import('./Restaurant')),
@@ -11243,52 +7388,12 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./CarWash')),
     preload: () => import('./CarWash')
   },
-  'florist': {
-    component: lazy(() => import('./Florist')),
-    preload: () => import('./Florist')
-  },
-  'tea-house': {
-    component: lazy(() => import('./TeaHouse')),
-    preload: () => import('./TeaHouse')
-  },
-  'sneaker-vault': {
-    component: lazy(() => import('./SneakerVault')),
-    preload: () => import('./SneakerVault')
-  },
-  'fragrance-royale': {
-    component: lazy(() => import('./FragranceRoyale')),
-    preload: () => import('./FragranceRoyale')
-  },
-  'time-elite': {
-    component: lazy(() => import('./TimeElite')),
-    preload: () => import('./TimeElite')
-  },
-  'interior-lux': {
-    component: lazy(() => import('./InteriorLux')),
-    preload: () => import('./InteriorLux')
+  'stray-store': {
+    component: lazy(() => import('./StrayStore')),
+    preload: () => import('./StrayStore')
   },
   
   // Aliases for compatibility with demoApps.ts IDs
-  'luxury-watches': {
-    component: lazy(() => import('./TimeElite')),
-    preload: () => import('./TimeElite')
-  },
-  'home-decor': {
-    component: lazy(() => import('./InteriorLux')),
-    preload: () => import('./InteriorLux')
-  },
-  'sneaker-store': {
-    component: lazy(() => import('./SneakerVault')),
-    preload: () => import('./SneakerVault')
-  },
-  'premium-tea': {
-    component: lazy(() => import('./TeaHouse')),
-    preload: () => import('./TeaHouse')
-  },
-  'luxury-perfume': {
-    component: lazy(() => import('./FragranceRoyale')),
-    preload: () => import('./FragranceRoyale')
-  },
   
   // Futuristic Fashion Collection (4 premium full stores)
   'futuristic-fashion-1': {
@@ -11313,27 +7418,45 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./OxyzNFT')),
     preload: () => import('./OxyzNFT')
   },
+  'skincare-aura': {
+    component: lazy(() => import('./SkincareStore')),
+    preload: () => import('./SkincareStore')
+  },
   'emily-carter-ai': {
     component: lazy(() => import('./EmilyCarterAI')),
     preload: () => import('./EmilyCarterAI')
+  },
+  'streetwear-vanta': {
+    component: lazy(() => import('./StreetwearStore')),
+    preload: () => import('./StreetwearStore')
+  },
+  'tech-nova': {
+    component: lazy(() => import('./TechStore')),
+    preload: () => import('./TechStore')
   }
 };
 
-// Preload critical demos (reduced to essential only for performance)
+const preloadedSet = new Set<string>();
+
 export const preloadCriticalDemos = () => {
-  const criticalDemos = ['clothing-store', 'electronics']; // Reduced from 4 to 2 most critical
+  const criticalDemos = ['flower-store', 'lumi-studio', 'apple-store'];
   
-  criticalDemos.forEach(demoId => {
+  criticalDemos.forEach((demoId, index) => {
     const demo = demoRegistry[demoId];
-    if (demo?.preload) {
-      // Preload on requestIdleCallback with delay to not block initial render
+    if (demo?.preload && !preloadedSet.has(demoId)) {
+      const itemDelay = index * 300;
+      const doPreload = () => {
+        setTimeout(() => {
+          if (!preloadedSet.has(demoId)) {
+            preloadedSet.add(demoId);
+            demo.preload!().catch(() => {});
+          }
+        }, itemDelay);
+      };
       if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => {
-          setTimeout(() => demo.preload!(), 200); // Additional delay
-        });
+        requestIdleCallback(doPreload, { timeout: 5000 });
       } else {
-        // Fallback with longer delay
-        setTimeout(() => demo.preload!(), 500);
+        setTimeout(doPreload, 1000 + itemDelay);
       }
     }
   });
@@ -11350,18 +7473,20 @@ export const isDemoAvailable = (demoId: string): boolean => {
   return demoId in demoRegistry;
 };
 
-// Preload a specific demo component on hover
 export const preloadDemo = (demoId: string): void => {
+  if (preloadedSet.has(demoId)) return;
   const demo = demoRegistry[demoId];
   if (demo?.preload) {
+    preloadedSet.add(demoId);
     demo.preload().catch(() => {
-      // Silently fail if preload fails
+      preloadedSet.delete(demoId);
     });
   }
-};```
+};
+```
 
 ### demoApps.ts (данные приложений)
-```tsx
+```ts
 export interface Banner {
   title: string;
   subtitle?: string;
@@ -11404,118 +7529,136 @@ export interface DemoApp {
 // Топ-10 самых популярных приложений по лайкам
 export const demoApps: DemoApp[] = [
   {
-    id: 'clothing-store',
-    title: 'Radiance',
-    description: 'Магазин модной одежды и аксессуаров',
+    id: 'flower-store',
+    title: 'Цветочный магазин',
+    description: 'Букеты и цветочные композиции для любого повода',
     category: 'Электронная коммерция',
-    image: '/attached_assets/4659a0f48988f601b98b2cec6406c739_1762127566273.jpg',
+    image: '/flower-store/hero.webp',
     creator: 'WEB4TG',
-    likes: '12.3k',
-    badge: 'Premium',
+    likes: '0',
+    badge: 'Демо',
     badgeColor: 'bg-black',
-    home: {
-      hero: {
-        title: 'Digital Fashion',
-        subtitle: 'Sharp design. Strong brands. Clear meaning.',
-        image: '/attached_assets/4659a0f48988f601b98b2cec6406c739_1762127566273.jpg',
-        bgClass: 'bg-black'
-      },
-      banners: [
-        {
-          title: 'Digital Collection',
-          subtitle: 'Radiance.Family',
-          image: '/attached_assets/4659a0f48988f601b98b2cec6406c739_1762127566273.jpg',
-          bgClass: 'bg-black'
-        },
-        {
-          title: 'Premium Design',
-          subtitle: 'Beautiful & meaningful',
-          bgClass: 'bg-gradient-to-r from-gray-900 to-black'
-        }
-      ],
-      services: [
-        { id: 'catalog', title: 'Каталог', priceText: 'Просмотр товаров', iconName: 'grid' },
-        { id: 'favorites', title: 'Избранное', priceText: 'Сохраненные товары', iconName: 'heart' },
-        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
-        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
-      ]
-    }
   },
   {
-    id: 'electronics',
-    title: 'TechMart',
-    description: 'Магазин электроники и техники',
+    id: 'china-buyer',
+    title: 'Бюро поиска — байер из Китая',
+    description: 'Поиск товаров, выкуп и сопровождение заказа из Китая',
     category: 'Электронная коммерция',
-    image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+    image: '/china-buyer/hero.webp',
     creator: 'WEB4TG',
-    likes: '11.8k',
-    badge: 'Хит продаж',
-    badgeColor: 'bg-blue-500',
-    home: {
-      hero: {
-        title: 'Добро пожаловать в TechMart',
-        subtitle: 'Лучшие технологии по доступным ценам',
-        image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-        bgClass: 'bg-gradient-to-r from-blue-500 to-cyan-600'
-      },
-      banners: [
-        {
-          title: 'iPhone 16 Pro',
-          subtitle: 'Новинка уже в продаже',
-          image: 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=400&auto=format,compress&q=80&dpr=2',
-          bgClass: 'bg-gradient-to-r from-gray-800 to-gray-900'
-        },
-        {
-          title: 'Черная пятница',
-          subtitle: 'Скидки до 70% на всё',
-          bgClass: 'bg-gradient-to-r from-red-500 to-orange-600'
-        }
-      ],
-      services: [
-        { id: 'catalog', title: 'Каталог', priceText: 'Все товары', iconName: 'smartphone' },
-        { id: 'compare', title: 'Сравнение', priceText: 'Сравнить товары', iconName: 'bar-chart' },
-        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
-        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
-      ]
-    }
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
   },
   {
-    id: 'beauty',
-    title: 'GlowSpa',
-    description: 'Салон красоты и SPA-услуги',
-    category: 'Красота и здоровье',
-    image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
+    id: 'medical-center',
+    title: 'Частный медицинский центр',
+    description: 'Специалисты, услуги и удобная запись на приём',
+    category: 'Здоровье',
+    image: '/medical-center/hero.webp',
     creator: 'WEB4TG',
-    likes: '9.7k',
-    badge: 'Премиум',
-    badgeColor: 'bg-pink-500',
-    home: {
-      hero: {
-        title: 'Добро пожаловать в GlowSpa',
-        subtitle: 'Откройте секрет вашей красоты',
-        image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-        bgClass: 'bg-gradient-to-r from-pink-500 to-rose-600'
-      },
-      banners: [
-        {
-          title: 'Новые процедуры',
-          subtitle: 'Anti-age терапия',
-          image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&auto=format,compress&q=80&dpr=2',
-          bgClass: 'bg-gradient-to-r from-purple-500 to-indigo-600'
-        },
-        {
-          title: 'Акция месяца',
-          subtitle: 'Скидка 30% на все услуги',
-          bgClass: 'bg-gradient-to-r from-emerald-500 to-teal-600'
-        }
-      ],
-      services: [
-        { id: 'services', title: 'Услуги', priceText: 'Все процедуры', iconName: 'sparkles' },
-        { id: 'booking', title: 'Запись', priceText: 'Онлайн бронирование', iconName: 'calendar' },
-        { id: 'loyalty', title: 'Программа лояльности', priceText: 'Накопительные скидки', iconName: 'gift' },
-        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
-      ]
-    }
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
+    id: 'lumi-studio',
+    title: 'LUMI — студия красоты',
+    description: 'Услуги, мастера и удобная запись в студию красоты',
+    category: 'Красота и услуги',
+    image: '/lumi/generated/lumi-v4-hero.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
+    id: 'opt-market',
+    title: 'ПАРТИЯ — оптовые закупки',
+    description: 'Каталог поставщика, персональные цены и быстрые заказы для бизнеса',
+    category: 'Электронная коммерция',
+    image: '/b2b/generated/hero-real-v1.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
+    id: 'apple-store',
+    title: 'Техника Apple',
+    description: 'Демо магазина техники Apple с каталогом и корзиной',
+    category: 'Электронная коммерция',
+    image: '/apple-store/hero.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
+    id: 'muraka-fashion',
+    title: 'Магазин одежды',
+    description: 'Демо магазина одежды и кроссовок',
+    category: 'Электронная коммерция',
+    image: '/muraka-fashion/jacket-patchwork-product.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
+    id: 'nike-sneakers',
+    title: 'КРОССОВКИ NIKE',
+    description: 'Демо магазина Nike с каталогом и корзиной',
+    category: 'Электронная коммерция',
+    image: '/royal-step/jordan-banner.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
+    id: 'stray-store',
+    title: 'STRAY',
+    description: 'Минималистичный стритвир-магазин: одежда, обувь, аксессуары',
+    category: 'Электронная коммерция',
+    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_3F02JzQ7VwcjzsSuotlPzYO9aEk/hf_20260619_122532_b28cb4c9-8ff7-4a54-b736-b1c89f1b22b7.jpeg',
+    creator: 'WEB4TG',
+    likes: '15.1k',
+    badge: 'Новинка',
+    badgeColor: 'bg-black',
+  },
+  {
+    id: 'tech-nova',
+    title: 'NOVA',
+    description: 'Магазин премиальной электроники: смартфоны, ноутбуки, планшеты',
+    category: 'Электронная коммерция',
+    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_171258_791a20a6-9c96-4e85-bec2-e4813052ec93_min.webp',
+    creator: 'WEB4TG',
+    likes: '14.2k',
+    badge: 'Новинка',
+    badgeColor: 'bg-black',
+  },
+  {
+    id: 'streetwear-vanta',
+    title: 'VANTA',
+    description: 'Премиальный стритвир-бутик: кроссовки, куртки, худи',
+    category: 'Электронная коммерция',
+    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_154829_2fbfd789-76fb-419f-9591-cb69d3d85f4f_min.webp',
+    creator: 'WEB4TG',
+    likes: '11.4k',
+    badge: 'Новинка',
+    badgeColor: 'bg-black',
+  },
+  {
+    id: 'skincare-aura',
+    title: 'Aura',
+    description: 'Премиальный магазин косметики и ухода за кожей',
+    category: 'Электронная коммерция',
+    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_125334_678cadf8-6a6e-4f16-941b-ce41570fee6b_min.webp',
+    creator: 'WEB4TG',
+    likes: '9.8k',
+    badge: 'Новинка',
+    badgeColor: 'bg-black',
   },
   {
     id: 'restaurant',
@@ -11556,121 +7699,6 @@ export const demoApps: DemoApp[] = [
     }
   },
   // НОВЫЕ E-COMMERCE ПРИЛОЖЕНИЯ
-  {
-    id: 'luxury-watches',
-    title: 'TimeElite',
-    description: 'Магазин элитных часов',
-    category: 'Электронная коммерция',
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-    creator: 'WEB4TG',
-    likes: '15.2k',
-    badge: 'Люкс',
-    badgeColor: 'bg-yellow-600',
-    home: {
-      hero: {
-        title: 'Добро пожаловать в TimeElite',
-        subtitle: 'Эксклюзивные часы для истинных ценителей',
-        image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-        bgClass: 'bg-gradient-to-r from-yellow-600 to-amber-700'
-      },
-      banners: [
-        {
-          title: 'Новинка',
-          subtitle: 'Коллекция Rolex 2025',
-          image: 'https://images.unsplash.com/photo-1434056886845-dac89ffe9b56?w=400&auto=format,compress&q=80&dpr=2',
-          bgClass: 'bg-gradient-to-r from-blue-500 to-indigo-600'
-        },
-        {
-          title: 'Эксклюзив',
-          subtitle: 'Лимитированные серии',
-          bgClass: 'bg-gradient-to-r from-purple-500 to-pink-600'
-        }
-      ],
-      services: [
-        { id: 'catalog', title: 'Каталог', priceText: 'Все часы', iconName: 'watch' },
-        { id: 'brands', title: 'Бренды', priceText: 'Rolex, Omega, Cartier', iconName: 'star' },
-        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
-        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
-      ]
-    }
-  },
-  {
-    id: 'sneaker-store',
-    title: 'SneakerVault',
-    description: 'Магазин кроссовок',
-    category: 'Электронная коммерция',
-    image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-    creator: 'WEB4TG',
-    likes: '18.9k',
-    badge: 'Streetwear',
-    badgeColor: 'bg-red-500',
-    home: {
-      hero: {
-        title: 'Добро пожаловать в SneakerVault',
-        subtitle: 'Редкие дропы и эксклюзивные коллаборации',
-        image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-        bgClass: 'bg-gradient-to-r from-red-500 to-orange-600'
-      },
-      banners: [
-        {
-          title: 'Jordan Retro',
-          subtitle: 'Новый релиз уже в продаже',
-          image: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=400&auto=format,compress&q=80&dpr=2',
-          bgClass: 'bg-gradient-to-r from-black to-gray-800'
-        },
-        {
-          title: 'Предзаказ',
-          subtitle: 'Yeezy Boost 350 V3',
-          bgClass: 'bg-gradient-to-r from-purple-500 to-pink-600'
-        }
-      ],
-      services: [
-        { id: 'catalog', title: 'Каталог', priceText: 'Все кроссовки', iconName: 'zap' },
-        { id: 'drops', title: 'Дропы', priceText: 'Новые релизы', iconName: 'lightning' },
-        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
-        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
-      ]
-    }
-  },
-  {
-    id: 'luxury-perfume',
-    title: 'FragranceRoyale',
-    description: 'Магазин премиальной парфюмерии',
-    category: 'Электронная коммерция',
-    image: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59d75?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-    creator: 'WEB4TG',
-    likes: '11.7k',
-    badge: 'Премиум',
-    badgeColor: 'bg-purple-500',
-    home: {
-      hero: {
-        title: 'Добро пожаловать в FragranceRoyale',
-        subtitle: 'Откройте для себя последние ароматы премиум класса',
-        image: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59d75?ixlib=rb-4.0.3&auto=format,compress&fit=crop&w=400&h=300&q=80&dpr=2',
-        bgClass: 'bg-gradient-to-r from-purple-500 to-pink-600'
-      },
-      banners: [
-        {
-          title: 'Новая коллекция',
-          subtitle: 'Весна-Лето 2025',
-          image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=400&auto=format,compress&fit=crop&q=80&dpr=2',
-          bgClass: 'bg-gradient-to-r from-pink-500 to-rose-600'
-        },
-        {
-          title: 'Скидки до 50%',
-          subtitle: 'На избранные ароматы',
-          image: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&auto=format,compress&fit=crop&q=80&dpr=2',
-          bgClass: 'bg-gradient-to-r from-orange-500 to-red-600'
-        }
-      ],
-      services: [
-        { id: 'catalog', title: 'Каталог', priceText: 'Просмотр ароматов', iconName: 'grid' },
-        { id: 'favorites', title: 'Избранное', priceText: 'Сохраненные ароматы', iconName: 'heart' },
-        { id: 'cart', title: 'Корзина', priceText: 'Мои покупки', iconName: 'shopping-cart' },
-        { id: 'profile', title: 'Профиль', priceText: 'Личный кабинет', iconName: 'user' }
-      ]
-    }
-  },
   
   // Futuristic Fashion Collection - 4 Premium Designs
   {
@@ -11718,55 +7746,7 @@ export const demoApps: DemoApp[] = [
     badgeColor: 'bg-gradient-to-r from-gray-800 to-black'
   },
   
-  // Premium Design Collection - New Apps
-  {
-    id: 'oxyz-nft',
-    title: 'OXYZ',
-    description: 'Футуристическая NFT платформа с красными акцентами',
-    category: 'NFT & Крипто',
-    image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&h=300&fit=crop&q=80',
-    creator: 'WEB4TG',
-    likes: '45.2k',
-    badge: 'NFT',
-    badgeColor: 'bg-red-600',
-    home: {
-      hero: {
-        title: 'OXYZ NFT',
-        subtitle: 'The Future of Digital Art',
-        image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=800&h=600&fit=crop&q=90',
-        bgClass: 'bg-black'
-      },
-      services: [
-        { id: 'catalog', title: 'Explore', priceText: 'NFT Collection', iconName: 'grid' },
-        { id: 'cart', title: 'Wallet', priceText: 'Your Assets', iconName: 'wallet' },
-        { id: 'profile', title: 'Settings', priceText: 'Account', iconName: 'settings' }
-      ]
-    }
-  },
-  {
-    id: 'emily-carter-ai',
-    title: 'Emily Carter AI',
-    description: 'AI-ассистент с минималистичным современным дизайном',
-    category: 'AI & Технологии',
-    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop&q=80',
-    creator: 'WEB4TG',
-    likes: '67.8k',
-    badge: 'AI',
-    badgeColor: 'bg-emerald-600',
-    home: {
-      hero: {
-        title: 'Emily Carter',
-        subtitle: 'Your AI Assistant',
-        image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop&q=90',
-        bgClass: 'bg-white'
-      },
-      services: [
-        { id: 'catalog', title: 'Chat', priceText: 'Start talking', iconName: 'message-square' },
-        { id: 'cart', title: 'History', priceText: 'Past chats', iconName: 'clock' },
-        { id: 'profile', title: 'Profile', priceText: 'Settings', iconName: 'user' }
-      ]
-    }
-  },
+  // Premium Lifestyle Collection
 ];
 ```
 

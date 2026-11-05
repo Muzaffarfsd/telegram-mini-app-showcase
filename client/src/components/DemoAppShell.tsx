@@ -46,18 +46,10 @@ const lightTheme: DemoTheme = {
 };
 
 const demoThemes: Record<string, Partial<DemoTheme>> = {
-  'florist': { background: '#FDF8F5', isDark: false },
   'stray-store': { background: '#F6F6F4', isDark: false, accent: '#0A0A0B', onAccent: '#FFFFFF' },
   'tea-house': { background: '#FAF6F1', isDark: false },
   'interior-lux': { background: '#F5F3F0', isDark: false },
-  'clothing-store': { background: '#EEEAE2', isDark: false, accent: '#A65A33', onAccent: '#FFFFFF' },
-  'premium-fashion': { background: '#EEEAE2', isDark: false, accent: '#A65A33', onAccent: '#FFFFFF' },
-  'electronics': { background: '#0A0A0A', isDark: true },
-  'beauty': { background: '#F4EFE7', isDark: false, accent: '#A37A5B', onAccent: '#FFFFFF' },
   'restaurant': { background: '#0A0A0A', isDark: true },
-  'luxury-watches': { background: '#0A0A0A', isDark: true },
-  'sneaker-store': { background: '#0A0A0A', isDark: true },
-  'luxury-perfume': { background: '#0A0A0A', isDark: true },
   'futuristic-fashion-1': { background: '#0A0A0A', isDark: true },
   'futuristic-fashion-2': { background: '#000000', isDark: true },
   'futuristic-fashion-3': { background: '#0A0A0A', isDark: true },
@@ -188,6 +180,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
           <p className="text-sm text-white/50">
             {t('demo.appUnavailable')}
           </p>
+          <button type="button" onClick={onClose} className="mt-5 px-5 py-3 rounded-full bg-white text-black font-semibold">{t('demo.back')}</button>
         </div>
       </div>
     );

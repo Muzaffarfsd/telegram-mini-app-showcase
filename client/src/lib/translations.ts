@@ -1,5 +1,6 @@
 export const translations = {
   ru: {
+    demo: { notFound: 'Приложение недоступно', appUnavailable: 'Это приложение больше недоступно.', unavailable: 'Приложение недоступно', appTypeUnavailable: 'Приложение больше недоступно.', back: 'Вернуться к проектам' },
     // Navigation
     nav: {
       home: 'Главная',
@@ -140,20 +141,10 @@ export const translations = {
         'opt-market': 'Оптовые закупки: каталог, цены и повтор заказа',
         'apple-store': 'Магазин техники Apple с каталогом и корзиной',
         'muraka-fashion': 'Магазин одежды и кроссовок с каталогом',
-        'nike-sneakers': 'Магазин кроссовок с каталогом и корзиной',
-        'clothing-store': 'Магазин модной одежды и аксессуаров',
-        'electronics': 'Магазин электроники и техники',
-        'beauty': 'Салон красоты и SPA-услуги',
-        'restaurant': 'Ресторан с доставкой',
-        'luxury-watches': 'Магазин элитных часов',
-        'sneaker-store': 'Магазин кроссовок',
-        'luxury-perfume': 'Магазин премиальной парфюмерии',
-        'futuristic-fashion-1': 'Футуристический магазин одежды',
+        'nike-sneakers': 'Магазин кроссовок с каталогом и корзиной',        'restaurant': 'Ресторан с доставкой',        'futuristic-fashion-1': 'Футуристический магазин одежды',
         'futuristic-fashion-2': 'Минималистичный чёрный магазин',
         'futuristic-fashion-3': 'Чёрно-белый минималистичный магазин',
-        'futuristic-fashion-4': 'Карточный дизайн с 3D эффектами',
-        'florist': 'Премиальный салон цветов и букетов',
-        'medical': 'Медицинский центр',
+        'futuristic-fashion-4': 'Карточный дизайн с 3D эффектами',        'medical': 'Медицинский центр',
       },
     },
     
@@ -1726,6 +1717,7 @@ export const translations = {
   },
   
   en: {
+    demo: { notFound: 'App unavailable', appUnavailable: 'This app is no longer available.', unavailable: 'App unavailable', appTypeUnavailable: 'This app is no longer available.', back: 'Back to projects' },
     // Navigation
     nav: {
       home: 'Home',
@@ -1866,20 +1858,10 @@ export const translations = {
         'opt-market': 'Wholesale purchasing: catalog, pricing and repeat orders',
         'apple-store': 'Apple technology store with catalog and shopping bag',
         'muraka-fashion': 'Clothing and sneaker store with catalog',
-        'nike-sneakers': 'Sneaker store with catalog and shopping bag',
-        'clothing-store': 'Fashion clothing and accessories store',
-        'electronics': 'Electronics and tech store',
-        'beauty': 'Beauty salon and SPA services',
-        'restaurant': 'Restaurant with delivery',
-        'luxury-watches': 'Luxury watch store',
-        'sneaker-store': 'Sneaker store',
-        'luxury-perfume': 'Premium perfume store',
-        'futuristic-fashion-1': 'Futuristic clothing store',
+        'nike-sneakers': 'Sneaker store with catalog and shopping bag',        'restaurant': 'Restaurant with delivery',        'futuristic-fashion-1': 'Futuristic clothing store',
         'futuristic-fashion-2': 'Minimalist black store',
         'futuristic-fashion-3': 'Black and white minimalist store',
-        'futuristic-fashion-4': 'Card design with 3D effects',
-        'florist': 'Premium flower and bouquet salon',
-        'medical': 'Medical center',
+        'futuristic-fashion-4': 'Card design with 3D effects',        'medical': 'Medical center',
       },
     },
     

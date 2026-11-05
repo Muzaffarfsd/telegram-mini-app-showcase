@@ -3,36 +3,9 @@ import { useTheme } from "../hooks/useTheme";
 import { useLanguage } from "../contexts/LanguageContext";
 
 const apps = [
-  {
-    id: "radiance",
-    nameRu: "Radiance",
-    nameEn: "Radiance",
-    categoryRu: "Премиальный fashion магазин",
-    categoryEn: "Premium fashion store",
-    accent: "#10b981",
-    demoId: "clothing-store",
-    route: "/#/demos/clothing-store/app",
-  },
-  {
-    id: "techmart",
-    nameRu: "Techmart",
-    nameEn: "Techmart",
-    categoryRu: "Электроника и гаджеты",
-    categoryEn: "Electronics & gadgets",
-    accent: "#06b6d4",
-    demoId: "electronics",
-    route: "/#/demos/electronics/app",
-  },
-  {
-    id: "floralart",
-    nameRu: "FloralArt",
-    nameEn: "FloralArt",
-    categoryRu: "Цветы и букеты",
-    categoryEn: "Flowers & bouquets",
-    accent: "#f472b6",
-    demoId: "florist",
-    route: "/#/demos/florist/app",
-  },
+  { id: "aura", nameRu: "AURA", nameEn: "AURA", categoryRu: "Магазин ухода", categoryEn: "Skincare store", accent: "#10b981", demoId: "skincare-aura", route: "/#/demos/skincare-aura/app" },
+  { id: "nike", nameRu: "NIKE", nameEn: "NIKE", categoryRu: "Магазин кроссовок", categoryEn: "Sneaker store", accent: "#06b6d4", demoId: "nike-sneakers", route: "/#/demos/nike-sneakers/app" },
+  { id: "flora", nameRu: "FLORA", nameEn: "FLORA", categoryRu: "Цветы и подарки", categoryEn: "Flowers & gifts", accent: "#f472b6", demoId: "flower-store", route: "/#/demos/flower-store/app" },
 ];
 
 function IPhoneFrame({

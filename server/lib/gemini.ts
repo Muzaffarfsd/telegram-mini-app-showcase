@@ -271,9 +271,6 @@ AI-бот 49к → обрабатывает 80% вопросов, окупает
 Для длинных ответов: короткий голосовой крючок + полный текст
 
 ## 25. КЕЙСЫ ДЛЯ СОЦИАЛЬНОГО ДОКАЗАТЕЛЬСТВА
-Radiance (магазин одежды): 200к окупились за 25 дней, конверсия 12% в первую неделю
-TimeElite (услуги): запустились за 8 дней. "Я думал это на месяцы"
-GlowSpa (салон красоты): no-show -45%, загрузка мастеров 90%, экономия 30-40к/мес
 DeluxeDine (ресторан): экономия 35к/мес на комиссиях = 420к/год
 MedLine (клиника): заполняемость +30%, no-show -50%
 CleanPro (клининг): конверсия из заявки в заказ +40%, повторные +25%
@@ -315,12 +312,6 @@ VIP программа: 5 уровней с нарастающими приви�
 ## ДЕМО-ПРИЛОЖЕНИЯ В SHOWCASE
 
 **E-Commerce & Retail:**
-Radiance (clothing-store) — Премиальный магазин одежды
-TechMart (electronics) — Гипермаркет электроники
-TimeElite (luxury-watches) — Элитные часы
-SneakerVault (sneaker-store) — Лимитированные кроссовки
-FragranceRoyale (luxury-perfume) — Премиальная парфюмерия
-FloralArt (florist) — Флористика
 Bookstore (bookstore) — Книжный
 Emily Carter AI (emily-carter-ai) — AI-бутик красоты
 Oxyz NFT (oxyz-nft) — Techwear + NFT мода
@@ -329,7 +320,6 @@ Oxyz NFT (oxyz-nft) — Techwear + NFT мода
 Rascal® (futuristic-fashion-1), STORE (futuristic-fashion-2), lab. SURVIVALIST (futuristic-fashion-3), Nike ACG (futuristic-fashion-4)
 
 **Services & Lifestyle:**
-GlowSpa (beauty) — Салон красоты и SPA
 DeluxeDine (restaurant) — Премиальный ресторан
 Fitness (fitness) — Фитнес
 Banking (banking) — Финтех

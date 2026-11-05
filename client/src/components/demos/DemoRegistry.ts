@@ -45,22 +45,6 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./RoyalStep')),
     preload: () => import('./RoyalStep')
   },
-  'clothing-store': {
-    component: lazy(() => import('./PremiumFashionStore')),
-    preload: () => import('./PremiumFashionStore')
-  },
-  'premium-fashion': {
-    component: lazy(() => import('./PremiumFashionStore')),
-    preload: () => import('./PremiumFashionStore')
-  },
-  'electronics': {
-    component: lazy(() => import('./Electronics')),
-    preload: () => import('./Electronics')
-  },
-  'beauty': {
-    component: lazy(() => import('./Beauty')),
-    preload: () => import('./Beauty')
-  },
   'restaurant': {
     component: lazy(() => import('./Restaurant')),
     preload: () => import('./Restaurant')
@@ -97,40 +81,12 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./CarWash')),
     preload: () => import('./CarWash')
   },
-  'florist': {
-    component: lazy(() => import('./Florist')),
-    preload: () => import('./Florist')
-  },
   'stray-store': {
     component: lazy(() => import('./StrayStore')),
     preload: () => import('./StrayStore')
   },
-  'sneaker-vault': {
-    component: lazy(() => import('./SneakerVault')),
-    preload: () => import('./SneakerVault')
-  },
-  'fragrance-royale': {
-    component: lazy(() => import('./FragranceRoyale')),
-    preload: () => import('./FragranceRoyale')
-  },
-  'time-elite': {
-    component: lazy(() => import('./TimeElite')),
-    preload: () => import('./TimeElite')
-  },
   
   // Aliases for compatibility with demoApps.ts IDs
-  'luxury-watches': {
-    component: lazy(() => import('./TimeElite')),
-    preload: () => import('./TimeElite')
-  },
-  'sneaker-store': {
-    component: lazy(() => import('./SneakerVault')),
-    preload: () => import('./SneakerVault')
-  },
-  'luxury-perfume': {
-    component: lazy(() => import('./FragranceRoyale')),
-    preload: () => import('./FragranceRoyale')
-  },
   
   // Futuristic Fashion Collection (4 premium full stores)
   'futuristic-fashion-1': {
@@ -176,10 +132,7 @@ export const demoRegistry: Record<string, DemoComponent> = {
 const preloadedSet = new Set<string>();
 
 export const preloadCriticalDemos = () => {
-  const criticalDemos = [
-    'electronics', 'luxury-watches', 'luxury-perfume', 
-    'sneaker-store', 'clothing-store', 'florist'
-  ];
+  const criticalDemos = ['flower-store', 'lumi-studio', 'apple-store'];
   
   criticalDemos.forEach((demoId, index) => {
     const demo = demoRegistry[demoId];
