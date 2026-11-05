@@ -11,3 +11,9 @@
 .mira-store .mira-color-option{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:7px 12px;border:1px solid #262626;border-radius:24px;background:#fff;color:#222;font:inherit;font-size:12px;font-weight:700}
 .mira-store .mira-color-dot{width:15px;height:15px;border:1px solid rgba(0,0,0,.14);border-radius:50%}
 @media(max-width:350px){.mira-store .mira-hero .mf-hero-photo{height:300px}.mira-store .mira-hero .mf-hero-headline{font-size:28px}}
+/* Product and editorial cutouts sit directly on the store's white canvas. */
+.mira-store .mf-card-image,.mira-store .mf-category > span,.mira-store .mfx-cover,.mira-store .mfx-final-image,.mira-store .mfx-duo-grid img,.mira-store .fw-look-open img{background:#fff}
+.mira-store .mf-feature-image img,.mira-store .mfx-cover img,.mira-store .mfx-final-image img,.mira-store .mfx-duo-grid img,.mira-store .fw-look-open img{object-fit:contain;object-position:center}
+.mira-store .mfx-duo-grid{grid-template-columns:1fr 1fr;align-items:end}
+.mira-store .mfx-duo-grid img{height:clamp(240px,80vw,325px);min-height:0}
+.mira-store .mfx-final-image{aspect-ratio:1/1}

@@ -37,6 +37,12 @@ const products: Product[] = [
   {id:"denim-jacket",name:"Короткая джинсовая куртка",category:"Верхняя одежда",price:12900,color:"Синий",summary:"Короткая куртка из денима",description:"Синяя укороченная джинсовая куртка с воротником, пуговицами и нагрудными карманами.",material:"Деним",sizes:apparelSizes},
   {id:"striped-knit",name:"Джемпер в полоску",category:"Трикотаж",price:8900,color:"Белый / чёрный",summary:"Трикотаж с контрастной полоской",description:"Светлый джемпер с круглым вырезом и чёрными полосами. Выразительный акцент к однотонному дениму или юбке.",material:"Трикотаж",sizes:apparelSizes},
   {id:"black-skirt",name:"Чёрная юбка миди",category:"Юбки",price:7900,color:"Чёрный",summary:"Прямая юбка миди",description:"Чёрная юбка миди с чистой прямой линией. Сочетается с рубашками, жакетами и трикотажем.",material:"Текстиль",sizes:apparelSizes},
+  {id:"navy-dress",name:"Тёмно-синее платье миди",category:"Платья",price:11900,color:"Тёмно-синий",summary:"Платье миди на тонких бретелях",description:"Лаконичное платье миди на тонких бретелях с мягкой линией силуэта. Самостоятельный образ или основа для сочетания с жакетом.",material:"Текстиль",sizes:apparelSizes},
+  {id:"camel-coat",name:"Пальто цвета кэмел",category:"Верхняя одежда",price:24900,color:"Кэмел",summary:"Однобортное пальто прямого кроя",description:"Пальто тёплого оттенка кэмел с лацканами и однобортной застёжкой. Свободный прямой силуэт для многослойных образов.",material:"Текстиль",sizes:apparelSizes},
+  {id:"olive-blouse",name:"Оливковая блуза",category:"Рубашки и топы",price:7900,color:"Оливковый",summary:"Блуза из гладкой ткани",description:"Блуза оливкового оттенка с воротником, длинными рукавами и застёжкой на пуговицы. Сочетается с прямыми джинсами и юбкой миди.",material:"Текстиль",sizes:apparelSizes},
+  {id:"ecru-jeans",name:"Молочные прямые джинсы",category:"Джинсы и брюки",price:9900,color:"Молочный",summary:"Прямые джинсы с высокой посадкой",description:"Джинсы молочного оттенка с прямыми штанинами, высокой посадкой и карманами. Светлая основа для повседневных образов.",material:"Деним",sizes:apparelSizes},
+  {id:"chocolate-skirt",name:"Шоколадная юбка со складками",category:"Юбки",price:8900,color:"Коричневый",summary:"Юбка миди со складками",description:"Юбка шоколадного оттенка длины миди со складками. Добавь мягкий трикотаж или лаконичную рубашку.",material:"Текстиль",sizes:apparelSizes},
+  {id:"grey-cardigan",name:"Серый кардиган",category:"Трикотаж",price:8900,color:"Серый",summary:"Кардиган на пуговицах",description:"Серый кардиган с V-образным вырезом и застёжкой на пуговицы. Удобный слой для спокойных повседневных сочетаний.",material:"Трикотаж",sizes:apparelSizes},
 ];
 const categories: Category[] = ['Платья', 'Верхняя одежда', 'Рубашки и топы', 'Джинсы и брюки', 'Трикотаж', 'Юбки', 'Костюмы'];
 const emptyFilters: Filters = {size:'', color:'', price:'all'};
@@ -55,7 +61,7 @@ const photoKinds = ['front', 'product', 'back'] as const;
 const photoLabels = ['Вид спереди', 'Изделие отдельно', 'Вид сзади'] as const;
 type PhotoKind = typeof photoKinds[number];
 const image = (id: string, kind: PhotoKind) => `/women-fashion/${id}-${kind}.webp`;
-const colorSwatch = (color: string) => ({'Чёрный':'#252525','Белый':'#f8f8f8','Бежевый':'#d8c9b4','Коричневый':'#694e3f','Молочный':'#e9e0cd','Голубой':'#a8bdd1','Графитовый':'#51545a','Кремовый':'#eadfcb','Бордовый':'#6e263b','Синий':'#536d91','Белый / чёрный':'linear-gradient(135deg,#f7f7f7 50%,#303030 50%)'} as Record<string,string>)[color] || '#ddd';
+const colorSwatch = (color: string) => ({'Чёрный':'#252525','Белый':'#f8f8f8','Бежевый':'#d8c9b4','Коричневый':'#694e3f','Молочный':'#e9e0cd','Голубой':'#a8bdd1','Графитовый':'#51545a','Кремовый':'#eadfcb','Бордовый':'#6e263b','Синий':'#536d91','Тёмно-синий':'#29354a','Кэмел':'#b9885d','Оливковый':'#777f60','Серый':'#9c9c9c','Белый / чёрный':'linear-gradient(135deg,#f7f7f7 50%,#303030 50%)'} as Record<string,string>)[color] || '#ddd';
 const byId = (id: string) => products.find(product => product.id === id);
 const formatPrice = (value: number) => `${new Intl.NumberFormat('ru-RU').format(value)} ₽`;
 const modelWord = (count: number) => count % 10 === 1 && count % 100 !== 11 ? 'модель' : count % 10 >= 2 && count % 10 <= 4 && !(count % 100 >= 12 && count % 100 <= 14) ? 'модели' : 'моделей';
