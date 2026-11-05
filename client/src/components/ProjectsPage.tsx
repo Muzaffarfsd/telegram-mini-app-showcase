@@ -1,5 +1,5 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, ArrowUpRight, Heart, Search, X } from 'lucide-react';
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Heart, Search, X } from 'lucide-react';
 import { demoApps, type DemoApp } from '../data/demoApps';
 import { useFavoritesStore } from '@/stores/favoritesStore';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -12,10 +12,10 @@ const details: Record<string, { group: Filter; label: string; en: string; name: 
   'flower-store': { group: 'stores', label: 'Цветы и подарки', en: 'Flowers & gifts', name: 'FLORA', image: 'flora-ref', background: '#f6efed' },
   'china-buyer': { group: 'business', label: 'Байер из Китая', en: 'China sourcing', name: 'CHINA BUYER', image: 'china-ref', background: '#f2ede7' },
   'medical-center': { group: 'services', label: 'Медицинский центр', en: 'Healthcare', name: 'MEDICAL', image: 'medical-ref', background: '#edf3f3' },
-  'lumi-studio': { group: 'services', label: 'Студия красоты', en: 'Beauty studio', name: 'LUMI', image: 'lumi-ref', background: '#f6eeee' },
+  'lumi-studio': { group: 'services', label: 'Студия красоты', en: 'Beauty studio', name: 'LUMI', image: 'lumi-ref-v2', background: '#f6eeee' },
   'opt-market': { group: 'business', label: 'Оптовые закупки', en: 'Wholesale', name: 'ПАРТИЯ', image: 'party-ref', background: '#f0f2e9' },
-  'apple-store': { group: 'stores', label: 'Магазин техники', en: 'Technology', name: 'APPLE', image: 'apple-ref', background: '#eff1f3' },
-  'muraka-fashion': { group: 'stores', label: 'Магазин одежды', en: 'Fashion store', name: 'MURAKA', image: 'fashion-ref', background: '#f1f1ed' },
+  'apple-store': { group: 'stores', label: 'Магазин техники', en: 'Technology', name: 'APPLE', image: 'apple-ref-v2', background: '#eff1f3' },
+  'muraka-fashion': { group: 'stores', label: 'Магазин одежды', en: 'Fashion store', name: 'MURAKA', image: 'fashion-ref-v2', background: '#f1f1ed' },
   'nike-sneakers': { group: 'stores', label: 'Магазин кроссовок', en: 'Sneaker store', name: 'NIKE', image: 'nike-ref', background: '#edf1ed' },
   'skincare-aura': { group: 'stores', label: 'Косметика и уход', en: 'Skincare', name: 'AURA', image: 'aura-ref', background: '#f3f1e9' },
 };
@@ -46,9 +46,11 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
   const { favorites, toggle, initialize, isInitialized } = useFavoritesStore();
   const [filter, setFilter] = useState<Filter>('all'); const [query, setQuery] = useState('');
   const [heroIndex, setHeroIndex] = useState(0); const [storyIndex, setStoryIndex] = useState(0);
-  const touchX = useRef<number | null>(null); const catalogRef = useRef<HTMLElement>(null);
+  const [direction, setDirection] = useState('right');
+  const pointerStart = useRef<{ x: number; y: number } | null>(null);
+  const suppressClick = useRef(false); const catalogRef = useRef<HTMLElement>(null);
   useEffect(() => { if (!isInitialized) void initialize(); }, [initialize, isInitialized]);
-  const hero = byId(featured[heroIndex]); const story = byId(featured[storyIndex]);
+  const hero = demoApps[heroIndex]; const story = byId(featured[storyIndex]);
   const shown = useMemo(() => {
     const term = query.trim().toLocaleLowerCase();
     return demoApps.filter(app => {
@@ -60,7 +62,17 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
   const open = (id: string) => { try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); } catch {} onOpenDemo(id); };
   const favorite = (id: string) => { try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); } catch {} void toggle(id); };
   const jump = (next: Filter = 'all') => { setFilter(next); setQuery(''); requestAnimationFrame(() => catalogRef.current?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })); };
-  const moveHero = (delta: number) => setHeroIndex(i => (i + delta + featured.length) % featured.length);
+  const neighbor = (index: number, dx: number, dy: number) => {
+    const columns = 3, rows = Math.ceil(demoApps.length / columns);
+    const row = (Math.floor(index / columns) + dy + rows) % rows;
+    const rowLength = Math.min(columns, demoApps.length - row * columns);
+    const col = Math.min(index % columns, rowLength - 1);
+    return row * columns + (col + dx + rowLength) % rowLength;
+  };
+  const moveHero = (dx: number, dy: number) => {
+    setDirection(dx ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+    setHeroIndex(i => neighbor(i, dx, dy));
+  };
   const moveStory = (delta: number) => setStoryIndex(i => (i + delta + featured.length) % featured.length);
   const filters: { id: Filter; ru: string; en: string }[] = [
     { id: 'all', ru: 'Все', en: 'All' }, { id: 'stores', ru: 'Магазины', en: 'Stores' },
@@ -68,10 +80,26 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
     { id: 'favorites', ru: 'Избранное', en: 'Favorites' },
   ];
   return <main className="projects-showcase" data-testid="projects-showcase"><div className="ps-inner">
-    <section className="ps-hero" aria-label={ru ? 'Избранные проекты' : 'Featured projects'} onTouchStart={e => { touchX.current = e.touches[0].clientX; }} onTouchEnd={e => { if (touchX.current !== null) { const d = e.changedTouches[0].clientX - touchX.current; if (Math.abs(d) > 55) moveHero(d < 0 ? 1 : -1); touchX.current = null; } }}>
-      <h1 className="ps-hero-type"><span>{ru ? 'НОВЫЕ ИДЕИ' : 'NEW IDEAS'}</span><span aria-hidden="true">{ru ? 'НОВЫЕ ИДЕИ' : 'NEW IDEAS'}</span><span aria-hidden="true">{ru ? 'НОВЫЕ ИДЕИ' : 'NEW IDEAS'}</span></h1>
-      <button className="ps-hero-object" type="button" onClick={() => open(hero.id)} onPointerEnter={() => preloadDemo(hero.id)} aria-label={`${ru ? 'Открыть' : 'Open'} ${hero.title}`}><img src={art(hero)} alt="" /></button>
-      <div className="ps-hero-bottom"><div className="ps-hero-pagination"><button type="button" onClick={() => moveHero(-1)} aria-label={ru ? 'Предыдущий проект' : 'Previous project'}><ArrowLeft size={16}/></button><span>{String(heroIndex + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')}</span><button type="button" onClick={() => moveHero(1)} aria-label={ru ? 'Следующий проект' : 'Next project'}><ArrowRight size={16}/></button></div><div className="ps-hero-caption"><small>{ru ? 'ПРОЕКТ В ДЕТАЛЯХ' : 'FEATURED PROJECT'}</small><strong>{details[hero.id].name}</strong></div><button className="ps-circle ps-hero-open" type="button" onClick={() => open(hero.id)} aria-label={`${ru ? 'Открыть' : 'Open'} ${hero.title}`}><ArrowUpRight size={23}/></button></div>
+    <section className="ps-hero" aria-label={ru ? 'Витрина приложений' : 'App showcase'}>
+      <div className="ps-hero-intro"><span className="ps-intro-label">WEB4TG / TELEGRAM MINI APPS</span><h1 className="ps-hero-type"><span>{ru ? 'ВИТРИНА' : 'APP SHOWCASE'}</span><span aria-hidden="true">{ru ? 'ВИТРИНА' : 'APP SHOWCASE'}</span></h1><p>{ru ? 'Готовые приложения для бизнеса в Telegram. Откройте демо и попробуйте сами.' : 'Explore interactive Telegram apps for business. Open a demo and try it yourself.'}</p><button className="ps-all-link" type="button" onClick={() => jump()}>{ru ? 'Все приложения' : 'All apps'} <ArrowRight size={16}/></button></div>
+      <div className="ps-carousel" role="region" aria-roledescription={ru ? 'карусель' : 'carousel'} aria-label={ru ? 'Приложения: проведите в любом направлении или используйте стрелки' : 'Apps: swipe in any direction or use the arrow buttons'}>
+        <div className="ps-carousel-stage" data-direction={direction}
+          onPointerDown={e => { if (e.isPrimary && (e.pointerType !== 'mouse' || e.button === 0)) pointerStart.current = { x: e.clientX, y: e.clientY }; }}
+          onPointerUp={e => { const start = pointerStart.current; pointerStart.current = null; if (!start) return; const dx = e.clientX - start.x, dy = e.clientY - start.y; if (Math.max(Math.abs(dx), Math.abs(dy)) < 45) return; suppressClick.current = true; window.setTimeout(() => { suppressClick.current = false; }, 400); if (Math.abs(dx) > Math.abs(dy)) moveHero(dx < 0 ? 1 : -1, 0); else moveHero(0, dy < 0 ? 1 : -1); }}
+          onPointerCancel={() => { pointerStart.current = null; }}
+          onKeyDown={e => { const keys: Record<string, [number, number]> = { ArrowLeft: [-1,0], ArrowRight: [1,0], ArrowUp: [0,-1], ArrowDown: [0,1] }; if (keys[e.key]) { e.preventDefault(); moveHero(...keys[e.key]); } }}>
+          {([['left',-1,0],['right',1,0],['up',0,-1],['down',0,1]] as const).map(([pos,dx,dy]) => <div className={`ps-carousel-neighbor ps-neighbor-${pos}`} key={pos} aria-hidden="true"><img src={art(demoApps[neighbor(heroIndex,dx,dy)])} alt="" draggable={false}/></div>)}
+          <button className="ps-carousel-center" type="button" onClick={() => { if (!suppressClick.current) open(hero.id); }} onPointerEnter={() => preloadDemo(hero.id)} aria-label={`${ru ? 'Открыть демо' : 'Open demo'}: ${hero.title}`}><img key={hero.id} src={art(hero)} alt="" draggable={false}/></button>
+        </div>
+        <div className="ps-carousel-controls" role="group" aria-label={ru ? 'Управление каруселью' : 'Carousel controls'}>
+          <button type="button" onClick={() => moveHero(-1,0)} aria-label={ru ? 'Проект слева' : 'Project to the left'}><ArrowLeft size={19}/></button>
+          <button type="button" onClick={() => moveHero(1,0)} aria-label={ru ? 'Проект справа' : 'Project to the right'}><ArrowRight size={19}/></button>
+          <button type="button" onClick={() => moveHero(0,-1)} aria-label={ru ? 'Проект сверху' : 'Project above'}><ArrowUp size={19}/></button>
+          <button type="button" onClick={() => moveHero(0,1)} aria-label={ru ? 'Проект снизу' : 'Project below'}><ArrowDown size={19}/></button>
+          <span className="ps-swipe-hint">{ru ? 'Листайте в любом направлении' : 'Swipe in any direction'}</span>
+        </div>
+      </div>
+      <div className="ps-hero-bottom"><div className="ps-hero-caption" aria-live="polite" aria-atomic="true"><small>{String(heroIndex + 1).padStart(2, '0')} / {String(demoApps.length).padStart(2, '0')} · {ru ? details[hero.id].label : details[hero.id].en}</small><strong>{details[hero.id].name}</strong></div><button className="ps-open-demo" type="button" onClick={() => open(hero.id)}>{ru ? 'Открыть демо' : 'Open demo'} <ArrowUpRight size={19}/></button></div>
     </section>
 
     <section className="ps-categories" aria-labelledby="ps-categories-title"><div className="ps-section-heading"><h2 id="ps-categories-title">{ru ? <>ИССЛЕДУЙ<br/>КОЛЛЕКЦИЮ</> : <>EXPLORE THE<br/>COLLECTION</>}</h2><button type="button" onClick={() => jump()}>{ru ? 'Все проекты' : 'All projects'} <ArrowRight size={16}/></button></div><div className="ps-category-scroll">{categories.map(category => { const app = byId(category.app); return <button className="ps-category" key={category.id} type="button" onClick={() => jump(category.id)}><span className="ps-category-art" style={{ backgroundColor: details[app.id].background }}><img src={art(app)} alt="" loading="lazy"/></span><strong>{ru ? category.ru : category.en}</strong></button>; })}</div></section>
@@ -82,7 +110,7 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
     </section>
     <div className="ps-manifesto" aria-label={ru ? 'Ваш бизнес в Telegram' : 'Your business in Telegram'}><span>{ru ? 'ВАШ БИЗНЕС' : 'YOUR BUSINESS'}</span><span>{ru ? 'В TELEGRAM.' : 'IN TELEGRAM.'}</span></div>
 
-    <section className="ps-catalog" ref={catalogRef} aria-labelledby="ps-catalog-title"><div className="ps-section-heading"><h2 id="ps-catalog-title">{ru ? <>ВЫБРАНО<br/>ДЛЯ ВАС</> : <>SELECTED<br/>FOR YOU</>}</h2><span className="ps-counter">{String(shown.length).padStart(2, '0')} / {String(demoApps.length).padStart(2, '0')}</span></div>
+    <section className="ps-catalog" ref={catalogRef} aria-labelledby="ps-catalog-title"><div className="ps-section-heading"><h2 id="ps-catalog-title">{ru ? <>ВСЕ<br/>ПРИЛОЖЕНИЯ</> : <>ALL<br/>APPLICATIONS</>}</h2><span className="ps-counter" aria-live="polite">{String(shown.length).padStart(2, '0')} / {String(demoApps.length).padStart(2, '0')}</span></div>
       <label className="ps-search"><Search size={18}/><input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder={ru ? 'Найти проект' : 'Find a project'} aria-label={ru ? 'Поиск проектов' : 'Search projects'}/>{query && <button type="button" onClick={() => setQuery('')} aria-label={ru ? 'Очистить поиск' : 'Clear search'}><X size={16}/></button>}</label>
       <div className="ps-filters" role="group" aria-label={ru ? 'Категории проектов' : 'Project categories'}>{filters.map(item => <button key={item.id} type="button" className={filter === item.id ? 'is-active' : ''} aria-pressed={filter === item.id} onClick={() => setFilter(item.id)}>{item.id === 'favorites' && <Heart size={13} fill={filter === item.id ? 'currentColor' : 'none'}/>} {ru ? item.ru : item.en}</button>)}</div>
       {shown.length ? <div className="ps-grid">{shown.map(app => <ProjectCard key={app.id} app={app} favorite={favorites.includes(app.id)} onFavorite={favorite} onOpen={open} ru={ru}/>)}</div> : <div className="ps-empty"><h3>{ru ? 'Здесь пока ничего нет' : 'Nothing here yet'}</h3><p>{filter === 'favorites' && !query ? (ru ? 'Сохраняйте понравившиеся проекты сердечком.' : 'Save projects you like with the heart.') : (ru ? 'Попробуйте другой запрос или категорию.' : 'Try another search or category.')}</p><button type="button" onClick={() => { setFilter('all'); setQuery(''); }}>{ru ? 'Все проекты' : 'All projects'} <ArrowRight size={16}/></button></div>}

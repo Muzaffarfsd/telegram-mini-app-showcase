@@ -79,6 +79,7 @@ import { ProfileDetailSkeleton, ProfileSkeleton } from "./components/ProfileSkel
 import { OrderSkeleton } from "./components/OrderSkeleton";
 import { AIConsultantSkeleton } from "./components/AIConsultantSkeleton";
 import { StudioHomeSkeleton } from "./components/StudioHomeSkeleton";
+import { ProjectsSkeleton } from "./components/ProjectsSkeleton";
 import { PageTransition } from "./components/PageTransition";
 const OfflineIndicator = lazy(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
 const AIAgentButton = lazy(() => import("./components/AIAgent/AIAgentButton").then(m => ({ default: m.AIAgentButton })));
@@ -566,7 +567,7 @@ function AppContent() {
                   )}
                   {(visitedTabs.has('projects') || route.component === 'projects') && (
                     <div style={{ display: route.component === 'projects' ? 'block' : 'none' }}>
-                      <Suspense fallback={null}>
+                      <Suspense fallback={<ProjectsSkeleton label={language === 'ru' ? 'Загрузка витрины приложений' : 'Loading app showcase'} />}>
                         <ProjectsPage onNavigate={handleNavigate} onOpenDemo={handleOpenDemo} />
                       </Suspense>
                     </div>

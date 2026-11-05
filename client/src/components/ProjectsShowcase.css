@@ -40,3 +40,26 @@
 @media(min-width:640px){.ps-hero-object{height:500px}.ps-category{flex-basis:25%}.ps-category-art{aspect-ratio:1.15}.ps-story{max-height:600px;aspect-ratio:1.55}.ps-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:36px 16px}.ps-next button{max-width:400px}}
 @media(max-width:350px){.ps-hero-type{font-size:8.1vw}.ps-hero-object{height:245px}.ps-hero-bottom{gap:8px}.ps-hero-pagination{gap:1px}.ps-category strong{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.ps-hero-object img,.ps-product-link img{transition:none}}
+
+/* The first screen states the purpose and presents a hand-operated, two-axis collection. */
+.ps-hero-intro{position:relative;z-index:2}.ps-intro-label{display:block;margin-bottom:12px;color:#555;font-size:11px;letter-spacing:.08em;font-weight:750}
+.ps-hero-type{font-size:clamp(39px,10.4vw,106px);line-height:.82}.ps-hero-intro p{max-width:420px;margin-top:16px;color:#505050;font-size:14px;line-height:1.4}
+.ps-all-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0;border:0;background:none;color:#222;font-size:13px;font-weight:750}
+.ps-carousel{margin:0 -20px}.ps-carousel-stage{position:relative;height:clamp(275px,74vw,480px);overflow:hidden;perspective:900px;touch-action:none;user-select:none;-webkit-user-select:none;isolation:isolate}
+.ps-carousel-neighbor,.ps-carousel-center{position:absolute;display:grid;place-items:center;inset:10% 23%;border:0;background:transparent;transform-style:preserve-3d}
+.ps-carousel-neighbor{pointer-events:none;opacity:.46;filter:saturate(.72);transition:transform .45s ease,opacity .45s ease}
+.ps-carousel-neighbor img,.ps-carousel-center img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 12px 12px rgba(0,0,0,.14))}
+.ps-neighbor-left{transform:translate3d(-83%,0,-250px) rotateY(26deg) scale(.8)}.ps-neighbor-right{transform:translate3d(83%,0,-250px) rotateY(-26deg) scale(.8)}
+.ps-neighbor-up{transform:translate3d(0,-65%,-300px) rotateX(-22deg) scale(.63);opacity:.22}.ps-neighbor-down{transform:translate3d(0,65%,-300px) rotateX(22deg) scale(.63);opacity:.22}
+.ps-carousel-center{z-index:2;padding:0;cursor:pointer}.ps-carousel-center img{animation:.42s cubic-bezier(.2,.7,.2,1) both}
+.ps-carousel-stage[data-direction=left] .ps-carousel-center img{animation-name:ps-enter-left}.ps-carousel-stage[data-direction=right] .ps-carousel-center img{animation-name:ps-enter-right}.ps-carousel-stage[data-direction=up] .ps-carousel-center img{animation-name:ps-enter-up}.ps-carousel-stage[data-direction=down] .ps-carousel-center img{animation-name:ps-enter-down}
+@keyframes ps-enter-left{from{opacity:.35;transform:translate3d(-28%,0,-160px) rotateY(20deg) scale(.86)}to{opacity:1;transform:none}}
+@keyframes ps-enter-right{from{opacity:.35;transform:translate3d(28%,0,-160px) rotateY(-20deg) scale(.86)}to{opacity:1;transform:none}}
+@keyframes ps-enter-up{from{opacity:.35;transform:translate3d(0,-24%,-160px) rotateX(-16deg) scale(.86)}to{opacity:1;transform:none}}
+@keyframes ps-enter-down{from{opacity:.35;transform:translate3d(0,24%,-160px) rotateX(16deg) scale(.86)}to{opacity:1;transform:none}}
+.ps-carousel-controls{display:flex;align-items:center;gap:5px;padding:0 20px}.ps-carousel-controls button{display:grid;place-items:center;flex:none;width:44px;height:44px;padding:0;border:1px solid #e5e5e5;border-radius:50%;background:#fff;color:#222}.ps-swipe-hint{margin-left:auto;max-width:110px;color:#666;text-align:right;font-size:11px;line-height:1.25}
+.ps-hero-bottom{justify-content:space-between;gap:12px;margin-top:14px}.ps-hero-caption{align-items:start;text-align:left}.ps-hero-caption small{font-size:11px;color:#666}.ps-hero-caption strong{font-size:17px}.ps-open-demo{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;border:0;background:#1b1b1b;color:#fff;font-size:13px;font-weight:750}
+.ps-search:focus-within{outline:2px solid #243e35;outline-offset:3px}.ps-filters button{min-height:44px;font-size:12px}.ps-heart{width:44px;height:44px;top:4px;right:4px}.ps-product-copy span{font-size:12px;color:#626262}.ps-product-copy strong{font-size:14px}.ps-story-nav button{width:44px;height:44px}
+@media(max-width:350px){.ps-hero-type{font-size:10.1vw}.ps-carousel-controls{gap:3px}.ps-swipe-hint{font-size:10px;max-width:90px}.ps-open-demo{padding-inline:12px}}
+@media(min-width:640px){.ps-carousel{margin-inline:0}.ps-carousel-stage{height:480px}.ps-carousel-neighbor,.ps-carousel-center{inset:6% 32%}.ps-carousel-controls{padding-inline:0}}
+@media(prefers-reduced-motion:reduce){.ps-carousel-center img{animation:none!important}.ps-carousel-neighbor{transition:none}}

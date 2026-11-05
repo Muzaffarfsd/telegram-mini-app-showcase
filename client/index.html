@@ -4,12 +4,16 @@
   <meta charset="UTF-8">
   <style>html.profile-detail-theme,html.profile-detail-theme body{background:#fff!important}</style>
   <style>html.studio-home-theme,html.studio-home-theme body{background:#fff!important}</style>
+  <style>html.projects-route-theme,html.projects-route-theme body{background:#fff!important}</style>
   <script>
     if (!location.hash || /^#(?:$|\/(?:\?|$))/.test(location.hash)) {
       document.documentElement.classList.add('studio-home-theme');
     }
     if (/^#\/(?:profile|referral|rewards|earning|help|review)(?:\?|$)/.test(location.hash)) {
       document.documentElement.classList.add('profile-detail-theme');
+    }
+    if (/^#\/projects(?:\?|$)/.test(location.hash)) {
+      document.documentElement.classList.add('projects-route-theme');
     }
   </script>
   <!-- CRITICAL: Adaptive viewport for all devices (Telegram Mini App optimized) -->
@@ -171,6 +175,32 @@
       0% { background-position: -200% 0; }
       100% { background-position: 200% 0; }
     }
+
+    /* A light projects placeholder is visible before the application bundle
+       loads as well as during the React route's own lazy import. */
+    #projects-static-shell { display: none; }
+    html.projects-route-theme #static-shell { display: none !important; }
+    html.projects-route-theme #projects-static-shell { display: block; }
+    .projects-load-skeleton { min-height:100dvh; background:#fff; color:#171717; }
+    .projects-load-shape { background:linear-gradient(100deg,#e9edf1 30%,#f6f8fa 48%,#e9edf1 66%); background-size:220% 100%; animation:projects-load-shimmer 1.6s ease-in-out infinite; }
+    .projects-load-header { height:80px; padding:0 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #f3f3f3; }
+    .projects-load-header .projects-load-shape { width:42px; height:42px; border-radius:50%; }
+    .projects-load-header .projects-load-shape:nth-child(2) { width:54px; height:24px; border-radius:6px; }
+    .projects-load-content { max-width:1100px; margin:auto; padding:24px clamp(20px,5vw,48px) 100px; }
+    .projects-load-content.route-fallback { padding-top:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 75px); }
+    .projects-load-line { width:65%; height:25px; border-radius:7px; margin-bottom:7px; }
+    .projects-load-line.short { width:48%; }
+    .projects-load-art { width:min(70%,280px); height:260px; border-radius:24px; margin:18px auto 22px; }
+    .projects-load-caption { display:flex; align-items:center; justify-content:flex-end; gap:12px; }
+    .projects-load-caption .projects-load-shape:first-child { width:95px; height:15px; border-radius:6px; }
+    .projects-load-caption .projects-load-shape:last-child { width:54px; height:54px; border-radius:50%; }
+    .projects-load-section { width:150px; height:28px; border-radius:7px; margin:45px 0 16px; }
+    .projects-load-cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; }
+    .projects-load-card { height:125px; border-radius:8px; }
+    .projects-load-nav { position:fixed; left:50%; bottom:16px; transform:translateX(-50%); width:min(calc(100% - 36px),320px); height:56px; border-radius:24px; background:#f5f6f7; box-shadow:0 4px 18px rgba(30,33,35,.10); display:flex; justify-content:space-around; align-items:center; }
+    .projects-load-nav .projects-load-shape { width:30px; height:30px; border-radius:10px; }
+    @keyframes projects-load-shimmer { from { background-position:100% 0; } to { background-position:-100% 0; } }
+    @media(prefers-reduced-motion:reduce) { .projects-load-shape { animation:none; background:#e9edf1; } }
     
     /* Minimal loading indicator - matches Ultimate2026Loader */
     #root:empty::before {
@@ -322,6 +352,15 @@
 <body>
   <!-- App Root with Static Shell for instant FCP -->
   <div id="root">
+    <div id="projects-static-shell" class="projects-load-skeleton" role="status" aria-label="Загрузка витрины приложений" aria-busy="true">
+      <div class="projects-load-header" aria-hidden="true"><div class="projects-load-shape"></div><div class="projects-load-shape"></div><div class="projects-load-shape"></div></div>
+      <div class="projects-load-content" aria-hidden="true">
+        <div class="projects-load-shape projects-load-line"></div><div class="projects-load-shape projects-load-line short"></div><div class="projects-load-shape projects-load-art"></div>
+        <div class="projects-load-caption"><div class="projects-load-shape"></div><div class="projects-load-shape"></div></div>
+        <div class="projects-load-shape projects-load-section"></div><div class="projects-load-cards"><div class="projects-load-shape projects-load-card"></div><div class="projects-load-shape projects-load-card"></div><div class="projects-load-shape projects-load-card"></div></div>
+      </div>
+      <div class="projects-load-nav" aria-hidden="true"><div class="projects-load-shape"></div><div class="projects-load-shape"></div><div class="projects-load-shape"></div><div class="projects-load-shape"></div></div>
+    </div>
     <!-- STATIC SHELL: Показывается мгновенно пока React загружается -->
     <!-- React заменит этот контент после hydration -->
     <div id="static-shell" style="
