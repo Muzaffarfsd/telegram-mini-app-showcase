@@ -1,8 +1,13 @@
 import { createRoot } from "react-dom/client";
-import App from "./App";
+
 import "./index.css";
 
-createRoot(document.getElementById("root")!).render(<App />);
+const root = createRoot(document.getElementById("root")!);
+void import("./lib/cleanupRetiredDemos")
+  .then(({ cleanupRetiredDemos }) => cleanupRetiredDemos())
+  .catch(() => {})
+  .then(() => import("./App"))
+  .then(({ default: App }) => root.render(<App />));
 
 if (typeof window !== 'undefined') {
   const deferredInit = () => {
