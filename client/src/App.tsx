@@ -16,6 +16,7 @@ import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import { useNavigationTracking } from "./hooks/usePredictivePrefetch";
 import { usePerformanceClass } from "./hooks/usePerformanceClass";
 import { LazyMotionProvider } from "./utils/LazyMotionProvider";
+import "./ProjectsShell.css";
 
 function lazyWithRetry<T extends { default: any }>(
   importFn: () => Promise<T>,
@@ -231,7 +232,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
         }}
       >
         <nav 
-          className={`relative flex items-center rounded-[22px] gpu-layer ${isProfile ? 'profile-nav' : route.component === 'constructor' ? 'order-nav' : isAI ? 'consultant-nav' : route.component === 'showcase' ? 'home-nav' : ''}`}
+          className={`relative flex items-center rounded-[22px] gpu-layer ${isProfile ? 'profile-nav' : route.component === 'constructor' ? 'order-nav' : isAI ? 'consultant-nav' : route.component === 'showcase' ? 'home-nav' : route.component === 'projects' ? 'projects-nav' : ''}`}
           style={{
             padding: '5px 6px',
             gap: '2px',
@@ -440,6 +441,11 @@ function AppContent() {
     document.documentElement.classList.toggle('studio-home-theme', route.component === 'showcase');
     return () => document.documentElement.classList.remove('studio-home-theme');
   }, [route.component]);
+
+  useLayoutEffect(() => {
+    document.documentElement.classList.toggle('projects-route-theme', route.component === 'projects');
+    return () => document.documentElement.classList.remove('projects-route-theme');
+  }, [route.component]);
   
   useScrollHaptic();
   
@@ -550,7 +556,7 @@ function AppContent() {
                   </ErrorBoundary>
                 )}
                 
-                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
+                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'projects', 'constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
                   {(visitedTabs.has('showcase') || route.component === 'showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
                       <Suspense fallback={<StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} />}>
@@ -624,7 +630,7 @@ function AppContent() {
               
               {(shouldShowBottomNav || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore) && route.component !== 'aiProcess' && route.component !== 'aiAgent' && (
                 <Suspense fallback={null}>
-                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore ? 'home-ai-surface' : undefined}><AIAgentButton profileMode={isProfile || route.component === 'constructor' || route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore} /></div>
+                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : route.component === 'projects' ? 'projects-ai-surface' : route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore ? 'home-ai-surface' : undefined}><AIAgentButton profileMode={isProfile || route.component === 'constructor' || route.component === 'projects' || route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore} /></div>
                 </Suspense>
               )}
 

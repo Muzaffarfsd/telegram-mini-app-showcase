@@ -1,488 +1,93 @@
-import { memo, useMemo, useRef, useState, useEffect, useCallback } from "react";
-import { demoApps } from "../data/demoApps";
-import { ArrowUpRight, ChevronRight } from "lucide-react";
-import { FavoritesSection } from "./FavoritesSection";
-import { FavoriteButton } from "./FavoriteButton";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { VerticalImageStack, type VerticalImageItem } from "@/components/ui/vertical-image-stack";
-import { m, useInView } from "@/utils/LazyMotionProvider";
-import { preloadDemo } from "./demos/DemoRegistry";
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, Heart, Search, X } from 'lucide-react';
+import { demoApps, type DemoApp } from '../data/demoApps';
+import { useFavoritesStore } from '@/stores/favoritesStore';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { preloadDemo } from './demos/DemoRegistry';
+import './ProjectsShowcase.css';
 
-interface ProjectsPageProps {
-  onNavigate: (section: string) => void;
-  onOpenDemo: (demoId: string) => void;
-}
-
-const SYNE = '"Syne", system-ui, sans-serif';
-const INSTRUMENT = '"Instrument Serif", Georgia, serif';
-const INTER = '"Inter", -apple-system, system-ui, sans-serif';
-const EMERALD = '#34d399';
-const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-
-const prefersReducedMotion = () =>
-  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-
-function Cin({ children, className = "", delay = 0 }: {
-  children: React.ReactNode; className?: string; delay?: number;
-}) {
-  const r = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  const rm = prefersReducedMotion();
-
-  useEffect(() => {
-    if (rm || !r.current) { setVisible(true); return; }
-    const el = r.current;
-    const io = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); io.disconnect(); } },
-      { rootMargin: '-40px' }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [rm]);
-
-  return (
-    <div
-      ref={r}
-      className={className}
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible || rm ? 'translateY(0)' : 'translateY(24px)',
-        transition: rm ? 'none' : `opacity 0.6s ease ${delay}s, transform 0.6s ease ${delay}s`,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function Ct({ to, suffix = "" }: { to: number; suffix?: string }) {
-  const r = useRef(null);
-  const v = useInView(r, { once: true });
-  const rm = prefersReducedMotion();
-  const [n, setN] = useState(rm ? to : 0);
-  useEffect(() => {
-    if (!v || rm) { setN(to); return; }
-    let dead = false;
-    const s = performance.now();
-    const loop = (t: number) => {
-      if (dead) return;
-      const p = Math.min((t - s) / 1600, 1);
-      setN(Math.round((1 - Math.pow(1 - p, 5)) * to));
-      if (p < 1) requestAnimationFrame(loop);
-    };
-    requestAnimationFrame(loop);
-    return () => { dead = true; };
-  }, [v, to, rm]);
-  return <span ref={r}>{n}{suffix}</span>;
-}
-
-const CATEGORIES_RU = ['Все', 'E-Commerce', 'Финтех', 'Еда', 'Букинг', 'AI', 'Крипто'];
-const CATEGORIES_EN = ['All', 'E-Commerce', 'Fintech', 'Food', 'Booking', 'AI', 'Crypto'];
-
-const APP_ICONS: Record<string, { emoji: string; grad: string }> = {
-  'medical':           { emoji: '🏥', grad: 'linear-gradient(135deg, #0a1a1a, #0e2828)' },
+interface ProjectsPageProps { onNavigate: (section: string) => void; onOpenDemo: (demoId: string) => void }
+type Filter = 'all' | 'stores' | 'services' | 'business' | 'favorites';
+const details: Record<string, { group: Filter; label: string; en: string; name: string; image: string; background: string }> = {
+  'flower-store': { group: 'stores', label: 'Цветы и подарки', en: 'Flowers & gifts', name: 'FLORA', image: 'flora-ref', background: '#f6efed' },
+  'china-buyer': { group: 'business', label: 'Байер из Китая', en: 'China sourcing', name: 'CHINA BUYER', image: 'china-ref', background: '#f2ede7' },
+  'medical-center': { group: 'services', label: 'Медицинский центр', en: 'Healthcare', name: 'MEDICAL', image: 'medical-ref', background: '#edf3f3' },
+  'lumi-studio': { group: 'services', label: 'Студия красоты', en: 'Beauty studio', name: 'LUMI', image: 'lumi-ref', background: '#f6eeee' },
+  'opt-market': { group: 'business', label: 'Оптовые закупки', en: 'Wholesale', name: 'ПАРТИЯ', image: 'party-ref', background: '#f0f2e9' },
+  'apple-store': { group: 'stores', label: 'Магазин техники', en: 'Technology', name: 'APPLE', image: 'apple-ref', background: '#eff1f3' },
+  'muraka-fashion': { group: 'stores', label: 'Магазин одежды', en: 'Fashion store', name: 'MURAKA', image: 'fashion-ref', background: '#f1f1ed' },
+  'nike-sneakers': { group: 'stores', label: 'Магазин кроссовок', en: 'Sneaker store', name: 'NIKE', image: 'nike-ref', background: '#edf1ed' },
+  'skincare-aura': { group: 'stores', label: 'Косметика и уход', en: 'Skincare', name: 'AURA', image: 'aura-ref', background: '#f3f1e9' },
 };
-const DEFAULT_ICON = { emoji: '📱', grad: 'linear-gradient(135deg, #111, #1a1a1a)' };
-
-
-const AppCard = memo(({ app, onOpenDemo, t, index }: { app: any, onOpenDemo: (id: string) => void, t: any, index: number }) => {
-  const handleCardClick = () => {
-    try {
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-      }
-    } catch (e) {}
-    onOpenDemo(app.id);
-  };
-
-  const icon = APP_ICONS[app.id] || DEFAULT_ICON;
-
-  return (
-    <Cin delay={index * 0.04}>
-      <div
-        onClick={handleCardClick}
-        onTouchStart={() => preloadDemo(app.id)}
-        onMouseEnter={() => preloadDemo(app.id)}
-        onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) { e.preventDefault(); handleCardClick(); } }}
-        role="button"
-        tabIndex={0}
-        className="app-card group cursor-pointer active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-2"
-        style={{
-          position: 'relative',
-          borderRadius: 24,
-        }}
-        aria-label={app.title}
-        data-testid={`card-app-${app.id}`}
-      >
-        <div className="app-card-glass absolute inset-0 pointer-events-none" style={{
-          borderRadius: 'inherit',
-          background: `linear-gradient(165deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 40%, rgba(255,255,255,0.05) 100%)`,
-          border: '1px solid rgba(255,255,255,0.09)',
-          boxShadow: '0 1px 0 rgba(255,255,255,0.06) inset, 0 8px 24px -6px rgba(0,0,0,0.3)',
-        }} />
-
-        <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ borderRadius: 'inherit' }}>
-          <div className="app-card-shine" style={{
-            position: 'absolute',
-            top: 0, left: '-130%',
-            width: '70%', height: '100%',
-            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%)',
-            transform: 'skewX(-18deg) translateZ(0)',
-            willChange: 'left',
-          }} />
-        </div>
-
-        <div className="relative z-10 flex items-center gap-4" style={{ padding: '18px 20px' }}>
-          <div className="flex-1 min-w-0">
-            <h3
-              data-testid={`text-title-${app.id}`}
-              style={{
-                fontFamily: SYNE,
-                fontSize: '0.9rem',
-                fontWeight: 800,
-                letterSpacing: '-0.03em',
-                color: 'rgba(255,255,255,0.95)',
-                marginBottom: 4,
-              }}
-            >
-              {app.title}
-            </h3>
-            <p
-              data-testid={`text-description-${app.id}`}
-              style={{
-                fontFamily: INTER,
-                fontSize: '0.7rem',
-                lineHeight: '1.45',
-                color: 'rgba(255,255,255,0.4)',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                letterSpacing: '-0.01em',
-              }}
-            >
-              {t(`projectsPage.appDescriptions.${app.id}`) || app.description}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2.5 flex-shrink-0">
-            <FavoriteButton demoId={app.id} size="md" />
-            <button
-              className="app-card-btn flex items-center gap-1.5 active:scale-[0.95]"
-              style={{
-                padding: '8px 16px',
-                borderRadius: 20,
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.04))',
-                border: '1px solid rgba(255,255,255,0.1)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
-              }}
-              data-testid={`button-open-${app.id}`}
-            >
-              <span style={{
-                fontFamily: INTER,
-                fontSize: '0.7rem',
-                fontWeight: 600,
-                color: 'rgba(255,255,255,0.7)',
-                letterSpacing: '-0.01em',
-              }}>
-                {t('projectsPage.open')}
-              </span>
-              <ArrowUpRight className="w-3 h-3" style={{ color: 'rgba(255,255,255,0.45)' }} strokeWidth={2.2} />
-            </button>
-          </div>
-        </div>
-      </div>
-    </Cin>
-  );
-});
-
-AppCard.displayName = 'AppCard';
-
-const verticalImageItems: VerticalImageItem[] = [
-  { id: 2, src: "/attached_assets/1a589b27fba1af47b8e9957accf246dd_1763654490139.jpg", alt: "Nike Destiny — Sportswear" },
-  { id: 3, src: "/attached_assets/f4f7105a6604aa1ca214f4fb48a515ac_1763654563855.jpg", alt: "Nike Green — Sustainable" },
-  { id: 5, src: "/attached_assets/82a7adf27f8d0e1758ca0f797349db48_1763719506416.jpg", alt: "Studio Collection" },
+const art = (app: DemoApp) => `/showcase/miniatures/${details[app.id]?.image}.webp`;
+const byId = (id: string) => demoApps.find(app => app.id === id)!;
+const featured = ['flower-store', 'muraka-fashion', 'nike-sneakers', 'lumi-studio'];
+const categories: { id: Filter; ru: string; en: string; app: string }[] = [
+  { id: 'stores', ru: 'Магазины', en: 'Stores', app: 'muraka-fashion' },
+  { id: 'services', ru: 'Услуги', en: 'Services', app: 'lumi-studio' },
+  { id: 'business', ru: 'Для бизнеса', en: 'For business', app: 'china-buyer' },
 ];
 
-export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPageProps) {
-  const { t, language } = useLanguage();
-  const ru = language === 'ru';
-  const topApps = useMemo(() => demoApps, []);
-  const [activeCat, setActiveCat] = useState(0);
-  const categories = ru ? CATEGORIES_RU : CATEGORIES_EN;
-
-  return (
-    <div
-      className="min-h-screen select-none overflow-x-hidden"
-      style={{ backgroundColor: '#050505' }}
-    >
-      <div className="relative z-10">
-        <div className="mx-auto w-full" style={{ maxWidth: 540 }}>
-
-          {/* ═══════ HERO ═══════ */}
-          <header className="relative px-6 pt-32 pb-10 overflow-hidden">
-            <div className="absolute inset-0 z-0 overflow-hidden">
-              <div className="absolute inset-0" style={{
-                background: `radial-gradient(ellipse at 50% 0%, ${EMERALD}06 0%, transparent 60%)`,
-              }} />
-            </div>
-
-            <div className="relative z-10">
-              <m.h1
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: EASE, delay: 0.3 }}
-                style={{
-                  fontFamily: SYNE,
-                  fontSize: 'clamp(1.8rem, 7vw, 2.5rem)',
-                  fontWeight: 800,
-                  letterSpacing: '-0.05em',
-                  lineHeight: 1.1,
-                  color: '#fff',
-                }}
-              >
-                {t('projectsPage.heroLine1')}
-                <br />
-                <span style={{
-                  fontFamily: INSTRUMENT, fontStyle: 'italic',
-                  background: `linear-gradient(135deg, ${EMERALD}, #a7f3d0)`,
-                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                }}>
-                  {t('projectsPage.heroLine2')}
-                </span>
-                <br />
-                {t('projectsPage.heroLine3')}
-              </m.h1>
-
-              <m.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: EASE, delay: 0.6 }}
-                className="mt-8 flex items-center gap-5"
-              >
-                <div className="scroll-line-indicator">
-                  <div className="scroll-line-track" />
-                  <div className="scroll-line-glow" />
-                </div>
-                <span style={{
-                  fontFamily: SYNE, fontSize: '0.7rem',
-                  fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const,
-                  color: 'rgba(255,255,255,0.45)',
-                }}>
-                  {t('projectsPage.viewExamples')}
-                </span>
-              </m.div>
-
-            </div>
-          </header>
-
-          {/* ═══════ MARQUEE ═══════ */}
-          <div className="py-4 overflow-hidden" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-            <div
-              className={prefersReducedMotion() ? '' : 'projects-marquee'}
-              style={{ display: 'flex', alignItems: 'center', gap: 32, whiteSpace: 'nowrap', width: 'max-content' }}
-            >
-              {[0, 1].map(rep => (
-                <div key={rep} className="flex items-center gap-8">
-                  {(ru
-                    ? ['22 приложения', 'Премиум дизайн', 'E-Commerce', 'AI-боты', 'Финтех', 'Доставка', 'Бронирование']
-                    : ['22 Apps', 'Premium Design', 'E-Commerce', 'AI Bots', 'Fintech', 'Delivery', 'Booking']
-                  ).map((txt, j) => (
-                    <span key={j} className="flex items-center gap-8">
-                      <span style={{
-                        fontFamily: SYNE, fontSize: '0.6875rem',
-                        fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' as const,
-                        color: 'rgba(255,255,255,0.3)',
-                      }}>{txt}</span>
-                      <span style={{ color: EMERALD, opacity: 0.35, fontSize: '5px' }}>●</span>
-                    </span>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ═══════ IMAGE STACK ═══════ */}
-          <section className="px-4 py-10">
-            <Cin className="mb-4 px-2">
-              <span style={{
-                fontFamily: SYNE, fontSize: '0.6875rem',
-                fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase' as const,
-                color: 'rgba(255,255,255,0.25)',
-              }}>
-                {t('projectsPage.projects')}
-              </span>
-            </Cin>
-            <Cin delay={0.1}>
-              <VerticalImageStack
-                images={verticalImageItems}
-                height={480}
-                cardWidth={260}
-                cardHeight={380}
-              />
-            </Cin>
-          </section>
-
-          {/* ═══════ SOCIAL PROOF STRIP ═══════ */}
-          <Cin className="px-6 pb-10">
-            <div className="flex items-center justify-between py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-              {[
-                { l: ru ? 'проектов' : 'projects' },
-                { l: ru ? 'индустрий' : 'industries' },
-                { l: ru ? 'дней до запуска' : 'days to launch' },
-              ].map((s, i) => (
-                <div key={i} className="text-center flex-1">
-                  <div style={{
-                    fontFamily: SYNE, fontSize: 'clamp(1.1rem, 3.5vw, 1.5rem)',
-                    fontWeight: 800, color: '#fff', letterSpacing: '-0.04em',
-                  }}>
-                    {i === 0 ? <Ct to={50} suffix="+" /> : i === 1 ? <Ct to={6} /> : <Ct to={14} />}
-                  </div>
-                  <div style={{
-                    fontFamily: INTER, fontSize: '0.625rem', fontWeight: 500,
-                    color: 'rgba(255,255,255,0.35)', letterSpacing: '0.03em', textTransform: 'uppercase' as const, marginTop: 2,
-                  }}>{s.l}</div>
-                </div>
-              ))}
-            </div>
-          </Cin>
-
-          {/* ═══════ FAVORITES ═══════ */}
-          <div className="py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.03)' }}>
-            <FavoritesSection onOpenDemo={onOpenDemo} />
-          </div>
-
-          {/* ═══════ APP COLLECTION ═══════ */}
-          <section className="px-6 py-10">
-            <Cin>
-              <div className="flex items-end justify-between mb-5">
-                <div>
-                  <h2 style={{
-                    fontFamily: SYNE, fontSize: 'clamp(1.4rem, 5vw, 1.875rem)',
-                    fontWeight: 800, color: '#fff', letterSpacing: '-0.05em', lineHeight: 1.1,
-                  }}>
-                    {ru ? 'Все проекты' : 'All Projects'}
-                  </h2>
-                  <p className="mt-1" style={{
-                    fontFamily: INTER, fontSize: 'clamp(0.7rem, 1.5vw, 0.8rem)',
-                    color: 'rgba(255,255,255,0.45)',
-                  }}>
-                    {topApps.length} {t('projectsPage.projectsCount')}
-                  </p>
-                </div>
-              </div>
-            </Cin>
-
-            <div className="space-y-2.5">
-              {topApps.map((app, i) => (
-                <AppCard key={app.id} app={app} onOpenDemo={onOpenDemo} t={t} index={i} />
-              ))}
-            </div>
-          </section>
-
-          {/* ═══════ QUOTE + CTA ═══════ */}
-          <section className="px-6 pt-6 pb-8" aria-label="CTA">
-            <Cin>
-              <div className="relative overflow-hidden rounded-2xl py-12 px-6 text-center" style={{ border: '1px solid rgba(255,255,255,0.04)' }}>
-                <div className="absolute inset-0 pointer-events-none" style={{
-                  background: `radial-gradient(ellipse at 50% 120%, ${EMERALD}0c 0%, transparent 70%)`,
-                }} />
-
-                <div className="relative z-10">
-                  <p className="mx-auto mb-6" style={{
-                    maxWidth: 300,
-                    fontFamily: INSTRUMENT, fontSize: '1.05rem',
-                    fontStyle: 'italic', lineHeight: 1.55,
-                    color: 'rgba(255,255,255,0.5)',
-                  }}>
-                    "{t('projectsPage.pullQuote')}"
-                  </p>
-
-                  <a
-                    href="https://t.me/web4tgs"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full px-7 transition-all duration-500 active:scale-[0.96]"
-                    style={{
-                      height: 48,
-                      background: '#fff',
-                      textDecoration: 'none',
-                    }}
-                    data-testid="button-order-cta"
-                  >
-                    <span style={{ fontFamily: SYNE, fontSize: '0.8125rem', fontWeight: 700, color: '#000' }}>
-                      {t('projectsPage.requestConsultation')}
-                    </span>
-                    <ArrowUpRight className="w-4 h-4 text-black" strokeWidth={2.5} />
-                  </a>
-
-                  <p className="mt-4" style={{
-                    fontFamily: INTER, fontSize: '0.6875rem',
-                    color: 'rgba(255,255,255,0.2)',
-                  }}>
-                    {ru ? 'Ответим в течение часа' : 'We reply within an hour'}
-                  </p>
-                </div>
-              </div>
-            </Cin>
-          </section>
-
-          {/* ═══════ FOOTER ═══════ */}
-          <footer className="px-6 py-8 mb-20" role="contentinfo" style={{ borderTop: '1px solid rgba(255,255,255,0.03)' }}>
-            <Cin>
-              <div className="flex items-center justify-between">
-                <span style={{ fontFamily: SYNE, fontSize: '0.8rem', fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '-0.03em' }}>
-                  WEB4TG
-                </span>
-                <span style={{ fontFamily: INTER, fontSize: '0.625rem', color: 'rgba(255,255,255,0.15)' }}>
-                  &copy; {new Date().getFullYear()}
-                </span>
-              </div>
-            </Cin>
-          </footer>
-
-        </div>
-      </div>
-
-      <style>{`
-        .app-card-shine {
-          display: none;
-        }
-        .scroll-line-indicator {
-          position: relative;
-          width: 1px;
-          height: 48px;
-          overflow: hidden;
-        }
-        .scroll-line-track {
-          position: absolute;
-          inset: 0;
-          background: rgba(255,255,255,0.08);
-        }
-        .scroll-line-glow {
-          position: absolute;
-          top: -100%;
-          left: -1px;
-          width: 3px;
-          height: 50%;
-          background: linear-gradient(to bottom, transparent, ${EMERALD}, transparent);
-          border-radius: 2px;
-          animation: lineTravel 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-        @keyframes lineTravel {
-          0% { top: -50%; opacity: 0; }
-          15% { opacity: 1; }
-          85% { opacity: 1; }
-          100% { top: 100%; opacity: 0; }
-        }
-        .projects-marquee {
-          animation: marqueeScroll 25s linear infinite;
-          will-change: transform;
-        }
-        @keyframes marqueeScroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-      `}</style>
+function ProjectCard({ app, favorite, onFavorite, onOpen, ru }: { app: DemoApp; favorite: boolean; onFavorite: (id: string) => void; onOpen: (id: string) => void; ru: boolean }) {
+  const d = details[app.id];
+  return <article className="ps-product" data-testid={`card-app-${app.id}`}>
+    <div className="ps-product-image" style={{ backgroundColor: d.background }}>
+      <button className="ps-product-link" type="button" onClick={() => onOpen(app.id)} onPointerEnter={() => preloadDemo(app.id)} aria-label={`${ru ? 'Открыть' : 'Open'} ${app.title}`} data-testid={`button-open-${app.id}`}>
+        <img src={art(app)} alt="" loading="lazy" decoding="async" />
+      </button>
+      <button className="ps-heart" type="button" aria-pressed={favorite} aria-label={`${favorite ? (ru ? 'Убрать из избранного' : 'Remove from favorites') : (ru ? 'Добавить в избранное' : 'Add to favorites')}: ${app.title}`} onClick={() => onFavorite(app.id)} data-testid={`button-favorite-${app.id}`}><Heart size={18} fill={favorite ? 'currentColor' : 'none'}/></button>
     </div>
-  );
+    <button className="ps-product-copy" type="button" onClick={() => onOpen(app.id)}><strong>{d.name}</strong><span>{ru ? d.label : d.en}</span><span className="ps-product-action">{ru ? 'Открыть демо' : 'Open demo'} <ArrowUpRight size={14}/></span></button>
+  </article>;
+}
+
+export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPageProps) {
+  const { language } = useLanguage(); const ru = language === 'ru';
+  const { favorites, toggle, initialize, isInitialized } = useFavoritesStore();
+  const [filter, setFilter] = useState<Filter>('all'); const [query, setQuery] = useState('');
+  const [heroIndex, setHeroIndex] = useState(0); const [storyIndex, setStoryIndex] = useState(0);
+  const touchX = useRef<number | null>(null); const catalogRef = useRef<HTMLElement>(null);
+  useEffect(() => { if (!isInitialized) void initialize(); }, [initialize, isInitialized]);
+  const hero = byId(featured[heroIndex]); const story = byId(featured[storyIndex]);
+  const shown = useMemo(() => {
+    const term = query.trim().toLocaleLowerCase();
+    return demoApps.filter(app => {
+      const d = details[app.id];
+      return (filter === 'all' || (filter === 'favorites' ? favorites.includes(app.id) : d.group === filter)) &&
+        (!term || [app.title, app.description, app.category, d.name, d.label, d.en].join(' ').toLocaleLowerCase().includes(term));
+    });
+  }, [filter, query, favorites]);
+  const open = (id: string) => { try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); } catch {} onOpenDemo(id); };
+  const favorite = (id: string) => { try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); } catch {} void toggle(id); };
+  const jump = (next: Filter = 'all') => { setFilter(next); setQuery(''); requestAnimationFrame(() => catalogRef.current?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })); };
+  const moveHero = (delta: number) => setHeroIndex(i => (i + delta + featured.length) % featured.length);
+  const moveStory = (delta: number) => setStoryIndex(i => (i + delta + featured.length) % featured.length);
+  const filters: { id: Filter; ru: string; en: string }[] = [
+    { id: 'all', ru: 'Все', en: 'All' }, { id: 'stores', ru: 'Магазины', en: 'Stores' },
+    { id: 'services', ru: 'Услуги', en: 'Services' }, { id: 'business', ru: 'Для бизнеса', en: 'Business' },
+    { id: 'favorites', ru: 'Избранное', en: 'Favorites' },
+  ];
+  return <main className="projects-showcase" data-testid="projects-showcase"><div className="ps-inner">
+    <section className="ps-hero" aria-label={ru ? 'Избранные проекты' : 'Featured projects'} onTouchStart={e => { touchX.current = e.touches[0].clientX; }} onTouchEnd={e => { if (touchX.current !== null) { const d = e.changedTouches[0].clientX - touchX.current; if (Math.abs(d) > 55) moveHero(d < 0 ? 1 : -1); touchX.current = null; } }}>
+      <h1 className="ps-hero-type"><span>{ru ? 'НОВЫЕ ИДЕИ' : 'NEW IDEAS'}</span><span aria-hidden="true">{ru ? 'НОВЫЕ ИДЕИ' : 'NEW IDEAS'}</span><span aria-hidden="true">{ru ? 'НОВЫЕ ИДЕИ' : 'NEW IDEAS'}</span></h1>
+      <button className="ps-hero-object" type="button" onClick={() => open(hero.id)} onPointerEnter={() => preloadDemo(hero.id)} aria-label={`${ru ? 'Открыть' : 'Open'} ${hero.title}`}><img src={art(hero)} alt="" /></button>
+      <div className="ps-hero-bottom"><div className="ps-hero-pagination"><button type="button" onClick={() => moveHero(-1)} aria-label={ru ? 'Предыдущий проект' : 'Previous project'}><ArrowLeft size={16}/></button><span>{String(heroIndex + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')}</span><button type="button" onClick={() => moveHero(1)} aria-label={ru ? 'Следующий проект' : 'Next project'}><ArrowRight size={16}/></button></div><div className="ps-hero-caption"><small>{ru ? 'ПРОЕКТ В ДЕТАЛЯХ' : 'FEATURED PROJECT'}</small><strong>{details[hero.id].name}</strong></div><button className="ps-circle ps-hero-open" type="button" onClick={() => open(hero.id)} aria-label={`${ru ? 'Открыть' : 'Open'} ${hero.title}`}><ArrowUpRight size={23}/></button></div>
+    </section>
+
+    <section className="ps-categories" aria-labelledby="ps-categories-title"><div className="ps-section-heading"><h2 id="ps-categories-title">{ru ? <>ИССЛЕДУЙ<br/>КОЛЛЕКЦИЮ</> : <>EXPLORE THE<br/>COLLECTION</>}</h2><button type="button" onClick={() => jump()}>{ru ? 'Все проекты' : 'All projects'} <ArrowRight size={16}/></button></div><div className="ps-category-scroll">{categories.map(category => { const app = byId(category.app); return <button className="ps-category" key={category.id} type="button" onClick={() => jump(category.id)}><span className="ps-category-art" style={{ backgroundColor: details[app.id].background }}><img src={art(app)} alt="" loading="lazy"/></span><strong>{ru ? category.ru : category.en}</strong></button>; })}</div></section>
+
+    <section className="ps-editorial" aria-labelledby="ps-editorial-title"><div className="ps-section-heading"><h2 id="ps-editorial-title">{ru ? <>ПРОЕКТЫ<br/>В ДЕТАЛЯХ</> : <>PROJECTS<br/>UP CLOSE</>}</h2><span className="ps-counter">{String(storyIndex + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')}</span></div>
+      <div className="ps-story" style={{ backgroundColor: details[story.id].background }}><div className="ps-story-meta"><span>WEB4TG / {String(storyIndex + 1).padStart(2, '0')}</span><span>{ru ? 'ИНТЕРАКТИВНОЕ ДЕМО' : 'INTERACTIVE DEMO'}</span></div><div className="ps-story-name" aria-hidden="true">{details[story.id].name}</div><button className="ps-story-object" type="button" onClick={() => open(story.id)} aria-label={`${ru ? 'Открыть' : 'Open'} ${story.title}`}><img src={art(story)} alt="" loading="lazy"/></button><div className="ps-story-nav"><button type="button" onClick={() => moveStory(-1)} aria-label={ru ? 'Предыдущий проект' : 'Previous project'}><ArrowLeft size={19}/></button><button type="button" onClick={() => moveStory(1)} aria-label={ru ? 'Следующий проект' : 'Next project'}><ArrowRight size={19}/></button></div></div>
+      <div className="ps-story-bottom"><div><strong>{details[story.id].name}</strong><span>{ru ? details[story.id].label : details[story.id].en}</span></div><button type="button" onClick={() => open(story.id)}>{ru ? 'Смотреть проект' : 'View project'} <ArrowUpRight size={18}/></button></div>
+    </section>
+    <div className="ps-manifesto" aria-label={ru ? 'Ваш бизнес в Telegram' : 'Your business in Telegram'}><span>{ru ? 'ВАШ БИЗНЕС' : 'YOUR BUSINESS'}</span><span>{ru ? 'В TELEGRAM.' : 'IN TELEGRAM.'}</span></div>
+
+    <section className="ps-catalog" ref={catalogRef} aria-labelledby="ps-catalog-title"><div className="ps-section-heading"><h2 id="ps-catalog-title">{ru ? <>ВЫБРАНО<br/>ДЛЯ ВАС</> : <>SELECTED<br/>FOR YOU</>}</h2><span className="ps-counter">{String(shown.length).padStart(2, '0')} / {String(demoApps.length).padStart(2, '0')}</span></div>
+      <label className="ps-search"><Search size={18}/><input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder={ru ? 'Найти проект' : 'Find a project'} aria-label={ru ? 'Поиск проектов' : 'Search projects'}/>{query && <button type="button" onClick={() => setQuery('')} aria-label={ru ? 'Очистить поиск' : 'Clear search'}><X size={16}/></button>}</label>
+      <div className="ps-filters" role="group" aria-label={ru ? 'Категории проектов' : 'Project categories'}>{filters.map(item => <button key={item.id} type="button" className={filter === item.id ? 'is-active' : ''} aria-pressed={filter === item.id} onClick={() => setFilter(item.id)}>{item.id === 'favorites' && <Heart size={13} fill={filter === item.id ? 'currentColor' : 'none'}/>} {ru ? item.ru : item.en}</button>)}</div>
+      {shown.length ? <div className="ps-grid">{shown.map(app => <ProjectCard key={app.id} app={app} favorite={favorites.includes(app.id)} onFavorite={favorite} onOpen={open} ru={ru}/>)}</div> : <div className="ps-empty"><h3>{ru ? 'Здесь пока ничего нет' : 'Nothing here yet'}</h3><p>{filter === 'favorites' && !query ? (ru ? 'Сохраняйте понравившиеся проекты сердечком.' : 'Save projects you like with the heart.') : (ru ? 'Попробуйте другой запрос или категорию.' : 'Try another search or category.')}</p><button type="button" onClick={() => { setFilter('all'); setQuery(''); }}>{ru ? 'Все проекты' : 'All projects'} <ArrowRight size={16}/></button></div>}
+    </section>
+    <section className="ps-next"><span className="ps-next-label">WEB4TG / TELEGRAM MINI APPS</span><h2>{ru ? <>ВАШ БИЗНЕС.<br/><span>ВАШ ПРОЕКТ.</span></> : <>YOUR BUSINESS.<br/><span>YOUR PROJECT.</span></>}</h2><p>{ru ? 'Расскажите нам о своей идее — создадим приложение для вашего бизнеса.' : 'Tell us your idea and create an app for your business.'}</p><button type="button" onClick={() => onNavigate('constructor')} data-testid="button-order-cta">{ru ? 'Обсудить проект' : 'Discuss a project'} <ArrowUpRight size={18}/></button></section>
+    <footer className="ps-footer"><strong>WEB4TG</strong><span>{ru ? 'ПРОДУКТЫ ДЛЯ TELEGRAM' : 'PRODUCTS FOR TELEGRAM'}</span></footer>
+  </div></main>;
 });
