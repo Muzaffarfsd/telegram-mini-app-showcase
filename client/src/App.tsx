@@ -430,6 +430,8 @@ function AppContent() {
   
   const { route } = useRouting();
   const prefetchStarted = useRef(false);
+  const demoReturnPath = useRef<'/' | '/projects'>('/');
+  const pendingDemoHash = useRef<string | null>(null);
   const isProfile = isProfileRoute(route.component);
   const { trackNavigation } = useNavigationTracking();
 
@@ -487,15 +489,32 @@ function AppContent() {
   }, [hapticFeedback]);
 
   const handleOpenDemo = useCallback((demoId: string) => {
+    demoReturnPath.current = route.component === 'projects' ? '/projects' : '/';
+    pendingDemoHash.current = `#/demos/${demoId}/app`;
     navigate(`/demos/${demoId}/app`);
     queueMicrotask(() => hapticFeedback.medium());
     trackDemoView(demoId);
-  }, [hapticFeedback]);
+  }, [hapticFeedback, route.component]);
 
   const handleCloseDemo = useCallback(() => {
-    navigate('/');
+    const returnPath = demoReturnPath.current;
+    demoReturnPath.current = '/';
+    navigate(returnPath);
     queueMicrotask(() => hapticFeedback.light());
   }, [hapticFeedback]);
+
+  useEffect(() => {
+    // Only the navigation initiated by handleOpenDemo inherits its source.
+    // Other hash changes, including browser back and later deep links, must not
+    // reuse an earlier demo's return destination.
+    const clearStaleDemoSource = (event: HashChangeEvent) => {
+      const nextHash = new URL(event.newURL).hash;
+      if (nextHash !== pendingDemoHash.current) demoReturnPath.current = '/';
+      pendingDemoHash.current = null;
+    };
+    window.addEventListener('hashchange', clearStaleDemoSource);
+    return () => window.removeEventListener('hashchange', clearStaleDemoSource);
+  }, []);
 
   const handleCheckoutBack = useCallback(() => {
     setOrderData(null);
@@ -527,7 +546,7 @@ function AppContent() {
   }, [route.component]);
 
   const isRoyalStep = route.component === 'demoApp' && ['nike-sneakers', 'royal-step'].includes(route.params?.id || '');
-  const isFashionDemo = route.component === 'demoApp' && route.params?.id === 'muraka-fashion';
+  const isFashionDemo = route.component === 'demoApp' && (route.params?.id === 'muraka-fashion' || route.params?.id === 'women-fashion');
   const isAppleStore = route.component === 'demoApp' && route.params?.id === 'apple-store';
   const isOptMarket = route.component === 'demoApp' && route.params?.id === 'opt-market';
   const isLumiStudio = route.component === 'demoApp' && route.params?.id === 'lumi-studio';

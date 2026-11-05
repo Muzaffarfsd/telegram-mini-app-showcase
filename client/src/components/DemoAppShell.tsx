@@ -325,6 +325,16 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     </div>;
   }
 
+  // MIRA is an independent women's store with its own state and navigation.
+  if (demoId === 'women-fashion') {
+    const WomenFashion = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<div aria-label="Загрузка магазина MIRA" style={{ minHeight: '100vh', background: '#fff' }} />}>
+        {WomenFashion && <WomenFashion onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
+
   // This standalone store uses its own navigation so it can reproduce the
   // requested shop experience, including a full-screen basket sheet.
   if (demoId === 'royal-step' || demoId === 'nike-sneakers') {

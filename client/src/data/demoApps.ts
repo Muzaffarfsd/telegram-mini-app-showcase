@@ -117,6 +117,17 @@ export const demoApps: DemoApp[] = [
     badgeColor: 'bg-black',
   },
   {
+    id: 'women-fashion',
+    title: 'MIRA — женская одежда',
+    description: 'Женская одежда: коллекция, образы, избранное и демо-заказ',
+    category: 'Электронная коммерция',
+    image: '/women-fashion/hero.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
     id: 'nike-sneakers',
     title: 'КРОССОВКИ NIKE',
     description: 'Демо магазина Nike с каталогом и корзиной',

@@ -16,6 +16,7 @@ const details: Record<string, { group: Filter; label: string; en: string; name: 
   'opt-market': { group: 'business', label: 'Оптовые закупки', en: 'Wholesale', name: 'ПАРТИЯ', image: 'party-ref', background: '#f0f2e9' },
   'apple-store': { group: 'stores', label: 'Магазин техники', en: 'Technology', name: 'APPLE', image: 'apple-ref-v2', background: '#eff1f3' },
   'muraka-fashion': { group: 'stores', label: 'Магазин одежды', en: 'Fashion store', name: 'MURAKA', image: 'fashion-ref-v2', background: '#f1f1ed' },
+  'women-fashion': { group: 'stores', label: 'Женская одежда', en: 'Women’s fashion', name: 'MIRA', image: 'women-fashion-ref', background: '#f3f0ef' },
   'nike-sneakers': { group: 'stores', label: 'Магазин кроссовок', en: 'Sneaker store', name: 'NIKE', image: 'nike-ref', background: '#edf1ed' },
   'skincare-aura': { group: 'stores', label: 'Косметика и уход', en: 'Skincare', name: 'AURA', image: 'aura-ref', background: '#f3f1e9' },
 };
