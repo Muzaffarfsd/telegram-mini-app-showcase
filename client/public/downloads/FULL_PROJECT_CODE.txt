@@ -5546,7 +5546,6 @@ const lightTheme: DemoTheme = {
 };
 
 const demoThemes: Record<string, Partial<DemoTheme>> = {
-  'stray-store': { background: '#F6F6F4', isDark: false, accent: '#0A0A0B', onAccent: '#FFFFFF' },
   'tea-house': { background: '#FAF6F1', isDark: false },
   'interior-lux': { background: '#F5F3F0', isDark: false },
   'skincare-aura': { background: '#FFFFFF', isDark: false, accent: '#A3E635', onAccent: '#1A2E05' },
@@ -25218,10 +25217,6 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./CarWash')),
     preload: () => import('./CarWash')
   },
-  'stray-store': {
-    component: lazy(() => import('./StrayStore')),
-    preload: () => import('./StrayStore')
-  },
   
   // Aliases for compatibility with demoApps.ts IDs
   
@@ -29850,17 +29845,6 @@ export const demoApps: DemoApp[] = [
     creator: 'WEB4TG',
     likes: '0',
     badge: 'Демо',
-    badgeColor: 'bg-black',
-  },
-  {
-    id: 'stray-store',
-    title: 'STRAY',
-    description: 'Минималистичный стритвир-магазин: одежда, обувь, аксессуары',
-    category: 'Электронная коммерция',
-    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_3F02JzQ7VwcjzsSuotlPzYO9aEk/hf_20260619_122532_b28cb4c9-8ff7-4a54-b736-b1c89f1b22b7.jpeg',
-    creator: 'WEB4TG',
-    likes: '15.1k',
-    badge: 'Новинка',
     badgeColor: 'bg-black',
   },
   {

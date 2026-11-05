@@ -8,12 +8,12 @@ const RETIRED_DEMO_IDS = new Set([
   'luxury-perfume', 'fragrance-royale', 'sneaker-store', 'sneaker-vault',
   'luxury-watches', 'time-elite', 'futuristic-fashion-1', 'futuristic-fashion-2',
   'futuristic-fashion-3', 'futuristic-fashion-4', 'restaurant', 'tech-nova',
-  'streetwear-vanta',
+  'streetwear-vanta', 'stray-store',
 ]);
 const RETIRED_LOCAL_KEYS = [
   'techstore-cart', 'techstore-favorites', 'techstore-orders',
   'deluxedine-cart', 'deluxedine-favorites', 'deluxedine-orders',
-  'rascal-store', 'storeblack-store',
+  'rascal-store', 'storeblack-store', 'stray-store_cart', 'stray-store_orders',
   ...['fragranceroyale-store', 'sneakervault-store', 'timeelite-store', 'nikeacg-store', 'labsurvivalist-store']
     .flatMap(prefix => ['cart', 'favorites', 'orders'].map(suffix => `${prefix}_${suffix}`)),
 ];

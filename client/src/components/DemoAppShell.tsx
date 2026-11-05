@@ -46,7 +46,6 @@ const lightTheme: DemoTheme = {
 };
 
 const demoThemes: Record<string, Partial<DemoTheme>> = {
-  'stray-store': { background: '#F6F6F4', isDark: false, accent: '#0A0A0B', onAccent: '#FFFFFF' },
   'tea-house': { background: '#FAF6F1', isDark: false },
   'interior-lux': { background: '#F5F3F0', isDark: false },
   'skincare-aura': { background: '#FFFFFF', isDark: false, accent: '#A3E635', onAccent: '#1A2E05' },

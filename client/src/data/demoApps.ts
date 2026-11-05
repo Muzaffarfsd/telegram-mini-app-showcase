@@ -128,17 +128,6 @@ export const demoApps: DemoApp[] = [
     badgeColor: 'bg-black',
   },
   {
-    id: 'stray-store',
-    title: 'STRAY',
-    description: 'Минималистичный стритвир-магазин: одежда, обувь, аксессуары',
-    category: 'Электронная коммерция',
-    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_3F02JzQ7VwcjzsSuotlPzYO9aEk/hf_20260619_122532_b28cb4c9-8ff7-4a54-b736-b1c89f1b22b7.jpeg',
-    creator: 'WEB4TG',
-    likes: '15.1k',
-    badge: 'Новинка',
-    badgeColor: 'bg-black',
-  },
-  {
     id: 'skincare-aura',
     title: 'Aura',
     description: 'Премиальный магазин косметики и ухода за кожей',

@@ -77,10 +77,6 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./CarWash')),
     preload: () => import('./CarWash')
   },
-  'stray-store': {
-    component: lazy(() => import('./StrayStore')),
-    preload: () => import('./StrayStore')
-  },
   
   // Aliases for compatibility with demoApps.ts IDs
   
