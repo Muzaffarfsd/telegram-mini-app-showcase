@@ -25,7 +25,6 @@ interface DemoMini {
   pattern: RegExp;
 }
 const DEMO_PREVIEW_REGISTRY: DemoMini[] = [
-  { id: 'streetwear-vanta', name: 'VANTA',          category: 'Стритвир',        image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_171258_791a20a6-9c96-4e85-bec2-e4813052ec93_min.webp', accent: '#fbbf24', pattern: /\bVANTA\b/i },
   { id: 'skincare-aura',    name: 'Aura',           category: 'Косметика',       image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_171258_791a20a6-9c96-4e85-bec2-e4813052ec93_min.webp', accent: '#f472b6', pattern: /\bAura\b/i },
 ];
 

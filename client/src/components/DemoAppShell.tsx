@@ -50,7 +50,6 @@ const demoThemes: Record<string, Partial<DemoTheme>> = {
   'tea-house': { background: '#FAF6F1', isDark: false },
   'interior-lux': { background: '#F5F3F0', isDark: false },
   'skincare-aura': { background: '#FFFFFF', isDark: false, accent: '#A3E635', onAccent: '#1A2E05' },
-  'streetwear-vanta': { background: '#FFFFFF', isDark: false, accent: '#0B0B0B', onAccent: '#FFFFFF' },
 };
 
 const getTheme = (demoId: string): DemoTheme => {

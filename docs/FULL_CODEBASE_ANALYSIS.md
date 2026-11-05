@@ -91,7 +91,6 @@ const demoThemes: Record<string, Partial<DemoTheme>> = {
   'tea-house': { background: '#FAF6F1', isDark: false },
   'interior-lux': { background: '#F5F3F0', isDark: false },
   'skincare-aura': { background: '#FFFFFF', isDark: false, accent: '#A3E635', onAccent: '#1A2E05' },
-  'streetwear-vanta': { background: '#FFFFFF', isDark: false, accent: '#0B0B0B', onAccent: '#FFFFFF' },
 };
 
 const getTheme = (demoId: string): DemoTheme => {
@@ -1617,10 +1616,6 @@ export const demoRegistry: Record<string, DemoComponent> = {
   'emily-carter-ai': {
     component: lazy(() => import('./EmilyCarterAI')),
     preload: () => import('./EmilyCarterAI')
-  },
-  'streetwear-vanta': {
-    component: lazy(() => import('./StreetwearStore')),
-    preload: () => import('./StreetwearStore')
   },
 };
 
@@ -13508,17 +13503,6 @@ export const demoApps: DemoApp[] = [
     image: 'https://d8j0ntlcm91z4.cloudfront.net/user_3F02JzQ7VwcjzsSuotlPzYO9aEk/hf_20260619_122532_b28cb4c9-8ff7-4a54-b736-b1c89f1b22b7.jpeg',
     creator: 'WEB4TG',
     likes: '15.1k',
-    badge: 'Новинка',
-    badgeColor: 'bg-black',
-  },
-  {
-    id: 'streetwear-vanta',
-    title: 'VANTA',
-    description: 'Премиальный стритвир-бутик: кроссовки, куртки, худи',
-    category: 'Электронная коммерция',
-    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_154829_2fbfd789-76fb-419f-9591-cb69d3d85f4f_min.webp',
-    creator: 'WEB4TG',
-    likes: '11.4k',
     badge: 'Новинка',
     badgeColor: 'bg-black',
   },
@@ -40626,17 +40610,6 @@ export const demoApps: DemoApp[] = [
     image: 'https://d8j0ntlcm91z4.cloudfront.net/user_3F02JzQ7VwcjzsSuotlPzYO9aEk/hf_20260619_122532_b28cb4c9-8ff7-4a54-b736-b1c89f1b22b7.jpeg',
     creator: 'WEB4TG',
     likes: '15.1k',
-    badge: 'Новинка',
-    badgeColor: 'bg-black',
-  },
-  {
-    id: 'streetwear-vanta',
-    title: 'VANTA',
-    description: 'Премиальный стритвир-бутик: кроссовки, куртки, худи',
-    category: 'Электронная коммерция',
-    image: 'https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/hf_20260523_154829_2fbfd789-76fb-419f-9591-cb69d3d85f4f_min.webp',
-    creator: 'WEB4TG',
-    likes: '11.4k',
     badge: 'Новинка',
     badgeColor: 'bg-black',
   },

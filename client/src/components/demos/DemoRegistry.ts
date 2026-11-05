@@ -99,10 +99,6 @@ export const demoRegistry: Record<string, DemoComponent> = {
     component: lazy(() => import('./EmilyCarterAI')),
     preload: () => import('./EmilyCarterAI')
   },
-  'streetwear-vanta': {
-    component: lazy(() => import('./StreetwearStore')),
-    preload: () => import('./StreetwearStore')
-  },
 };
 
 const preloadedSet = new Set<string>();
