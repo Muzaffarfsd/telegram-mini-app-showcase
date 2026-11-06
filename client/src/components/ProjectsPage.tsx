@@ -1,122 +1,86 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Heart, Search, X } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Heart, Search, SlidersHorizontal, X } from 'lucide-react';
 import { demoApps, type DemoApp } from '../data/demoApps';
 import { useFavoritesStore } from '@/stores/favoritesStore';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useViewedDemos } from '@/hooks/useTelegramStorage';
 import { preloadDemo } from './demos/DemoRegistry';
 import './ProjectsShowcase.css';
 
 interface ProjectsPageProps { onNavigate: (section: string) => void; onOpenDemo: (demoId: string) => void }
 type Filter = 'all' | 'stores' | 'services' | 'business' | 'favorites';
-const details: Record<string, { group: Filter; label: string; en: string; name: string; image: string; background: string }> = {
-  'flower-store': { group: 'stores', label: 'Цветы и подарки', en: 'Flowers & gifts', name: 'FLORA', image: 'flora-ref', background: '#f6efed' },
-  'china-buyer': { group: 'business', label: 'Байер из Китая', en: 'China sourcing', name: 'CHINA BUYER', image: 'china-ref', background: '#f2ede7' },
-  'medical-center': { group: 'services', label: 'Медицинский центр', en: 'Healthcare', name: 'MEDICAL', image: 'medical-ref', background: '#edf3f3' },
-  'lumi-studio': { group: 'services', label: 'Студия красоты', en: 'Beauty studio', name: 'LUMI', image: 'lumi-ref-v2', background: '#f6eeee' },
-  'opt-market': { group: 'business', label: 'Оптовые закупки', en: 'Wholesale', name: 'ПАРТИЯ', image: 'party-ref', background: '#f0f2e9' },
-  'apple-store': { group: 'stores', label: 'Магазин техники', en: 'Technology', name: 'APPLE', image: 'apple-ref-v2', background: '#eff1f3' },
-  'muraka-fashion': { group: 'stores', label: 'Магазин одежды', en: 'Fashion store', name: 'MURAKA', image: 'fashion-ref-v2', background: '#f1f1ed' },
-  'women-fashion': { group: 'stores', label: 'Женская одежда', en: 'Women’s fashion', name: 'MIRA', image: 'women-fashion-ref', background: '#f3f0ef' },
-  'nike-sneakers': { group: 'stores', label: 'Магазин кроссовок', en: 'Sneaker store', name: 'NIKE', image: 'nike-ref', background: '#edf1ed' },
-  'skincare-aura': { group: 'stores', label: 'Косметика и уход', en: 'Skincare', name: 'AURA', image: 'aura-ref', background: '#f3f1e9' },
+const details: Record<string, { group: Filter; label: string; en: string; name: string; fallback: string }> = {
+  'flower-store': { group: 'stores', label: 'Цветы и подарки', en: 'Flowers & gifts', name: 'FLORA', fallback: 'flora-ref' },
+  'china-buyer': { group: 'business', label: 'Байер из Китая', en: 'China sourcing', name: 'CHINA BUYER', fallback: 'china-ref' },
+  'medical-center': { group: 'services', label: 'Медицинский центр', en: 'Healthcare', name: 'MEDICAL', fallback: 'medical-ref' },
+  'lumi-studio': { group: 'services', label: 'Студия красоты', en: 'Beauty studio', name: 'LUMI', fallback: 'lumi-ref-v2' },
+  'opt-market': { group: 'business', label: 'Оптовые закупки', en: 'Wholesale', name: 'ПАРТИЯ', fallback: 'party-ref' },
+  'apple-store': { group: 'stores', label: 'Магазин техники', en: 'Technology store', name: 'APPLE', fallback: 'apple-ref-v2' },
+  'muraka-fashion': { group: 'stores', label: 'Магазин одежды', en: 'Fashion store', name: 'MURAKA', fallback: 'fashion-ref-v2' },
+  'women-fashion': { group: 'stores', label: 'Женская одежда', en: 'Women’s fashion', name: 'MIRA', fallback: 'women-fashion-ref' },
+  'nike-sneakers': { group: 'stores', label: 'Магазин кроссовок', en: 'Sneaker store', name: 'NIKE', fallback: 'nike-ref' },
+  'skincare-aura': { group: 'stores', label: 'Косметика и уход', en: 'Skincare', name: 'AURA', fallback: 'aura-ref' },
 };
-const art = (app: DemoApp) => `/showcase/miniatures/${details[app.id]?.image}.webp`;
-const byId = (id: string) => demoApps.find(app => app.id === id)!;
-const featured = ['flower-store', 'muraka-fashion', 'nike-sneakers', 'lumi-studio'];
-const categories: { id: Filter; ru: string; en: string; app: string }[] = [
-  { id: 'stores', ru: 'Магазины', en: 'Stores', app: 'muraka-fashion' },
-  { id: 'services', ru: 'Услуги', en: 'Services', app: 'lumi-studio' },
-  { id: 'business', ru: 'Для бизнеса', en: 'For business', app: 'china-buyer' },
+const appById = (id: string) => demoApps.find(app => app.id === id)!;
+const categoryList: { id: Filter; ru: string; en: string; caption: string; captionEn: string; app: string }[] = [
+  { id: 'stores', ru: 'Магазины', en: 'Stores', caption: 'Каталог и покупки', captionEn: 'Catalog and shopping', app: 'muraka-fashion' },
+  { id: 'services', ru: 'Услуги', en: 'Services', caption: 'Запись и консультации', captionEn: 'Bookings and consultations', app: 'lumi-studio' },
+  { id: 'business', ru: 'Для бизнеса', en: 'For business', caption: 'Закупки и поставки', captionEn: 'Orders and sourcing', app: 'china-buyer' },
+];
+const filters: { id: Filter; ru: string; en: string }[] = [
+  { id: 'all', ru: 'Все', en: 'All' }, { id: 'stores', ru: 'Магазины', en: 'Stores' },
+  { id: 'services', ru: 'Услуги', en: 'Services' }, { id: 'business', ru: 'Для бизнеса', en: 'Business' },
+  { id: 'favorites', ru: 'Избранное', en: 'Favorites' },
 ];
 
+function AppImage({ app, loading = 'lazy' }: { app: DemoApp; loading?: 'lazy' | 'eager' }) {
+  return <img src={`/showcase/device-icons/${app.id}.webp`} alt="" loading={loading} decoding="async"
+    onError={event => { const target = event.currentTarget; if (!target.dataset.fallback) { target.dataset.fallback = 'true'; target.src = `/showcase/miniatures/${details[app.id].fallback}.webp`; } }} />;
+}
+function FavoriteButton({ app, favorite, onFavorite, ru }: { app: DemoApp; favorite: boolean; onFavorite: (id: string) => void; ru: boolean }) {
+  return <button className="ps-heart" type="button" aria-pressed={favorite} aria-label={`${favorite ? (ru ? 'Убрать из избранного' : 'Remove from favorites') : (ru ? 'Добавить в избранное' : 'Add to favorites')}: ${app.title}`} onClick={() => onFavorite(app.id)} data-testid={`button-favorite-${app.id}`}><Heart size={19} strokeWidth={1.6} fill={favorite ? 'currentColor' : 'none'} /></button>;
+}
 function ProjectCard({ app, favorite, onFavorite, onOpen, ru }: { app: DemoApp; favorite: boolean; onFavorite: (id: string) => void; onOpen: (id: string) => void; ru: boolean }) {
   const d = details[app.id];
   return <article className="ps-product" data-testid={`card-app-${app.id}`}>
-    <div className="ps-product-image" style={{ backgroundColor: d.background }}>
-      <button className="ps-product-link" type="button" onClick={() => onOpen(app.id)} onPointerEnter={() => preloadDemo(app.id)} aria-label={`${ru ? 'Открыть' : 'Open'} ${app.title}`} data-testid={`button-open-${app.id}`}>
-        <img src={art(app)} alt="" loading="lazy" decoding="async" />
-      </button>
-      <button className="ps-heart" type="button" aria-pressed={favorite} aria-label={`${favorite ? (ru ? 'Убрать из избранного' : 'Remove from favorites') : (ru ? 'Добавить в избранное' : 'Add to favorites')}: ${app.title}`} onClick={() => onFavorite(app.id)} data-testid={`button-favorite-${app.id}`}><Heart size={18} fill={favorite ? 'currentColor' : 'none'}/></button>
-    </div>
-    <button className="ps-product-copy" type="button" onClick={() => onOpen(app.id)}><strong>{d.name}</strong><span>{ru ? d.label : d.en}</span><span className="ps-product-action">{ru ? 'Открыть демо' : 'Open demo'} <ArrowUpRight size={14}/></span></button>
+    <div className="ps-product__photo"><button className="ps-product__image" type="button" onClick={() => onOpen(app.id)} onPointerEnter={() => preloadDemo(app.id)} aria-label={`${ru ? 'Открыть демо' : 'Open demo'} ${d.name}`} data-testid={`button-open-${app.id}`}><AppImage app={app}/></button><FavoriteButton app={app} favorite={favorite} onFavorite={onFavorite} ru={ru}/></div>
+    <button className="ps-product__copy" type="button" onClick={() => onOpen(app.id)}><strong>{d.name}</strong><span>{ru ? d.label : d.en}</span><b>{ru ? 'Открыть демо' : 'Open demo'} <ArrowUpRight size={14} aria-hidden="true"/></b></button>
   </article>;
+}
+function ListCard({ app, favorite, onFavorite, onOpen, ru }: { app: DemoApp; favorite: boolean; onFavorite: (id: string) => void; onOpen: (id: string) => void; ru: boolean }) {
+  const d = details[app.id];
+  return <article className="ps-list-card"><button className="ps-list-card__open" type="button" onClick={() => onOpen(app.id)} onPointerEnter={() => preloadDemo(app.id)} aria-label={`${ru ? 'Открыть демо' : 'Open demo'} ${d.name}`}><span className="ps-list-card__copy"><strong>{d.name}</strong><small>{ru ? d.label : d.en}</small><b>{ru ? 'Открыть демо' : 'Open demo'} <ArrowRight size={14} aria-hidden="true"/></b></span><AppImage app={app}/></button><FavoriteButton app={app} favorite={favorite} onFavorite={onFavorite} ru={ru}/></article>;
 }
 
 export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPageProps) {
   const { language } = useLanguage(); const ru = language === 'ru';
   const { favorites, toggle, initialize, isInitialized } = useFavoritesStore();
+  const { viewedDemos, markAsViewed } = useViewedDemos();
   const [filter, setFilter] = useState<Filter>('all'); const [query, setQuery] = useState('');
-  const [heroIndex, setHeroIndex] = useState(0); const [storyIndex, setStoryIndex] = useState(0);
-  const [direction, setDirection] = useState('right');
-  const pointerStart = useRef<{ x: number; y: number } | null>(null);
-  const suppressClick = useRef(false); const catalogRef = useRef<HTMLElement>(null);
+  const catalogRef = useRef<HTMLElement>(null); const searchRef = useRef<HTMLInputElement>(null);
   useEffect(() => { if (!isInitialized) void initialize(); }, [initialize, isInitialized]);
-  const hero = demoApps[heroIndex]; const story = byId(featured[storyIndex]);
-  const shown = useMemo(() => {
-    const term = query.trim().toLocaleLowerCase();
-    return demoApps.filter(app => {
-      const d = details[app.id];
-      return (filter === 'all' || (filter === 'favorites' ? favorites.includes(app.id) : d.group === filter)) &&
-        (!term || [app.title, app.description, app.category, d.name, d.label, d.en].join(' ').toLocaleLowerCase().includes(term));
-    });
-  }, [filter, query, favorites]);
-  const open = (id: string) => { try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); } catch {} onOpenDemo(id); };
+  const shown = useMemo(() => { const term = query.trim().toLocaleLowerCase(); return demoApps.filter(app => { const d = details[app.id]; return (filter === 'all' || (filter === 'favorites' ? favorites.includes(app.id) : d.group === filter)) && (!term || [app.title, app.description, app.category, d.name, d.label, d.en].join(' ').toLocaleLowerCase().includes(term)); }); }, [filter, query, favorites]);
+  const recent = viewedDemos.map(id => demoApps.find(app => app.id === id)).filter((app): app is DemoApp => !!app).slice(-6).reverse();
+  const open = (id: string) => { void markAsViewed(id); try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); } catch {} onOpenDemo(id); };
   const favorite = (id: string) => { try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); } catch {} void toggle(id); };
-  const jump = (next: Filter = 'all') => { setFilter(next); setQuery(''); requestAnimationFrame(() => catalogRef.current?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })); };
-  const neighbor = (index: number, dx: number, dy: number) => {
-    const columns = 3, rows = Math.ceil(demoApps.length / columns);
-    const row = (Math.floor(index / columns) + dy + rows) % rows;
-    const rowLength = Math.min(columns, demoApps.length - row * columns);
-    const col = Math.min(index % columns, rowLength - 1);
-    return row * columns + (col + dx + rowLength) % rowLength;
-  };
-  const moveHero = (dx: number, dy: number) => {
-    setDirection(dx ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
-    setHeroIndex(i => neighbor(i, dx, dy));
-  };
-  const moveStory = (delta: number) => setStoryIndex(i => (i + delta + featured.length) % featured.length);
-  const filters: { id: Filter; ru: string; en: string }[] = [
-    { id: 'all', ru: 'Все', en: 'All' }, { id: 'stores', ru: 'Магазины', en: 'Stores' },
-    { id: 'services', ru: 'Услуги', en: 'Services' }, { id: 'business', ru: 'Для бизнеса', en: 'Business' },
-    { id: 'favorites', ru: 'Избранное', en: 'Favorites' },
-  ];
+  const jump = (next: Filter = 'all', focusSearch = false) => { setFilter(next); setQuery(''); requestAnimationFrame(() => { catalogRef.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); if (focusSearch) searchRef.current?.focus({ preventScroll: true }); }); };
+  const tile = (id: string) => { const app = appById(id); return <ProjectCard key={id} app={app} favorite={favorites.includes(id)} onFavorite={favorite} onOpen={open} ru={ru}/>; };
+  const row = (id: string) => { const app = appById(id); return <ListCard key={id} app={app} favorite={favorites.includes(id)} onFavorite={favorite} onOpen={open} ru={ru}/>; };
   return <main className="projects-showcase" data-testid="projects-showcase"><div className="ps-inner">
-    <section className="ps-hero" aria-label={ru ? 'Витрина приложений' : 'App showcase'}>
-      <div className="ps-hero-intro"><span className="ps-intro-label">WEB4TG / TELEGRAM MINI APPS</span><h1 className="ps-hero-type"><span>{ru ? 'ВИТРИНА' : 'APP SHOWCASE'}</span><span aria-hidden="true">{ru ? 'ВИТРИНА' : 'APP SHOWCASE'}</span></h1><p>{ru ? 'Готовые приложения для бизнеса в Telegram. Откройте демо и попробуйте сами.' : 'Explore interactive Telegram apps for business. Open a demo and try it yourself.'}</p><button className="ps-all-link" type="button" onClick={() => jump()}>{ru ? 'Все приложения' : 'All apps'} <ArrowRight size={16}/></button></div>
-      <div className="ps-carousel" role="region" aria-roledescription={ru ? 'карусель' : 'carousel'} aria-label={ru ? 'Приложения: проведите в любом направлении или используйте стрелки' : 'Apps: swipe in any direction or use the arrow buttons'}>
-        <div className="ps-carousel-stage" data-direction={direction}
-          onPointerDown={e => { if (e.isPrimary && (e.pointerType !== 'mouse' || e.button === 0)) pointerStart.current = { x: e.clientX, y: e.clientY }; }}
-          onPointerUp={e => { const start = pointerStart.current; pointerStart.current = null; if (!start) return; const dx = e.clientX - start.x, dy = e.clientY - start.y; if (Math.max(Math.abs(dx), Math.abs(dy)) < 45) return; suppressClick.current = true; window.setTimeout(() => { suppressClick.current = false; }, 400); if (Math.abs(dx) > Math.abs(dy)) moveHero(dx < 0 ? 1 : -1, 0); else moveHero(0, dy < 0 ? 1 : -1); }}
-          onPointerCancel={() => { pointerStart.current = null; }}
-          onKeyDown={e => { const keys: Record<string, [number, number]> = { ArrowLeft: [-1,0], ArrowRight: [1,0], ArrowUp: [0,-1], ArrowDown: [0,1] }; if (keys[e.key]) { e.preventDefault(); moveHero(...keys[e.key]); } }}>
-          {([['left',-1,0],['right',1,0],['up',0,-1],['down',0,1]] as const).map(([pos,dx,dy]) => <div className={`ps-carousel-neighbor ps-neighbor-${pos}`} key={pos} aria-hidden="true"><img src={art(demoApps[neighbor(heroIndex,dx,dy)])} alt="" draggable={false}/></div>)}
-          <button className="ps-carousel-center" type="button" onClick={() => { if (!suppressClick.current) open(hero.id); }} onPointerEnter={() => preloadDemo(hero.id)} aria-label={`${ru ? 'Открыть демо' : 'Open demo'}: ${hero.title}`}><img key={hero.id} src={art(hero)} alt="" draggable={false}/></button>
-        </div>
-        <div className="ps-carousel-controls" role="group" aria-label={ru ? 'Управление каруселью' : 'Carousel controls'}>
-          <button type="button" onClick={() => moveHero(-1,0)} aria-label={ru ? 'Проект слева' : 'Project to the left'}><ArrowLeft size={19}/></button>
-          <button type="button" onClick={() => moveHero(1,0)} aria-label={ru ? 'Проект справа' : 'Project to the right'}><ArrowRight size={19}/></button>
-          <button type="button" onClick={() => moveHero(0,-1)} aria-label={ru ? 'Проект сверху' : 'Project above'}><ArrowUp size={19}/></button>
-          <button type="button" onClick={() => moveHero(0,1)} aria-label={ru ? 'Проект снизу' : 'Project below'}><ArrowDown size={19}/></button>
-          <span className="ps-swipe-hint">{ru ? 'Листайте в любом направлении' : 'Swipe in any direction'}</span>
-        </div>
-      </div>
-      <div className="ps-hero-bottom"><div className="ps-hero-caption" aria-live="polite" aria-atomic="true"><small>{String(heroIndex + 1).padStart(2, '0')} / {String(demoApps.length).padStart(2, '0')} · {ru ? details[hero.id].label : details[hero.id].en}</small><strong>{details[hero.id].name}</strong></div><button className="ps-open-demo" type="button" onClick={() => open(hero.id)}>{ru ? 'Открыть демо' : 'Open demo'} <ArrowUpRight size={19}/></button></div>
+    <section className="ps-home" aria-label={ru ? 'Витрина приложений' : 'App showcase'}>
+      <div className="ps-heading"><div><p className="ps-eyebrow">WEB4TG / TELEGRAM</p><h1>{ru ? 'Витрина' : 'Showcase'}</h1><p className="ps-heading__description">{ru ? 'Приложения для бизнеса в Telegram' : 'Business apps in Telegram'}</p></div><div className="ps-heading__actions"><button type="button" aria-label={ru ? 'Поиск приложений' : 'Search apps'} onClick={() => jump('all', true)}><Search size={19}/></button><button type="button" aria-label={ru ? 'Категории приложений' : 'App categories'} onClick={() => jump()}><SlidersHorizontal size={19}/></button></div></div>
+      <button type="button" className="ps-feature" onClick={() => open('flower-store')} onPointerEnter={() => preloadDemo('flower-store')} aria-label={ru ? 'Открыть демо FLORA' : 'Open FLORA demo'}><span className="ps-feature__art"><AppImage app={appById('flower-store')} loading="eager"/></span><span className="ps-feature__copy"><small>{ru ? 'ВЫБОР ВИТРИНЫ / 01' : 'SHOWCASE PICK / 01'}</small><strong>FLORA</strong><em>{ru ? 'Цветы и подарки' : 'Flowers & gifts'}</em><b>{ru ? 'Открыть демо' : 'Open demo'} <ArrowRight size={15}/></b></span></button>
+      <div className="ps-home-grid"><button type="button" className="ps-editorial-tile ps-editorial-tile--stores" onClick={() => jump('stores')}><span><small>{ru ? 'ПОДБОРКА / 02' : 'COLLECTION / 02'}</small><strong>{ru ? 'Магазины' : 'Stores'}</strong><b>{ru ? 'Смотреть' : 'Explore'} <ArrowRight size={14}/></b></span><AppImage app={appById('apple-store')}/></button>{tile('muraka-fashion')}{tile('nike-sneakers')}<button type="button" className="ps-editorial-tile ps-editorial-tile--services" onClick={() => jump('services')}><span><small>{ru ? 'ПОДБОРКА / 03' : 'COLLECTION / 03'}</small><strong>{ru ? 'Услуги' : 'Services'}</strong><b>{ru ? 'Смотреть' : 'Explore'} <ArrowRight size={14}/></b></span><AppImage app={appById('lumi-studio')}/></button></div>
+      <section className="ps-section" aria-labelledby="ps-discover-title"><div className="ps-section__heading"><div><p className="ps-eyebrow">{ru ? 'ВЫБОР ПО НАПРАВЛЕНИЮ' : 'FIND YOUR DIRECTION'}</p><h2 id="ps-discover-title">{ru ? 'Найдите своё' : 'Find your fit'}</h2></div><button type="button" onClick={() => jump()}>{ru ? 'Все проекты' : 'All projects'} <ArrowRight size={16}/></button></div><div className="ps-category-list">{categoryList.map(category => <button key={category.id} type="button" onClick={() => jump(category.id)}><span><strong>{ru ? category.ru : category.en}</strong><small>{ru ? category.caption : category.captionEn}</small><b>{ru ? 'Смотреть' : 'Explore'} <ArrowRight size={14}/></b></span><AppImage app={appById(category.app)}/></button>)}</div></section>
+      <section className="ps-section" aria-labelledby="ps-picks-title"><div className="ps-section__heading"><div><p className="ps-eyebrow">{ru ? 'В КОЛЛЕКЦИИ' : 'IN THE COLLECTION'}</p><h2 id="ps-picks-title">{ru ? 'Стоит посмотреть' : 'Worth exploring'}</h2></div><button type="button" onClick={() => jump()}>{ru ? 'Все проекты' : 'All projects'} <ArrowRight size={16}/></button></div><div className="ps-list">{['lumi-studio','china-buyer','opt-market','apple-store'].map(row)}</div></section>
+      <section className="ps-editorial" aria-labelledby="ps-editorial-title"><div className="ps-section__heading"><div><p className="ps-eyebrow">{ru ? 'ИДЕЯ / ПРИЛОЖЕНИЕ' : 'IDEA / APPLICATION'}</p><h2 id="ps-editorial-title">{ru ? 'Бизнес в Telegram' : 'Business in Telegram'}</h2></div><ArrowUpRight size={24} strokeWidth={1.4}/></div><button type="button" className="ps-editorial__hero" onClick={() => open('muraka-fashion')} aria-label={ru ? 'Открыть демо MURAKA' : 'Open MURAKA demo'}><AppImage app={appById('muraka-fashion')}/></button><div className="ps-editorial__caption"><p>{ru ? 'Каждая идея становится удобным приложением для ваших клиентов.' : 'Every idea can become a useful app for your customers.'}</p><button type="button" onClick={() => open('muraka-fashion')}>{ru ? 'Посмотреть пример' : 'Explore this example'} <ArrowRight size={16}/></button></div></section>
+      <section className="ps-section" aria-labelledby="ps-detail-title"><div className="ps-section__heading"><div><p className="ps-eyebrow">{ru ? 'СЦЕНАРИЙ / ДЕТАЛИ' : 'EXPERIENCE / DETAILS'}</p><h2 id="ps-detail-title">{ru ? 'Посмотрите ближе' : 'A closer look'}</h2></div><span>01 — 02</span></div><div className="ps-detail-grid">{['flower-store','lumi-studio'].map((id, index) => { const app = appById(id); const d = details[id]; return <article key={id}><button type="button" className="ps-detail-grid__image" onClick={() => open(id)} aria-label={`${ru ? 'Открыть демо' : 'Open demo'} ${d.name}`}><AppImage app={app}/></button><small>0{index + 1} / {ru ? 'ПРИМЕР' : 'EXAMPLE'}</small><h3>{d.name}</h3><p>{ru ? d.label : d.en}</p><button type="button" className="ps-text-link" onClick={() => open(id)}>{ru ? 'Открыть демо' : 'Open demo'} <ArrowUpRight size={15}/></button></article>; })}</div></section>
+      <section className="ps-city" aria-labelledby="ps-city-title"><button type="button" className="ps-city__image" onClick={() => jump('business')} aria-label={ru ? 'Посмотреть приложения для бизнеса' : 'Explore business apps'}><AppImage app={appById('china-buyer')}/></button><div><p className="ps-eyebrow">{ru ? 'ДЛЯ ВАШЕГО БИЗНЕСА' : 'FOR YOUR BUSINESS'}</p><h2 id="ps-city-title">{ru ? 'Идеи в действии' : 'Ideas in action'}</h2><p>{ru ? 'От каталога и заказа до услуг и закупок.' : 'From storefronts and orders to services and sourcing.'}</p><button type="button" className="ps-text-link" onClick={() => jump('business')}>{ru ? 'Смотреть проекты' : 'Explore projects'} <ArrowRight size={15}/></button></div></section>
+      <section className="ps-collection" aria-labelledby="ps-collection-title"><p className="ps-eyebrow">{demoApps.length} / WEB4TG</p><h2 id="ps-collection-title">{ru ? 'Найдите свой формат' : 'Find your format'}</h2><p>{ru ? 'Откройте демо и посмотрите, как может работать приложение для вашего бизнеса.' : 'Open a demo and explore what an app can do for your business.'}</p><button type="button" className="ps-button" onClick={() => jump()}>{ru ? 'Смотреть все приложения' : 'See all apps'} <ArrowRight size={17}/></button><div className="ps-benefits"><div><Search size={19}/><span><strong>{ru ? 'Изучите детали' : 'Explore the details'}</strong><small>{ru ? 'Каждое демо можно открыть' : 'Every demo is ready to explore'}</small></span></div><div><Heart size={19}/><span><strong>{ru ? 'Сохраните понравившееся' : 'Save your favorites'}</strong><small>{ru ? 'Избранное останется с вами' : 'Keep your favorite examples'}</small></span></div></div></section>
+      {recent.length > 0 && <section className="ps-section" aria-labelledby="ps-recent-title"><div className="ps-section__heading"><div><p className="ps-eyebrow">{ru ? 'ВАШ ВЫБОР' : 'YOUR SELECTION'}</p><h2 id="ps-recent-title">{ru ? 'Недавно смотрели' : 'Recently viewed'}</h2></div><span>{recent.length}</span></div><div className="ps-recent">{recent.map(app => <button type="button" key={app.id} onClick={() => open(app.id)}><span><AppImage app={app}/></span><strong>{details[app.id].name}</strong><small>{ru ? details[app.id].label : details[app.id].en}</small></button>)}</div></section>}
+      <section className="ps-catalog ps-section" ref={catalogRef} aria-labelledby="ps-catalog-title"><div className="ps-section__heading"><div><p className="ps-eyebrow">WEB4TG / {ru ? 'КОЛЛЕКЦИЯ' : 'COLLECTION'}</p><h2 id="ps-catalog-title">{ru ? 'Все приложения' : 'All apps'}</h2></div><span aria-live="polite">{String(shown.length).padStart(2, '0')} / {String(demoApps.length).padStart(2, '0')}</span></div><label className="ps-search"><Search size={18}/><input ref={searchRef} type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={ru ? 'Найти проект' : 'Find a project'} aria-label={ru ? 'Поиск проектов' : 'Search projects'}/>{query && <button type="button" onClick={() => setQuery('')} aria-label={ru ? 'Очистить поиск' : 'Clear search'}><X size={17}/></button>}</label><div className="ps-filters" role="group" aria-label={ru ? 'Категории проектов' : 'Project categories'}>{filters.map(item => <button key={item.id} type="button" className={filter === item.id ? 'is-active' : ''} aria-pressed={filter === item.id} onClick={() => setFilter(item.id)}>{item.id === 'favorites' && <Heart size={13} fill={filter === item.id ? 'currentColor' : 'none'}/>} {ru ? item.ru : item.en}</button>)}</div>{shown.length ? <div className="ps-grid">{shown.map(app => <ProjectCard key={app.id} app={app} favorite={favorites.includes(app.id)} onFavorite={favorite} onOpen={open} ru={ru}/>)}</div> : <div className="ps-empty"><h3>{ru ? 'Здесь пока ничего нет' : 'Nothing here yet'}</h3><p>{filter === 'favorites' && !query ? (ru ? 'Сохраняйте понравившиеся проекты сердечком.' : 'Save projects you like with the heart.') : (ru ? 'Попробуйте другой запрос или категорию.' : 'Try another search or category.')}</p><button type="button" onClick={() => { setFilter('all'); setQuery(''); }}>{ru ? 'Все проекты' : 'All projects'} <ArrowRight size={16}/></button></div>}</section>
+      <section className="ps-next"><p className="ps-eyebrow">WEB4TG / TELEGRAM</p><h2>{ru ? 'Есть идея?' : 'Have an idea?'}</h2><p>{ru ? 'Расскажите о вашем бизнесе — создадим приложение вместе.' : 'Tell us about your business and let’s build an app together.'}</p><button type="button" className="ps-button" onClick={() => onNavigate('constructor')} data-testid="button-order-cta">{ru ? 'Обсудить проект' : 'Discuss a project'} <ArrowUpRight size={17}/></button></section>
+      <footer className="ps-footer"><strong>WEB4TG</strong><span>{ru ? 'ПРИЛОЖЕНИЯ ДЛЯ TELEGRAM' : 'APPS FOR TELEGRAM'}</span></footer>
     </section>
-
-    <section className="ps-categories" aria-labelledby="ps-categories-title"><div className="ps-section-heading"><h2 id="ps-categories-title">{ru ? <>ИССЛЕДУЙ<br/>КОЛЛЕКЦИЮ</> : <>EXPLORE THE<br/>COLLECTION</>}</h2><button type="button" onClick={() => jump()}>{ru ? 'Все проекты' : 'All projects'} <ArrowRight size={16}/></button></div><div className="ps-category-scroll">{categories.map(category => { const app = byId(category.app); return <button className="ps-category" key={category.id} type="button" onClick={() => jump(category.id)}><span className="ps-category-art" style={{ backgroundColor: details[app.id].background }}><img src={art(app)} alt="" loading="lazy"/></span><strong>{ru ? category.ru : category.en}</strong></button>; })}</div></section>
-
-    <section className="ps-editorial" aria-labelledby="ps-editorial-title"><div className="ps-section-heading"><h2 id="ps-editorial-title">{ru ? <>ПРОЕКТЫ<br/>В ДЕТАЛЯХ</> : <>PROJECTS<br/>UP CLOSE</>}</h2><span className="ps-counter">{String(storyIndex + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')}</span></div>
-      <div className="ps-story" style={{ backgroundColor: details[story.id].background }}><div className="ps-story-meta"><span>WEB4TG / {String(storyIndex + 1).padStart(2, '0')}</span><span>{ru ? 'ИНТЕРАКТИВНОЕ ДЕМО' : 'INTERACTIVE DEMO'}</span></div><div className="ps-story-name" aria-hidden="true">{details[story.id].name}</div><button className="ps-story-object" type="button" onClick={() => open(story.id)} aria-label={`${ru ? 'Открыть' : 'Open'} ${story.title}`}><img src={art(story)} alt="" loading="lazy"/></button><div className="ps-story-nav"><button type="button" onClick={() => moveStory(-1)} aria-label={ru ? 'Предыдущий проект' : 'Previous project'}><ArrowLeft size={19}/></button><button type="button" onClick={() => moveStory(1)} aria-label={ru ? 'Следующий проект' : 'Next project'}><ArrowRight size={19}/></button></div></div>
-      <div className="ps-story-bottom"><div><strong>{details[story.id].name}</strong><span>{ru ? details[story.id].label : details[story.id].en}</span></div><button type="button" onClick={() => open(story.id)}>{ru ? 'Смотреть проект' : 'View project'} <ArrowUpRight size={18}/></button></div>
-    </section>
-    <div className="ps-manifesto" aria-label={ru ? 'Ваш бизнес в Telegram' : 'Your business in Telegram'}><span>{ru ? 'ВАШ БИЗНЕС' : 'YOUR BUSINESS'}</span><span>{ru ? 'В TELEGRAM.' : 'IN TELEGRAM.'}</span></div>
-
-    <section className="ps-catalog" ref={catalogRef} aria-labelledby="ps-catalog-title"><div className="ps-section-heading"><h2 id="ps-catalog-title">{ru ? <>ВСЕ<br/>ПРИЛОЖЕНИЯ</> : <>ALL<br/>APPLICATIONS</>}</h2><span className="ps-counter" aria-live="polite">{String(shown.length).padStart(2, '0')} / {String(demoApps.length).padStart(2, '0')}</span></div>
-      <label className="ps-search"><Search size={18}/><input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder={ru ? 'Найти проект' : 'Find a project'} aria-label={ru ? 'Поиск проектов' : 'Search projects'}/>{query && <button type="button" onClick={() => setQuery('')} aria-label={ru ? 'Очистить поиск' : 'Clear search'}><X size={16}/></button>}</label>
-      <div className="ps-filters" role="group" aria-label={ru ? 'Категории проектов' : 'Project categories'}>{filters.map(item => <button key={item.id} type="button" className={filter === item.id ? 'is-active' : ''} aria-pressed={filter === item.id} onClick={() => setFilter(item.id)}>{item.id === 'favorites' && <Heart size={13} fill={filter === item.id ? 'currentColor' : 'none'}/>} {ru ? item.ru : item.en}</button>)}</div>
-      {shown.length ? <div className="ps-grid">{shown.map(app => <ProjectCard key={app.id} app={app} favorite={favorites.includes(app.id)} onFavorite={favorite} onOpen={open} ru={ru}/>)}</div> : <div className="ps-empty"><h3>{ru ? 'Здесь пока ничего нет' : 'Nothing here yet'}</h3><p>{filter === 'favorites' && !query ? (ru ? 'Сохраняйте понравившиеся проекты сердечком.' : 'Save projects you like with the heart.') : (ru ? 'Попробуйте другой запрос или категорию.' : 'Try another search or category.')}</p><button type="button" onClick={() => { setFilter('all'); setQuery(''); }}>{ru ? 'Все проекты' : 'All projects'} <ArrowRight size={16}/></button></div>}
-    </section>
-    <section className="ps-next"><span className="ps-next-label">WEB4TG / TELEGRAM MINI APPS</span><h2>{ru ? <>ВАШ БИЗНЕС.<br/><span>ВАШ ПРОЕКТ.</span></> : <>YOUR BUSINESS.<br/><span>YOUR PROJECT.</span></>}</h2><p>{ru ? 'Расскажите нам о своей идее — создадим приложение для вашего бизнеса.' : 'Tell us your idea and create an app for your business.'}</p><button type="button" onClick={() => onNavigate('constructor')} data-testid="button-order-cta">{ru ? 'Обсудить проект' : 'Discuss a project'} <ArrowUpRight size={18}/></button></section>
-    <footer className="ps-footer"><strong>WEB4TG</strong><span>{ru ? 'ПРОДУКТЫ ДЛЯ TELEGRAM' : 'PRODUCTS FOR TELEGRAM'}</span></footer>
   </div></main>;
 });
