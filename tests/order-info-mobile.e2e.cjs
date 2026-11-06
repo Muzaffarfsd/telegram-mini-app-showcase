@@ -81,8 +81,7 @@ async function swipeHandle(page, distance) {
       }
       await tap(page.getByTestId('template-info-ecommerce-basic'));
       await acceptSheet(page);
-      assert.equal(await page.getByTestId('template-ecommerce-basic').getAttribute('aria-pressed'), 'true');
-      await tap(page.getByTestId('order-continue'));
+      assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '2');
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /150 000/);
       await tap(page.getByTestId('feature-info-search'));
       assert.match(text(await page.locator('.order-info-price').innerText()), /20 000/);
@@ -168,7 +167,7 @@ async function swipeHandle(page, distance) {
         await tap(page.getByRole('button', { name: 'В месяц', exact: true }));
         await tap(page.getByTestId(`plan-info-${id}`));
         const planArt = page.locator('.order-info-art img');
-        assert.match(await planArt.getAttribute('src'), /info-subscription-v1/);
+        assert.match(await planArt.getAttribute('src'), /support-v2/);
         assert.equal(await planArt.evaluate(async img => { try { await img.decode(); return img.naturalWidth > 0; } catch { return false; } }), true);
         assert.equal(await page.locator('.order-info-includes li').count(), benefitCount);
         assert.equal(await page.locator('.order-info-includes li small').count(), benefitCount);
@@ -204,7 +203,7 @@ async function swipeHandle(page, distance) {
       assert.equal(await page.locator('#order-info-title').innerText(), 'Online Store');
       assert.match(await page.locator('.order-info-description').innerText(), /Telegram app/);
       await acceptSheet(page);
-      await tap(page.getByTestId('order-continue'));
+      assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '2');
       await tap(page.getByTestId('feature-info-search'));
       assert.match(await page.locator('.order-info-example').innerText(), /customer/i);
       await page.keyboard.press('Escape');
@@ -239,7 +238,6 @@ async function swipeHandle(page, distance) {
       await acceptSheet(page);
       await page.waitForFunction(() => window.__nativeEvents.filter(e => e.type === 'web_app_setup_main_button').at(-1)?.data.is_visible === true);
       assert.equal((await latestButton()).text, 'Продолжить');
-      await pressNative();
       await page.waitForFunction(() => document.querySelector('[data-testid="order-page"]')?.dataset.orderStep === '2');
       await tap(page.getByTestId('feature-info-search'));
       await page.locator('.order-info-backdrop').tap({ position: { x: 8, y: 8 } });

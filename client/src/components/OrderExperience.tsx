@@ -75,7 +75,7 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   const chooseTemplate = (item: Template) => {
     if (templateId !== item.id) setExtras([]);
     setTemplateId(item.id);
-    setNotice('');
+    moveTo(2);
   };
   const toggleFeature = (id: string) => {
     if (includedIds.has(id)) return;

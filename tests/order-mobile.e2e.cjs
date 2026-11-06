@@ -34,7 +34,7 @@ async function tap(locator) {
     const loadingContext = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, locale: 'ru-RU', reducedMotion: 'reduce', serviceWorkers: 'block' });
     await loadingContext.addInitScript(() => localStorage.setItem('app-language', 'ru'));
     await loadingContext.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
-    await loadingContext.route('**/*shop-v5*.webp*', async route => { await new Promise(resolve => setTimeout(resolve, 1200)); await route.continue(); });
+    await loadingContext.route('**/*shop-v6*.webp*', async route => { await new Promise(resolve => setTimeout(resolve, 1200)); await route.continue(); });
     const loadingPage = await loadingContext.newPage();
     await loadingPage.goto(new URL('/#/constructor', site).href, { waitUntil: 'domcontentloaded' });
     const skeleton = loadingPage.getByTestId('order-skeleton');
@@ -62,12 +62,17 @@ async function tap(locator) {
       await tap(page.getByTestId('order-continue'));
       assert.equal(await page.getByRole('alert').innerText(), 'Выберите направление приложения');
       assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '1');
-      for (const [id] of templates) {
-        await tap(page.getByTestId(`template-${id}`));
+      for (const [id, price] of templates) {
+        const image = page.getByTestId(`template-${id}`).locator('img');
+        await image.evaluate(el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
+        const box = await image.boundingBox();
+        await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+        assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '2', `${id}: tapping the image opens step 2`);
+        assert.match(text(await page.getByTestId('order-running-total').innerText()), new RegExp(price));
+        await tap(page.getByTestId('order-back'));
         assert.equal(await page.getByTestId(`template-${id}`).getAttribute('aria-pressed'), 'true');
       }
       await tap(page.getByTestId('template-ecommerce-basic'));
-      await tap(page.getByTestId('order-continue'));
       assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '2');
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /150 000/);
       assert.equal(await page.locator('#order-project-name').evaluate(el => getComputedStyle(el).fontSize), '16px');
@@ -97,6 +102,10 @@ async function tap(locator) {
       await tap(page.getByTestId('feature-search'));
       await tap(page.getByTestId('feature-ai-chatbot'));
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /219 000/);
+      await tap(page.getByTestId('order-back'));
+      await tap(page.getByTestId('template-ecommerce-basic'));
+      assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '2');
+      assert.match(text(await page.getByTestId('order-running-total').innerText()), /219 000/);
       await tap(page.getByTestId('order-continue'));
       assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '3');
       assert.match(text(await page.getByTestId('order-final-total').innerText()), /219 000/);
@@ -121,7 +130,6 @@ async function tap(locator) {
       await tap(page.getByTestId('order-back'));
       await tap(page.getByTestId('order-back'));
       await tap(page.getByTestId('template-restaurant'));
-      await tap(page.getByTestId('order-continue'));
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /180 000/);
       assert.equal(await page.getByTestId('feature-search').getAttribute('aria-pressed'), 'false');
       assert.deepEqual(errors, []);
@@ -135,7 +143,6 @@ async function tap(locator) {
     await pressNative();
     assert.equal(await page.getByRole('alert').innerText(), 'Выберите направление приложения');
     await tap(page.getByTestId('template-services'));
-    await pressNative();
     await page.waitForFunction(() => document.querySelector('[data-testid="order-page"]')?.dataset.orderStep === '2');
     await pressNative();
     await page.waitForFunction(() => document.querySelector('[data-testid="order-page"]')?.dataset.orderStep === '3');

@@ -199,7 +199,6 @@ async function startTouch(page) {
     {
       const { context, page, errors } = await open(browser);
       await page.getByTestId('template-ecommerce-basic').tap();
-      await page.getByTestId('order-continue').tap();
       const next = page.getByTestId('order-continue');
       await next.evaluate(el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
       await next.tap();
