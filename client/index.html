@@ -5,6 +5,7 @@
   <style>html.profile-detail-theme,html.profile-detail-theme body{background:#fff!important}</style>
   <style>html.studio-home-theme,html.studio-home-theme body{background:#fff!important}</style>
   <style>html.projects-route-theme,html.projects-route-theme body{background:#fff!important}</style>
+  <style>html.demo-boot-theme,html.demo-boot-theme body,html.demo-loading-theme,html.demo-loading-theme body{background:#fff!important}</style>
   <script>
     var __initialPath = (location.hash.slice(1) || '/').split('?')[0];
     var __nonHomePaths = ['/projects','/about','/constructor','/profile','/help','/review','/checkout','/ai-agent','/ai-process','/photo-gallery','/referral','/rewards','/earning','/notifications','/analytics','/premium-apps'];
@@ -16,6 +17,9 @@
     }
     if (/^#\/projects(?:\?|$)/.test(location.hash)) {
       document.documentElement.classList.add('projects-route-theme');
+    }
+    if (/^\/demos\/[^/]+(?:\/app)?$/.test(__initialPath)) {
+      document.documentElement.classList.add('demo-boot-theme');
     }
   </script>
   <!-- CRITICAL: Adaptive viewport for all devices (Telegram Mini App optimized) -->
@@ -181,6 +185,13 @@
     .home-load-shape { border-radius:8px; background:linear-gradient(100deg,#e9edf1 30%,#f6f8fa 48%,#e9edf1 66%); background-size:220% 100%; animation:projects-load-shimmer 1.6s ease-in-out infinite; }
     @media (prefers-reduced-motion:reduce) { .home-load-shape { animation:none; background:#e9edf1; } }
     
+    #demo-static-shell { display:none; min-height:100dvh; background:#fff; padding:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 76px) 20px 80px; }
+    html.demo-boot-theme #static-shell { display:none !important; }
+    html.demo-boot-theme #demo-static-shell { display:block; }
+    .demo-load-content { max-width:500px; margin:0 auto; display:grid; gap:12px; }
+    .demo-load-shape { border-radius:8px; background:linear-gradient(100deg,#e9edf1 30%,#f6f8fa 48%,#e9edf1 66%); background-size:220% 100%; animation:projects-load-shimmer 1.6s ease-in-out infinite; }
+    @media (prefers-reduced-motion:reduce) { .demo-load-shape { animation:none; background:#e9edf1; } }
+
     @keyframes shimmer {
       0% { background-position: -200% 0; }
       100% { background-position: 200% 0; }
@@ -317,7 +328,7 @@
         }
       }catch(e){}
       try{
-        var __bootColor = __htmlEl.classList.contains('studio-home-theme') ? '#ffffff' : '#000000';
+        var __bootColor = (__htmlEl.classList.contains('studio-home-theme') || __htmlEl.classList.contains('demo-boot-theme')) ? '#ffffff' : '#000000';
         if(typeof tg.setBottomBarColor==='function') tg.setBottomBarColor(__bootColor);
         if(typeof tg.setBackgroundColor==='function') tg.setBackgroundColor(__bootColor);
         if(typeof tg.setHeaderColor==='function') tg.setHeaderColor(__bootColor);
@@ -372,6 +383,16 @@
       </div>
       <div class="projects-load-nav" aria-hidden="true"><div class="projects-load-shape"></div><div class="projects-load-shape"></div><div class="projects-load-shape"></div><div class="projects-load-shape"></div></div>
     </div>
+    <main id="demo-static-shell" role="status" aria-label="Загрузка демо-приложения" aria-busy="true">
+      <div class="demo-load-content" aria-hidden="true">
+        <div class="demo-load-shape" style="width:32%;height:11px"></div>
+        <div class="demo-load-shape" style="width:72%;height:30px"></div>
+        <div class="demo-load-shape" style="width:50%;height:13px"></div>
+        <div class="demo-load-shape" style="width:100%;height:min(78vw,360px);min-height:260px;border-radius:24px"></div>
+        <div class="demo-load-shape" style="width:42%;height:18px"></div>
+        <div style="display:flex;gap:10px"><div class="demo-load-shape" style="width:50%;height:120px;border-radius:18px"></div><div class="demo-load-shape" style="width:50%;height:120px;border-radius:18px"></div></div>
+      </div>
+    </main>
     <main id="home-static-shell" role="status" aria-label="Загрузка главной страницы" aria-busy="true">
       <div class="home-load-content" aria-hidden="true">
         <div class="home-load-shape" style="width:45%;height:11px"></div><div style="height:7px"></div>

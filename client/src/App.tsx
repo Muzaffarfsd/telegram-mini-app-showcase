@@ -61,6 +61,7 @@ import { ProfileDetailSkeleton, ProfileSkeleton } from "./components/ProfileSkel
 import { OrderSkeleton } from "./components/OrderSkeleton";
 import { AIConsultantSkeleton } from "./components/AIConsultantSkeleton";
 import { StudioHomeSkeleton } from "./components/StudioHomeSkeleton";
+import { DemoLoadingSkeleton } from "./components/DemoLoadingSkeleton";
 import { ProjectsSkeleton } from "./components/ProjectsSkeleton";
 import { PageTransition } from "./components/PageTransition";
 const OfflineIndicator = lazyWithRetry(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
@@ -418,6 +419,10 @@ function AppContent() {
   const { trackNavigation } = useNavigationTracking();
 
   useLayoutEffect(() => {
+    document.documentElement.classList.remove('demo-boot-theme');
+  }, []);
+
+  useLayoutEffect(() => {
     document.documentElement.classList.toggle('profile-detail-theme', isProfile);
     return () => document.documentElement.classList.remove('profile-detail-theme');
   }, [isProfile]);
@@ -542,7 +547,7 @@ function AppContent() {
     <>
       <TelegramButtonsSync routeComponent={route.component} />
       <LazyMotionProvider>
-        <Suspense fallback={route.component === 'showcase' ? <StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} /> : <div style={{minHeight:'1px'}} />}>
+        <Suspense fallback={route.component === 'showcase' ? <StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} /> : route.component.includes('demo') ? <DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} /> : <div style={{minHeight:'1px'}} />}>
           <LazyRewardsProvider>
             <LazyXPNotificationProvider>
               <div className="relative min-h-screen">
@@ -558,7 +563,7 @@ function AppContent() {
                   </ErrorBoundary>
                 )}
                 
-                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'projects', 'constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
+                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={route.component.includes('demo') ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'projects', 'constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
                   {(visitedTabs.has('showcase') || route.component === 'showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
                       <Suspense fallback={<StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} />}>
@@ -597,7 +602,7 @@ function AppContent() {
                   {!isCachedTab && (
                     <PageTransition routeKey={`${route.component}-${route.params?.id || ''}`}>
                       <ErrorBoundary>
-                        <Suspense fallback={isProfile ? <ProfileDetailSkeleton label={language === 'ru' ? 'Загрузка страницы профиля' : 'Loading profile page'} /> : route.component === 'aiAgent' ? <AIConsultantSkeleton label={language === 'ru' ? 'Загрузка страницы консультанта' : 'Loading consultant page'} /> : null}>
+                        <Suspense fallback={route.component.includes('demo') ? <DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} /> : isProfile ? <ProfileDetailSkeleton label={language === 'ru' ? 'Загрузка страницы профиля' : 'Loading profile page'} /> : route.component === 'aiAgent' ? <AIConsultantSkeleton label={language === 'ru' ? 'Загрузка страницы консультанта' : 'Loading consultant page'} /> : null}>
                           <NonCachedRoute
                             route={route}
                             handleNavigate={handleNavigate}

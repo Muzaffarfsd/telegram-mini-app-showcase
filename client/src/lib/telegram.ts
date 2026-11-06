@@ -75,7 +75,8 @@ export function initTelegramWebApp() {
   }
   
   // Keep the native Telegram chrome light while the light home screen loads.
-  const bgColor = document.documentElement.classList.contains('studio-home-theme') ? '#ffffff' : '#000000';
+  const root = document.documentElement;
+  const bgColor = ['studio-home-theme', 'demo-boot-theme', 'demo-loading-theme'].some(name => root.classList.contains(name)) ? '#ffffff' : '#000000';
   if (typeof (tg as any).setHeaderColor === 'function') {
     (tg as any).setHeaderColor(bgColor);
   }
