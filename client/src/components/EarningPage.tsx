@@ -5,7 +5,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useTelegram } from '../hooks/useTelegram';
 import { profilePost, ProfileRequestError } from '../lib/profileRequest';
 import { ProfileDetailArtwork, ProfileDetailLayout, ProfileDetailLoading } from './ProfileDetailLayout';
-import earningArtwork from '../assets/profile/earning-detail-v1.webp';
+import earningArtwork from '../assets/profile/earning-detail-v2.webp';
 
 interface Props {
   onNavigate: (section: string) => void;
