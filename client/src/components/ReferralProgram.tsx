@@ -5,7 +5,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useTelegram } from '../hooks/useTelegram';
 import { profilePost, ProfileRequestError, referralCodeFromStart } from '../lib/profileRequest';
 import { ProfileDetailArtwork, ProfileDetailLayout, ProfileDetailLoading } from './ProfileDetailLayout';
-import referralArtwork from '../assets/profile/referral-detail-v4.webp';
+import referralArtwork from '../assets/profile/referral-detail-v5.webp';
 
 type ReferralStats = {
   referralCode?: string | null;

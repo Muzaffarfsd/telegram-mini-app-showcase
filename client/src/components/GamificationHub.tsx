@@ -3,7 +3,7 @@ import { useGamification } from '../hooks/useGamification';
 import { useLanguage } from '../contexts/LanguageContext';
 import { navigate } from '../hooks/useRouting';
 import { ProfileDetailArtwork, ProfileDetailLayout } from './ProfileDetailLayout';
-import journeyArtwork from '../assets/profile/journey-detail-v4.webp';
+import journeyArtwork from '../assets/profile/journey-detail-v5.webp';
 
 const english: Record<string, { name: string; description: string }> = {
   'explorer-bronze': { name: 'Explorer', description: 'Explore 3 demo apps' },
