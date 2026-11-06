@@ -27,6 +27,12 @@ async function tap(locator) {
   await locator.evaluate(el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
   await locator.tap();
 }
+async function openFeature(page, id) {
+  const catalog = page.getByTestId('order-all-features');
+  if (!await catalog.evaluate(el => el.open)) await tap(catalog.locator(':scope > summary'));
+  const group = page.locator('.order-group').filter({ has: page.getByTestId(`feature-${id}`) });
+  if (!await group.evaluate(el => el.open)) await tap(group.locator(':scope > summary'));
+}
 
 (async () => {
   const browser = await chromium.launch({ headless: true });
@@ -59,8 +65,8 @@ async function tap(locator) {
         assert.match(text(await card.innerText()), new RegExp(price));
         const box = await card.boundingBox(); assert.ok(box.width >= 44 && box.height >= 44);
       }
-      await tap(page.getByTestId('order-continue'));
-      assert.equal(await page.getByRole('alert').innerText(), 'Выберите направление приложения');
+      assert.equal(await page.getByTestId('order-continue').count(), 0);
+      assert.match(await page.locator('.order-heading p').innerText(), /Нажмите на подходящее направление/);
       assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '1');
       for (const [id, price] of templates) {
         const image = page.getByTestId(`template-${id}`).locator('img');
@@ -80,6 +86,7 @@ async function tap(locator) {
       if (width !== 390) { await context.close(); console.log(`${width}px: choice, assets, white footer and layout passed`); continue; }
 
       await page.locator('#order-project-name').fill('Магазин №1 & Ко');
+      await tap(page.getByTestId('order-all-features').locator(':scope > summary'));
       let featureCount = 0;
       for (const group of await page.locator('.order-group').all()) {
         if (!await group.evaluate(el => el.open)) await tap(group.locator('summary'));
@@ -101,6 +108,14 @@ async function tap(locator) {
       assert.equal(featureCount, 37);
       await tap(page.getByTestId('feature-search'));
       await tap(page.getByTestId('feature-ai-chatbot'));
+      assert.match(text(await page.getByTestId('order-running-total').innerText()), /219 000/);
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      const restore = page.getByTestId('order-draft-dialog');
+      await restore.waitFor({ state: 'visible' });
+      await restore.getByRole('button', { name: 'Восстановить', exact: true }).tap();
+      await restore.waitFor({ state: 'detached' });
+      assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '2');
+      assert.equal(await page.locator('#order-project-name').inputValue(), 'Магазин №1 & Ко');
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /219 000/);
       await tap(page.getByTestId('order-back'));
       await tap(page.getByTestId('template-ecommerce-basic'));
@@ -130,7 +145,14 @@ async function tap(locator) {
       await tap(page.getByTestId('order-back'));
       await tap(page.getByTestId('order-back'));
       await tap(page.getByTestId('template-restaurant'));
+      await page.getByTestId('order-switch-dialog').waitFor();
+      await page.getByRole('button', { name: 'Оставить прежнее', exact: true }).tap();
+      assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '1');
+      assert.equal(await page.getByTestId('template-ecommerce-basic').getAttribute('aria-pressed'), 'true');
+      await tap(page.getByTestId('template-restaurant'));
+      await page.getByRole('button', { name: 'Сменить направление', exact: true }).tap();
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /180 000/);
+      await openFeature(page, 'search');
       assert.equal(await page.getByTestId('feature-search').getAttribute('aria-pressed'), 'false');
       assert.deepEqual(errors, []);
       await context.close();
@@ -138,19 +160,14 @@ async function tap(locator) {
     }
 
     const { context, page, errors } = await open(browser, 390, true);
-    const pressNative = () => page.evaluate(() => window.TelegramGameProxy_receiveEvent('main_button_pressed'));
-    await page.waitForFunction(() => window.__nativeEvents.some(e => e.type === 'web_app_setup_main_button' && e.data.is_visible));
-    await pressNative();
-    assert.equal(await page.getByRole('alert').innerText(), 'Выберите направление приложения');
+    assert.equal(await page.getByTestId('order-continue').count(), 0);
     await tap(page.getByTestId('template-services'));
     await page.waitForFunction(() => document.querySelector('[data-testid="order-page"]')?.dataset.orderStep === '2');
-    await pressNative();
+    await tap(page.getByTestId('order-continue'));
     await page.waitForFunction(() => document.querySelector('[data-testid="order-page"]')?.dataset.orderStep === '3');
-    await page.waitForFunction(() => window.__nativeEvents.some(e => e.type === 'web_app_setup_main_button' && /Открыть заявку/.test(e.data.text || '')));
-    const nativeButton = await page.evaluate(() => window.__nativeEvents.filter(e => e.type === 'web_app_setup_main_button' && e.data.is_visible).at(-1).data);
-    assert.equal(nativeButton.color.toUpperCase(), '#FFFFFF'); assert.equal(nativeButton.text_color.toUpperCase(), '#1C1C1E');
+    assert.equal(await page.evaluate(() => window.__nativeEvents.filter(e => e.type === 'web_app_setup_main_button').at(-1)?.data.is_visible || false), false);
     assert.equal(await page.evaluate(() => window.__nativeEvents.some(e => e.type === 'web_app_open_tg_link')), false);
-    await pressNative();
+    await tap(page.getByTestId('order-continue'));
     await page.waitForFunction(() => window.__nativeEvents.some(e => e.type === 'web_app_open_tg_link'));
     const nativeLink = await page.evaluate(() => window.__nativeEvents.find(e => e.type === 'web_app_open_tg_link').data.path_full);
     const nativeUrl = new URL(`https://t.me${nativeLink}`);
@@ -159,6 +176,6 @@ async function tap(locator) {
     assert.match(nativeUrl.searchParams.get('text'), /Услуги/);
     assert.deepEqual(errors, []);
     await context.close();
-    console.log('Telegram bridge: validation, three steps, white button and user-triggered draft passed');
+    console.log('Telegram bridge: web controls and user-triggered draft passed');
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

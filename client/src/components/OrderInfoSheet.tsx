@@ -187,9 +187,8 @@ export function OrderInfoSheet({ ru, kind, title, description, example, note, im
           {note && <p className="order-info-note">{note}</p>}
           {kind === 'feature' && <p className="order-info-note">{ru ? 'Функция относится к разработке приложения. Поддержка после запуска выбирается и оплачивается отдельно.' : 'This feature is part of app development. Support after launch is chosen and billed separately.'}</p>}
           {billing && <p className="order-info-note">{ru ? 'Поддержка оплачивается отдельно от разработки. Условия оплаты и продления согласуем при обсуждении заявки.' : 'Support is billed separately from development. Payment and renewal terms are agreed when discussing your request.'}</p>}
-          <div className="order-info-price"><span>{priceLabel}</span><strong>{price}</strong></div>
         </div>
-        <div className="order-info-footer"><button className="order-info-action" type="button" onClick={() => dismiss(() => onActionRef.current())} data-testid="order-info-action">{action}</button></div>
+        <div className="order-info-footer"><div className="order-info-price order-info-footer-price"><span>{priceLabel}</span><strong>{price}</strong></div><button className="order-info-action" type="button" onClick={() => dismiss(() => onActionRef.current())} data-testid="order-info-action">{action}</button></div>
       </div>
     </div>, document.body,
   );

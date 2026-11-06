@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronRight, Info, Plus } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight, Check, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { appTemplatesBase, availableFeaturesBase, categoryKeys, subscriptionPlansBase } from './orderCatalog';
+import { appTemplatesBase, availableFeaturesBase, subscriptionPlansBase } from './orderCatalog';
 import shopArt from '../assets/order/shop-v6.webp';
 import restaurantArt from '../assets/order/restaurant-v3.webp';
 import fitnessArt from '../assets/order/fitness-v3.webp';
@@ -18,11 +18,14 @@ import integrationsArt from '../assets/order/feature-integrations-v2.webp';
 import subscriptionArt from '../assets/order/support-v2.webp';
 import { OrderSkeleton } from './OrderSkeleton';
 import { OrderInfoSheet } from './OrderInfoSheet';
+import { OrderFeaturesStep } from './OrderFeaturesStep';
+import { OrderReviewStep } from './OrderReviewStep';
+import { OrderDecisionDialog } from './OrderDecisionDialog';
+import { useOrderDraft } from './useOrderDraft';
 import { featureInfo, supportBenefitDetails, supportBenefitsByPlan, supportInfo, templateInfo } from './orderInfo';
 import './OrderExperience.css';
 
 type Template = typeof appTemplatesBase[number];
-type Plan = typeof subscriptionPlansBase[number];
 const art: Record<string, string> = {
   'ecommerce-basic': shopArt,
   restaurant: restaurantArt,
@@ -42,6 +45,12 @@ const featureArt: Record<string, string> = {
 };
 const yearlyPrices: Record<string, number> = { minimal: 99000, standard: 149000, premium: 249000 };
 const money = (amount: number) => `${new Intl.NumberFormat('ru-RU').format(amount)} ₽`;
+const directionDescriptions: Record<string, { ru: string; en: string }> = {
+  'ecommerce-basic': { ru: 'Каталог, корзина и оплата', en: 'Catalog, cart and payments' },
+  restaurant: { ru: 'Меню, заказы и бронирование', en: 'Menu, orders and bookings' },
+  'fitness-center': { ru: 'Запись, абонементы и прогресс', en: 'Bookings, memberships and progress' },
+  services: { ru: 'Каталог услуг и онлайн-запись', en: 'Service catalog and bookings' },
+};
 
 export default function OrderExperience(_props: { onNavigate: (section: string, data?: any) => void }) {
   const { language, t } = useLanguage();
@@ -55,6 +64,10 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   const [notice, setNotice] = useState('');
   const [artReady, setArtReady] = useState(false);
   const [info, setInfo] = useState<{ kind: 'template' | 'feature' | 'plan'; id: string } | null>(null);
+  const [pendingTemplate, setPendingTemplate] = useState<Template | null>(null);
+  const draft = useOrderDraft({ step, templateId, extras, projectName, planId, annual });
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const previousStep = useRef(step);
   const template = appTemplatesBase.find((item) => item.id === templateId);
   const plan = subscriptionPlansBase.find((item) => item.id === planId);
   const includedIds = useMemo(() => new Set([
@@ -68,14 +81,20 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   const moveTo = useCallback((next: number) => {
     setNotice('');
     setStep(next);
-    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    document.getElementById('root')?.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+    document.getElementById('root')?.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
 
-  const chooseTemplate = (item: Template) => {
+  const applyTemplate = (item: Template) => {
     if (templateId !== item.id) setExtras([]);
     setTemplateId(item.id);
     moveTo(2);
+  };
+  const chooseTemplate = (item: Template) => {
+    if (templateId && templateId !== item.id && selectedExtras.length > 0) {
+      setPendingTemplate(item);
+      return;
+    }
+    applyTemplate(item);
   };
   const toggleFeature = (id: string) => {
     if (includedIds.has(id)) return;
@@ -104,14 +123,14 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   }, [annual, extraTotal, includedIds, plan, projectName, ru, selectedExtras, t, template, total]);
 
   const continueOrder = useCallback(() => {
-    if (!artReady || info) return;
+    if (!artReady || info || pendingTemplate || draft.pendingDraft) return;
     if (step === 1 && !template) {
       setNotice(ru ? 'Выберите направление приложения' : 'Choose an app type');
       return;
     }
     if (step < 3) moveTo(step + 1);
     else openRequest();
-  }, [artReady, info, moveTo, openRequest, ru, step, template]);
+  }, [artReady, info, pendingTemplate, draft.pendingDraft, moveTo, openRequest, ru, step, template]);
 
   useEffect(() => {
     let active = true;
@@ -131,11 +150,18 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   }, [continueOrder]);
   useEffect(() => {
     window.dispatchEvent(new CustomEvent('web4tg:order-label', {
-      detail: step === 3 ? (ru ? 'Открыть заявку' : 'Open request') : (ru ? 'Продолжить' : 'Continue'),
+      detail: step === 1 ? '' : step === 3 ? (ru ? 'Обсудить в Telegram' : 'Discuss in Telegram') : (ru ? 'К итогу' : 'Review order'),
     }));
   }, [step, ru]);
+  useEffect(() => {
+    if (previousStep.current !== step) {
+      previousStep.current = step;
+      const frame = requestAnimationFrame(() => headingRef.current?.focus({ preventScroll: true }));
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [step]);
 
-  if (!artReady) return <OrderSkeleton label={ru ? 'Загрузка страницы заказа' : 'Loading order page'} />;
+  if (!artReady || !draft.ready) return <OrderSkeleton label={ru ? 'Загрузка страницы заказа' : 'Loading order page'} />;
 
   const infoTemplate = info?.kind === 'template' ? appTemplatesBase.find((item) => item.id === info.id) : undefined;
   const infoFeature = info?.kind === 'feature' ? availableFeaturesBase.find((item) => item.id === info.id) : undefined;
@@ -157,14 +183,14 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
             <span className="order-progress-spacer" />
           </div>
           <div className="order-progress-track" aria-hidden="true">{[1, 2, 3].map((number) => <i className={number <= step ? 'is-active' : ''} key={number} />)}</div>
-          <h1>{step === 1 ? (ru ? 'Выберите направление проекта' : 'Choose your project direction') : step === 2 ? (ru ? 'Добавьте нужные функции' : 'Choose your features') : (ru ? 'Всё готово к обсуждению' : 'Ready to discuss your app')}</h1>
-          <p>{step === 1 ? (ru ? 'Разработаем приложение под задачи вашего бизнеса.' : 'We’ll develop an app for your business needs.') : step === 2 ? (ru ? 'Основное уже включено. Остальное — на ваш выбор.' : 'The essentials are included. Add anything else you need.') : (ru ? 'Проверьте детали — мы подготовим заявку в Telegram.' : 'Check the details and we’ll prepare a Telegram message.')}</p>
+          <h1 ref={headingRef} tabIndex={-1}>{step === 1 ? (ru ? 'Выберите направление проекта' : 'Choose your project direction') : step === 2 ? (ru ? 'Добавьте нужные функции' : 'Choose your features') : (ru ? 'Всё готово к обсуждению' : 'Ready to discuss your app')}</h1>
+          <p>{step === 1 ? (ru ? 'Нажмите на подходящее направление.' : 'Tap the direction that fits your business.') : step === 2 ? (ru ? 'Основное уже включено. Остальное — на ваш выбор.' : 'The essentials are included. Add anything else you need.') : (ru ? 'Проверьте детали — мы подготовим заявку в Telegram.' : 'Check the details and we’ll prepare a Telegram message.')}</p>
         </header>
 
         {step === 1 && <section className="order-template-list" aria-label={ru ? 'Направление приложения' : 'App type'}>
           {appTemplatesBase.map((item) => <div className="order-template-wrap" key={item.id}>
             <button type="button" className={`order-template ${templateId === item.id ? 'is-selected' : ''}`} aria-pressed={templateId === item.id} onClick={() => chooseTemplate(item)} data-testid={`template-${item.id}`}>
-              <span className="order-template-copy"><strong>{t(item.nameKey)}</strong><span>{t(item.descriptionKey)}</span><small>{ru ? 'от' : 'from'} {money(item.estimatedPrice)}</small></span>
+              <span className="order-template-copy"><strong>{t(item.nameKey)}</strong><span>{directionDescriptions[item.id]?.[ru ? 'ru' : 'en'] || t(item.descriptionKey)}</span><small>{ru ? 'от' : 'from'} {money(item.estimatedPrice)}</small></span>
               <img className="order-template-art" src={art[item.id]} alt="" draggable={false} />
               <span className="order-choice" aria-hidden="true">{templateId === item.id && <Check size={12} strokeWidth={3} />}</span>
             </button>
@@ -173,43 +199,13 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
           {notice && <p className="order-notice" role="alert">{notice}</p>}
         </section>}
 
-        {step === 2 && template && <section className="order-features" aria-label={ru ? 'Настройка приложения' : 'Configure your app'}>
-          <div className="order-selected-app"><img src={art[template.id]} alt="" /><div><small>{ru ? 'ВАШ ВЫБОР' : 'YOUR CHOICE'}</small><strong>{t(template.nameKey)}</strong><span>{ru ? 'от' : 'from'} {money(template.estimatedPrice)}</span></div><button type="button" onClick={() => moveTo(1)} aria-label={ru ? 'Изменить тип приложения' : 'Change app type'}><ChevronRight size={18} /></button></div>
-          <label className="order-name-label" htmlFor="order-project-name">{ru ? 'Название проекта' : 'Project name'} <span>{ru ? 'необязательно' : 'optional'}</span></label>
-          <input id="order-project-name" className="order-name-input" value={projectName} maxLength={80} onChange={(event) => setProjectName(event.target.value)} placeholder={ru ? 'Например, название вашего бизнеса' : 'For example, your business name'} />
-          <div className="order-section-title"><h2>{ru ? 'Возможности' : 'Features'}</h2><span>{ru ? 'Выберите подходящие' : 'Choose what fits'}</span></div>
-          <div className="order-feature-groups">
-            {categoryKeys.map((key, index) => {
-              const features = availableFeaturesBase.filter((feature) => feature.categoryKey === key);
-              const selectedCount = features.filter((feature) => includedIds.has(feature.id) || extras.includes(feature.id)).length;
-              return <details className="order-group" key={key} open={index === 0 ? true : undefined}>
-                <summary><span>{t(key)}</span><span className="order-group-meta">{selectedCount > 0 && <small>{selectedCount}</small>}<ChevronDown size={17} /></span></summary>
-                <div className="order-group-list">{features.map((feature) => {
-                  const included = includedIds.has(feature.id);
-                  const active = included || extras.includes(feature.id);
-                  return <div className="order-feature-row" key={feature.id}>
-                    <button type="button" className="order-feature" aria-pressed={active} aria-disabled={included} onClick={() => toggleFeature(feature.id)} data-testid={`feature-${feature.id}`}>
-                      <span className={`order-feature-check ${active ? 'is-active' : ''}`} aria-hidden="true">{active ? <Check size={12} strokeWidth={2.8} /> : <Plus size={13} />}</span>
-                      <span className="order-feature-name">{t(feature.nameKey)}</span>
-                      <span className="order-feature-price">{included ? (ru ? 'Включено' : 'Included') : `+ ${money(feature.price)}`}</span>
-                    </button>
-                    <button className="order-row-info" type="button" onClick={() => setInfo({ kind: 'feature', id: feature.id })} aria-label={`${ru ? 'Подробнее' : 'Details'}: ${t(feature.nameKey)}`} data-testid={`feature-info-${feature.id}`}><Info size={17} strokeWidth={1.7} /></button>
-                  </div>;
-                })}</div>
-              </details>;
-            })}
-          </div>
-          <div className="order-price-inline"><span>{ru ? 'Ориентировочно за разработку' : 'Estimated development'}</span><strong data-testid="order-running-total">{money(total)}</strong></div>
-        </section>}
+        {step === 2 && template && <OrderFeaturesStep ru={ru} t={t} template={template} artSrc={art[template.id]} projectName={projectName} onProjectNameChange={setProjectName} includedIds={includedIds} extras={extras} onToggleFeature={toggleFeature} onFeatureInfo={(id) => setInfo({ kind: 'feature', id })} onChangeTemplate={() => moveTo(1)} total={total} />}
 
-        {step === 3 && template && <section className="order-review" aria-label={ru ? 'Параметры заказа' : 'Order details'}>
-          <div className="order-review-hero"><img src={art[template.id]} alt="" /><div><small>{ru ? 'ВАШЕ ПРИЛОЖЕНИЕ' : 'YOUR APP'}</small><h2>{projectName.trim() || t(template.nameKey)}</h2><p>{t(template.nameKey)} · {t(template.developmentTimeKey)}</p></div><button type="button" onClick={() => moveTo(2)} aria-label={ru ? 'Изменить параметры' : 'Edit details'}><ChevronRight size={19} /></button></div>
-          <div className="order-summary-card"><div><span>{ru ? 'Основа приложения' : 'App package'}</span><strong>{money(template.estimatedPrice)}</strong></div><div><span>{ru ? 'Дополнительные функции' : 'Additional features'}</span><strong>{extraTotal ? `+ ${money(extraTotal)}` : (ru ? 'Нет' : 'None')}</strong></div><div className="order-summary-total"><span>{ru ? 'Разработка' : 'Development'}<small>{ru ? 'ориентировочная стоимость' : 'estimated cost'}</small></span><strong data-testid="order-final-total">{money(total)}</strong></div></div>
-          <div className="order-included"><span>{ru ? 'Включено в основу' : 'Included in the package'}</span><p>{availableFeaturesBase.filter((feature) => includedIds.has(feature.id)).map((feature) => t(feature.nameKey)).join(' · ')}</p>{selectedExtras.length > 0 && <><span>{ru ? 'Дополнительно' : 'Added features'}</span><p>{selectedExtras.map((feature) => t(feature.nameKey)).join(' · ')}</p></>}</div>
-          <details className="order-support"><summary><span><strong>{ru ? 'Поддержка после запуска' : 'Support after launch'}</strong><small>{plan ? t(plan.nameKey) : (ru ? 'Можно выбрать позже' : 'You can choose later')}</small></span><ChevronDown size={19} /></summary><div className="order-support-body"><p>{ru ? 'Хостинг, помощь и резервные копии после запуска. Поддержка оплачивается отдельно от разработки; её состав зависит от тарифа.' : 'Hosting, help, and backups after launch. Support is billed separately from development; coverage depends on the plan.'}</p><div className="order-period" role="group" aria-label={ru ? 'Период оплаты' : 'Billing period'}><button type="button" aria-pressed={!annual} onClick={() => setAnnual(false)}>{ru ? 'В месяц' : 'Monthly'}</button><button type="button" aria-pressed={annual} onClick={() => setAnnual(true)}>{ru ? 'В год' : 'Yearly'}</button></div><p className="order-period-note">{ru ? 'При оплате за год — стоимость 10 месяцев вместо 12.' : 'Pay for 10 months instead of 12 with yearly billing.'}</p><div className="order-plans"><button type="button" className={!planId ? 'is-selected' : ''} aria-pressed={!planId} onClick={() => setPlanId(null)}>{ru ? 'Выбрать позже' : 'Choose later'}<span>{!planId && <Check size={15} />}</span></button>{subscriptionPlansBase.map((item: Plan) => <div className={`order-plan-row ${planId === item.id ? 'is-selected' : ''}`} key={item.id}><button type="button" className="order-plan-choice" aria-pressed={planId === item.id} onClick={() => setPlanId(item.id)} data-testid={`order-plan-${item.id}`}><span><strong>{t(item.nameKey)}</strong><small>{t(item.descriptionKey)}</small></span><span className="order-plan-price">{money(annual ? yearlyPrices[item.id] : item.price)}<small>{annual ? (ru ? '/ год' : '/ year') : (ru ? '/ мес' : '/ month')}</small></span></button><button className="order-row-info order-plan-info" type="button" onClick={() => setInfo({ kind: 'plan', id: item.id })} aria-label={`${ru ? 'Подробнее' : 'Details'}: ${t(item.nameKey)}`} data-testid={`plan-info-${item.id}`}><Info size={16} strokeWidth={1.7} /><span>{ru ? 'Что входит' : 'Details'}</span></button></div>)}</div></div></details>
-        </section>}
+        {step === 3 && template && <OrderReviewStep ru={ru} t={t} template={template} artSrc={art[template.id]} projectName={projectName} includedIds={includedIds} selectedExtras={selectedExtras} extraTotal={extraTotal} total={total} planId={planId} annual={annual} yearlyPrices={yearlyPrices} onEdit={() => moveTo(2)} onPlan={setPlanId} onAnnual={setAnnual} onPlanInfo={(id) => setInfo({ kind: 'plan', id })} />}
 
-        <div className="order-actions"><button type="button" className="order-continue" onClick={continueOrder} data-testid="order-continue"><span>{step === 3 ? (ru ? 'Открыть заявку в Telegram' : 'Open request in Telegram') : (ru ? 'Продолжить' : 'Continue')}</span><ArrowRight size={18} /></button>{step === 3 && <p>{ru ? 'Откроется подготовленное сообщение — проверьте и отправьте его сами.' : 'A draft will open for you to review and send.'}</p>}</div>
+        {!draft.storageAvailable && <p className="order-notice" role="status">{ru ? 'Черновик нельзя сохранить на этом устройстве. Заказ можно продолжить.' : 'This device cannot save the draft. You can still continue.'}</p>}
+        {step === 2 && <div className="order-sticky-bar"><div className="order-sticky-copy"><small>{ru ? 'Разработка, ориентировочно' : 'Estimated development'}</small><strong aria-live="polite">{money(total)}</strong></div><button type="button" className="order-sticky-action" onClick={continueOrder} data-testid="order-continue">{ru ? 'К итогу' : 'Review'} <ArrowRight size={17} /></button></div>}
+        {step === 3 && <div className="order-actions"><button type="button" className="order-continue" onClick={continueOrder} data-testid="order-continue"><span>{ru ? 'Обсудить в Telegram' : 'Discuss in Telegram'}</span><ArrowRight size={18} /></button><p>{ru ? 'Откроется подготовленное сообщение — проверьте и отправьте его сами.' : 'A draft will open for you to review and send.'}</p></div>}
       </div>
       {info && infoCopy && (infoTemplate || infoFeature || infoPlan) && <OrderInfoSheet
         ru={ru} kind={info.kind} title={t((infoTemplate || infoFeature || infoPlan)!.nameKey)}
@@ -223,6 +219,8 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
         onClose={() => setInfo(null)}
         onAction={() => { if (infoTemplate) chooseTemplate(infoTemplate); if (infoFeature && !infoIncluded) toggleFeature(infoFeature.id); if (infoPlan) setPlanId(infoPlan.id); setInfo(null); }}
       />}
+      {draft.pendingDraft && <OrderDecisionDialog testId="order-draft-dialog" title={ru ? 'Продолжить заказ?' : 'Continue your order?'} description={ru ? 'На этом устройстве сохранён черновик. Он хранится здесь до 30 дней и не отправляется автоматически.' : 'A draft is saved on this device for up to 30 days. It is not sent automatically.'} primary={ru ? 'Восстановить' : 'Restore'} secondary={ru ? 'Начать заново' : 'Start over'} onPrimary={() => draft.restoreDraft((saved) => { setTemplateId(saved.templateId); setExtras(saved.extras); setProjectName(saved.projectName); setPlanId(saved.planId); setAnnual(saved.annual); moveTo(saved.step); })} onSecondary={() => draft.startNew(() => { setTemplateId(null); setExtras([]); setProjectName(''); setPlanId(null); setAnnual(false); moveTo(1); })} />}
+      {pendingTemplate && !draft.pendingDraft && <OrderDecisionDialog testId="order-switch-dialog" title={ru ? 'Сменить направление?' : 'Change direction?'} description={ru ? 'Дополнительные функции будут сброшены. Название и выбранная поддержка сохранятся.' : 'Additional features will be reset. Your project name and selected support will stay.'} primary={ru ? 'Сменить направление' : 'Change direction'} secondary={ru ? 'Оставить прежнее' : 'Keep current'} onPrimary={() => { const next = pendingTemplate; setPendingTemplate(null); applyTemplate(next); }} onSecondary={() => setPendingTemplate(null)} onCancel={() => setPendingTemplate(null)} />}
     </main>
   );
 }

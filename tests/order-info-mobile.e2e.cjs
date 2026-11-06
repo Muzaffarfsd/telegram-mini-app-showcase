@@ -29,6 +29,13 @@ async function tap(locator) {
   await locator.tap();
 }
 
+async function openFeature(page, id) {
+  const catalog = page.getByTestId('order-all-features');
+  if (!await catalog.evaluate(el => el.open)) await tap(catalog.locator(':scope > summary'));
+  const group = page.locator('.order-group').filter({ has: page.getByTestId(`feature-${id}`) });
+  if (!await group.evaluate(el => el.open)) await tap(group.locator(':scope > summary'));
+}
+
 async function closeSheet(page) {
   await page.locator('.order-info-close').tap();
   await page.getByTestId('order-info-sheet').waitFor({ state: 'detached' });
@@ -83,6 +90,7 @@ async function swipeHandle(page, distance) {
       await acceptSheet(page);
       assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '2');
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /150 000/);
+      await openFeature(page, 'search');
       await tap(page.getByTestId('feature-info-search'));
       assert.match(text(await page.locator('.order-info-price').innerText()), /20 000/);
       assert.equal(await page.getByTestId('feature-search').getAttribute('aria-pressed'), 'false');
@@ -129,7 +137,7 @@ async function swipeHandle(page, distance) {
           const id = (await infoButton.getAttribute('data-testid')).replace('feature-info-', '');
           const feature = page.getByTestId(`feature-${id}`);
           const wasSelected = await feature.getAttribute('aria-pressed');
-          const expectedPrice = text(await feature.locator('.order-feature-price').innerText());
+          const expectedPrice = await feature.getAttribute('aria-disabled') === 'true' ? 'Включено' : text(await feature.locator('.order-feature-cost').innerText());
           const bounds = await infoButton.boundingBox();
           assert.ok(bounds.width >= 44 && bounds.height >= 44, id);
           await tap(infoButton);
@@ -204,6 +212,7 @@ async function swipeHandle(page, distance) {
       assert.match(await page.locator('.order-info-description').innerText(), /Telegram app/);
       await acceptSheet(page);
       assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '2');
+      await openFeature(page, 'search');
       await tap(page.getByTestId('feature-info-search'));
       assert.match(await page.locator('.order-info-example').innerText(), /customer/i);
       await page.keyboard.press('Escape');
@@ -228,27 +237,25 @@ async function swipeHandle(page, distance) {
 
     {
       const { context, page, errors } = await open(browser, { native: true });
-      const pressNative = () => page.evaluate(() => window.TelegramGameProxy_receiveEvent('main_button_pressed'));
       const latestButton = () => page.evaluate(() => window.__nativeEvents.filter(e => e.type === 'web_app_setup_main_button').at(-1)?.data);
-      await page.waitForFunction(() => window.__nativeEvents.some(e => e.type === 'web_app_setup_main_button' && e.data.is_visible));
       await tap(page.getByTestId('template-info-services'));
-      await page.waitForFunction(() => window.__nativeEvents.filter(e => e.type === 'web_app_setup_main_button').at(-1)?.data.is_visible === false);
-      await pressNative();
+      assert.equal((await latestButton())?.is_visible || false, false);
       assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '1');
       await acceptSheet(page);
-      await page.waitForFunction(() => window.__nativeEvents.filter(e => e.type === 'web_app_setup_main_button').at(-1)?.data.is_visible === true);
-      assert.equal((await latestButton()).text, 'Продолжить');
       await page.waitForFunction(() => document.querySelector('[data-testid="order-page"]')?.dataset.orderStep === '2');
+      assert.equal((await latestButton())?.is_visible || false, false);
+      await openFeature(page, 'search');
       await tap(page.getByTestId('feature-info-search'));
       await page.locator('.order-info-backdrop').tap({ position: { x: 8, y: 8 } });
       await page.getByTestId('order-info-sheet').waitFor({ state: 'detached' });
       assert.equal(await page.getByTestId('order-info-sheet').count(), 0);
       assert.equal(await page.getByTestId('feature-search').getAttribute('aria-pressed'), 'false');
-      await pressNative();
+      await tap(page.getByTestId('order-continue'));
       await page.waitForFunction(() => document.querySelector('[data-testid="order-page"]')?.dataset.orderStep === '3');
+      assert.equal((await latestButton())?.is_visible || false, false);
       assert.deepEqual(errors, []);
       await context.close();
-      console.log('Telegram bridge: native button hidden while sheet is open and restored after dismissal');
+      console.log('Telegram bridge: web action and sheet dismissal passed without native MainButton');
     }
   } finally { await browser.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

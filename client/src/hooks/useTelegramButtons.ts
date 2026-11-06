@@ -108,14 +108,7 @@ export function useTelegramButtons(
         break;
 
       case 'constructor':
-        config = {
-          mainButton: {
-            text: document.querySelector('.order-page')?.getAttribute('data-order-step') === '3'
-              ? (language === 'ru' ? 'Открыть заявку' : 'Open request')
-              : (language === 'ru' ? 'Продолжить' : 'Continue'),
-            onClick: () => window.dispatchEvent(new Event('web4tg:order-continue')),
-          },
-        };
+        // The order has its own persistent action and price; avoid a second Telegram button.
         break;
 
       case 'checkout':
@@ -182,7 +175,7 @@ export function useTelegramButtons(
     let orderInfoOpen = currentRoute === 'constructor' && document.body.dataset.orderInfoOpen === 'true';
     let aiChatOpen = document.body.dataset.aiChatOpen === 'true';
     const updateOrderLabel = (event: Event) => {
-      if (currentRoute !== 'constructor') return;
+      if (currentRoute !== 'constructor' || !config.mainButton) return;
       orderButtonText = (event as CustomEvent<string>).detail;
       if (!orderInfoOpen && !aiChatOpen) mainButton.setText(orderButtonText);
     };

@@ -182,18 +182,17 @@ async function startTouch(page) {
 
     {
       const { context, page, errors } = await open(browser, { native: true });
-      await page.waitForFunction(() => window.__nativeEvents.some(event => event.type === 'web_app_setup_main_button' && event.data.is_visible));
       await openTemplate(page);
-      await page.waitForFunction(() => window.__nativeEvents.filter(event => event.type === 'web_app_setup_main_button').at(-1)?.data.is_visible === false);
+      assert.equal(await page.evaluate(() => window.__nativeEvents.filter(event => event.type === 'web_app_setup_main_button').at(-1)?.data.is_visible || false), false);
       await page.waitForTimeout(340);
       await page.locator('.order-info-close').tap();
       assert.equal(await page.getByTestId('order-info-sheet').count(), 1, 'Close button should play the exit animation');
-      assert.equal(await page.evaluate(() => window.__nativeEvents.filter(event => event.type === 'web_app_setup_main_button').at(-1)?.data.is_visible), false);
+      assert.equal(await page.evaluate(() => window.__nativeEvents.filter(event => event.type === 'web_app_setup_main_button').at(-1)?.data.is_visible || false), false);
       await page.getByTestId('order-info-sheet').waitFor({ state: 'detached' });
-      await page.waitForFunction(() => window.__nativeEvents.filter(event => event.type === 'web_app_setup_main_button').at(-1)?.data.is_visible === true);
+      assert.equal(await page.evaluate(() => window.__nativeEvents.filter(event => event.type === 'web_app_setup_main_button').at(-1)?.data.is_visible || false), false);
       assert.deepEqual(errors, []);
       await context.close();
-      console.log('Telegram: native button stays hidden until the exit finishes');
+      console.log('Telegram: native button remains hidden throughout sheet motion');
     }
 
     {
