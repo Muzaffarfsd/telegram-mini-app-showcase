@@ -18,7 +18,7 @@ const details: Record<string, { name: string; ru: string; en: string }> = {
   'skincare-aura': { name: 'AURA', ru: 'Косметика и уход', en: 'Skincare' },
 };
 function AppImage({ id, eager = false }: { id: string; eager?: boolean }) {
-  return <img src={`/showcase/concept-icons/${id}.webp`} alt="" loading={eager ? 'eager' : 'lazy'} decoding="async" />;
+  return <img src={`/showcase/editorial-icons/${id}.webp`} alt="" loading={eager ? 'eager' : 'lazy'} decoding="async" />;
 }
 function label(id: string, ru: boolean) { const item = details[id]; return `${ru ? 'Открыть демо' : 'Open demo'} ${item.name}: ${ru ? item.ru : item.en}`; }
 function copy(id: string, ru: boolean) { return ru ? details[id].ru : details[id].en; }
