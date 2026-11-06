@@ -6,6 +6,7 @@ import { useViewedDemos } from '../hooks/useTelegramStorage';
 import { preloadDemo } from './demos/DemoRegistry';
 import consultantOrb from '../assets/consultant/consultant-orb.webp';
 import './StudioHome.css';
+import StudioBusinessHero from './StudioBusinessHero';
 
 interface Props { onNavigate: (section: string) => void; onOpenDemo: (id: string) => void }
 
@@ -69,6 +70,8 @@ export default function StudioHome({ onNavigate, onOpenDemo }: Props) {
         <div className="studio-eyebrow"><span>WEB4TG / STUDIO</span></div>
         <h1 id="studio-home-title">{ru ? 'ОТ ИНТЕРЕСА К ЗАКАЗУ' : 'FROM VIEW TO ORDER'}</h1>
         <p className="studio-intro-copy">{ru ? 'Магазин, запись и сервис — прямо в Telegram.' : 'Store, bookings and services in Telegram.'}</p>
+        <StudioBusinessHero ru={ru} onOpenDemo={openDemo} onViewExamples={() => go('projects')} />
+        <div className="studio-feature-heading"><span>01 / {ru ? 'МАГАЗИН ОДЕЖДЫ' : 'FASHION STORE'}</span><strong>MURAKA</strong></div>
         <div className="studio-fashion" data-testid="home-exhibit">
           <button type="button" className="studio-fashion__image" data-testid="home-open-demo" onPointerDown={startSwipe} onPointerUp={finishSwipe} onPointerCancel={() => { gesture.current = null; }} onClick={(event) => { if (suppressClick.current && event.detail !== 0) { suppressClick.current = false; return; } openDemo(fashionProject.id); }} onTouchStart={() => preloadDemo(fashionProject.id)} aria-label={ru ? `Открыть демо магазина одежды ${fashionProject.name}` : `Open the ${fashionProject.name} fashion store demo`}>
             <img key={view} data-view={view} src={fashionProject[view]} alt="" draggable={false} fetchPriority={view === 'home' ? 'high' : 'auto'} decoding="async" />
