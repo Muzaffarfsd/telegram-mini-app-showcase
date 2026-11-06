@@ -3,6 +3,7 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { trackComponentError } from '@/utils/vitals';
 import * as Sentry from '@sentry/react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { isChunkLoadError } from '../utils/lazyWithRecovery';
 
 interface Props {
   children: ReactNode;
@@ -93,8 +94,8 @@ export class ErrorBoundary extends Component<Props, State> {
     this.state = { hasError: false, error: null, errorCount: 0 };
   }
 
-  static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error, errorCount: 0 };
+  static getDerivedStateFromError(error: Error): Partial<State> {
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -104,6 +105,11 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   handleReset = () => {
+    // React.lazy retains a rejected import; remounting the boundary cannot retry it.
+    if (isChunkLoadError(this.state.error)) {
+      window.location.reload();
+      return;
+    }
     this.setState({
       hasError: false,
       error: null,

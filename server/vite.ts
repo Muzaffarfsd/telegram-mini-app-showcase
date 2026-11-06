@@ -88,6 +88,13 @@ export function serveStatic(app: Express) {
     }
   }));
 
+  // A missing hashed bundle must not fall through to the HTML SPA shell.
+  // Browsers need a real 404 so a stale lazy import can be recovered safely.
+  app.use('/assets', (_req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(404).type('text/plain').send('Asset not found');
+  });
+
   // Serve other static files with moderate caching
   app.use(express.static(distPath, {
     maxAge: '1h', // 1 hour for other files
@@ -106,8 +113,6 @@ export function serveStatic(app: Express) {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    // Clear client-side cache (executionContexts not supported by browsers)
-    res.setHeader('Clear-Site-Data', '"cache", "storage"');
     // Add Vary headers for proper caching across different networks
     res.setHeader('Vary', 'Accept-Encoding, Origin, Accept-Language, User-Agent, X-Forwarded-For');
     // Force content-type and disable any proxy caching

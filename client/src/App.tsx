@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy, useCallback, useEffect, useLayoutEffect, memo, useMemo, useRef } from "react";
+import { useState, Suspense, useCallback, useEffect, useLayoutEffect, memo, useMemo, useRef } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -16,26 +16,8 @@ import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
 import { useNavigationTracking } from "./hooks/usePredictivePrefetch";
 import { usePerformanceClass } from "./hooks/usePerformanceClass";
 import { LazyMotionProvider } from "./utils/LazyMotionProvider";
+import { lazyWithRecovery as lazyWithRetry } from "./utils/lazyWithRecovery";
 import "./ProjectsShell.css";
-
-function lazyWithRetry<T extends { default: any }>(
-  importFn: () => Promise<T>,
-  retries = 2
-): React.LazyExoticComponent<T["default"]> {
-  return lazy(() =>
-    importFn().catch((error) => {
-      if (retries > 0 && error.message?.includes('Failed to fetch dynamically imported module')) {
-        return new Promise<T>((resolve) => {
-          setTimeout(() => resolve(lazyWithRetry(importFn, retries - 1) as any), 500);
-        });
-      }
-      if (error.message?.includes('Failed to fetch dynamically imported module')) {
-        window.location.reload();
-      }
-      throw error;
-    })
-  );
-}
 
 const initSentry = () => {
   if (import.meta.env.VITE_SENTRY_DSN) {
@@ -49,8 +31,8 @@ const initSentry = () => {
   }
 };
 
-const LazyRewardsProvider = lazy(() => import("./contexts/RewardsContext").then(m => ({ default: m.RewardsProvider })));
-const LazyXPNotificationProvider = lazy(() => import("./contexts/XPNotificationContext").then(m => ({ default: m.XPNotificationProvider })));
+const LazyRewardsProvider = lazyWithRetry(() => import("./contexts/RewardsContext").then(m => ({ default: m.RewardsProvider })));
+const LazyXPNotificationProvider = lazyWithRetry(() => import("./contexts/XPNotificationContext").then(m => ({ default: m.XPNotificationProvider })));
 
 const ShowcasePage = lazyWithRetry(() => import("./components/ShowcasePage"));
 const PremiumAppsPage = lazyWithRetry(() => import("./components/PremiumAppsPage"));
@@ -67,9 +49,9 @@ const AIAgentPage = lazyWithRetry(() => import("./components/AIConsultantPage"))
 const AIProcessPage = AIAgentPage;
 const PhotoGallery = lazyWithRetry(() => import("./pages/PhotoGallery"));
 const NotFoundPage = lazyWithRetry(() => import("./pages/NotFound"));
-const ReferralProgram = lazy(() => import("./components/ReferralProgram").then(m => ({ default: m.ReferralProgram })));
-const GamificationHub = lazy(() => import("./components/GamificationHub").then(m => ({ default: m.GamificationHub })));
-const EarningPage = lazy(() => import("./components/EarningPage").then(m => ({ default: m.EarningPage })));
+const ReferralProgram = lazyWithRetry(() => import("./components/ReferralProgram").then(m => ({ default: m.ReferralProgram })));
+const GamificationHub = lazyWithRetry(() => import("./components/GamificationHub").then(m => ({ default: m.GamificationHub })));
+const EarningPage = lazyWithRetry(() => import("./components/EarningPage").then(m => ({ default: m.EarningPage })));
 const NotificationsPage = lazyWithRetry(() => import("./pages/notifications"));
 const AnalyticsPage = lazyWithRetry(() => import("./pages/analytics"));
 const CoinShopPage = lazyWithRetry(() => import("./components/CoinShopPage"));
@@ -81,8 +63,8 @@ import { AIConsultantSkeleton } from "./components/AIConsultantSkeleton";
 import { StudioHomeSkeleton } from "./components/StudioHomeSkeleton";
 import { ProjectsSkeleton } from "./components/ProjectsSkeleton";
 import { PageTransition } from "./components/PageTransition";
-const OfflineIndicator = lazy(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
-const AIAgentButton = lazy(() => import("./components/AIAgent/AIAgentButton").then(m => ({ default: m.AIAgentButton })));
+const OfflineIndicator = lazyWithRetry(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
+const AIAgentButton = lazyWithRetry(() => import("./components/AIAgent/AIAgentButton").then(m => ({ default: m.AIAgentButton })));
 
 function isSlowNetwork(): boolean {
   const conn = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;

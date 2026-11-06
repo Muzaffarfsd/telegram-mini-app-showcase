@@ -1,5 +1,6 @@
 // Dynamic demo registry for lazy loading
-import { lazy, ComponentType } from 'react';
+import { ComponentType } from 'react';
+import { lazyWithRecovery as lazy } from '../../utils/lazyWithRecovery';
 
 // Type for demo components
 export interface DemoComponent {

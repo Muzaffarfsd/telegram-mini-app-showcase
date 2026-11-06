@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import { importWithRecovery } from "./utils/lazyWithRecovery";
 
 import "./index.css";
 
@@ -6,8 +7,15 @@ const root = createRoot(document.getElementById("root")!);
 void import("./lib/cleanupRetiredDemos")
   .then(({ cleanupRetiredDemos }) => cleanupRetiredDemos())
   .catch(() => {})
-  .then(() => import("./App"))
-  .then(({ default: App }) => root.render(<App />));
+  .then(() => importWithRecovery(() => import("./App")))
+  .then(({ default: App }) => root.render(<App />))
+  .catch((error) => {
+    console.error('Failed to start app:', error);
+    root.render(<main role="alert" style={{ minHeight: '100dvh', display: 'grid', placeContent: 'center', gap: 16, background: '#fff', color: '#171717', textAlign: 'center', padding: 24 }}>
+      <p>Не удалось загрузить приложение.</p>
+      <button type="button" onClick={() => window.location.reload()}>Попробовать снова</button>
+    </main>);
+  });
 
 if (typeof window !== 'undefined') {
   const deferredInit = () => {
