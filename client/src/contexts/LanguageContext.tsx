@@ -92,8 +92,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
     if (typeof window !== 'undefined') {
       // Check saved preference first
-      const saved = localStorage.getItem('app-language');
-      if (saved === 'en' || saved === 'ru') return saved;
+      try {
+        const saved = localStorage.getItem('app-language');
+        if (saved === 'en' || saved === 'ru') return saved;
+      } catch { /* Continue using the detected language if storage is unavailable. */ }
       
       // Auto-detect based on region
       return detectLanguageFromRegion();
@@ -105,7 +107,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   langRef.current = language;
 
   useEffect(() => {
-    localStorage.setItem('app-language', language);
+    try { localStorage.setItem('app-language', language); } catch { /* Language still works for this session. */ }
     document.documentElement.lang = language;
     
     if (language === 'en') {
@@ -128,7 +130,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     root.classList.add('no-theme-transition');
     
     // Apply DOM changes immediately
-    localStorage.setItem('app-language', lang);
+    try { localStorage.setItem('app-language', lang); } catch { /* Language still works for this session. */ }
     root.lang = lang;
     if (lang === 'en') {
       root.classList.add('lang-en');

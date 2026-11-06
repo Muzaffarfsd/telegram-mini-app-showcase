@@ -136,33 +136,29 @@ async function captureRequest(page, id) {
     await loading.route('https://telegram.org/js/telegram-web-app.js', (route) =>
       route.fulfill({ contentType: 'text/javascript', body: '' }),
     );
+    let releaseImage;
+    let markImageRequested;
+    const imageHeld = new Promise((resolve) => { releaseImage = resolve; });
+    const imageRequested = new Promise((resolve) => { markImageRequested = resolve; });
     await loading.route('**/*consultant-orb*.webp*', async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      await route.continue();
+      if (new URL(route.request().url()).searchParams.has('import')) { await route.continue(); return; }
+      markImageRequested();
+      await imageHeld;
+      await route.continue().catch(() => {});
     });
     const lp = await loading.newPage();
-    await lp.goto(pathFor('ai-process'), { waitUntil: 'domcontentloaded' });
-    const skeleton = lp.getByTestId('consultant-skeleton');
-    await skeleton.waitFor({ state: 'visible', timeout: 20000 });
-    assert.equal(await skeleton.getAttribute('aria-busy'), 'true');
-    assert.equal(
-      await skeleton
-        .locator('.profile-skeleton')
-        .first()
-        .evaluate((el) => getComputedStyle(el).animationName),
-      'none',
-    );
-    await lp.getByTestId('consultant-page').waitFor({ state: 'visible', timeout: 20000 });
-    await lp.waitForFunction(
-      () => {
-        const img = document.querySelector('.ai2-hero-art > img');
-        return img?.complete && img.naturalWidth > 0;
-      },
-      null,
-      { timeout: 10000 },
-    );
-    await loading.close();
-    console.log('Loading: skeleton, reduced motion and artwork passed');
+    try {
+      await lp.goto(pathFor('ai-process'), { waitUntil: 'domcontentloaded' });
+      await lp.getByTestId('consultant-page').waitFor({ state: 'visible', timeout: 20000 });
+      await Promise.race([imageRequested, new Promise((_, reject) => setTimeout(() => reject(new Error('Expected held orb request')), 5000))]);
+      assert.equal(await lp.locator('.ai2-hero-art > img').evaluate((img) => img.complete), false);
+      await tap(lp.getByTestId('consultant-show-demo'));
+      await screen(lp, 'industries');
+    } finally {
+      releaseImage();
+      await loading.close();
+    }
+    console.log('Loading: consultant is usable while hero artwork loads');
 
     for (const [width, height] of [
       [320, 568],
@@ -191,7 +187,7 @@ async function captureRequest(page, id) {
         1,
         'only the consultant appears beside the hero copy',
       );
-      assert.match(await page.locator('.ai3-hero-greeting').innerText(), /Привет.*личный ИИ-консультант/);
+      assert.match(await page.locator('.ai3-hero-greeting').innerText(), /Привет.*консультант/);
       assert.doesNotMatch(await page.locator('.ai2-hero-art').innerText(), /42/);
       assert.match(await page.locator('#consultant-title').innerText(), /ИИ-консультант/);
       assert.match(await page.locator('.ai2-hero-copy').innerText(), /Telegram.*приложении/);
@@ -338,14 +334,14 @@ async function captureRequest(page, id) {
       await tap(page.getByTestId('consultant-view-customer'));
       assert.equal(await selected(page, 'consultant-reply-size'), 'true');
       await tap(page.getByTestId('consultant-reply-human'));
-      await page.getByText(/Подготовлю обращение специалисту/).waitFor({ state: 'visible' });
+      await page.locator('.ai2-message.is-assistant').getByText(/Подготовлю обращение специалисту/).waitFor({ state: 'visible' });
       assert.match(
         await page.locator('.ai4-telegram-messages .ai2-message.is-customer').last().innerText(),
         /Нужен специалист/,
         'reply keyboard sends its button text',
       );
       await tap(page.getByTestId('consultant-reply-alternative'));
-      await page.getByText(/похожие варианты/i).waitFor({ state: 'visible' });
+      await page.locator('.ai2-message.is-assistant').getByText(/похожие варианты/i).waitFor({ state: 'visible' });
       await tap(page.getByTestId('consultant-change-industry'));
       await tap(page.getByTestId('consultant-industry-shop'));
       await screen(page, 'demo');
@@ -379,7 +375,14 @@ async function captureRequest(page, id) {
       );
       await tap(page.getByTestId('consultant-channel-chat'));
       assert.equal(await selected(page, 'consultant-channel-chat'), 'true');
-      await tap(page.getByTestId('consultant-both'));
+      await tap(page.getByTestId('consultant-channel-app'));
+      assert.equal(await selected(page, 'consultant-channel-app'), 'true');
+      assert.equal(await selected(page, 'consultant-channel-chat'), 'true');
+      assert.equal(await selected(page, 'consultant-both'), 'true');
+      await tap(page.getByTestId('consultant-channel-app'));
+      assert.equal(await selected(page, 'consultant-channel-app'), 'false');
+      assert.equal(await selected(page, 'consultant-channel-chat'), 'true');
+      await tap(page.getByTestId('consultant-channel-app'));
       assert.equal(await selected(page, 'consultant-both'), 'true');
       await tap(page.getByTestId('consultant-task-questions'));
       await tap(page.getByTestId('consultant-task-handoff'));
@@ -514,52 +517,33 @@ async function captureRequest(page, id) {
     console.log('English and alternate route passed');
 
     const animated = await open(browser, { motion: 'no-preference' });
-    await tap(animated.page.getByTestId('consultant-preview-services'));
-    assert.equal(
-      await animated.page.locator('.ai3-story-question').evaluate((el) => getComputedStyle(el).animationName),
-      'ai3-story-in',
-    );
     await tap(animated.page.getByTestId('consultant-show-demo'));
     await tap(animated.page.getByTestId('consultant-industry-shop'));
-    await animated.page.locator('.ai2-typing').waitFor({ state: 'visible', timeout: 5000 });
-    await animated.page.waitForFunction(
-      () => {
-        const text = document.querySelector('.ai2-message.is-assistant span')?.textContent || '';
-        return text.length > 0 && text.length < 25;
-      },
-      null,
-      { timeout: 5000 },
-    );
-    await tap(animated.page.getByTestId('consultant-skip-typing'));
+    await screen(animated.page, 'demo');
+    const conversation = animated.page.getByTestId('consultant-example-conversation');
+    assert.equal(await animated.page.locator('.ai2-typing').count(), 0);
+    assert.equal(await animated.page.getByTestId('consultant-reply-size').isVisible(), true, 'Replies should be available immediately');
     await tap(animated.page.getByTestId('consultant-reply-size'));
-    await animated.page.locator('.ai2-typing').waitFor({ state: 'visible' });
+    await animated.page.getByTestId('consultant-example-product').waitFor({ state: 'visible', timeout: 1000 });
     await tap(animated.page.getByTestId('consultant-reply-human'));
-    await tap(animated.page.getByTestId('consultant-skip-typing'));
-    await animated.page
-      .getByTestId('consultant-example-conversation')
-      .getByText(/Подготовлю обращение специалисту/)
-      .waitFor({ state: 'visible' });
+    await conversation.locator('.ai2-message.is-assistant').getByText(/Подготовлю обращение специалисту/).waitFor({ state: 'visible', timeout: 1000 });
+    assert.match(await conversation.getByRole('status').textContent(), /Подготовлю обращение специалисту/);
     assert.equal(await animated.page.getByTestId('consultant-example-product').count(), 0);
+    assert.equal(await selected(animated.page, 'consultant-reply-human'), 'true');
+    await tap(animated.page.getByTestId('consultant-demo-channel-chat'));
+    assert.equal(await conversation.getAttribute('data-demo-channel'), 'telegram');
+    assert.equal(await selected(animated.page, 'consultant-reply-human'), 'true');
     await tap(animated.page.getByTestId('consultant-replay'));
-    await animated.page.locator('.ai2-typing').waitFor({ state: 'visible' });
+    assert.equal(await selected(animated.page, 'consultant-reply-human'), 'false');
+    assert.equal(await animated.page.getByTestId('consultant-reply-size').isVisible(), true);
     await tap(animated.page.getByTestId('consultant-back'));
     await screen(animated.page, 'industries');
     assert.deepEqual(animated.errors, []);
     await animated.context.close();
-    console.log('Typing: progressive text, skip, switching and replay passed');
+    console.log('Demo: immediate responses, channel change, switching and replay passed');
 
     const native = await open(browser, { native: true });
-    await native.page.waitForFunction(() =>
-      window.__nativeEvents.some((e) => e.type === 'web_app_setup_main_button' && e.data.is_visible),
-    );
-    const button = await native.page.evaluate(
-      () =>
-        window.__nativeEvents
-          .filter((e) => e.type === 'web_app_setup_main_button' && e.data.is_visible)
-          .at(-1).data,
-    );
-    assert.equal(button.color.toUpperCase(), '#FFFFFF');
-    assert.match(button.text, /Обсудить консультанта/);
+    assert.equal(await native.page.evaluate(() => window.__nativeEvents.filter((e) => e.type === 'web_app_setup_main_button').at(-1)?.data.is_visible || false), false);
     await tap(native.page.getByTestId('consultant-show-demo'));
     await tap(native.page.getByTestId('consultant-industry-shop'));
     await native.page.waitForTimeout(100);
@@ -567,7 +551,7 @@ async function captureRequest(page, id) {
     await screen(native.page, 'industries');
     await native.page.evaluate(() => window.TelegramGameProxy_receiveEvent('back_button_pressed'));
     await screen(native.page, 'home');
-    await native.page.evaluate(() => window.TelegramGameProxy_receiveEvent('main_button_pressed'));
+    await tap(native.page.getByTestId('consultant-contact'));
     await native.page.waitForFunction(() =>
       window.__nativeEvents.some((e) => e.type === 'web_app_open_tg_link'),
     );
@@ -592,10 +576,12 @@ async function captureRequest(page, id) {
       ),
     );
     await tap(visibleConsultant.getByTestId('consultant-industry-services'));
+    await tap(visibleConsultant.getByTestId('consultant-home-link'));
+    await native.page.waitForFunction(() => [...document.querySelectorAll('[data-testid="consultant-page"]')].some((el) => el.getClientRects().length && el.getAttribute('data-consultant-screen') === 'home'));
     const countBefore = await native.page.evaluate(
       () => window.__nativeEvents.filter((e) => e.type === 'web_app_open_tg_link').length,
     );
-    await native.page.evaluate(() => window.TelegramGameProxy_receiveEvent('main_button_pressed'));
+    await tap(visibleConsultant.getByTestId('consultant-contact'));
     await native.page.waitForFunction(
       (n) => window.__nativeEvents.filter((e) => e.type === 'web_app_open_tg_link').length > n,
       countBefore,
@@ -603,14 +589,14 @@ async function captureRequest(page, id) {
     const links = await native.page.evaluate(() =>
       window.__nativeEvents.filter((e) => e.type === 'web_app_open_tg_link'),
     );
-    assert.equal(links.length, countBefore + 1, 'only the visible consultant handles the native action');
+    assert.equal(links.length, countBefore + 1, 'only one request is opened by the visible consultant');
     assert.match(
       new URL(`https://t.me${links.at(-1).data.path_full}`).searchParams.get('text'),
       /Услуги и запись/,
     );
     assert.deepEqual(native.errors, []);
     await native.context.close();
-    console.log('Native Telegram: button color, back and draft passed');
+    console.log('Native Telegram: single web action, back and draft passed');
   } finally {
     await browser.close();
   }

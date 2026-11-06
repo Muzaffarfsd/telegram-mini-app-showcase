@@ -846,7 +846,8 @@ const RewardsContext = createContext<RewardsContextType | undefined>(undefined);
 export function RewardsProvider({ children }: { children: React.ReactNode }) {
   const [userStats, setUserStats] = useState<UserStats>(() => {
     // Try to load from localStorage
-    const saved = localStorage.getItem('userRewardsStats');
+    let saved: string | null = null;
+    try { saved = localStorage.getItem('userRewardsStats'); } catch { /* Continue without persistent storage. */ }
     if (saved) {
       return JSON.parse(saved);
     }
@@ -861,7 +862,8 @@ export function RewardsProvider({ children }: { children: React.ReactNode }) {
 
   const [tasks, setTasks] = useState<Task[]>(() => {
     // Try to load from localStorage
-    const saved = localStorage.getItem('userTasks');
+    let saved: string | null = null;
+    try { saved = localStorage.getItem('userTasks'); } catch { /* Continue without persistent storage. */ }
     if (saved) {
       return JSON.parse(saved);
     }
@@ -870,11 +872,11 @@ export function RewardsProvider({ children }: { children: React.ReactNode }) {
 
   // Persist to localStorage on changes
   useEffect(() => {
-    localStorage.setItem('userRewardsStats', JSON.stringify(userStats));
+    try { localStorage.setItem('userRewardsStats', JSON.stringify(userStats)); } catch { /* Continue without persistent storage. */ }
   }, [userStats]);
 
   useEffect(() => {
-    localStorage.setItem('userTasks', JSON.stringify(tasks));
+    try { localStorage.setItem('userTasks', JSON.stringify(tasks)); } catch { /* Continue without persistent storage. */ }
   }, [tasks]);
 
   const updateStats = (newStats: Partial<UserStats>) => {

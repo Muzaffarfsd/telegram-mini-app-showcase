@@ -116,12 +116,7 @@ export function useTelegramButtons(
 
       case 'aiAgent':
       case 'aiProcess':
-        config = {
-          mainButton: {
-            text: language === 'ru' ? 'Обсудить консультанта' : 'Discuss your consultant',
-            onClick: () => window.dispatchEvent(new Event('web4tg:consultant-contact')),
-          },
-        };
+        // Consultant screens have their own contextual actions.
         break;
 
       case 'about':

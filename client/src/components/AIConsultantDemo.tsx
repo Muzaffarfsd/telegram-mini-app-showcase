@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { ArrowRight, CheckCheck, RotateCcw } from 'lucide-react';
 import type { ConsultantIndustry, ConsultantLanguage } from './consultantJourneyData';
 import { industryScenes } from './consultantJourneyData';
 import sneakerPhoto from '../assets/consultant/example-nike.webp';
-import handoffArt from '../assets/consultant/handoff-v1.webp';
+import handoffArt from '../assets/consultant/benefit-handoff-v3.webp';
 import { AIConsultantChannelPreview } from './AIConsultantChannelPreview';
+import './AIConsultantDemo.css';
 
 type Props = {
   industry: ConsultantIndustry;
@@ -18,53 +19,6 @@ type Props = {
   onChangeIndustry: () => void;
   onContinue: () => void;
 };
-
-function useAnimatedText(text: string, enabled: boolean, instant: boolean, replay: number) {
-  const [visible, setVisible] = useState('');
-  const [typing, setTyping] = useState(false);
-  const [done, setDone] = useState(false);
-  useEffect(() => {
-    if (!enabled || !text) {
-      setVisible('');
-      setTyping(false);
-      setDone(false);
-      return;
-    }
-    if (instant || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-      setVisible(text);
-      setTyping(false);
-      setDone(true);
-      return;
-    }
-    let timer = 0;
-    let interval = 0;
-    let active = true;
-    const letters = Array.from(text);
-    let index = 0;
-    setVisible('');
-    setTyping(true);
-    setDone(false);
-    timer = window.setTimeout(() => {
-      if (!active) return;
-      setTyping(false);
-      interval = window.setInterval(() => {
-        if (!active) return;
-        index = Math.min(index + 2, letters.length);
-        setVisible(letters.slice(0, index).join(''));
-        if (index >= letters.length) {
-          window.clearInterval(interval);
-          setDone(true);
-        }
-      }, 35);
-    }, 360);
-    return () => {
-      active = false;
-      window.clearTimeout(timer);
-      window.clearInterval(interval);
-    };
-  }, [text, enabled, instant, replay]);
-  return { visible, typing, done };
-}
 
 export function AIConsultantDemo({
   industry,
@@ -81,31 +35,15 @@ export function AIConsultantDemo({
   const ru = language === 'ru';
   const scene = industryScenes[industry][language];
   const branch = useMemo(() => scene.branches.find((item) => item.id === branchId), [scene, branchId]);
-  const [introInstant, setIntroInstant] = useState(Boolean(branchId));
-  const [answerInstant, setAnswerInstant] = useState(Boolean(branchId));
   const [replay, setReplay] = useState(0);
   const [productSelected, setProductSelected] = useState(false);
-  const intro = useAnimatedText(scene.introduction, true, introInstant, replay);
-  const answer = useAnimatedText(branch?.answer || '', Boolean(branch), answerInstant, replay);
 
   useEffect(() => {
     setProductSelected(false);
   }, [branchId]);
-  const selectView = (next: 'customer' | 'business') => {
-    if (next === 'business') {
-      setIntroInstant(true);
-      setAnswerInstant(true);
-    }
-    onView(next);
-  };
-  const chooseBranch = (id: string) => {
-    setIntroInstant(true);
-    setAnswerInstant(false);
-    onBranch(id);
-  };
+  const selectView = (next: 'customer' | 'business') => onView(next);
+  const chooseBranch = (id: string) => onBranch(id);
   const replayDemo = () => {
-    setIntroInstant(false);
-    setAnswerInstant(false);
     setReplay((value) => value + 1);
     onBranch(null);
     setProductSelected(false);
@@ -131,7 +69,7 @@ export function AIConsultantDemo({
       ? 'Выбрать'
       : 'Select';
   const messages = (
-    <>
+    <Fragment key={replay}>
       <div className="ai2-message is-customer">
         {industry === 'shop' && channel === 'chat' && (
           <img
@@ -149,23 +87,10 @@ export function AIConsultantDemo({
           </span>
         )}
       </div>
-      {intro.typing && (
-        <div className="ai2-typing" aria-label={ru ? 'Консультант печатает' : 'The consultant is typing'}>
-          <i />
-          <i />
-          <i />
-        </div>
-      )}
-      {intro.visible && (
-        <div className="ai2-message is-assistant">
-          <span aria-hidden={!intro.done}>{intro.visible}</span>
-          {channel === 'chat' && intro.done && (
-            <span className="ai4-message-time" aria-hidden="true">
-              12:41
-            </span>
-          )}
-        </div>
-      )}
+      <div className="ai2-message is-assistant">
+        <span>{scene.introduction}</span>
+        {channel === 'chat' && <span className="ai4-message-time" aria-hidden="true">12:41</span>}
+      </div>
       {branch && (
         <>
           <div className="ai2-message is-customer">
@@ -176,25 +101,11 @@ export function AIConsultantDemo({
               </span>
             )}
           </div>
-          {answer.typing && (
-            <div className="ai2-typing" aria-label={ru ? 'Консультант печатает' : 'The consultant is typing'}>
-              <i />
-              <i />
-              <i />
-            </div>
-          )}
-          {answer.visible && (
-            <div className="ai2-message is-assistant">
-              <span aria-hidden={!answer.done}>{answer.visible}</span>
-              {channel === 'chat' && answer.done && (
-                <span className="ai4-message-time" aria-hidden="true">
-                  12:42
-                </span>
-              )}
-            </div>
-          )}
+          <div className="ai2-message is-assistant">
+            <span>{branch.answer}</span>
+            {channel === 'chat' && <span className="ai4-message-time" aria-hidden="true">12:42</span>}
+          </div>
           {branch.product &&
-            (answer.done || answerInstant) &&
             (channel === 'chat' ? (
               <div className="ai4-telegram-product" data-testid="consultant-example-product">
                 <div>
@@ -228,28 +139,19 @@ export function AIConsultantDemo({
             ))}
         </>
       )}
-      <span className="profile-visually-hidden" role="status">
-        {intro.typing || answer.typing
-          ? ru
-            ? 'Консультант печатает'
-            : 'The consultant is typing'
-          : answer.done
-            ? ru
-              ? 'Ответ показан'
-              : 'Answer shown'
-            : ''}
+      <span className="profile-visually-hidden" role="status" aria-atomic="true">
+        {branch?.answer || ''}
       </span>
-    </>
+    </Fragment>
   );
 
   return (
     <section className="ai2-demo-screen" aria-labelledby="ai2-demo-title">
       <div className="ai2-page-heading">
-        <span className="ai2-kicker">{ru ? 'ПРИМЕР ОБЩЕНИЯ' : 'AN EXAMPLE CONVERSATION'}</span>
+        <span className="ai2-kicker">{ru ? 'ИНТЕРАКТИВНЫЙ ПРИМЕР' : 'INTERACTIVE EXAMPLE'}</span>
         <h1 id="ai2-demo-title">
-          {ru ? 'Один диалог. Два взгляда.' : 'One conversation. Two perspectives.'}
+          {ru ? 'Попробуйте диалог' : 'Try a conversation'}
         </h1>
-        <p>{ru ? 'Выберите, что спросит клиент.' : 'Choose what the customer asks next.'}</p>
       </div>
       <div className="ai2-context-row">
         <span>{scene.name}</span>
@@ -286,6 +188,7 @@ export function AIConsultantDemo({
             role="group"
             aria-label={ru ? 'Где показан диалог' : 'Where the conversation appears'}
           >
+            <span className="ai2-channel-label">{ru ? 'Канал' : 'Channel'}</span>
             <button
               type="button"
               aria-pressed={channel === 'app'}
@@ -310,7 +213,7 @@ export function AIConsultantDemo({
             scene={scene}
             messages={messages}
             choices={choices}
-            choicesReady={intro.done || introInstant}
+            choicesReady
           />
           <div className="ai2-demo-foot">
             <p>
@@ -332,19 +235,6 @@ export function AIConsultantDemo({
               <span>{ru ? 'Повторить' : 'Replay'}</span>
             </button>
           </div>
-          {(!intro.done || (branch && !answer.done)) && (
-            <button
-              className="ai2-skip"
-              type="button"
-              onClick={() => {
-                setIntroInstant(true);
-                setAnswerInstant(true);
-              }}
-              data-testid="consultant-skip-typing"
-            >
-              {ru ? 'Показать сразу' : 'Show immediately'}
-            </button>
-          )}
           <button
             type="button"
             className="ai2-next-story"
@@ -368,11 +258,11 @@ export function AIConsultantDemo({
           <div className="ai2-business-story" data-testid="consultant-business-story">
             <div className="ai2-business-copy">
               <span className="ai2-kicker">{ru ? 'ВЗГЛЯД БИЗНЕСА' : 'BUSINESS VIEW'}</span>
-              <h2>{ru ? 'За каждым ответом — задача' : 'A purpose behind every answer'}</h2>
+              <h2>{ru ? 'Ответ с целью' : 'Purposeful reply'}</h2>
               <p>
                 {ru
-                  ? 'Разбор этого примера помогает понять, как может работать ваш консультант.'
-                  : 'This example illustrates how your consultant could work.'}
+                  ? 'Покажем, как консультант помогает бизнесу.'
+                  : 'See how the consultant can help your business.'}
               </p>
             </div>
             <img src={handoffArt} alt="" />

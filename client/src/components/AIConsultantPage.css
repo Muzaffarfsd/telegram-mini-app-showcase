@@ -127,12 +127,12 @@
 @media (max-width: 340px) { .consultant-page { padding-left: 15px; padding-right: 15px; }.consultant-channel { padding-left: 10px; padding-right: 10px; }.consultant-channel-copy strong { font-size: 13px; }.consultant-channel-copy small { font-size: 10px; }.consultant-hero-art { width: 245px; height: 230px; } }
 @media (prefers-reduced-motion: reduce) { .consultant-page *, .consultant-page *::before, .consultant-page *::after { animation: none !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 
-.w4-topbar.consultant-topbar { background: rgba(255,255,255,.88) !important; border-bottom-color: transparent !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important; }
+.w4-topbar.consultant-topbar { background: rgba(255,255,255,.98) !important; border-bottom-color: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
 .consultant-topbar .profile-brand { left: 0 !important; right: 0; top: 0 !important; height: 100%; display: flex; align-items: center; justify-content: center; transform: none !important; pointer-events: none; }
 .consultant-topbar .hb-btn { background: rgba(237,239,243,.72) !important; border: 1px solid rgba(255,255,255,.95); border-radius: 50%; box-shadow: 0 4px 14px rgba(55,45,60,.08), inset 0 1px 0 rgba(255,255,255,.9); }
 .consultant-topbar .hb-line { background: #242428 !important; }
-nav.consultant-nav[role="navigation"] { background: rgba(255,255,255,.48) !important; border: 1px solid rgba(255,255,255,.78); box-shadow: 0 5px 18px rgba(25,25,30,.13), inset 0 1px 0 rgba(255,255,255,.7) !important; }
-.consultant-nav > div:first-child { background: transparent !important; backdrop-filter: blur(24px) saturate(1.1) !important; -webkit-backdrop-filter: blur(24px) saturate(1.1) !important; }
+nav.consultant-nav[role="navigation"] { background: rgba(255,255,255,.98) !important; border: 1px solid #eeeef0; box-shadow: 0 5px 18px rgba(25,25,30,.11) !important; }
+.consultant-nav > div:first-child { background: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
 .consultant-nav button svg { color: #74757b !important; }
 .consultant-nav button[aria-current="page"] { background: rgba(255,255,255,.55) !important; }
 .consultant-nav button[aria-current="page"] svg, .consultant-nav button > span { color: #252529 !important; }

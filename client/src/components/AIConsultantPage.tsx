@@ -1,8 +1,9 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronRight, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { AIConsultantSkeleton } from './AIConsultantSkeleton';
 import { AIConsultantDemo } from './AIConsultantDemo';
+import { AIConsultantDraftDialog } from './AIConsultantDraftDialog';
+import { useConsultantDraft } from './useConsultantDraft';
 import {
   industryNames,
   industryScenes,
@@ -13,17 +14,17 @@ import {
   type ConsultantTone,
 } from './consultantJourneyData';
 import orb from '../assets/consultant/consultant-orb.webp';
-import appArtwork from '../assets/consultant/channel-app-latest.webp';
-import chatArtwork from '../assets/consultant/channel-chat-latest.webp';
-import humanSupport from '../assets/consultant/human-support.webp';
-import knowledgeArt from '../assets/consultant/knowledge-v1.webp';
-import benefitAnswersArt from '../assets/consultant/benefit-answers-v2.webp';
-import benefitChoiceArt from '../assets/consultant/benefit-choice-v2.webp';
-import benefitHandoffArt from '../assets/consultant/benefit-handoff-v2.webp';
-import tuningArt from '../assets/consultant/tuning-v1.webp';
-import shopArt from '../assets/order/shop-v5.webp';
-import servicesArt from '../assets/order/services-v4.webp';
-import restaurantArt from '../assets/order/restaurant-v2.webp';
+import appArtwork from '../assets/consultant/channel-app-v2.webp';
+import chatArtwork from '../assets/consultant/channel-chat-v2.webp';
+import humanSupport from '../assets/consultant/human-support-v2.webp';
+import knowledgeArt from '../assets/consultant/knowledge-v2.webp';
+import benefitAnswersArt from '../assets/consultant/benefit-answers-v3.webp';
+import benefitChoiceArt from '../assets/consultant/benefit-choice-v3.webp';
+import benefitHandoffArt from '../assets/consultant/benefit-handoff-v3.webp';
+import tuningArt from '../assets/consultant/tuning-v2.webp';
+import shopArt from '../assets/order/shop-v6.webp';
+import servicesArt from '../assets/order/services-v7.webp';
+import restaurantArt from '../assets/order/restaurant-v3.webp';
 import './AIConsultantPage.css';
 import './AIConsultantExperience.css';
 
@@ -63,7 +64,9 @@ export default function AIConsultantPage({ onNavigate }: Props) {
   const [comparison, setComparison] = useState<'ai' | 'human'>('ai');
   const [previewIndustry, setPreviewIndustry] = useState<(typeof previewIndustries)[number]>('shop');
   const [previewChannel, setPreviewChannel] = useState<'app' | 'chat'>('app');
-  const [artReady, setArtReady] = useState(false);
+  const [configurationStarted, setConfigurationStarted] = useState(false);
+  const [recoverForRequest, setRecoverForRequest] = useState(false);
+  const draft = useConsultantDraft({ industry, industryChosen, channel, selectedTasks, tone, projectName }, configurationStarted);
   const [orb3DEnabled, setOrb3DEnabled] = useState(false);
   const [orb3DReady, setOrb3DReady] = useState(false);
   const [orbReaction, setOrbReaction] = useState(0);
@@ -73,36 +76,9 @@ export default function AIConsultantPage({ onNavigate }: Props) {
   const scrollRef = useRef<Partial<Record<Screen, number>>>({});
   const restoreScrollRef = useRef(0);
   const industryDestination = useRef<Screen>('demo');
+  const previousFocusScreen = useRef<Screen>('home');
 
   useEffect(() => {
-    let active = true;
-    const image = new Image();
-    const finish = () => {
-      if (active) setArtReady(true);
-    };
-    const timer = window.setTimeout(finish, 5000);
-    image.onload = () => {
-      const decoded = typeof image.decode === 'function' ? image.decode().catch(() => {}) : Promise.resolve();
-      void decoded.then(() => {
-        window.clearTimeout(timer);
-        finish();
-      });
-    };
-    image.onerror = () => {
-      window.clearTimeout(timer);
-      finish();
-    };
-    image.src = orb;
-    return () => {
-      active = false;
-      window.clearTimeout(timer);
-      image.onload = null;
-      image.onerror = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!artReady) return;
     const timer = window.setTimeout(() => {
       [shopArt, servicesArt, restaurantArt, appArtwork].forEach((src) => {
         const image = new Image();
@@ -111,7 +87,7 @@ export default function AIConsultantPage({ onNavigate }: Props) {
       });
     }, 300);
     return () => window.clearTimeout(timer);
-  }, [artReady]);
+  }, []);
 
   useEffect(() => {
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -172,10 +148,16 @@ export default function AIConsultantPage({ onNavigate }: Props) {
 
   useLayoutEffect(() => {
     document.getElementById('root')?.scrollTo({ top: restoreScrollRef.current, behavior: 'auto' });
-  }, [screen, artReady]);
+    if (previousFocusScreen.current !== screen && rootRef.current?.getClientRects().length) {
+      const heading = rootRef.current.querySelector<HTMLElement>('section h1');
+      if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus({ preventScroll: true }); }
+    }
+    previousFocusScreen.current = screen;
+  }, [screen]);
 
   const openRequest = useCallback(() => {
-    if (!artReady || !rootRef.current?.getClientRects().length) return;
+    if (!draft.ready || !rootRef.current?.getClientRects().length) return;
+    if (draft.pendingDraft) { setRecoverForRequest(true); return; }
     const chosenIndustry = industryChosen
       ? industryNames[industry][language]
       : ru
@@ -210,7 +192,7 @@ export default function AIConsultantPage({ onNavigate }: Props) {
     } catch {
       window.open(url, '_blank', 'noopener,noreferrer');
     }
-  }, [artReady, channel, industry, industryChosen, language, projectName, ru, selectedTasks, tone]);
+  }, [channel, draft.ready, draft.pendingDraft, industry, industryChosen, language, projectName, ru, selectedTasks, tone]);
 
   useEffect(() => {
     window.addEventListener('web4tg:consultant-contact', openRequest);
@@ -245,7 +227,7 @@ export default function AIConsultantPage({ onNavigate }: Props) {
       window.removeEventListener('hashchange', sync);
       if (active()) back.hide();
     };
-  }, [artReady, goBack, onNavigate]);
+  }, [goBack, onNavigate]);
 
   const openIndustries = (destination: Screen) => {
     industryDestination.current = destination;
@@ -258,15 +240,23 @@ export default function AIConsultantPage({ onNavigate }: Props) {
     }
     setIndustry(item);
     setIndustryChosen(true);
-    moveTo(industryDestination.current);
+    if (industryDestination.current === 'configure') setConfigurationStarted(true);
+    if (industryDestination.current === 'configure' && historyRef.current[historyRef.current.length - 1] === 'configure') {
+      historyRef.current.pop();
+      moveTo('configure', true);
+    } else {
+      moveTo(industryDestination.current);
+    }
   };
   const selectDemoChannel = (item: 'app' | 'chat') => {
     setDemoChannel(item);
   };
-  const toggleTask = (item: ConsultantTask) =>
+  const toggleTask = (item: ConsultantTask) => {
+    setConfigurationStarted(true);
     setSelectedTasks((current) =>
       current.includes(item) ? current.filter((value) => value !== item) : [...current, item],
     );
+  };
   const toneLabel =
     tone === 'warm'
       ? ru
@@ -313,9 +303,6 @@ export default function AIConsultantPage({ onNavigate }: Props) {
     review: ru ? 'Обсуждение' : 'Your request',
   };
 
-  if (!artReady)
-    return <AIConsultantSkeleton label={ru ? 'Загрузка страницы консультанта' : 'Loading consultant page'} />;
-
   return (
     <main
       ref={rootRef}
@@ -352,24 +339,10 @@ export default function AIConsultantPage({ onNavigate }: Props) {
 
         {screen === 'home' && (
           <section className="ai2-home" aria-labelledby="consultant-title">
-            <h1 id="consultant-title">
-              {ru ? (
-                <>
-                  ИИ-консультант
-                  <br />
-                  для бизнеса
-                </>
-              ) : (
-                <>
-                  AI consultant
-                  <br />
-                  for your business
-                </>
-              )}
-            </h1>
+            <h1 id="consultant-title">{ru ? 'ИИ-консультант' : 'AI consultant'}</h1>
             <div className="ai2-hero-art" data-orb3d={orb3DReady ? 'ready' : 'fallback'}>
               <span className="ai3-hero-greeting">
-                {ru ? 'Привет! Я ваш личный ИИ-консультант.' : 'Hello! I’m your personal AI consultant.'}
+                {ru ? 'Привет! Я ваш консультант.' : 'Hello! I’m your consultant.'}
               </span>
               <img src={orb} alt="" width="640" height="640" fetchPriority="high" />
               {orb3DEnabled && (
@@ -389,8 +362,8 @@ export default function AIConsultantPage({ onNavigate }: Props) {
             </div>
             <p className="ai2-hero-copy">
               {ru
-                ? 'Ответы и помощь с выбором — в Telegram и приложении.'
-                : 'Answers and help with choosing — in Telegram and your app.'}
+                ? 'Помогает вашим клиентам в Telegram и приложении.'
+                : 'Helps your customers in Telegram and your app.'}
             </p>
             <button
               className="ai2-primary"
@@ -841,33 +814,33 @@ export default function AIConsultantPage({ onNavigate }: Props) {
                 <button
                   type="button"
                   className="ai2-channel-card is-app"
-                  aria-pressed={channel === 'app'}
-                  onClick={() => setChannel('app')}
+                  aria-pressed={channel === 'app' || channel === 'both'}
+                  onClick={() => { setConfigurationStarted(true); setChannel((current) => current === 'app' ? null : current === 'chat' ? 'both' : current === 'both' ? 'chat' : 'app'); }}
                   data-testid="consultant-channel-app"
                 >
                   <strong>{ru ? 'В приложении' : 'In the app'}</strong>
                   <small>{ru ? 'Рядом с товарами и услугами' : 'Alongside products and services'}</small>
                   <img src={appArtwork} alt="" loading="lazy" />
-                  <span>{channel === 'app' && <Check size={13} />}</span>
+                  <span>{(channel === 'app' || channel === 'both') && <Check size={13} />}</span>
                 </button>
                 <button
                   type="button"
                   className="ai2-channel-card is-chat"
-                  aria-pressed={channel === 'chat'}
-                  onClick={() => setChannel('chat')}
+                  aria-pressed={channel === 'chat' || channel === 'both'}
+                  onClick={() => { setConfigurationStarted(true); setChannel((current) => current === 'chat' ? null : current === 'app' ? 'both' : current === 'both' ? 'app' : 'chat'); }}
                   data-testid="consultant-channel-chat"
                 >
                   <strong>{ru ? 'В Telegram-чате' : 'In Telegram chat'}</strong>
                   <small>{ru ? 'В диалоге с вашим ботом' : 'In your bot’s conversation'}</small>
                   <img src={chatArtwork} alt="" loading="lazy" />
-                  <span>{channel === 'chat' && <Check size={13} />}</span>
+                  <span>{(channel === 'chat' || channel === 'both') && <Check size={13} />}</span>
                 </button>
               </div>
               <button
                 type="button"
                 className="ai2-both-channel"
                 aria-pressed={channel === 'both'}
-                onClick={() => setChannel((current) => (current === 'both' ? null : 'both'))}
+                onClick={() => { setConfigurationStarted(true); setChannel((current) => (current === 'both' ? null : 'both')); }}
                 data-testid="consultant-both"
               >
                 <span>{channel === 'both' && <Check size={13} />}</span>
@@ -914,7 +887,7 @@ export default function AIConsultantPage({ onNavigate }: Props) {
                 <button
                   type="button"
                   aria-pressed={tone === 'warm'}
-                  onClick={() => setTone('warm')}
+                  onClick={() => { setConfigurationStarted(true); setTone('warm'); }}
                   data-testid="consultant-tone-warm"
                 >
                   {ru ? 'Дружелюбно' : 'Friendly'}
@@ -922,7 +895,7 @@ export default function AIConsultantPage({ onNavigate }: Props) {
                 <button
                   type="button"
                   aria-pressed={tone === 'business'}
-                  onClick={() => setTone('business')}
+                  onClick={() => { setConfigurationStarted(true); setTone('business'); }}
                   data-testid="consultant-tone-business"
                 >
                   {ru ? 'По-деловому' : 'Professional'}
@@ -961,8 +934,8 @@ export default function AIConsultantPage({ onNavigate }: Props) {
                 className="ai2-input"
                 maxLength={80}
                 value={projectName}
-                onChange={(event) => setProjectName(event.target.value)}
-                placeholder={ru ? 'Например, название вашего бизнеса' : 'For example, your business name'}
+                onChange={(event) => { setConfigurationStarted(true); setProjectName(event.target.value); }}
+                placeholder={ru ? 'Например, название бизнеса' : 'For example, your business'}
               />
             </div>
             <button
@@ -1106,6 +1079,8 @@ export default function AIConsultantPage({ onNavigate }: Props) {
           </section>
         )}
       </div>
+      {!draft.storageAvailable && (screen === 'configure' || screen === 'review') && <p className="ai2-storage-note" role="status">{ru ? 'Не удалось сохранить черновик на устройстве. Вы можете продолжить.' : 'This device could not save the draft. You can still continue.'}</p>}
+      {draft.ready && draft.pendingDraft && (screen === 'configure' || recoverForRequest) && <AIConsultantDraftDialog ru={ru} onRestore={() => draft.restoreDraft((saved) => { setIndustry(saved.industry); setIndustryChosen(saved.industryChosen); setChannel(saved.channel); setSelectedTasks(saved.selectedTasks); setTone(saved.tone); setProjectName(saved.projectName); setConfigurationStarted(true); if (recoverForRequest && screenRef.current !== 'review') moveTo('review'); setRecoverForRequest(false); })} onStartNew={() => draft.startNew(() => { setIndustry('shop'); setIndustryChosen(false); setChannel(null); setSelectedTasks([]); setTone(null); setProjectName(''); setConfigurationStarted(false); if (recoverForRequest && screenRef.current !== 'review') moveTo('review'); setRecoverForRequest(false); })} />}
     </main>
   );
 }

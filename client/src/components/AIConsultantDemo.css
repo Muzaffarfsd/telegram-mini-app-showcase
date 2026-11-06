@@ -1,0 +1,32 @@
+/* Keep the example usable on a phone without hiding the conversation behind navigation. */
+.consultant-v2[data-consultant-screen='demo'] .ai2-screen-nav { margin-bottom: 12px; }
+.consultant-v2 .ai2-demo-screen .ai2-page-heading h1 { margin-top: 5px; font-size: clamp(23px, 6.5vw, 27px); line-height: 1.12; }
+.consultant-v2 .ai2-demo-screen .ai2-context-row { margin: 8px 0 4px; }
+.consultant-v2 .ai2-demo-screen .ai2-segment button { min-height: 44px; }
+.consultant-v2 .ai2-demo-screen .ai2-channel-row { align-items: center; gap: 6px; margin: 8px 0; }
+.consultant-v2 .ai2-demo-screen .ai2-channel-label { flex: 1; min-width: 0; color: #5b5e64; font-size: 12px; font-weight: 650; }
+.consultant-v2 .ai2-demo-screen .ai2-channel-row button { min-height: 44px; padding: 0 14px; color: #4e5157; }
+.consultant-v2 .ai2-demo-screen .ai2-channel-row button[aria-pressed='true'] { border-color: #292b2f; background: #292b2f; color: #fff; }
+.consultant-v2 .ai2-demo-screen .ai4-app-head,
+.consultant-v2 .ai2-demo-screen .ai4-telegram-head { min-height: 48px; padding: 6px 12px; }
+.consultant-v2 .ai2-demo-screen .ai4-app-context { gap: 12px; padding: 10px 12px; }
+.consultant-v2 .ai2-demo-screen .ai4-app-context > img,
+.consultant-v2 .ai2-demo-screen .ai4-app-item-icon { width: 64px; height: 64px; flex-basis: 64px; border-radius: 12px; }
+.consultant-v2 .ai2-demo-screen .ai4-app-context > div { gap: 3px; }
+.consultant-v2 .ai2-demo-screen .ai4-app-assistant-toggle { min-height: 52px; padding: 7px 10px; }
+.consultant-v2 .ai2-demo-screen .ai4-app-assistant-toggle small,
+.consultant-v2 .ai2-demo-screen .ai4-app-context > div > span { color: #62676e; }
+.consultant-v2 .ai2-demo-screen .ai4-app-window,
+.consultant-v2 .ai2-demo-screen .ai4-telegram-window { box-shadow: 0 6px 20px rgba(38,40,44,.05); }
+.consultant-v2 .ai2-demo-screen .ai2-message { animation-duration: .16s; }
+.consultant-v2 .ai2-demo-screen .ai2-demo-foot p,
+.consultant-v2 .ai2-demo-screen .ai2-demo-disclaimer { color: #62656c; }
+.consultant-v2 .ai2-demo-screen .ai2-business-copy h2 { font-size: 17px; line-height: 1.2; }
+@media (max-width: 340px) {
+  .consultant-v2 .ai2-demo-screen .ai2-channel-row button { padding-inline: 11px; }
+  .consultant-v2 .ai2-demo-screen .ai4-app-context > img,
+  .consultant-v2 .ai2-demo-screen .ai4-app-item-icon { width: 58px; height: 58px; flex-basis: 58px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .consultant-v2 .ai2-demo-screen .ai2-message { animation: none; }
+}
