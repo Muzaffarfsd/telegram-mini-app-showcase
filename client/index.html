@@ -372,11 +372,6 @@
       </div>
       <div class="projects-load-nav" aria-hidden="true"><div class="projects-load-shape"></div><div class="projects-load-shape"></div><div class="projects-load-shape"></div><div class="projects-load-shape"></div></div>
     </div>
-    <!-- STATIC SHELL: Показывается мгновенно пока React загружается -->
-    <!-- React заменит этот контент после hydration -->
-    <div id="static-shell" style="
-      min-height: 100vh;
-      min-height: 100dvh;
     <main id="home-static-shell" role="status" aria-label="Загрузка главной страницы" aria-busy="true">
       <div class="home-load-content" aria-hidden="true">
         <div class="home-load-shape" style="width:45%;height:11px"></div><div style="height:7px"></div>
@@ -387,6 +382,11 @@
         <div style="width:100%;height:min(88vw, 380px);min-height:280px;border-radius:25px;background:#f5f5f4"></div>
       </div>
     </main>
+    <!-- STATIC SHELL: Показывается мгновенно пока React загружается -->
+    <!-- React заменит этот контент после hydration -->
+    <div id="static-shell" style="
+      min-height: 100vh;
+      min-height: 100dvh;
       background: #000;
       display: flex;
       flex-direction: column;
