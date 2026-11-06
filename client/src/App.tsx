@@ -560,7 +560,7 @@ function AppContent() {
     <>
       <TelegramButtonsSync routeComponent={route.component} />
       <LazyMotionProvider>
-        <Suspense fallback={<div style={{minHeight:'1px'}} />}>
+        <Suspense fallback={route.component === 'showcase' ? <StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} /> : <div style={{minHeight:'1px'}} />}>
           <LazyRewardsProvider>
             <LazyXPNotificationProvider>
               <div className="relative min-h-screen">

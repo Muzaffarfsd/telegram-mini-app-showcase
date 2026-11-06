@@ -6,7 +6,9 @@
   <style>html.studio-home-theme,html.studio-home-theme body{background:#fff!important}</style>
   <style>html.projects-route-theme,html.projects-route-theme body{background:#fff!important}</style>
   <script>
-    if (!location.hash || /^#(?:$|\/(?:\?|$))/.test(location.hash)) {
+    var __initialPath = (location.hash.slice(1) || '/').split('?')[0];
+    var __nonHomePaths = ['/projects','/about','/constructor','/profile','/help','/review','/checkout','/ai-agent','/ai-process','/photo-gallery','/referral','/rewards','/earning','/notifications','/analytics','/premium-apps'];
+    if (__nonHomePaths.indexOf(__initialPath) === -1 && !/^\/demos\/[^/]+(?:\/app)?$/.test(__initialPath)) {
       document.documentElement.classList.add('studio-home-theme');
     }
     if (/^#\/(?:profile|referral|rewards|earning|help|review)(?:\?|$)/.test(location.hash)) {
@@ -170,6 +172,14 @@
       background-size: 200% 100%;
       animation: shimmer 1.5s infinite;
     }
+
+    /* Keep the home placeholder consistent before and after React starts. */
+    #home-static-shell { display:none; min-height:100dvh; background:#fff; padding:calc(max(env(safe-area-inset-top, 0px), var(--csat, 0px), 12px) + 82px) 20px 80px; }
+    html.studio-home-theme #static-shell { display:none !important; }
+    html.studio-home-theme #home-static-shell { display:block; }
+    .home-load-content { max-width:500px; margin:0 auto; display:grid; gap:12px; }
+    .home-load-shape { border-radius:8px; background:linear-gradient(100deg,#e9edf1 30%,#f6f8fa 48%,#e9edf1 66%); background-size:220% 100%; animation:projects-load-shimmer 1.6s ease-in-out infinite; }
+    @media (prefers-reduced-motion:reduce) { .home-load-shape { animation:none; background:#e9edf1; } }
     
     @keyframes shimmer {
       0% { background-position: -200% 0; }
@@ -307,9 +317,10 @@
         }
       }catch(e){}
       try{
-        if(typeof tg.setBottomBarColor==='function') tg.setBottomBarColor('#000000');
-        if(typeof tg.setBackgroundColor==='function') tg.setBackgroundColor('#000000');
-        if(typeof tg.setHeaderColor==='function') tg.setHeaderColor('#000000');
+        var __bootColor = __htmlEl.classList.contains('studio-home-theme') ? '#ffffff' : '#000000';
+        if(typeof tg.setBottomBarColor==='function') tg.setBottomBarColor(__bootColor);
+        if(typeof tg.setBackgroundColor==='function') tg.setBackgroundColor(__bootColor);
+        if(typeof tg.setHeaderColor==='function') tg.setHeaderColor(__bootColor);
       }catch(e){}
 
       var __stableH = tg.viewportStableHeight || tg.viewportHeight || window.innerHeight;
@@ -366,6 +377,16 @@
     <div id="static-shell" style="
       min-height: 100vh;
       min-height: 100dvh;
+    <main id="home-static-shell" role="status" aria-label="Загрузка главной страницы" aria-busy="true">
+      <div class="home-load-content" aria-hidden="true">
+        <div class="home-load-shape" style="width:45%;height:11px"></div><div style="height:7px"></div>
+        <div class="home-load-shape" style="width:74%;height:31px"></div><div class="home-load-shape" style="width:86%;height:31px"></div><div style="height:1px"></div>
+        <div class="home-load-shape" style="width:90%;height:14px"></div><div class="home-load-shape" style="width:68%;height:14px"></div><div style="height:18px"></div>
+        <div class="home-load-shape" style="width:38%;height:11px"></div><div class="home-load-shape" style="width:58%;height:20px"></div>
+        <div style="display:flex;gap:6px;margin-top:1px"><div class="home-load-shape" style="width:26%;height:40px"></div><div class="home-load-shape" style="width:24%;height:40px"></div><div class="home-load-shape" style="width:22%;height:40px"></div></div>
+        <div style="width:100%;height:min(88vw, 380px);min-height:280px;border-radius:25px;background:#f5f5f4"></div>
+      </div>
+    </main>
       background: #000;
       display: flex;
       flex-direction: column;

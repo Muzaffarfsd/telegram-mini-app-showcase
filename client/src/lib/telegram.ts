@@ -74,8 +74,8 @@ export function initTelegramWebApp() {
     tg.requestFullscreen();
   }
   
-  // Make header and bottom bar match background - use pure black for OLED
-  const bgColor = '#000000';
+  // Keep the native Telegram chrome light while the light home screen loads.
+  const bgColor = document.documentElement.classList.contains('studio-home-theme') ? '#ffffff' : '#000000';
   if (typeof (tg as any).setHeaderColor === 'function') {
     (tg as any).setHeaderColor(bgColor);
   }

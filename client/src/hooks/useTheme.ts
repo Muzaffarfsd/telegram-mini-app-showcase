@@ -53,7 +53,7 @@ function applyTheme(theme: Theme, skipTransitions = false) {
     
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp as any;
-      const bgColor = theme === 'dark' ? '#000000' : '#F2F4F6';
+      const bgColor = document.documentElement.classList.contains('studio-home-theme') ? '#ffffff' : theme === 'dark' ? '#000000' : '#F2F4F6';
       try {
         if (typeof tg.setHeaderColor === 'function') {
           tg.setHeaderColor(bgColor);
