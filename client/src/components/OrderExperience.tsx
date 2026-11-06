@@ -5,7 +5,7 @@ import { appTemplatesBase, availableFeaturesBase, categoryKeys, subscriptionPlan
 import shopArt from '../assets/order/shop-v6.webp';
 import restaurantArt from '../assets/order/restaurant-v3.webp';
 import fitnessArt from '../assets/order/fitness-v3.webp';
-import servicesArt from '../assets/order/services-v5.webp';
+import servicesArt from '../assets/order/services-v6.webp';
 import basicArt from '../assets/order/feature-basic-v2.webp';
 import paymentsArt from '../assets/order/feature-payments-v2.webp';
 import deliveryArt from '../assets/order/feature-delivery-v2.webp';
