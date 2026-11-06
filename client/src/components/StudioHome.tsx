@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useHaptic } from '../hooks/useHaptic';
@@ -26,6 +26,8 @@ export default function StudioHome({ onNavigate, onOpenDemo }: Props) {
   const haptic = useHaptic();
   const { markAsViewed } = useViewedDemos();
   const [view, setView] = useState<FashionView>('home');
+  const gesture = useRef<{ id: number; x: number; y: number } | null>(null);
+  const suppressClick = useRef(false);
   const go = useCallback((section: string) => { haptic.light(); onNavigate(section); }, [haptic, onNavigate]);
   const openDemo = useCallback((id: string) => { haptic.light(); markAsViewed(id); onOpenDemo(id); }, [haptic, markAsViewed, onOpenDemo]);
   const choose = (next: FashionView) => {
@@ -33,6 +35,22 @@ export default function StudioHome({ onNavigate, onOpenDemo }: Props) {
     setView(next);
     preloadDemo(fashionProject.id);
     haptic.light();
+  };
+  const startSwipe = (event: PointerEvent<HTMLButtonElement>) => {
+    if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    suppressClick.current = false;
+    gesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+  const finishSwipe = (event: PointerEvent<HTMLButtonElement>) => {
+    const start = gesture.current;
+    gesture.current = null;
+    if (!start || start.id !== event.pointerId) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (Math.abs(dx) < 40 || Math.abs(dx) <= Math.abs(dy) * 1.2) return;
+    suppressClick.current = true;
+    choose(dx < 0 ? 'product' : 'home');
   };
 
   useEffect(() => {
@@ -48,12 +66,12 @@ export default function StudioHome({ onNavigate, onOpenDemo }: Props) {
   return <main className="studio-home" data-testid="home-page">
     <div className="studio-home__inner">
       <section className="studio-editorial" aria-labelledby="studio-home-title">
-        <div className="studio-eyebrow"><span>WEB4TG / STUDIO</span><span>TELEGRAM MINI APPS</span></div>
+        <div className="studio-eyebrow"><span>WEB4TG / STUDIO</span></div>
         <h1 id="studio-home-title">{ru ? 'ОТ ИНТЕРЕСА К ЗАКАЗУ' : 'FROM VIEW TO ORDER'}</h1>
         <p className="studio-intro-copy">{ru ? 'Магазин, запись и сервис — прямо в Telegram.' : 'Store, bookings and services in Telegram.'}</p>
         <div className="studio-fashion" data-testid="home-exhibit">
-          <button type="button" className="studio-fashion__image" data-testid="home-open-demo" onClick={() => openDemo(fashionProject.id)} onTouchStart={() => preloadDemo(fashionProject.id)} aria-label={ru ? `Открыть демо магазина одежды ${fashionProject.name}` : `Open the ${fashionProject.name} fashion store demo`}>
-            <img key={view} src={fashionProject[view]} alt="" fetchPriority={view === 'home' ? 'high' : 'auto'} decoding="async" />
+          <button type="button" className="studio-fashion__image" data-testid="home-open-demo" onPointerDown={startSwipe} onPointerUp={finishSwipe} onPointerCancel={() => { gesture.current = null; }} onClick={(event) => { if (suppressClick.current && event.detail !== 0) { suppressClick.current = false; return; } openDemo(fashionProject.id); }} onTouchStart={() => preloadDemo(fashionProject.id)} aria-label={ru ? `Открыть демо магазина одежды ${fashionProject.name}` : `Open the ${fashionProject.name} fashion store demo`}>
+            <img key={view} data-view={view} src={fashionProject[view]} alt="" draggable={false} fetchPriority={view === 'home' ? 'high' : 'auto'} decoding="async" />
           </button>
           <div className="studio-fashion__switch" role="group" aria-label={ru ? 'Вид магазина одежды' : 'Fashion store view'}>
             <span>{ru ? 'МАГАЗИН ОДЕЖДЫ' : 'FASHION STORE'}</span>
