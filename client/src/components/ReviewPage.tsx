@@ -6,7 +6,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useTelegram } from '../hooks/useTelegram';
 import { profilePost } from '../lib/profileRequest';
 import { ProfileDetailArtwork, ProfileDetailLayout, ProfileDetailLoading } from './ProfileDetailLayout';
-import reviewArtwork from '../assets/profile/review-detail-v2.webp';
+import reviewArtwork from '../assets/profile/review-detail-v4.webp';
 
 interface ReviewPageProps {
   onBack: () => void;

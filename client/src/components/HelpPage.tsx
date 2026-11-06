@@ -4,7 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useTelegram } from '../hooks/useTelegram';
 import { navigate } from '../hooks/useRouting';
 import { ProfileDetailArtwork, ProfileDetailLayout } from './ProfileDetailLayout';
-import helpArtwork from '../assets/profile/help-detail-v2.webp';
+import helpArtwork from '../assets/profile/help-detail-v4.webp';
 
 interface HelpPageProps {
   onBack: () => void;
