@@ -12,7 +12,8 @@ import inviteArtwork from '../assets/profile/invite-v6.webp';
 import rewardsArtwork from '../assets/profile/rewards-v7.webp';
 import tasksArtwork from '../assets/profile/tasks-v6.webp';
 import themeArtwork from '../assets/profile/theme-v5.webp';
-import homeArtwork from '../assets/profile/home-shortcut-v6.webp';
+import homeArtwork from '../assets/profile/home-shortcut-v7.webp';
+import homeBrandMark from '../assets/brand/header-symbol-mask-v1.webp';
 import languageArtwork from '../assets/profile/language-v5.webp';
 import contactArtwork from '../assets/profile/contact-v6.webp';
 import helpArtwork from '../assets/profile/help-v7.webp';
@@ -813,7 +814,10 @@ function ProfilePage({ onNavigate, active }: Props) {
                 <strong>{t('profilePage.addToHomeScreen')}</strong>
                 <span>{ru ? 'Быстрый доступ' : 'Quick access'}</span>
               </span>
-              <ProfileArtwork src={homeArtwork} lazy />
+              <span className="profile-home-art" aria-hidden="true">
+                <img src={homeArtwork} alt="" loading="lazy" />
+                <span className="profile-home-app-icon"><img src={homeBrandMark} alt="" /></span>
+              </span>
               <span className="profile-setting-arrow" aria-hidden="true">
                 <ArrowUpRight size={15} />
               </span>
