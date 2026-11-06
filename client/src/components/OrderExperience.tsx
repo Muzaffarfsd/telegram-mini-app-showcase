@@ -2,16 +2,20 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, ChevronDown, ChevronRight, Info, Plus } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { appTemplatesBase, availableFeaturesBase, categoryKeys, subscriptionPlansBase } from './orderCatalog';
-import shopArt from '../assets/order/shop-v5.webp';
-import restaurantArt from '../assets/order/restaurant-v2.webp';
-import fitnessArt from '../assets/order/fitness-v2.webp';
-import servicesArt from '../assets/order/services-v4.webp';
-import paymentsArt from '../assets/order/info-payments.webp';
-import deliveryArt from '../assets/order/info-delivery.webp';
-import marketingArt from '../assets/order/info-marketing.webp';
-import subscriptionArt from '../assets/order/info-subscription-v1.webp';
-import messageArt from '../assets/consultant/channel-chat-latest.webp';
-import automationArt from '../assets/consultant/channel-app-latest.webp';
+import shopArt from '../assets/order/shop-v6.webp';
+import restaurantArt from '../assets/order/restaurant-v3.webp';
+import fitnessArt from '../assets/order/fitness-v3.webp';
+import servicesArt from '../assets/order/services-v5.webp';
+import basicArt from '../assets/order/feature-basic-v2.webp';
+import paymentsArt from '../assets/order/feature-payments-v2.webp';
+import deliveryArt from '../assets/order/feature-delivery-v2.webp';
+import messageArt from '../assets/order/feature-communications-v2.webp';
+import marketingArt from '../assets/order/feature-marketing-v2.webp';
+import managementArt from '../assets/order/feature-management-v2.webp';
+import bookingArt from '../assets/order/feature-booking-v2.webp';
+import automationArt from '../assets/order/feature-ai-v2.webp';
+import integrationsArt from '../assets/order/feature-integrations-v2.webp';
+import subscriptionArt from '../assets/order/support-v2.webp';
 import { OrderSkeleton } from './OrderSkeleton';
 import { OrderInfoSheet } from './OrderInfoSheet';
 import { featureInfo, supportBenefitDetails, supportBenefitsByPlan, supportInfo, templateInfo } from './orderInfo';
@@ -26,15 +30,15 @@ const art: Record<string, string> = {
   services: servicesArt,
 };
 const featureArt: Record<string, string> = {
-  'constructor.basicFeatures': shopArt,
+  'constructor.basicFeatures': basicArt,
   'constructor.paymentsCategory': paymentsArt,
   'constructor.deliveryCategory': deliveryArt,
   'constructor.communicationsCategory': messageArt,
   'constructor.marketingCategory': marketingArt,
-  'constructor.managementCategory': automationArt,
-  'constructor.bookingCategory': servicesArt,
+  'constructor.managementCategory': managementArt,
+  'constructor.bookingCategory': bookingArt,
   'constructor.aiAutomationCategory': automationArt,
-  'constructor.integrationsCategory': automationArt,
+  'constructor.integrationsCategory': integrationsArt,
 };
 const yearlyPrices: Record<string, number> = { minimal: 99000, standard: 149000, premium: 249000 };
 const money = (amount: number) => `${new Intl.NumberFormat('ru-RU').format(amount)} ₽`;
