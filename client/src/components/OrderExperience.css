@@ -15,6 +15,8 @@
 .order-page button:focus-visible, .order-page input:focus-visible, .order-page summary:focus-visible { outline: 2px solid #25272a; outline-offset: 3px; }
 .order-shell { width: 100%; max-width: 390px; margin: 0 auto; }
 .order-heading { text-align: center; }
+.order-heading, .order-template-list, .order-features, .order-review { animation: order-step-enter .16s ease-out both; }
+@keyframes order-step-enter { from { opacity: .86; transform: translate3d(0, 4px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
 .order-progress { display: flex; align-items: center; justify-content: space-between; min-height: 44px; }
 .order-progress-label { color: #62656c; font-size: 11px; font-weight: 700; letter-spacing: .13em; }
 .order-progress-label span { color: #c8c9cc; margin: 0 3px; }
@@ -121,7 +123,7 @@
 .order-plan-benefits { flex: 0 0 100%; margin: -2px 0 0; padding: 0 11px 12px; color: #62656c; font-size: 12px; line-height: 1.4; }
 
 /* A single persistent action sits above, rather than underneath, the app navigation. */
-.order-sticky-bar { position: fixed; z-index: 49; left: 0; right: 0; margin-inline: auto; bottom: calc(74px + var(--order-safe-bottom, 12px)); width: min(390px, calc(100vw - 32px)); display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 16px; border: 1px solid rgba(224,226,229,.95); border-radius: 21px; background: rgba(255,255,255,.96); box-shadow: 0 8px 32px rgba(35,39,47,.14); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+.order-sticky-bar { position: fixed; z-index: 49; left: 0; right: 0; margin-inline: auto; bottom: calc(74px + var(--order-safe-bottom, 12px)); width: min(390px, calc(100vw - 32px)); display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 16px; border: 1px solid rgba(224,226,229,.95); border-radius: 21px; background: #fff; box-shadow: 0 8px 32px rgba(35,39,47,.14); }
 .order-sticky-copy { flex: 1; min-width: 0; display: grid; gap: 3px; }
 .order-sticky-copy small { color: #62656c; font-size: 11px; line-height: 1.2; }
 .order-sticky-copy strong { color: #202124; font-size: 16px; line-height: 1.15; white-space: nowrap; }

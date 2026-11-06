@@ -30,8 +30,13 @@ async function tap(locator) {
 async function openFeature(page, id) {
   const catalog = page.getByTestId('order-all-features');
   if (!await catalog.evaluate(el => el.open)) await tap(catalog.locator(':scope > summary'));
-  const group = page.locator('.order-group').filter({ has: page.getByTestId(`feature-${id}`) });
-  if (!await group.evaluate(el => el.open)) await tap(group.locator(':scope > summary'));
+  await page.locator('.order-group').first().waitFor();
+  for (const group of await page.locator('.order-group').all()) {
+    if (!await group.evaluate(el => el.open)) await tap(group.locator(':scope > summary'));
+    await group.locator('.order-feature').first().waitFor();
+    if (await group.getByTestId(`feature-${id}`).count()) return;
+  }
+  throw new Error(`Feature ${id} not found in any category`);
 }
 
 (async () => {
@@ -40,17 +45,28 @@ async function openFeature(page, id) {
     const loadingContext = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, locale: 'ru-RU', reducedMotion: 'reduce', serviceWorkers: 'block' });
     await loadingContext.addInitScript(() => localStorage.setItem('app-language', 'ru'));
     await loadingContext.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
-    await loadingContext.route('**/*shop-v6*.webp*', async route => { await new Promise(resolve => setTimeout(resolve, 1200)); await route.continue(); });
+    let releaseImage;
+    let imageRequested;
+    const imageHeld = new Promise(resolve => { releaseImage = resolve; });
+    const requestObserved = new Promise(resolve => { imageRequested = resolve; });
+    await loadingContext.route('**/*shop-v6*.webp*', async route => {
+      // Vite serves an image URL as a JS module ending in ?import; delay the actual image, not its module.
+      if (new URL(route.request().url()).searchParams.has('import')) { await route.continue(); return; }
+      imageRequested(); await imageHeld; await route.continue().catch(() => {});
+    });
     const loadingPage = await loadingContext.newPage();
-    await loadingPage.goto(new URL('/#/constructor', site).href, { waitUntil: 'domcontentloaded' });
-    const skeleton = loadingPage.getByTestId('order-skeleton');
-    await skeleton.waitFor({ state: 'visible', timeout: 20000 });
-    assert.equal(await skeleton.getAttribute('aria-busy'), 'true');
-    assert.equal(await skeleton.locator('.profile-skeleton').first().evaluate(el => getComputedStyle(el).animationName), 'none');
-    await loadingPage.getByTestId('order-page').waitFor({ state: 'visible', timeout: 20000 });
-    assert.equal(await skeleton.count(), 0);
-    await loadingContext.close();
-    console.log('Loading: accessible skeleton and reduced-motion behavior passed');
+    try {
+      await loadingPage.goto(new URL('/#/constructor', site).href, { waitUntil: 'domcontentloaded' });
+      await loadingPage.getByTestId('order-page').waitFor({ state: 'visible', timeout: 20000 });
+      await Promise.race([requestObserved, new Promise((_, reject) => setTimeout(() => reject(new Error('Expected held image request')), 5000))]);
+      assert.equal(await loadingPage.getByTestId('template-ecommerce-basic').locator('img').evaluate(img => img.complete), false, 'One direction image is still loading');
+      await tap(loadingPage.getByTestId('template-services'));
+      assert.equal(await loadingPage.getByTestId('order-page').getAttribute('data-order-step'), '2', 'Order remains interactive while an image is loading');
+    } finally {
+      releaseImage();
+      await loadingContext.close();
+    }
+    console.log('Loading: order is usable before all direction images finish');
     for (const width of [320, 390, 430]) {
       const { context, page, errors } = await open(browser, width);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
@@ -85,11 +101,42 @@ async function openFeature(page, id) {
       assert.deepEqual(errors, []);
       if (width !== 390) { await context.close(); console.log(`${width}px: choice, assets, white footer and layout passed`); continue; }
 
+      const catalog = page.getByTestId('order-all-features');
+      assert.equal(await catalog.evaluate(el => el.open), false);
+      assert.equal(await page.locator('.order-group').count(), 0, 'Closed catalog should not mount its category rows');
+      assert.equal(await page.getByTestId('feature-search').count(), 0);
+      const recommendedSearch = page.getByTestId('recommended-feature-search');
+      await tap(recommendedSearch);
+      assert.equal(await recommendedSearch.getAttribute('aria-pressed'), 'true');
+      assert.match(text(await page.getByTestId('order-running-total').innerText()), /170 000/);
+      await tap(catalog.locator(':scope > summary'));
+      const basicGroup = page.locator('.order-group[data-feature-category="constructor.basicFeatures"]');
+      await basicGroup.waitFor();
+      await tap(basicGroup.locator(':scope > summary'));
+      const catalogSearch = page.getByTestId('feature-search');
+      await catalogSearch.waitFor();
+      assert.equal(await catalogSearch.getAttribute('aria-pressed'), 'true', 'Recommendation and catalog share the same selection');
+      assert.match(text(await catalogSearch.locator('.order-feature-cost').innerText()), /20 000/);
+      await tap(catalog.locator(':scope > summary'));
+      await basicGroup.waitFor({ state: 'detached' });
+      assert.equal(await page.locator('.order-group').count(), 0, 'Closing the catalog unmounts its rows');
+      await tap(catalog.locator(':scope > summary'));
+      await basicGroup.waitFor();
+      assert.equal(await basicGroup.evaluate(el => el.open), true, 'Reopening the catalog preserves open categories');
+      await catalogSearch.waitFor();
+      assert.equal(await catalogSearch.getAttribute('aria-pressed'), 'true', 'Reopening the catalog preserves the selection');
+      await tap(recommendedSearch);
+      assert.equal(await catalogSearch.getAttribute('aria-pressed'), 'false');
+      assert.match(text(await page.getByTestId('order-running-total').innerText()), /150 000/);
+      await tap(catalog.locator(':scope > summary'));
+
       await page.locator('#order-project-name').fill('Магазин №1 & Ко');
       await tap(page.getByTestId('order-all-features').locator(':scope > summary'));
+      await page.locator('.order-group').first().waitFor();
       let featureCount = 0;
       for (const group of await page.locator('.order-group').all()) {
         if (!await group.evaluate(el => el.open)) await tap(group.locator('summary'));
+        await group.locator('.order-feature').first().waitFor();
         for (const feature of await group.locator('.order-feature').all()) {
           featureCount++;
           const included = await feature.getAttribute('aria-disabled') === 'true';

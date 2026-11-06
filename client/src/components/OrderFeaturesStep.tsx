@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Check, ChevronDown, ChevronRight, Info, Plus } from 'lucide-react';
 import { appTemplatesBase, availableFeaturesBase, categoryKeys } from './orderCatalog';
 import './OrderFeaturesStep.css';
@@ -26,9 +27,12 @@ const suggestions: Record<string, string[]> = {
   services: ['calendar-sync', 'push-notifications', 'reviews', 'basic-analytics'],
 };
 
-const money = (amount: number) => `${new Intl.NumberFormat('ru-RU').format(amount)} ₽`;
+const numberFormat = new Intl.NumberFormat('ru-RU');
+const money = (amount: number) => `${numberFormat.format(amount)} ₽`;
 
 export function OrderFeaturesStep({ ru, t, template, artSrc, projectName, onProjectNameChange, includedIds, extras, onToggleFeature, onFeatureInfo, onChangeTemplate, total }: Props) {
+  const [catalogOpen, setCatalogOpen] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const included = availableFeaturesBase.filter((feature) => includedIds.has(feature.id));
   const suggested = (suggestions[template.id] || [])
     .map((id) => availableFeaturesBase.find((feature) => feature.id === id))
@@ -71,18 +75,22 @@ export function OrderFeaturesStep({ ru, t, template, artSrc, projectName, onProj
       <div className="order-suggestion-list">{suggested.map((feature) => featureRow(feature, 'recommended'))}</div>
     </div>}
 
-    <details className="order-feature-catalog" data-testid="order-all-features">
+    <details className="order-feature-catalog" data-testid="order-all-features" onToggle={(event) => { if (event.target === event.currentTarget) setCatalogOpen(event.currentTarget.open); }}>
       <summary><span><strong>{ru ? 'Все возможности' : 'All features'}</strong><small>{ru ? 'Посмотреть все категории' : 'Browse all categories'}</small></span><ChevronDown size={18} aria-hidden="true" /></summary>
-      <div className="order-feature-groups">
+      {catalogOpen && <div className="order-feature-groups">
         {categoryKeys.map((key) => {
           const features = availableFeaturesBase.filter((feature) => feature.categoryKey === key);
           const selectedCount = features.filter((feature) => includedIds.has(feature.id) || extras.includes(feature.id)).length;
-          return <details className="order-group" key={key}>
+          return <details className="order-group" data-feature-category={key} key={key} open={!!openGroups[key]} onToggle={(event) => {
+            if (event.target !== event.currentTarget) return;
+            const open = event.currentTarget.open;
+            setOpenGroups((current) => Boolean(current[key]) === open ? current : { ...current, [key]: open });
+          }}>
             <summary><span>{t(key)}</span><span className="order-group-meta">{selectedCount > 0 && <small aria-label={ru ? `Выбрано: ${selectedCount}` : `Selected: ${selectedCount}`}>{selectedCount}</small>}<ChevronDown size={17} aria-hidden="true" /></span></summary>
-            <div className="order-group-list">{features.map((feature) => featureRow(feature, 'catalog'))}</div>
+            {openGroups[key] && <div className="order-group-list">{features.map((feature) => featureRow(feature, 'catalog'))}</div>}
           </details>;
         })}
-      </div>
+      </div>}
     </details>
     <div className="order-price-inline"><span>{ru ? 'Ориентировочно за разработку' : 'Estimated development'}</span><strong data-testid="order-running-total">{money(total)}</strong></div>
   </section>;

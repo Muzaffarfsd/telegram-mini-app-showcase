@@ -44,7 +44,8 @@ const featureArt: Record<string, string> = {
   'constructor.integrationsCategory': integrationsArt,
 };
 const yearlyPrices: Record<string, number> = { minimal: 99000, standard: 149000, premium: 249000 };
-const money = (amount: number) => `${new Intl.NumberFormat('ru-RU').format(amount)} ₽`;
+const priceFormatter = new Intl.NumberFormat('ru-RU');
+const money = (amount: number) => `${priceFormatter.format(amount)} ₽`;
 const directionDescriptions: Record<string, { ru: string; en: string }> = {
   'ecommerce-basic': { ru: 'Каталог, корзина и оплата', en: 'Catalog, cart and payments' },
   restaurant: { ru: 'Меню, заказы и бронирование', en: 'Menu, orders and bookings' },
@@ -62,7 +63,6 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   const [planId, setPlanId] = useState<string | null>(null);
   const [annual, setAnnual] = useState(false);
   const [notice, setNotice] = useState('');
-  const [artReady, setArtReady] = useState(false);
   const [info, setInfo] = useState<{ kind: 'template' | 'feature' | 'plan'; id: string } | null>(null);
   const [pendingTemplate, setPendingTemplate] = useState<Template | null>(null);
   const draft = useOrderDraft({ step, templateId, extras, projectName, planId, annual });
@@ -123,26 +123,14 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   }, [annual, extraTotal, includedIds, plan, projectName, ru, selectedExtras, t, template, total]);
 
   const continueOrder = useCallback(() => {
-    if (!artReady || info || pendingTemplate || draft.pendingDraft) return;
+    if (info || pendingTemplate || draft.pendingDraft) return;
     if (step === 1 && !template) {
       setNotice(ru ? 'Выберите направление приложения' : 'Choose an app type');
       return;
     }
     if (step < 3) moveTo(step + 1);
     else openRequest();
-  }, [artReady, info, pendingTemplate, draft.pendingDraft, moveTo, openRequest, ru, step, template]);
-
-  useEffect(() => {
-    let active = true;
-    const timer = window.setTimeout(() => { if (active) setArtReady(true); }, 6000);
-    Promise.all(Object.values(art).map((src) => new Promise<void>((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve();
-      img.onerror = () => resolve();
-      img.src = src;
-    }))).then(() => { if (active) { window.clearTimeout(timer); setArtReady(true); } });
-    return () => { active = false; window.clearTimeout(timer); };
-  }, []);
+  }, [info, pendingTemplate, draft.pendingDraft, moveTo, openRequest, ru, step, template]);
 
   useEffect(() => {
     window.addEventListener('web4tg:order-continue', continueOrder);
@@ -154,14 +142,14 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
     }));
   }, [step, ru]);
   useEffect(() => {
-    if (previousStep.current !== step) {
+    if (!info && previousStep.current !== step) {
       previousStep.current = step;
       const frame = requestAnimationFrame(() => headingRef.current?.focus({ preventScroll: true }));
       return () => cancelAnimationFrame(frame);
     }
-  }, [step]);
+  }, [step, info]);
 
-  if (!artReady || !draft.ready) return <OrderSkeleton label={ru ? 'Загрузка страницы заказа' : 'Loading order page'} />;
+  if (!draft.ready) return <OrderSkeleton label={ru ? 'Загрузка страницы заказа' : 'Loading order page'} />;
 
   const infoTemplate = info?.kind === 'template' ? appTemplatesBase.find((item) => item.id === info.id) : undefined;
   const infoFeature = info?.kind === 'feature' ? availableFeaturesBase.find((item) => item.id === info.id) : undefined;
@@ -176,7 +164,7 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   return (
     <main className="order-page" data-order-step={step} data-testid="order-page">
       <div className="order-shell">
-        <header className="order-heading">
+        <header className="order-heading" key={step}>
           <div className="order-progress" aria-label={ru ? `Шаг ${step} из 3` : `Step ${step} of 3`}>
             {step > 1 ? <button className="order-back" type="button" onClick={() => moveTo(step - 1)} aria-label={ru ? 'Назад' : 'Back'} data-testid="order-back"><ArrowLeft size={19} /></button> : <span className="order-progress-spacer" />}
             <span className="order-progress-label">{ru ? 'ШАГ' : 'STEP'} {String(step).padStart(2, '0')} <span>/</span> 03</span>
@@ -217,7 +205,7 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
         price={infoTemplate ? `${ru ? 'от' : 'from'} ${money(infoTemplate.estimatedPrice)}` : infoFeature ? (infoIncluded ? (ru ? 'Включено' : 'Included') : `+ ${money(infoFeature.price)}`) : infoPlan ? `${money(annual ? yearlyPrices[infoPlan.id] : infoPlan.price)}${annual ? (ru ? '/год' : '/year') : (ru ? '/мес' : '/month')}` : ''}
         action={infoTemplate ? (templateId === infoTemplate.id ? (ru ? 'Выбрано' : 'Selected') : (ru ? 'Выбрать направление' : 'Choose this type')) : infoFeature ? (infoIncluded ? (ru ? 'Понятно' : 'Got it') : infoSelected ? (ru ? 'Убрать из заказа' : 'Remove from order') : (ru ? 'Добавить в заказ' : 'Add to order')) : infoPlan && planId === infoPlan.id ? (ru ? 'Выбрано' : 'Selected') : (ru ? 'Выбрать поддержку' : 'Choose support')}
         onClose={() => setInfo(null)}
-        onAction={() => { if (infoTemplate) chooseTemplate(infoTemplate); if (infoFeature && !infoIncluded) toggleFeature(infoFeature.id); if (infoPlan) setPlanId(infoPlan.id); setInfo(null); }}
+        onAction={() => { if (infoTemplate) chooseTemplate(infoTemplate); if (infoFeature && !infoIncluded) toggleFeature(infoFeature.id); if (infoPlan) setPlanId(infoPlan.id); }}
       />}
       {draft.pendingDraft && <OrderDecisionDialog testId="order-draft-dialog" title={ru ? 'Продолжить заказ?' : 'Continue your order?'} description={ru ? 'На этом устройстве сохранён черновик. Он хранится здесь до 30 дней и не отправляется автоматически.' : 'A draft is saved on this device for up to 30 days. It is not sent automatically.'} primary={ru ? 'Восстановить' : 'Restore'} secondary={ru ? 'Начать заново' : 'Start over'} onPrimary={() => draft.restoreDraft((saved) => { setTemplateId(saved.templateId); setExtras(saved.extras); setProjectName(saved.projectName); setPlanId(saved.planId); setAnnual(saved.annual); moveTo(saved.step); })} onSecondary={() => draft.startNew(() => { setTemplateId(null); setExtras([]); setProjectName(''); setPlanId(null); setAnnual(false); moveTo(1); })} />}
       {pendingTemplate && !draft.pendingDraft && <OrderDecisionDialog testId="order-switch-dialog" title={ru ? 'Сменить направление?' : 'Change direction?'} description={ru ? 'Дополнительные функции будут сброшены. Название и выбранная поддержка сохранятся.' : 'Additional features will be reset. Your project name and selected support will stay.'} primary={ru ? 'Сменить направление' : 'Change direction'} secondary={ru ? 'Оставить прежнее' : 'Keep current'} onPrimary={() => { const next = pendingTemplate; setPendingTemplate(null); applyTemplate(next); }} onSecondary={() => setPendingTemplate(null)} onCancel={() => setPendingTemplate(null)} />}

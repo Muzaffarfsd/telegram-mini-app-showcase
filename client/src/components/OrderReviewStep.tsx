@@ -10,7 +10,8 @@ type Props = {
   planId: string | null; annual: boolean; yearlyPrices: Record<string, number>;
   onEdit: () => void; onPlan: (id: string | null) => void; onAnnual: (annual: boolean) => void; onPlanInfo: (id: string) => void;
 };
-const money = (amount: number) => `${new Intl.NumberFormat('ru-RU').format(amount)} ₽`;
+const priceFormatter = new Intl.NumberFormat('ru-RU');
+const money = (amount: number) => `${priceFormatter.format(amount)} ₽`;
 const comparison: Record<string, string[]> = {
   minimal: ['monthlyBackups', 'emailSupport'],
   standard: ['weeklyBackups', 'prioritySupport', 'response2h'],

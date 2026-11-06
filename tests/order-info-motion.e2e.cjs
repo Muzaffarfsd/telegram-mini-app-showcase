@@ -53,6 +53,33 @@ async function startTouch(page) {
     {
       const { context, page, errors } = await open(browser);
       await openTemplate(page);
+      await page.waitForTimeout(250);
+      await page.evaluate(() => {
+        document.addEventListener('click', (event) => {
+          if (!event.target.closest('[data-testid="order-info-action"]')) return;
+          const start = performance.now();
+          const observer = new MutationObserver(() => {
+            if (document.querySelector('[data-testid="order-page"]')?.dataset.orderStep !== '2') return;
+            window.__orderActionTrace = { elapsed: performance.now() - start, sheetPresent: Boolean(document.querySelector('[data-testid="order-info-sheet"]')) };
+            observer.disconnect();
+          });
+          observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['data-order-step'] });
+        }, { capture: true, once: true });
+      });
+      await page.getByTestId('order-info-action').tap();
+      await page.waitForFunction(() => window.__orderActionTrace);
+      const trace = await page.evaluate(() => window.__orderActionTrace);
+      assert.equal(trace.sheetPresent, true, 'The selected direction should open while the sheet is still animating out');
+      await page.getByTestId('order-info-sheet').waitFor({ state: 'detached' });
+      assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '2');
+      assert.deepEqual(errors, []);
+      await context.close();
+      console.log(`Sheet action: step committed in ${Math.round(trace.elapsed)}ms before the exit animation completed`);
+    }
+
+    {
+      const { context, page, errors } = await open(browser);
+      await openTemplate(page);
       const trace = await page.evaluate(() => new Promise(resolve => {
         const sheet = document.querySelector('.order-info-sheet');
         const samples = [];

@@ -32,8 +32,13 @@ async function tap(locator) {
 async function openFeature(page, id) {
   const catalog = page.getByTestId('order-all-features');
   if (!await catalog.evaluate(el => el.open)) await tap(catalog.locator(':scope > summary'));
-  const group = page.locator('.order-group').filter({ has: page.getByTestId(`feature-${id}`) });
-  if (!await group.evaluate(el => el.open)) await tap(group.locator(':scope > summary'));
+  await page.locator('.order-group').first().waitFor();
+  for (const group of await page.locator('.order-group').all()) {
+    if (!await group.evaluate(el => el.open)) await tap(group.locator(':scope > summary'));
+    await group.locator('.order-feature').first().waitFor();
+    if (await group.getByTestId(`feature-${id}`).count()) return;
+  }
+  throw new Error(`Feature ${id} not found in any category`);
 }
 
 async function closeSheet(page) {
@@ -107,6 +112,7 @@ async function swipeHandle(page, distance) {
           let checkedTitles = 0;
           for (const group of await page.locator('.order-group').all()) {
             if (!await group.evaluate(el => el.open)) await tap(group.locator('summary'));
+            await group.locator('.order-feature').first().waitFor();
             for (const infoButton of await group.locator('[data-testid^="feature-info-"]').all()) {
               await tap(infoButton);
               const title = page.locator('#order-info-title');
@@ -132,6 +138,7 @@ async function swipeHandle(page, distance) {
       let count = 0;
       for (const group of await page.locator('.order-group').all()) {
         if (!await group.evaluate(el => el.open)) await tap(group.locator('summary'));
+        await group.locator('.order-feature').first().waitFor();
         for (const infoButton of await group.locator('[data-testid^="feature-info-"]').all()) {
           count++;
           const id = (await infoButton.getAttribute('data-testid')).replace('feature-info-', '');
