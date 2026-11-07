@@ -786,6 +786,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Playwright at 320, 390 and 430 px: no horizontal overflow or page errors, filters and list view work; all ten demo routes open. Vite production build passed; the existing `cp` step is unavailable on Windows, so assets were copied with PowerShell. Screenshots: `../folder-showcase-390.png`, `../folder-showcase-middle.png`, `../folder-showcase-bottom.png`.
 
 ---
+## 2026-11-07 · Showcase category labels and stickers
+
+**What:** Replaced application names with category labels and redrew the ten stickers as flat cut-out graphic marks following the supplied reference.
+**Files:** client/src/components/ProjectsPage.tsx, StoreStickers.tsx.
+**Checkpoint:** `db34351`.
+**Verification:** Playwright at 320, 390 and 430 px: all ten labels fit, no horizontal overflow or page errors, category filter and list view work. Visually reviewed `../folder-stickers-v3-top.png` and `../folder-stickers-v3-bottom.png`. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -797,4 +805,5 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 

@@ -8,16 +8,16 @@ import './ProjectsShowcase.css';
 interface ProjectsPageProps { onNavigate: (section: string) => void; onOpenDemo: (demoId: string) => void }
 type Category = 'all' | 'shops' | 'services';
 const stores = [
-  { id: 'flower-store', name: 'FLORA', ru: 'Цветы и подарки', en: 'Flowers & gifts', category: 'shops', paper: 'rose' },
-  { id: 'apple-store', name: 'APPLE', ru: 'Магазин техники', en: 'Technology store', category: 'shops', paper: 'blue' },
-  { id: 'muraka-fashion', name: 'MURAKA', ru: 'Магазин одежды', en: 'Fashion store', category: 'shops', paper: 'sand' },
-  { id: 'nike-sneakers', name: 'NIKE', ru: 'Магазин кроссовок', en: 'Sneaker store', category: 'shops', paper: 'lime' },
-  { id: 'lumi-studio', name: 'LUMI', ru: 'Студия красоты', en: 'Beauty studio', category: 'services', paper: 'rose' },
-  { id: 'china-buyer', name: 'CHINA BUYER', ru: 'Байер из Китая', en: 'China sourcing', category: 'services', paper: 'sand' },
-  { id: 'medical-center', name: 'MEDICAL', ru: 'Медицинский центр', en: 'Medical center', category: 'services', paper: 'blue' },
-  { id: 'opt-market', name: 'ПАРТИЯ', ru: 'Оптовые закупки', en: 'Wholesale', category: 'shops', paper: 'sand' },
-  { id: 'women-fashion', name: 'MIRA', ru: 'Женская одежда', en: 'Women’s fashion', category: 'shops', paper: 'rose' },
-  { id: 'skincare-aura', name: 'AURA', ru: 'Косметика и уход', en: 'Skincare', category: 'shops', paper: 'lime' },
+  { id: 'flower-store', ru: 'Магазин цветов', en: 'Flower shop', category: 'shops', paper: 'rose' },
+  { id: 'apple-store', ru: 'Магазин Apple', en: 'Apple store', category: 'shops', paper: 'blue' },
+  { id: 'muraka-fashion', ru: 'Магазин одежды', en: 'Clothing store', category: 'shops', paper: 'sand' },
+  { id: 'nike-sneakers', ru: 'Магазин обуви', en: 'Shoe store', category: 'shops', paper: 'lime' },
+  { id: 'lumi-studio', ru: 'Студия красоты', en: 'Beauty studio', category: 'services', paper: 'rose' },
+  { id: 'china-buyer', ru: 'Байер из Китая', en: 'China sourcing', category: 'services', paper: 'sand' },
+  { id: 'medical-center', ru: 'Медицинский центр', en: 'Medical center', category: 'services', paper: 'blue' },
+  { id: 'opt-market', ru: 'Оптовый магазин', en: 'Wholesale store', category: 'shops', paper: 'sand' },
+  { id: 'women-fashion', ru: 'Женская одежда', en: 'Women’s clothing', category: 'shops', paper: 'rose' },
+  { id: 'skincare-aura', ru: 'Магазин косметики', en: 'Skincare store', category: 'shops', paper: 'lime' },
 ] as const;
 
 function Folder({ id, paper }: { id: string; paper: string }) {
@@ -55,8 +55,8 @@ export default memo(function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
     </header>
     <div className="ps-filters" aria-label={ru ? 'Направления' : 'Categories'}>{filters.map(filter => <button key={filter.id} type="button" aria-pressed={category === filter.id} onClick={() => setCategory(filter.id)}>{filter.label}</button>)}</div>
     <section className={`ps-grid${layout === 'list' ? ' ps-grid--list' : ''}`} aria-label={ru ? 'Примеры приложений' : 'App examples'}>
-      {filtered.map(store => <button key={store.id} type="button" className="ps-store" data-testid={`card-app-${store.id}`} aria-label={`${ru ? 'Открыть демо' : 'Open demo'} ${store.name}: ${ru ? store.ru : store.en}`} onClick={() => onOpenDemo(store.id)} onPointerEnter={() => preloadDemo(store.id)} onTouchStart={() => preloadDemo(store.id)}>
-        <Folder id={store.id} paper={store.paper}/><span className="ps-store__copy"><strong>{store.name}</strong><small>{ru ? store.ru : store.en}</small></span>
+      {filtered.map(store => <button key={store.id} type="button" className="ps-store" data-testid={`card-app-${store.id}`} aria-label={`${ru ? 'Открыть демо' : 'Open demo'}: ${ru ? store.ru : store.en}`} onClick={() => onOpenDemo(store.id)} onPointerEnter={() => preloadDemo(store.id)} onTouchStart={() => preloadDemo(store.id)}>
+        <Folder id={store.id} paper={store.paper}/><span className="ps-store__copy"><strong>{ru ? store.ru : store.en}</strong></span>
       </button>)}
     </section>
   </div></main>;

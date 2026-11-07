@@ -1,107 +1,83 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
 
-/** Original die-cut marks for the showcase folders. Each mark is drawn as vectors. */
+// Original die-cut symbols: bold silhouettes stay legible at folder scale.
 const artwork: Record<string, ReactNode> = {
-  "flower-store": (
-    <g transform="rotate(-8 50 50)">
-      <path d="M49 83 C46 66 48 51 51 39 M49 68 C39 65 35 59 33 54 C42 54 47 58 49 64 M49 61 C58 58 62 52 64 47 C56 48 51 52 49 57" fill="none" stroke="#fff" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M49 83 C46 66 48 51 51 39 M49 68 C39 65 35 59 33 54 C42 54 47 58 49 64 M49 61 C58 58 62 52 64 47 C56 48 51 52 49 57" fill="none" stroke="#315d48" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M50 18 C55 9 66 14 65 24 C75 20 81 30 74 37 C83 42 77 53 68 50 C67 60 55 62 50 54 C44 62 33 58 33 49 C23 52 18 41 27 36 C20 29 26 20 36 24 C35 14 45 10 50 18Z" fill="#d95e4b" stroke="#fff" strokeWidth="6" strokeLinejoin="round" />
-      <circle cx="50" cy="37" r="8" fill="#f7d6a3" />
-      <path d="M45 34l3 2m5-4l2 3m-8 5l2 2m5-3l2 1" stroke="#b66039" strokeWidth="1.8" strokeLinecap="round" />
+  'flower-store': (
+    <g transform="rotate(-8 50 50)" strokeLinejoin="round">
+      <path d="M50 51C38 47 30 37 31 25C32 15 42 12 50 20C58 12 68 15 69 25C70 37 62 47 50 51ZM50 51C39 54 25 52 19 43C14 35 20 27 30 30C31 40 39 48 50 51ZM50 51C61 54 75 52 81 43C86 35 80 27 70 30C69 40 61 48 50 51ZM50 51V78" fill="#e64947" stroke="#fff" strokeWidth="8" strokeLinecap="round" />
+      <path d="M50 51C38 47 30 37 31 25C32 15 42 12 50 20Z" fill="#f66e5d" />
+      <path d="M50 51C62 47 70 37 69 25C68 15 58 12 50 20Z" fill="#d83f50" />
+      <path d="M50 51C39 54 25 52 19 43C14 35 20 27 30 30C31 40 39 48 50 51Z" fill="#f3a441" />
+      <path d="M50 51C61 54 75 52 81 43C86 35 80 27 70 30C69 40 61 48 50 51Z" fill="#e95b4c" />
+      <path d="M50 51V78" fill="none" stroke="#1c7558" strokeWidth="7" strokeLinecap="round" />
     </g>
   ),
-  "apple-store": (
-    <g transform="rotate(9 50 50)">
-      <rect x="28" y="9" width="44" height="78" rx="11" fill="#333a40" stroke="#fff" strokeWidth="7" />
-      <rect x="32" y="13" width="36" height="70" rx="8" fill="#aab9bb" />
-      <path d="M36 17h28v38C56 47 47 48 36 55Z" fill="#e5d6c6" />
-      <path d="M36 57c10-9 20-8 28 0v21H36Z" fill="#7d9497" />
-      <rect x="43" y="16" width="14" height="4" rx="2" fill="#30383c" />
-      <path d="M75 66l3 5 6 1-4 4 1 6-6-3-5 3 1-6-4-4 6-1Z" fill="#f1c973" stroke="#fff" strokeWidth="4" strokeLinejoin="round" />
+  'apple-store': (
+    <g transform="rotate(7 50 50)" fill="#131313" stroke="#fff" strokeWidth="7" strokeLinejoin="round">
+      <path d="M51 25C47 16 51 8 63 7C64 17 59 23 51 25Z" />
+      <path d="M50 32C44 32 40 26 32 27C20 28 15 40 18 53C20 66 30 80 37 81C43 81 45 77 51 77C57 77 59 81 65 81C72 81 79 70 82 62C72 58 70 46 80 40C75 28 65 25 58 28C55 29 52 32 50 32Z" />
     </g>
   ),
-  "muraka-fashion": (
-    <g transform="rotate(-7 50 50)">
-      <path d="M17 22L35 16 50 43 65 16 83 22 88 78 69 82 67 49 50 74 33 49 31 82 12 78Z" fill="#241d20" stroke="#fff" strokeWidth="7" strokeLinejoin="round" />
-      <path d="M19 25l12-4 19 34 19-34 12 4" fill="none" stroke="#d1a6a0" strokeWidth="2" />
-      <path d="M28 72l2-22m42 22l-2-22" stroke="#777075" strokeWidth="2" strokeLinecap="round" />
+  'muraka-fashion': (
+    <g transform="rotate(-8 50 50)" strokeLinejoin="round">
+      <path d="M28 19L40 14C42 22 58 22 60 14L72 19 87 31 77 45 70 40 70 81H30V40L23 45 13 31Z" fill="#171717" stroke="#fff" strokeWidth="7" />
+      <path d="M40 15C42 22 58 22 60 15L65 18C63 29 37 29 35 18Z" fill="#c1a7a2" />
+      <path d="M30 69H70V81H30Z" fill="#b85e53" />
     </g>
   ),
-  "nike-sneakers": (
-    <g transform="rotate(-11 50 50)">
-      <path d="M16 55c7-2 10-8 13-19l9-4 9 11c8 5 16 8 28 10 8 1 12 6 12 14v5c-13 8-55 8-72 2-5-2-5-13 1-19Z" fill="#e7e4dd" stroke="#fff" strokeWidth="7" strokeLinejoin="round" />
-      <path d="M15 67c20 5 50 6 71-1v6c-18 7-53 8-71 2Z" fill="#26292a" />
-      <path d="M28 38l11-4 9 11 15 6-19 7-17-7Z" fill="#e4704c" />
-      <path d="M37 39l8 3m-10 2l9 3m-11 2l9 3" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M52 57c8 0 14-2 21-4-4 5-10 9-22 9Z" fill="#2c3335" />
-      <path d="M20 73c16 3 42 4 60 0" fill="none" stroke="#959899" strokeWidth="1.5" />
+  'nike-sneakers': (
+    <g transform="rotate(-9 50 50)" strokeLinejoin="round">
+      <path d="M13 51C20 50 25 44 29 30L41 25 51 40C58 45 68 49 80 52C86 54 89 59 88 69L85 75C67 80 35 81 14 75C10 74 10 59 13 51Z" fill="#141414" stroke="#fff" strokeWidth="7" />
+      <path d="M16 65C37 70 65 71 85 64L85 70C67 76 35 76 15 71Z" fill="#ef513e" />
+      <path d="M33 35L41 32 50 43 64 49 49 53 30 46Z" fill="#fff" />
     </g>
   ),
-  "lumi-studio": (
-    <g transform="rotate(8 50 50)">
-      <path d="M21 21c14 0 18 12 30 25l28 29-6 7-29-28C32 42 20 37 21 21Z" fill="#d4aaa0" stroke="#fff" strokeWidth="6" strokeLinejoin="round" />
-      <path d="M78 20C64 20 60 32 48 45L20 74l6 7 29-28C67 41 79 36 78 20Z" fill="#25282b" stroke="#fff" strokeWidth="6" strokeLinejoin="round" />
-      <circle cx="50" cy="49" r="4.5" fill="#f2d6b0" stroke="#fff" strokeWidth="2" />
-      <path d="M78 13l2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#e6ba63" stroke="#fff" strokeWidth="3" strokeLinejoin="round" />
-      <path d="M21 23l20 21M78 22L58 43" stroke="#f6ece8" strokeWidth="2" strokeLinecap="round" />
+  'lumi-studio': (
+    <g transform="rotate(10 50 50)" strokeLinejoin="round">
+      <path d="M22 17L52 43 77 16 84 23 58 50 84 76 77 83 51 57 24 84 17 77 44 50 16 24Z" fill="#1d1c1d" stroke="#fff" strokeWidth="7" />
+      <path d="M22 17L52 43 45 50 16 24Z" fill="#d75a78" />
+      <circle cx="51" cy="50" r="5" fill="#f4ca61" />
     </g>
   ),
-  "china-buyer": (
-    <g transform="rotate(-8 50 50)">
-      {/* A product tag, inspected through a loupe, with a small air-route mark. */}
-      <path d="M18 19h41l23 25-35 37-29-28Z" fill="#c84c3c" stroke="#fff" strokeWidth="7" strokeLinejoin="round" />
-      <path d="M24 25h31l19 20-27 28-23-23Z" fill="#db6551" />
-      <circle cx="34" cy="34" r="5" fill="#f6e9d7" />
-      <path d="M50 61l6-9-11-5 3-3 13 3 7-9c2-2 5 0 3 3l-7 9 5 12-3 3-7-10-7 8-1 6-3 2Z" fill="#fff4e5" />
-      <circle cx="40" cy="52" r="16" fill="#f0e9df" fillOpacity=".25" stroke="#fff" strokeWidth="8" />
-      <path d="M51 63l13 13" stroke="#fff" strokeWidth="11" strokeLinecap="round" />
-      <circle cx="40" cy="52" r="16" fill="none" stroke="#283636" strokeWidth="4" />
-      <path d="M51 63l13 13" stroke="#283636" strokeWidth="5" strokeLinecap="round" />
-      <path d="M31 49c1-4 4-7 8-8" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+  'china-buyer': (
+    <g transform="rotate(-8 50 50)" strokeLinejoin="round">
+      <path d="M10 53L39 49 57 15C60 10 65 10 66 15L62 45 81 42C87 41 90 43 90 47C90 51 86 53 81 55L62 60 65 77 59 81 48 63 31 68 25 78 20 79 22 65 11 60Z" fill="#da483a" stroke="#fff" strokeWidth="7" />
+      <path d="M23 54L41 51 56 21 54 53 78 48 58 57 58 69 51 59 31 65Z" fill="#f17a55" />
     </g>
   ),
-  "medical-center": (
-    <g transform="rotate(8 50 50)">
-      <path d="M39 14h22v23h23v23H61v24H39V60H16V37h23Z" fill="#456d67" stroke="#fff" strokeWidth="7" strokeLinejoin="round" />
-      <path d="M27 49h12l5-10 8 21 5-11h16" fill="none" stroke="#e4eee8" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="75" cy="74" r="11" fill="#e4b9a6" stroke="#fff" strokeWidth="4" />
-      <path d="M71 74h8m-4-4v8" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" />
+  'medical-center': (
+    <g transform="rotate(7 50 50)" strokeLinejoin="round">
+      <path d="M37 13H63V36H86V63H63V86H37V63H14V36H37Z" fill="#1d7c69" stroke="#fff" strokeWidth="7" />
+      <path d="M22 50H38L43 40 51 61 57 48H78" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
     </g>
   ),
-  "opt-market": (
-    <g transform="rotate(-6 50 50)">
-      <path d="M15 29l35-14 35 14v41L50 85 15 70Z" fill="#d3b387" stroke="#fff" strokeWidth="7" strokeLinejoin="round" />
-      <path d="M15 29l35 15 35-15M50 44v41" fill="none" stroke="#79634e" strokeWidth="2" />
-      <path d="M33 22l35 15-9 4-35-15Z" fill="#eee2cc" />
-      <path d="M22 47l18 7v15l-18-7Z" fill="#f6f1e9" />
-      <path d="M26 52l10 4m-10 0l7 3m-7 1l9 3" stroke="#776b5e" strokeWidth="1.5" />
-      <path d="M66 57v15m-5-10l5-5 5 5" fill="none" stroke="#6c5b49" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+  'opt-market': (
+    <g transform="rotate(-7 50 50)" strokeLinejoin="round">
+      <path d="M50 9L88 28V70L50 90 12 70V28Z" fill="#1762d7" stroke="#fff" strokeWidth="7" />
+      <path d="M50 9L88 28 50 47 12 28Z" fill="#62a3ff" />
+      <path d="M50 47L88 28V70L50 90Z" fill="#0046b4" />
+      <path d="M50 47L12 28M50 47L88 28M50 47V87" fill="none" stroke="#fff" strokeWidth="4" />
     </g>
   ),
-  "women-fashion": (
-    <g transform="rotate(7 50 50)">
-      <path d="M34 15l8 4c2 5 5 7 8 7s6-2 8-7l8-4 10 14-9 7-4-5-3 13 14 37H26l14-37-3-13-4 5-9-7Z" fill="#ac554b" stroke="#fff" strokeWidth="7" strokeLinejoin="round" />
-      <path d="M42 19c1 6 4 10 8 10s7-4 8-10M40 44h20M50 46v30" fill="none" stroke="#f0c7b8" strokeWidth="2" />
-      <path d="M31 77h38" stroke="#843e39" strokeWidth="2" />
+  'women-fashion': (
+    <g transform="rotate(7 50 50)" strokeLinejoin="round">
+      <path d="M37 14L49 24 62 14 73 25 64 35 62 44 79 82H21L38 44 35 35 27 25Z" fill="#171717" stroke="#fff" strokeWidth="7" />
+      <path d="M38 44L62 44 79 82H57Z" fill="#a7374f" />
+      <path d="M49 24L62 14 73 25 64 35 62 44H50Z" fill="#323133" />
+      <path d="M38 44H62" fill="none" stroke="#fff" strokeWidth="3.5" />
     </g>
   ),
-  "skincare-aura": (
-    <g transform="rotate(-9 50 50)">
-      <path d="M36 12h28v13H36Z" fill="#3e4b41" stroke="#fff" strokeWidth="6" strokeLinejoin="round" />
-      <path d="M31 24h38v11c0 5 5 7 5 13v29c0 6-4 10-10 10H36c-6 0-10-4-10-10V48c0-6 5-8 5-13Z" fill="#e4d9c5" stroke="#fff" strokeWidth="7" strokeLinejoin="round" />
-      <path d="M30 46h40v27H30Z" fill="#a6b49a" />
-      <path d="M50 50c-3 5-6 8-6 11a6 6 0 0012 0c0-3-3-6-6-11Z" fill="#f5eee0" />
-      <path d="M38 78h24" stroke="#b4a48d" strokeWidth="2" strokeLinecap="round" />
+  'skincare-aura': (
+    <g transform="rotate(-8 50 50)" strokeLinejoin="round">
+      <path d="M50 10C42 23 22 41 22 58C22 74 34 85 50 85C66 85 78 74 78 58C78 41 58 23 50 10Z" fill="#216c73" stroke="#fff" strokeWidth="7" />
+      <path d="M50 28C45 39 35 48 35 59C35 68 41 74 50 75C59 75 65 68 65 59C65 48 55 38 50 28Z" fill="#64c8be" />
+      <path d="M36 59C36 52 40 46 44 41" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
     </g>
   ),
 };
 
 export function StoreStickers({ id, className }: { id: string; className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 100 100" fill="none" aria-hidden="true" focusable="false">
-      {artwork[id] ?? artwork["opt-market"]}
-    </svg>
-  );
+  return <svg className={className} viewBox="0 0 100 100" fill="none" aria-hidden="true" focusable="false">{artwork[id] ?? artwork['opt-market']}</svg>;
 }
+
 
