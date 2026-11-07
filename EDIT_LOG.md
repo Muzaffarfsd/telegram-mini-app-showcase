@@ -947,6 +947,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Checked the Russian heading in local Chromium at 320 and 390 px; the narrow heading fits on one line without horizontal overflow.
 
 ---
+## 2026-11-07 · Regenerate About hero illustration
+
+**What:** Replaced the first-screen illustration with a new creative kit, and updated its alternative text in Russian and English.
+**Why:** The user rejected the previous icon and reiterated that each reference uses a meaningful, distinct physical composition.
+**Files:** `client/public/about-studio/hero.webp`, `client/src/components/AboutPage.tsx`.
+**Checkpoint:** `257dd7e`.
+**Verification:** Inspected alpha on white and gray; reviewed the About page at 320 and 390 px in Chromium, with the image loaded, no horizontal overflow and no page errors. The new artwork has not yet been evaluated by the user.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description

@@ -10,7 +10,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
   const copy = ru ? {
     eyebrow: 'СТУДИЯ WEB4TG', title: 'Приложения в Telegram',
     intro: 'Онлайн-магазины, запись на услуги и другие сервисы для вашего бизнеса.',
-    heroAlt: 'Органайзер с карточкой товара и листами',
+    heroAlt: 'Творческий набор с макетом приложения',
     order: 'Обсудить проект', explore: 'Узнать о студии',
     sectionLabel: 'ОТ ИДЕИ ДО ЗАПУСКА', sectionTitle: 'Продумано для людей',
     sectionText: 'Соединяем задачи бизнеса и удобство клиентов в одном приложении.',
@@ -26,7 +26,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
   } : {
     eyebrow: 'WEB4TG STUDIO', title: 'Apps in Telegram',
     intro: 'Online stores, appointment booking and other services for your business.',
-    heroAlt: 'An organizer with a product card and sheets',
+    heroAlt: 'A creative kit with an app design',
     order: 'Discuss a project', explore: 'Discover the studio',
     sectionLabel: 'FROM IDEA TO LAUNCH', sectionTitle: 'Designed for people',
     sectionText: 'We bring business needs and customer experience together in one app.',
