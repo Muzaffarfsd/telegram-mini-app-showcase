@@ -921,6 +921,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Mobile Chromium/WebKit at 320/390 and short heights with simulated Telegram safe-area: close button hit-tested and clicked below header; Escape, repeated opening, photo changes, panning and previews verified. No page errors in checked flows. Vite build passed; existing unrelated CSS keyframes warning remains. Full type check still reports 266 existing project diagnostics, none in checked changed TS files. Physical Telegram device not tested.
 
 ---
+## 2026-11-07 · Faster hamburger opening
+
+**What:** Kept the closed, inert menu composited offscreen without a leaking shadow, used a faster-starting opening curve, removed unnecessary React hover work, protected background scrolling without changing body layout, and deferred/serialized optional route prefetch while the menu moves. Immediate navigation remains independent of prefetch.
+**Files:** client/src/components/GlobalSidebar.tsx, client/src/App.tsx, client/src/lib/interactionBudget.ts.
+**Checkpoint:** `e26830a`.
+**Verification:** Mobile Chromium and WebKit normal/reduced motion: inspected opening and closing frames, rapid reversal, Escape, focus, swipe and background scroll; closed page pixels matched before/after in tested region. Browser CPU-throttled samples indicated earlier movement and shorter frame gaps, not a physical device measurement. Verified background imports resume after the pause and direct navigation/demo imports do not wait. Vite build passed; unrelated existing CSS warning remains. Full TypeScript check still reports 266 existing project diagnostics, including unchanged App errors. Native Telegram/device not tested.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -932,6 +940,7 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 
 

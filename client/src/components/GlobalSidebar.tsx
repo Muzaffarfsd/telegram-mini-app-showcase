@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, forwardRef, memo, useMemo } from "react";
+import { useState, useCallback, useEffect, useRef, forwardRef, memo, type CSSProperties } from "react";
 import { ChevronRight, ArrowUpRight, Send } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { SiInstagram, SiTelegram, SiYoutube, SiTiktok } from "react-icons/si";
@@ -6,6 +6,7 @@ import UserAvatar from "./UserAvatar";
 import { useLanguage } from "../contexts/LanguageContext";
 import { isProfileRoute } from "../lib/profileRoutes";
 import { BrandMark } from "./BrandMark";
+import { pauseBackgroundPrefetch } from "@/lib/interactionBudget";
 
 interface GlobalSidebarProps {
   currentRoute: string;
@@ -31,18 +32,11 @@ interface AnimatedHamburgerIconProps {
 
 const AnimatedHamburgerIcon = memo(forwardRef<HTMLButtonElement, AnimatedHamburgerIconProps>(
   ({ isOpen, onClick, ariaLabel, testId }, ref) => {
-    const [isHovered, setIsHovered] = useState(false);
-    const className = useMemo(
-      () => `hb-btn ${isOpen ? 'open' : ''} ${isHovered ? 'hovered' : ''}`,
-      [isOpen, isHovered]
-    );
     return (
       <button
         ref={ref}
         onClick={() => onClick()}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        className={className}
+        className={`hb-btn ${isOpen ? 'open' : ''}`}
         aria-label={ariaLabel}
         aria-expanded={isOpen}
         data-testid={testId}
@@ -64,6 +58,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const focusFrame = useRef<number | null>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
   const firstFocusableRef = useRef<HTMLButtonElement>(null);
   const touchStartX = useRef<number>(0);
@@ -126,6 +121,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
 
   const openSidebar = useCallback(() => {
     if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
+    pauseBackgroundPrefetch(400);
     setSidebarOpen(true);
     triggerHaptic('medium');
     onOpen?.();
@@ -138,6 +134,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
   const closeSidebar = useCallback((restoreFocus = true) => {
     if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
     focusFrame.current = null;
+    pauseBackgroundPrefetch(400);
     setSidebarOpen(false);
     setSwipeOffset(0);
     triggerHaptic('light');
@@ -157,15 +154,21 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
     };
     if (sidebarOpen) {
       document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
     }
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
     };
   }, [sidebarOpen, closeSidebar]);
+
+  // The full-screen overlay consumes touch input. Prevent wheel scrolling on
+  // it without changing body styles, which invalidates layout for the page.
+  useEffect(() => {
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+    const preventWheel = (event: WheelEvent) => event.preventDefault();
+    overlay.addEventListener('wheel', preventWheel, { passive: false });
+    return () => overlay.removeEventListener('wheel', preventWheel);
+  }, []);
 
   useEffect(() => {
     if (!sidebarOpen || !sidebarRef.current) return;
@@ -223,6 +226,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
     }
     if (swipeDirection.current === 'horizontal' && diffX > 30) {
       e.preventDefault();
+      pauseBackgroundPrefetch(400);
       const w = Math.min(370, window.innerWidth - 40);
       setSwipeOpenOffset(Math.min(diffX, w));
     }
@@ -269,7 +273,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
           -webkit-tap-highlight-color:transparent;position:relative;
           transition:transform .24s cubic-bezier(.34,1.5,.64,1),background .2s,border-color .2s;
         }
-        .hb-btn.hovered{background:rgba(255,255,255,0.1);}
         .hb-btn.open{background:rgba(52,211,153,0.13);border-color:rgba(52,211,153,0.32);}
         .hb-btn:active{transform:scale(.9);}
         .hb-icon{width:14px;height:9px;position:relative;display:flex;flex-direction:column;
@@ -278,14 +281,17 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
           transition:transform .34s cubic-bezier(.68,-0.5,.27,1.5),opacity .2s,width .24s,background .2s;
           transform-origin:center;}
         .hb-line.l1{width:100%;} .hb-line.l2{width:62%;} .hb-line.l3{width:100%;}
-        .hb-btn.hovered .hb-line.l2{width:100%;}
         .hb-line.l1.open{transform:translateY(3.7px) rotate(45deg);width:100%;background:${EM_SOFT};}
         .hb-line.l2.open{opacity:0;transform:scaleX(0);}
         .hb-line.l3.open{transform:translateY(-3.7px) rotate(-45deg);width:100%;background:${EM_SOFT};}
         html.light .hb-btn{background:rgba(0,0,0,0.05);border-color:rgba(0,0,0,0.1);}
-        html.light .hb-btn.hovered{background:rgba(0,0,0,0.08);}
         html.light .hb-line{background:#16181c;}
         html.light .hb-btn.open{background:rgba(52,211,153,0.13);border-color:rgba(52,211,153,0.4);}
+        @media (hover:hover){
+          .hb-btn:hover{background:rgba(255,255,255,0.1);}
+          html.light .hb-btn:hover{background:rgba(0,0,0,0.08);}
+          .hb-btn:hover .hb-line.l2{width:100%;}
+        }
 
         /* ── overlay + panel ── */
         .w4m-overlay{
@@ -303,28 +309,24 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
           border-right:1px solid rgba(255,255,255,0.75);
           border-radius:0 26px 26px 0;
           color:#252529;font-family:${FONT};
-          /* Visibility is held through the closing slide, keeping the panel,
-             its text and its shadow together until they are off screen. */
-          box-shadow:18px 0 55px rgba(34,37,46,0.16);
+          /* Keep the off-screen layer painted and inert so opening needs no
+             first-frame subtree reveal. A closed layer casts no stray shadow. */
+          box-shadow:none;
           display:flex;flex-direction:column;
           overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
-          transform:translate3d(-100%,0,0);
-          visibility:hidden;
+          transform:var(--panel-transform,translate3d(-100%,0,0));
           /* A solid, near-opaque panel keeps the same light surface without
              re-blurring the entire page on every frame of the slide. */
-          transition:transform .28s cubic-bezier(.4,0,.2,1),visibility 0s linear .28s;
-          transition-duration:.28s,0s!important;
+          transition:transform .28s cubic-bezier(.4,0,.2,1);
+          transition-duration:.28s!important;
           will-change:transform;
           /* Isolate layout/paint so the rest of the page doesn't get re-painted
              while the panel slides in/out. */
           contain:layout paint;
         }
         .w4m-panel.open,.w4m-panel.peeking{
-          visibility:visible;
-          transition:transform .28s cubic-bezier(.4,0,.2,1),visibility 0s;
-        }
-        .w4m-panel.open{
-          transform:translate3d(0,0,0);
+          transition:transform .28s cubic-bezier(.2,.7,.25,1);
+          box-shadow:18px 0 55px rgba(34,37,46,0.16);
         }
         .w4m-panel::-webkit-scrollbar{display:none;}
         .w4m-panel{scrollbar-width:none;}
@@ -384,11 +386,13 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
             transition-duration:.01ms!important;
           }
           .w4m-panel,.w4m-overlay{transition-delay:0s!important;}
+          .w4m-panel{transform:var(--panel-transform,translate3d(-100%,0,0))!important;}
         }
       `}</style>
 
       {/* overlay */}
       <div
+        ref={overlayRef}
         className={`w4m-overlay ${sidebarOpen ? 'open' : ''}`}
         onClick={() => closeSidebar()}
         aria-hidden="true"
@@ -409,13 +413,13 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
         inert={!sidebarOpen}
         style={{
           pointerEvents: sidebarOpen || swipeOpenOffset > 0 ? 'auto' : 'none',
-          transform: sidebarOpen
+          '--panel-transform': sidebarOpen
             ? `translateX(${-swipeOffset}px)`
             : swipeOpenOffset > 0
               ? `translateX(calc(-100% + ${swipeOpenOffset}px))`
               : 'translateX(-100%)',
           transition: swipeOpenOffset > 0 ? 'none' : undefined,
-        }}
+        } as CSSProperties}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}

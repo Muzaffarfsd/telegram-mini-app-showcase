@@ -11,6 +11,7 @@ import UserAvatar from "./components/UserAvatar";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useRouting, navigate } from "./hooks/useRouting";
 import { warmDemoImage } from "./lib/demoImagePreload";
+import { backgroundPrefetchWait } from "./lib/interactionBudget";
 import { isProfileRoute } from "./lib/profileRoutes";
 import { useScrollHaptic } from "./hooks/useScrollHaptic";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
@@ -68,6 +69,8 @@ import { PageTransition } from "./components/PageTransition";
 const OfflineIndicator = lazyWithRetry(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
 const AIAgentButton = lazyWithRetry(() => import("./components/AIAgent/AIAgentButton").then(m => ({ default: m.AIAgentButton })));
 
+let backgroundImportBusy = false;
+
 function isSlowNetwork(): boolean {
   const conn = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
   if (!conn) return false;
@@ -107,7 +110,14 @@ const prefetchAllRoutes = () => {
   const loadNext = () => {
     if (i < chunks.length) {
       if (isSlowNetwork()) return;
+      const wait = backgroundPrefetchWait();
+      if (wait > 0 || backgroundImportBusy) {
+        window.setTimeout(loadNext, Math.max(wait, 100));
+        return;
+      }
+      backgroundImportBusy = true;
       chunks[i]().catch(() => {}).finally(() => {
+        backgroundImportBusy = false;
         i++;
         if ('requestIdleCallback' in window) {
           (window as any).requestIdleCallback(loadNext, { timeout: 5000 });
@@ -136,9 +146,16 @@ const prefetchMenuRoutes = () => {
   ];
   let next = 0;
   const loadNext = () => {
+    const wait = backgroundPrefetchWait();
+    if (wait > 0 || backgroundImportBusy) {
+      window.setTimeout(loadNext, Math.max(wait, 100));
+      return;
+    }
     const load = destinations[next++];
     if (!load) return;
-    load().catch(() => {}).finally(scheduleNext);
+    if (isSlowNetwork()) return;
+    backgroundImportBusy = true;
+    load().catch(() => {}).finally(() => { backgroundImportBusy = false; scheduleNext(); });
   };
   const scheduleNext = () => {
     if ('requestIdleCallback' in window) window.requestIdleCallback(loadNext, { timeout: 1000 });
