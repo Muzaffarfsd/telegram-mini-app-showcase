@@ -778,6 +778,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 
 ---
 
+## 2026-11-07 · Folder showcase redesign
+
+**What:** Rebuilt the showcase as a folder grid with ten original SVG stickers, category filters and grid/list views; preserved demo routes.
+**Files:** client/src/components/ProjectsPage.tsx, ProjectsShowcase.css, StoreStickers.tsx, showcase-folder-design-notes.md.
+**Checkpoint:** Existing HEAD `909f437`; ProjectsPage already had uncommitted changes before this task, so no pre-edit checkpoint was created.
+**Verification:** Playwright at 320, 390 and 430 px: no horizontal overflow or page errors, filters and list view work; all ten demo routes open. Vite production build passed; the existing `cp` step is unavailable on Windows, so assets were copied with PowerShell. Screenshots: `../folder-showcase-390.png`, `../folder-showcase-middle.png`, `../folder-showcase-bottom.png`.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -789,3 +797,4 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
