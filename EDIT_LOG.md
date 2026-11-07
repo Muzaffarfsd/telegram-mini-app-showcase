@@ -938,6 +938,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Local mobile and desktop browser review; Chromium and WebKit at 320 and 390 px, desktop at 1280 px, Russian and English, CTA navigation, transparent image edges, and Vite build. User has not yet evaluated the revised illustrations; not deployed.
 
 ---
+## 2026-11-07 · Clarify About headline
+
+**What:** Replaced the technical Mini App wording with a plain-language Telegram apps headline and examples in Russian and English.
+**Why:** The user noted that customers may not understand the term.
+**Files:** `client/src/components/AboutPage.tsx`.
+**Checkpoint:** `61508eb`.
+**Verification:** Checked the Russian heading in local Chromium at 320 and 390 px; the narrow heading fits on one line without horizontal overflow.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
