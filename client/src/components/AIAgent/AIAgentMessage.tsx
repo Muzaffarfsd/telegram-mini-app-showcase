@@ -74,7 +74,7 @@ function renderMarkdown(text: string): string {
     .replace(/```buttons[\s\S]*?```/g, "")
     .replace(/```widget[\s\S]*?```/g, "")
     .replace(/```(\w*)\n([\s\S]*?)```/g, (_m, lang, code) =>
-      `<div style="position:relative;margin:6px 0"><pre style="background:rgba(0,0,0,0.25);padding:10px 12px;border-radius:12px;overflow-x:auto;border:0.5px solid rgba(255,255,255,0.06)"><code class="language-${lang}" style="font-size:12px;line-height:1.5">${code}</code></pre><button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent);this.textContent='✓';setTimeout(()=>this.textContent='Copy',1500)" style="position:absolute;top:6px;right:6px;padding:3px 8px;border-radius:6px;border:0.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);font-size:10px;cursor:pointer;font-family:inherit;letter-spacing:0.02em">Copy</button></div>`)
+      `<div style="position:relative;margin:6px 0"><pre style="background:rgba(0,0,0,0.25);padding:10px 12px;border-radius:12px;overflow-x:auto;border:0.5px solid rgba(255,255,255,0.06)"><code class="language-${lang}" style="font-size:12px;line-height:1.5">${code}</code></pre><button type="button" data-copy-code style="position:absolute;top:6px;right:6px;padding:3px 8px;border-radius:6px;border:0.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);font-size:10px;cursor:pointer;font-family:inherit;letter-spacing:0.02em">Copy</button></div>`)
     .replace(/`([^`]+)`/g, '<code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:5px;font-size:0.85em;border:0.5px solid rgba(255,255,255,0.06)">$1</code>')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, text, url) => {
       const safeUrl = /^https?:\/\//i.test(url) ? url : '#';
@@ -548,7 +548,16 @@ export const AIAgentMessage = memo(
           ) : renderedContent ? (
             <>
               <div style={{ position: "relative", display: "inline" }}>
-                <div dangerouslySetInnerHTML={{ __html: renderedContent }} style={{ display: "inline" }} />
+                <div dangerouslySetInnerHTML={{ __html: renderedContent }} style={{ display: "inline" }} onClick={event => {
+                  const button = (event.target as Element).closest<HTMLButtonElement>('button[data-copy-code]');
+                  if (!button || !event.currentTarget.contains(button)) return;
+                  event.stopPropagation();
+                  const text = button.previousElementSibling?.textContent || '';
+                  void navigator.clipboard?.writeText(text).then(() => {
+                    button.textContent = '✓';
+                    window.setTimeout(() => { if (button.isConnected) button.textContent = 'Copy'; }, 1500);
+                  }).catch(() => {});
+                }} />
                 {message.isStreaming && (
                   <span aria-hidden="true" style={{
                     position: "relative",

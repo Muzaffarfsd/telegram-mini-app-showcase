@@ -1,0 +1,48 @@
+# Security boundary and deployment requirements
+
+Reviewed 2026-11-07. This is an implementation and regression-test record, not a penetration-test certification or a guarantee against all attacks.
+
+## Shared protection for the studio and demos
+
+- `server/security.ts` is installed before API body parsing. New APIs require signed Telegram authentication by default; only an explicit, reviewed list of public reads, bounded telemetry and independently authenticated webhooks bypasses it.
+- `server/telegramAuth.ts` validates the exact Telegram HMAC, key uniqueness, field count/size, safe positive account ID, timestamp and expiry. Authentication is supplied through `X-Telegram-Init-Data`, never a user ID chosen by the client. The default lifetime is one hour. An expired session must reopen the app in Telegram.
+- Administrative routes additionally require `ADMIN_TELEGRAM_IDS`. Empty configuration denies everyone. A client flag, username, URL parameter or local-storage setting never grants this role.
+- Reads and changes of private data check the authenticated owner. Payments and rewards cannot be confirmed by a client-side success event. The legacy arbitrary referral-credit endpoint is disabled; real fulfilment needs a server-priced order and verified, idempotent payment event.
+- API changes retain CSRF checks in addition to authentication. CORS uses an exact HTTPS origin allowlist. Requests, JSON depth, parameter counts and rate are bounded. HTTP servers have header/request timeouts. Railway deployments use the edge's validated `X-Real-IP` for per-client limiting; direct deployments ignore that header and trust zero proxy hops unless explicitly configured.
+- Production CSP permits the exact hashes of trusted build bootstrap scripts, same-origin bundles and the required Telegram/Stripe origins. Arbitrary inline scripts, script attributes, eval, objects and base-URL injection are blocked. Inline styles remain allowed for the existing React styles. Telegram Web is allowed to frame the app.
+- The service worker caches public assets only. API replies and authenticated actions are neither persisted nor automatically replayed. Old private caches and background-write queues are removed. API helpers only send authentication to this origin's `/api/` and reject redirects.
+- Public source snapshots, source maps, credentials, dotfiles and backup paths are blocked. Request bodies, credentials and private API responses must not be added to logs. Current tracked documentation has credential-shaped strings removed.
+
+## Rules for every new demo/API
+
+1. Demos in `DemoRegistry` are trusted application code. Use the common API helpers and the central API policy; do not implement a weaker alternate authentication system.
+2. A real server-backed demo must scope every order, customer and mutation to **both** its application/tenant and the authenticated account. Never select an owner or tenant solely from request data. Add tests proving another account/application cannot read or change it.
+3. Validate request fields with bounded schemas. Do not accept a price, paid status, reward, role or file owner as authoritative client data. Keep payment keys and bot credentials server-only; never use `VITE_` for a secret.
+4. Render user content as text. Any HTML, URL, upload or third-party iframe requires a specific security review. Untrusted third-party demo code requires a separate origin and sandbox; sharing this origin is not isolation.
+5. Keep local demo cart/preferences separate from authentication. Do not persist API credentials or sensitive API responses in IndexedDB/local storage, or retry financial/administrative operations in a generic background queue.
+6. A public API exception requires an entry in the central allowlist, validation, abuse limits and a regression test. An app being a demo does not exempt its real backend from these requirements.
+
+## Production configuration and remaining operator actions
+
+1. **Rotate exposed credentials.** Nineteen occurrences of one bot credential were removed from tracked deployment documents. A read-only provider check on 2026-11-07 confirmed Telegram rejects that historical credential; its fingerprint is now denied for authentication and webhook secrets. No valid current bot token was available locally. Any other real exposed token must still be revoked/reissued through BotFather and replaced in Railway. Do not paste it into chat, commit it, or print it in a command/log. Review Git history and provider access logs; deleting text does not revoke historic copies.
+2. **Verify webhook authentication.** Configure a strong `TELEGRAM_WEBHOOK_SECRET`, or use the domain-separated HMAC derived from the bot token. At production startup `secureExistingTelegramWebhook` can securely re-register **only** the exact existing callback of this service, preserving delivery settings and pending updates. It skips preview environments, a mismatching runtime origin, an empty/different callback, custom certificates or invalid configuration. `TELEGRAM_WEBHOOK_AUTO_SECURE=false` disables only this provisioning, not secret verification. Check the safe provisioning status in deployment logs. If skipped, register the existing HTTPS `/api/telegram/webhook` with the matching `secret_token` manually; the server rejects unsigned webhooks. The admin setup route also performs secure registration for an authenticated allowlisted administrator with CSRF.
+3. Set `ADMIN_TELEGRAM_IDS` to verified numeric Telegram account IDs. Keep this server-only. Use individual accounts, minimal membership and review changes; leave it empty if administrative APIs are unused.
+4. Set `WEBAPP_URL` and any additional exact `ALLOWED_ORIGINS` to the actual HTTPS application origins. Set `NODE_ENV=production` and use supported Node 24. Keep server/provider credentials in Railway variables, not public build variables.
+5. Keep the AI provider disabled unless deliberately configured. Enabling it requires authentication, abuse limits, provider spending caps and an operational budget. Local demonstrations do not need a paid provider.
+6. Configure storage IAM, maximum object/request size, staged-upload expiry and per-account quotas in the actual storage provider before allowing public uploads at scale. This repository's signing integration depends on a configured storage provider/sidecar; Railway does not itself supply the old Replit sidecar. Publication validates ownership, size, MIME and file signatures. Provider-side quotas and lifecycle are separate controls.
+7. Railway documents default Fastly-backed DDoS filtering for public services. Verify the actual service networking and incident controls; in-process rate limits are an additional layer. Its **Under Attack Mode** is for incidents, not a permanent default: it challenges browsers and rejects non-browser traffic, which includes Telegram webhooks. Do not blindly enable it on this combined app/API/bot service. Follow [Railway's WAF guidance](https://docs.railway.com/networking/waf) for incident handling and exclusions/architecture. Configure and test Redis-backed limits across replicas where used; other hosting providers need their own edge/network protection.
+8. Enable phishing-resistant MFA/passkeys on GitHub, Railway, Telegram and providers; restrict collaborator/admin roles, protect the release branch and require passing security checks. Enable provider secret scanning and review alerts. Ensure encrypted database backups, least-privilege DB/storage identities, a retention policy and a tested restore procedure.
+
+No provider account, MFA, WAF, credential rotation, database permission or backup setting is considered completed merely because it is documented here. Verify them in the account that runs production.
+
+## Verification
+
+- `npm run check:security` — strict checking of every server/shared schema file, including future API additions. The broader UI TypeScript backlog is separate.
+- `npm run test:security` — authentication, shared boundary, ownership, client URL/cache, CSRF and dependency compatibility regression tests.
+- `npx tsx tests/backend-security.integration.mts` — isolated backend routes/data tests; uses an in-memory database and synthetic bot identity, never live bot messages/payments.
+- `node tests/client-service-worker.e2e.cjs` — real-browser worker cache/queue and identity separation regression.
+- `node scripts/check-secrets.mjs` — reports potential credentials by file/line without revealing their values; current tracked files only, not full history.
+- `npm audit --omit=dev` and `npm audit` — review the current registry advisories. Zero known advisories is not proof of no vulnerabilities.
+- Build and test actual production headers on the studio and **every registered demo**, including Telegram framing, checkout, image loading and existing navigation. Check the deployed revision after release; a successful Git push is not a deployment check.
+
+Primary references: [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/), [OWASP CSP guidance](https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html), [Telegram init-data validation](https://core.telegram.org/bots/webapps#validating-data-received-via-the-mini-app), [Telegram webhook secret](https://core.telegram.org/bots/api#setwebhook), [Express production security](https://expressjs.com/en/advanced/best-practice-security/).

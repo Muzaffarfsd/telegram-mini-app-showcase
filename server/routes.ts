@@ -123,6 +123,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(coinshopRouter);
   app.use(aiRouter);
 
+  // Unknown APIs never fall through to the SPA HTML (or look like a successful write).
+  app.use('/api', (_req, res) => res.status(404).json({ error: 'API endpoint not found' }));
+
   const httpServer = createServer(app);
 
   return httpServer;

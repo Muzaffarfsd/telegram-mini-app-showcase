@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { verifyTelegramUser, TELEGRAM_BOT_TOKEN, notificationSendSchema, notificationBroadcastSchema, notificationInteractiveSchema } from "./shared";
+import { verifyTelegramUser, requireAdmin, TELEGRAM_BOT_TOKEN, notificationSendSchema, notificationBroadcastSchema, notificationInteractiveSchema } from "./shared";
 
 const router = Router();
 
-router.post("/api/notifications/send", verifyTelegramUser, async (req: any, res) => {
+router.post("/api/notifications/send", verifyTelegramUser, requireAdmin, async (req: any, res) => {
   if (!TELEGRAM_BOT_TOKEN) {
     return res.status(503).json({ error: 'Telegram bot not configured' });
   }
@@ -37,12 +37,12 @@ router.post("/api/notifications/send", verifyTelegramUser, async (req: any, res)
     
     res.json({ success: true, messageId: result.result?.message_id });
   } catch (error: any) {
-    console.error('Push notification error:', error);
+    console.error('Push notification error:', error instanceof Error ? error.name : 'unknown');
     res.status(500).json({ error: 'Failed to send notification' });
   }
 });
 
-router.post("/api/notifications/broadcast", verifyTelegramUser, async (req: any, res) => {
+router.post("/api/notifications/broadcast", verifyTelegramUser, requireAdmin, async (req: any, res) => {
   if (!TELEGRAM_BOT_TOKEN) {
     return res.status(503).json({ error: 'Telegram bot not configured' });
   }
@@ -78,12 +78,12 @@ router.post("/api/notifications/broadcast", verifyTelegramUser, async (req: any,
     
     res.json({ success: true, sent, failed, total: userIds.length });
   } catch (error: any) {
-    console.error('Broadcast notification error:', error);
+    console.error('Broadcast notification error:', error instanceof Error ? error.name : 'unknown');
     res.status(500).json({ error: 'Failed to broadcast notification' });
   }
 });
 
-router.post("/api/notifications/interactive", verifyTelegramUser, async (req: any, res) => {
+router.post("/api/notifications/interactive", verifyTelegramUser, requireAdmin, async (req: any, res) => {
   if (!TELEGRAM_BOT_TOKEN) {
     return res.status(503).json({ error: 'Telegram bot not configured' });
   }
@@ -127,7 +127,7 @@ router.post("/api/notifications/interactive", verifyTelegramUser, async (req: an
     
     res.json({ success: true, messageId: result.result?.message_id });
   } catch (error: any) {
-    console.error('Interactive notification error:', error);
+    console.error('Interactive notification error:', error instanceof Error ? error.name : 'unknown');
     res.status(500).json({ error: 'Failed to send interactive notification' });
   }
 });

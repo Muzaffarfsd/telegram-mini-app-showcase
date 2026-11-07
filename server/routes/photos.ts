@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "../db";
 import { photos, insertPhotoSchema } from "../../shared/schema";
-import { desc, eq, count } from "drizzle-orm";
+import { desc, eq, and, count } from "drizzle-orm";
 import { ObjectStorageService, ObjectNotFoundError } from "../objectStorage";
 import { parsePaginationParams, createPaginatedResponse, withTimeout, isDbTimeoutError, dbTimeoutError, internalError } from "../apiUtils";
 import { verifyTelegramUser, uploadUrlSchema, MAX_FILE_SIZE, ALLOWED_TYPES } from "./shared";
@@ -12,7 +12,7 @@ router.post("/api/photos/upload-url", verifyTelegramUser, async (req: any, res) 
   try {
     const validationResult = uploadUrlSchema.safeParse(req.body);
     if (!validationResult.success) {
-      return res.status(400).json({ error: 'Invalid request body', details: validationResult.error.errors });
+      return res.status(400).json({ error: 'Invalid request body', details: validationResult.error.issues });
     }
     
     const { fileSize, fileType } = validationResult.data;
@@ -34,17 +34,17 @@ router.post("/api/photos/upload-url", verifyTelegramUser, async (req: any, res) 
     }
     
     const objectStorageService = new ObjectStorageService();
-    const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+    const uploadURL = await objectStorageService.getObjectEntityUploadURL(String(req.telegramUser.id));
     res.json({ uploadURL });
   } catch (error) {
-    console.error('Error getting upload URL:', error);
+    console.error('Error getting upload URL:', error instanceof Error ? error.name : 'unknown');
     res.status(500).json({ error: 'Failed to get upload URL' });
   }
 });
 
 router.post("/api/photos", verifyTelegramUser, async (req: any, res) => {
   try {
-    const validatedData = insertPhotoSchema.parse(req.body);
+    const validatedData = insertPhotoSchema.parse({ ...req.body, userId: String(req.telegramUser.id) });
     
     const objectStorageService = new ObjectStorageService();
     const normalizedPath = objectStorageService.normalizeObjectEntityPath(validatedData.objectPath);
@@ -52,7 +52,7 @@ router.post("/api/photos", verifyTelegramUser, async (req: any, res) => {
     const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
       validatedData.objectPath,
       {
-        owner: validatedData.userId || "anonymous",
+        owner: String(req.telegramUser.id),
         visibility: "public",
       }
     );
@@ -64,7 +64,7 @@ router.post("/api/photos", verifyTelegramUser, async (req: any, res) => {
 
     res.json(photo);
   } catch (error) {
-    console.error('Error creating photo:', error);
+    console.error('Error creating photo:', error instanceof Error ? error.name : 'unknown');
     res.status(500).json({ error: 'Failed to create photo' });
   }
 });
@@ -87,7 +87,7 @@ router.get("/api/photos", async (req, res) => {
     const total = totalResult[0]?.count ?? 0;
     res.json(createPaginatedResponse(photosList, total, { limit, offset }));
   } catch (error) {
-    console.error('Error fetching photos:', error);
+    console.error('Error fetching photos:', error instanceof Error ? error.name : 'unknown');
     if (isDbTimeoutError(error)) {
       return dbTimeoutError(res, 'Failed to fetch photos: database timeout');
     }
@@ -106,7 +106,7 @@ router.get("/api/photos/:id", async (req, res) => {
     
     res.json(photo);
   } catch (error) {
-    console.error('Error fetching photo:', error);
+    console.error('Error fetching photo:', error instanceof Error ? error.name : 'unknown');
     res.status(500).json({ error: 'Failed to fetch photo' });
   }
 });
@@ -114,7 +114,7 @@ router.get("/api/photos/:id", async (req, res) => {
 router.delete("/api/photos/:id", verifyTelegramUser, async (req: any, res) => {
   try {
     const photoId = parseInt(req.params.id);
-    const [deletedPhoto] = await db.delete(photos).where(eq(photos.id, photoId)).returning();
+    const [deletedPhoto] = await db.delete(photos).where(and(eq(photos.id, photoId), eq(photos.userId, String(req.telegramUser.id)))).returning();
     
     if (!deletedPhoto) {
       return res.status(404).json({ error: 'Photo not found' });
@@ -122,7 +122,7 @@ router.delete("/api/photos/:id", verifyTelegramUser, async (req: any, res) => {
     
     res.json({ success: true, photo: deletedPhoto });
   } catch (error) {
-    console.error('Error deleting photo:', error);
+    console.error('Error deleting photo:', error instanceof Error ? error.name : 'unknown');
     res.status(500).json({ error: 'Failed to delete photo' });
   }
 });

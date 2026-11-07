@@ -3,9 +3,11 @@ import { z } from 'zod';
 import { db } from "../db";
 import { users, referrals, analyticsEvents } from "../../shared/schema";
 import { desc, eq, and, sql, count } from "drizzle-orm";
-import { TELEGRAM_BOT_TOKEN } from "./shared";
+import { TELEGRAM_BOT_TOKEN, verifyTelegramUser, requireAdmin } from "./shared";
 
 const router = Router();
+const telemetryName = z.string().min(1).max(100).regex(/^[a-zA-Z0-9_.:\/-]+$/);
+const telemetryMetadata = z.record(z.string().max(60), z.union([z.string().max(250), z.number().finite(), z.boolean(), z.null()])).refine(value => Object.keys(value).length <= 20);
 
 interface ABTestEvent {
   experiment: string;
@@ -20,7 +22,10 @@ const abTestEvents: Map<string, ABTestEvent[]> = new Map();
 
 router.post("/api/analytics/ab-event", (req, res) => {
   try {
-    const { experiment, variant, eventType, userId, timestamp, metadata } = req.body;
+    const key = z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,60}$/).refine(value => !['__proto__', 'constructor', 'prototype'].includes(value));
+    const parsed = z.object({ experiment: key, variant: key, eventType: z.enum(['exposure', 'conversion']), userId: z.string().max(100).nullable().optional(), timestamp: z.number().finite().optional() }).safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'Invalid analytics event' });
+    const { experiment, variant, eventType, userId } = parsed.data;
     
     const eventKey = `${experiment}::${variant}::${eventType}`;
     const existingEvents = abTestEvents.get(eventKey) || [];
@@ -30,10 +35,11 @@ router.post("/api/analytics/ab-event", (req, res) => {
       variant: (variant || 'unknown').toString(),
       eventType: (eventType || 'unknown').toString(),
       userId: userId || null,
-      timestamp: timestamp || Date.now(),
-      metadata,
+      timestamp: Date.now(),
     });
     
+    if (existingEvents.length > 1000) existingEvents.splice(0, existingEvents.length - 1000);
+    if (!abTestEvents.has(eventKey) && abTestEvents.size >= 500) abTestEvents.delete(abTestEvents.keys().next().value!);
     abTestEvents.set(eventKey, existingEvents);
     res.json({ success: true, eventKey });
   } catch (error: any) {
@@ -41,15 +47,15 @@ router.post("/api/analytics/ab-event", (req, res) => {
   }
 });
 
-router.get("/api/analytics/ab-stats", (req, res) => {
+router.get("/api/analytics/ab-stats", verifyTelegramUser, requireAdmin, (req, res) => {
   try {
-    const stats: Record<string, Record<string, { exposures: number; conversions: number; conversionRate: string }>> = {};
+    const stats: Record<string, Record<string, { exposures: number; conversions: number; conversionRate: string }>> = Object.create(null);
     
     abTestEvents.forEach((events, key) => {
       const [experiment, variant, eventType] = key.split('::');
       
       if (!stats[experiment]) {
-        stats[experiment] = {};
+        stats[experiment] = Object.create(null);
       }
       
       if (!stats[experiment][variant]) {
@@ -97,19 +103,9 @@ const MAX_ANALYTICS_STORE = 10000;
 
 router.post("/api/analytics/events", (req, res) => {
   try {
-    const { events, offline } = req.body;
-    
-    if (!Array.isArray(events)) {
-      return res.status(400).json({ error: 'events must be an array' });
-    }
-
-    const validEvents = events.filter((e: unknown): e is AnalyticsEventPayload => {
-      if (!e || typeof e !== 'object') return false;
-      const event = e as Record<string, unknown>;
-      return typeof event.category === 'string' && 
-             typeof event.action === 'string' &&
-             typeof event.timestamp === 'number';
-    });
+    const parsed = z.object({ events: z.array(z.object({ category:telemetryName, action:telemetryName, label:z.string().max(250).optional(), value:z.number().finite().optional(), timestamp:z.number().finite().nonnegative(), sessionId:z.string().max(100).default('anonymous'), platform:z.string().max(50).optional(), version:z.string().max(50).optional(), isOnline:z.boolean().optional() })).max(100), offline:z.boolean().optional() }).safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: 'Invalid telemetry batch' });
+    const { events: validEvents, offline } = parsed.data;
 
     if (validEvents.length === 0) {
       return res.json({ success: true, received: 0 });
@@ -121,23 +117,6 @@ router.post("/api/analytics/events", (req, res) => {
       analyticsStore.splice(0, analyticsStore.length - MAX_ANALYTICS_STORE);
     }
 
-    if (import.meta.env?.DEV || process.env.NODE_ENV !== 'production') {
-      validEvents.forEach((e: AnalyticsEventPayload) => {
-        console.log(`[ANALYTICS] ${e.category}/${e.action}`, {
-          label: e.label,
-          value: e.value,
-          telegramId: e.telegramId,
-          offline: offline || false,
-        });
-      });
-    }
-
-    const errorEvents = validEvents.filter((e: AnalyticsEventPayload) => e.category === 'error');
-    if (errorEvents.length > 0) {
-      console.warn(`[ANALYTICS] ${errorEvents.length} error event(s) received:`, 
-        errorEvents.map((e: AnalyticsEventPayload) => ({ action: e.action, label: e.label }))
-      );
-    }
 
     res.json({ 
       success: true, 
@@ -150,7 +129,7 @@ router.post("/api/analytics/events", (req, res) => {
   }
 });
 
-router.get("/api/analytics/summary", (req, res) => {
+router.get("/api/analytics/summary", verifyTelegramUser, requireAdmin, (req, res) => {
   try {
     const now = Date.now();
     const last24h = now - 24 * 60 * 60 * 1000;
@@ -159,8 +138,8 @@ router.get("/api/analytics/summary", (req, res) => {
     const recentEvents = analyticsStore.filter(e => e.timestamp > last24h);
     const weekEvents = analyticsStore.filter(e => e.timestamp > last7d);
 
-    const categoryCount: Record<string, number> = {};
-    const actionCount: Record<string, number> = {};
+    const categoryCount: Record<string, number> = Object.create(null);
+    const actionCount: Record<string, number> = Object.create(null);
     const uniqueSessions = new Set<string>();
     const uniqueUsers = new Set<number>();
 
@@ -218,28 +197,30 @@ router.get("/api/analytics/summary", (req, res) => {
 });
 
 router.post("/api/vitals", (req, res) => {
-  const { name, value, rating, id, url } = req.body;
-  console.log(`[VITALS] ${name}: ${value.toFixed(2)}ms (${rating})`, { url });
+  const parsed = z.object({ name:z.enum(['CLS','FCP','INP','LCP','TTFB','FID']), value:z.number().finite().min(0).max(10000000), rating:z.enum(['good','needs-improvement','poor']).optional(), id:z.string().max(100).optional(), url:z.string().max(2048).optional() }).safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error:'Invalid metric' });
+  console.log('[VITALS]', { name:parsed.data.name, value:parsed.data.value });
   res.json({ success: true });
 });
 
 router.post("/api/error", (req, res) => {
-  const { errorMessage, errorStack, componentName, url } = req.body;
-  console.error(`[ERROR] ${componentName}:`, errorMessage, { url, stack: errorStack });
+  const parsed = z.object({ errorMessage:z.string().max(2000), errorStack:z.string().max(8000).optional(), componentName:z.string().max(120).optional(), url:z.string().max(2048).optional() }).safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error:'Invalid error report' });
+  console.info('[Client error report received]');
   res.json({ success: true });
 });
 
 router.post("/api/user-action", (req, res) => {
-  const { action, metadata, url } = req.body;
-  console.log(`[ACTION] ${action}`, { url, metadata });
+  const parsed = z.object({ action:telemetryName, metadata:telemetryMetadata.optional(), url:z.string().max(2048).optional() }).safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error:'Invalid action report' });
   res.json({ success: true });
 });
 
 router.post("/api/analytics/track", async (req, res) => {
   const analyticsTrackSchema = z.object({
-    actionType: z.string().min(1).max(100),
+    actionType: telemetryName,
     userId: z.number().optional(),
-    metadata: z.record(z.unknown()).optional(),
+    metadata: telemetryMetadata.optional(),
     notifyAdmin: z.boolean().optional(),
   });
   
@@ -252,34 +233,17 @@ router.post("/api/analytics/track", async (req, res) => {
   }
   
   try {
-    const { actionType, userId, metadata, notifyAdmin } = validationResult.data;
+    const { actionType, metadata } = validationResult.data;
     
     const event = {
       actionType,
-      userId: userId || null,
+      userId: req.telegramUser?.id || null,
       metadata: metadata || {},
       timestamp: Date.now(),
     };
     
-    console.log(`[TRACK] ${actionType}`, event);
-    
-    if (notifyAdmin && TELEGRAM_BOT_TOKEN) {
-      const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
-      if (ADMIN_CHAT_ID) {
-        const message = `<b>User Action</b>\n\nType: <code>${actionType}</code>\nUser: ${userId || 'anonymous'}\nTime: ${new Date().toISOString()}\n${metadata ? `\nData: <pre>${JSON.stringify(metadata, null, 2)}</pre>` : ''}`;
-        
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: ADMIN_CHAT_ID,
-            text: message,
-            parse_mode: 'HTML',
-          }),
-        });
-      }
-    }
-    
+    // Untrusted telemetry cannot send bot notifications or award value.
+
     res.json({ success: true, tracked: event });
   } catch (error: any) {
     console.error('Track action error:', error);
@@ -287,76 +251,12 @@ router.post("/api/analytics/track", async (req, res) => {
   }
 });
 
-router.post("/api/webhooks/referral", async (req, res) => {
-  try {
-    const { event, referralCode, userId, amount, metadata } = req.body;
-    
-    if (!event || !referralCode) {
-      return res.status(400).json({ error: 'Missing event or referralCode' });
-    }
-    
-    const validEvents = ['signup', 'purchase', 'milestone'];
-    if (!validEvents.includes(event)) {
-      return res.status(400).json({ error: `Invalid event type. Must be one of: ${validEvents.join(', ')}` });
-    }
-    
-    console.log(`[REFERRAL WEBHOOK] ${event}`, { referralCode, userId, amount, metadata });
-    
-    const [referrer] = await db.select().from(users).where(eq(users.referralCode, referralCode)).limit(1);
-    if (!referrer) {
-      return res.status(404).json({ error: 'Referral code not found' });
-    }
-    
-    let reward = 0;
-    switch (event) {
-      case 'signup':
-        reward = 50;
-        break;
-      case 'purchase':
-        reward = Math.floor((amount || 0) * 0.1);
-        break;
-      case 'milestone':
-        reward = 200;
-        break;
-    }
-    
-    if (reward > 0) {
-      await db.update(users)
-        .set({ 
-          totalCoins: sql`${users.totalCoins} + ${reward}`,
-          availableCoins: sql`${users.availableCoins} + ${reward}` 
-        })
-        .where(eq(users.telegramId, referrer.telegramId));
-      console.log(`[REFERRAL REWARD] User ${referrer.telegramId} received ${reward} coins for ${event}`);
-    }
-    
-    if (TELEGRAM_BOT_TOKEN) {
-      const message = `<b>Referral ${event}</b>\n\nYour referral code was used!\nReward: +${reward} coins`;
-      
-      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: referrer.telegramId,
-          text: message,
-          parse_mode: 'HTML',
-        }),
-      });
-    }
-    
-    res.json({ 
-      success: true, 
-      event,
-      referrerId: referrer.telegramId,
-      reward,
-    });
-  } catch (error: any) {
-    console.error('Referral webhook error:', error);
-    res.status(500).json({ error: 'Failed to process referral webhook' });
-  }
+// This legacy endpoint trusted arbitrary amounts and replayed credits. A verified payment ledger must own rewards.
+router.post("/api/webhooks/referral", verifyTelegramUser, requireAdmin, (_req, res) => {
+  return res.status(410).json({ error: 'Legacy reward webhook disabled', code: 'VERIFIED_PAYMENT_EVENT_REQUIRED' });
 });
 
-router.get("/api/analytics/dashboard", async (req, res) => {
+router.get("/api/analytics/dashboard", verifyTelegramUser, requireAdmin, async (req, res) => {
   try {
     const { range = "7days" } = req.query;
     

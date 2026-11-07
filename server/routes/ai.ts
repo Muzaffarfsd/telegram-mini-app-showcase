@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { streamChat, filterResponse, getPersonaName, type ChatMessage, type ChatMessagePart, type ChatOptions, type PageContext } from "../lib/gemini";
 import { textToSpeech, getVoices } from "../lib/elevenlabs";
-import { validateTelegramInitData } from "../telegramAuth";
+import { verifyTelegramUser } from './shared';
 
 const router = Router();
 
@@ -10,18 +10,18 @@ const MAX_MESSAGE_LENGTH = 4000;
 const MAX_IMAGE_SIZE = 4 * 1024 * 1024;
 
 // The consultant is an interactive local demonstration until a provider is deliberately enabled.
-router.use(["/api/ai/chat", "/api/ai/tts", "/api/ai/voices", "/api/ai/followup", "/api/ai/followup/cancel"], (_req, res, next) => {
+router.use(["/api/ai/chat", "/api/ai/tts", "/api/ai/voices", "/api/ai/followup", "/api/ai/followup/cancel"], (req, res, next) => {
   if (process.env.WEB4TG_AI_PROVIDER_ENABLED !== "true") {
     return res.status(503).json({ error: "AI provider is not connected", code: "AI_DISABLED" });
   }
-  next();
+  verifyTelegramUser(req, res, next);
 });
 
 function validatePart(p: any): p is ChatMessagePart {
   if (!p) return false;
   const hasText = p.text !== undefined;
   const hasImage = p.inlineData !== undefined;
-  if (!hasText && !hasImage) return false;
+  if (hasText === hasImage) return false;
   if (hasText && typeof p.text !== "string") return false;
   if (hasText && p.text.length > MAX_MESSAGE_LENGTH) return false;
   if (hasImage) {
@@ -35,6 +35,18 @@ function validatePart(p: any): p is ChatMessagePart {
 function validateMessages(messages: any): messages is ChatMessage[] {
   if (!Array.isArray(messages) || messages.length === 0) return false;
   if (messages.length > MAX_MESSAGES) return false;
+  let characters = 0;
+  let imageBytes = 0;
+  let imageCount = 0;
+  for (const message of messages) {
+    if (!message || !Array.isArray(message.parts) || message.parts.length > 4) return false;
+    for (const part of message.parts) {
+      if (!validatePart(part)) return false;
+      characters += typeof part.text === 'string' ? part.text.length : 0;
+      if (part.inlineData) { imageCount++; imageBytes += part.inlineData.data.length; }
+    }
+  }
+  if (characters > 24000 || imageCount > 2 || imageBytes > MAX_IMAGE_SIZE) return false;
   return messages.every(
     (m: any) =>
       m &&
@@ -48,13 +60,13 @@ function validateMessages(messages: any): messages is ChatMessage[] {
 function validatePageContext(ctx: any): ctx is PageContext | undefined {
   if (!ctx) return true;
   if (typeof ctx !== "object") return false;
-  if (typeof ctx.currentPage !== "string") return false;
+  if (typeof ctx.currentPage !== "string" || ctx.currentPage.length > 120 || JSON.stringify(ctx).length > 4000) return false;
   return true;
 }
 
 function validateMemory(mem: any): mem is Record<string, any> | undefined {
   if (!mem) return true;
-  if (typeof mem !== "object" || Array.isArray(mem)) return false;
+  if (typeof mem !== "object" || Array.isArray(mem) || JSON.stringify(mem).length > 2000) return false;
   if (mem.userName !== undefined && (typeof mem.userName !== "string" || mem.userName.length > 30)) return false;
   if (mem.businessType !== undefined && (typeof mem.businessType !== "string" || mem.businessType.length > 40)) return false;
   if (mem.businessName !== undefined && (typeof mem.businessName !== "string" || mem.businessName.length > 40)) return false;
@@ -94,7 +106,7 @@ router.post("/api/ai/chat", async (req: Request, res: Response) => {
   };
 
   res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Cache-Control", "no-store");
   res.setHeader("Connection", "keep-alive");
   res.setHeader("X-Accel-Buffering", "no");
 
@@ -164,6 +176,10 @@ router.post("/api/ai/tts", async (req: Request, res: Response) => {
       .status(400)
       .json({ error: "Text too long. Maximum 5000 characters." });
   }
+  if ((voiceId !== undefined && (typeof voiceId !== 'string' || !/^[A-Za-z0-9_-]{8,64}$/.test(voiceId))) ||
+      (modelId !== undefined && (typeof modelId !== 'string' || !/^[a-z][a-z0-9_]{0,80}$/.test(modelId)))) {
+    return res.status(400).json({ error: 'Invalid voice settings' });
+  }
 
   try {
     const audioBuffer = await textToSpeech(text, voiceId, modelId);
@@ -178,7 +194,7 @@ router.post("/api/ai/tts", async (req: Request, res: Response) => {
   } catch (error: any) {
     res
       .status(500)
-      .json({ error: error.message || "Failed to generate speech" });
+      .json({ error: "Speech provider unavailable" });
   }
 });
 
@@ -197,7 +213,7 @@ router.get("/api/ai/voices", async (_req: Request, res: Response) => {
   } catch (error: any) {
     res
       .status(500)
-      .json({ error: error.message || "Failed to fetch voices" });
+      .json({ error: "Voice provider unavailable" });
   }
 });
 
@@ -216,18 +232,7 @@ const pendingFollowups = new Map<number, ReturnType<typeof setTimeout>>();
 const FOLLOWUP_DELAY = 30 * 60 * 1000;
 
 function extractTelegramId(req: Request): number | null {
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  if (!botToken) return null;
-
-  const initData = req.headers["x-telegram-init-data"] as string;
-  if (!initData) {
-    const bodyId = req.body?.telegramId;
-    return typeof bodyId === "number" ? bodyId : null;
-  }
-
-  const validated = validateTelegramInitData(initData, botToken);
-  if (validated?.user?.id) return validated.user.id;
-  return null;
+  return req.telegramUser?.id || null;
 }
 
 router.post("/api/ai/followup", async (req: Request, res: Response) => {
@@ -282,10 +287,10 @@ router.post("/api/ai/followup", async (req: Request, res: Response) => {
       if (result.ok) {
         console.log(`[AI Followup] Sent to ${telegramId}, stage: ${stage}`);
       } else {
-        console.error(`[AI Followup] Telegram API error for ${telegramId}:`, result.description);
+        console.error("[AI Followup] Telegram API error", { code: result.error_code });
       }
     } catch (error) {
-      console.error("[AI Followup] Failed:", error);
+      console.error("[AI Followup] Failed:", error instanceof Error ? error.name : 'unknown');
     }
   }, FOLLOWUP_DELAY);
 

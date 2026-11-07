@@ -1,12 +1,21 @@
+import { sameOriginApiUrl } from './apiUrl';
+import { getCSRFToken } from './apiClient';
+
 export async function telegramApiRequest(
   method: string,
   url: string,
   initData: string,
   data?: unknown,
 ): Promise<Response> {
+  url = sameOriginApiUrl(url);
   const headers: Record<string, string> = {
     'x-telegram-init-data': initData,
   };
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method.toUpperCase())) {
+    const token = await getCSRFToken();
+    if (!token) throw new Error('Could not prepare secure request');
+    headers['X-CSRF-Token'] = token;
+  }
 
   if (data) {
     headers['Content-Type'] = 'application/json';
@@ -17,6 +26,8 @@ export async function telegramApiRequest(
     headers,
     body: data ? JSON.stringify(data) : undefined,
     credentials: 'include',
+    cache: 'no-store',
+    redirect: 'error',
   });
 
   if (!res.ok) {

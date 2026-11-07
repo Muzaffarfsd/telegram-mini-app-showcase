@@ -983,6 +983,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite build passed. Checked RU/EN mobile and desktop, Chromium/WebKit at 320 and 390 px, keyboard tabs/FAQ, reduced motion and navigation to ordering, showcase and AI. Scenario panels preserve equal heights; hero crop matched the published baseline pixel for pixel. One WebKit test click missed during auto-scroll; with stable geometry the real button click passed three consecutive times without a product change. Content checked against current order, AI and help sources; no new numeric claims or extra artwork.
 
 ---
+## 2026-11-07 · Shared application and demo security hardening
+
+**What:** Added default-private API access, exact CORS origins, production CSP with trusted bootstrap hashes, bounded requests/timeouts, signed Telegram validation, explicit administrators and ownership enforcement. Protected bot/webhook control, payment state, rewards and upload publication; removed private caching/replay, public source archives and credential-shaped documentation values. Added redaction, supported runtime/dependency updates, regression/type/audit/secret CI and future-demo security rules.
+**Why:** User requested comprehensive protection of the studio and existing/future demos against attacks and unauthorized access.
+**Files:** Shared server perimeter/auth/access/redaction/provisioning, API routers/storage, client request/cache/worker/upload boundaries, dependencies/Node/Nixpacks, CI/tests, `SECURITY.md` and the dated assessment.
+**Checkpoint:** `b1c9b30`, branch `codex/security-hardening-20261107`.
+**Verification:** 37 unit/regression tests plus isolated backend integration passed; strict server/shared type checking passed. Production build and 26 browser route checks passed (5 core, 11 active demo routes, 10 retired safe fallbacks), with no page/CSP errors; real service-worker cache/queue regression passed. Full and production dependency audit: 0 known advisories after updates. Clean install/SDK/native/schema tooling checks passed. Global UI type check still has 45 diagnostics outside the changed server/request boundary. One historical credential was rejected by Telegram in a read-only check; no credential values or real bot messages were exposed. Provider IAM/WAF/MFA/backups and actual cloud deployment are separately identified, not claimed tested by local checks.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description

@@ -1,7 +1,9 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import { ZodSchema } from "zod";
 import { logger } from "./logger";
-import { getCachedApiResponse, cacheApiResponse, CACHE_TTL } from "./telegramStorage";
+import { CACHE_TTL } from "./telegramStorage";
+import { sameOriginApiUrl } from './apiUrl';
+import { getCSRFToken } from './apiClient';
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -36,6 +38,7 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  url = sameOriginApiUrl(url);
   const headers: Record<string, string> = {};
   
   if (data) {
@@ -45,6 +48,11 @@ export async function apiRequest(
   const initData = getTelegramInitData();
   if (initData) {
     headers["X-Telegram-Init-Data"] = initData;
+  }
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method.toUpperCase())) {
+    const token = await getCSRFToken();
+    if (!token) throw new Error('Could not prepare secure request');
+    headers['X-CSRF-Token'] = token;
   }
 
   const controller = new AbortController();
@@ -57,6 +65,8 @@ export async function apiRequest(
       headers,
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include",
+      cache: 'no-store',
+      redirect: 'error',
       signal: controller.signal,
     });
 
@@ -82,7 +92,7 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey, signal }) => {
-    const url = queryKey[0] as string;
+    const url = sameOriginApiUrl(queryKey[0] as string);
     const headers: Record<string, string> = {};
     
     const initData = getTelegramInitData();
@@ -100,6 +110,8 @@ export const getQueryFn: <T>(options: {
     try {
       const res = await fetch(url, {
         credentials: "include",
+        cache: 'no-store',
+        redirect: 'error',
         headers,
         signal: controller.signal,
       });
@@ -130,7 +142,7 @@ export function createTypedQueryFn<T>(options: {
   const { on401: unauthorizedBehavior, schema } = options;
   
   return async ({ queryKey }) => {
-    const url = queryKey[0] as string;
+    const url = sameOriginApiUrl(queryKey[0] as string);
     const headers: Record<string, string> = {};
     
     const initData = getTelegramInitData();
@@ -142,6 +154,8 @@ export function createTypedQueryFn<T>(options: {
     
     const res = await fetch(url, {
       credentials: "include",
+      cache: 'no-store',
+      redirect: 'error',
       headers,
     });
 
@@ -230,63 +244,14 @@ export function prefetchQuery<T>(
 }
 
 /**
- * Query function with DeviceStorage caching (Bot API 9.2)
- * Seeds queryClient with cached data, then fetches fresh data
+ * Backward-compatible query helper. API results stay in the in-memory query
+ * client; persisting responses by URL can expose another session's data.
  */
 export function getCachedQueryFn<T>(options: {
   on401: UnauthorizedBehavior;
   cacheTtl?: number;
 }): QueryFunction<T> {
-  const { on401: unauthorizedBehavior, cacheTtl = CACHE_TTL.FIVE_MINUTES } = options;
-  
-  return async ({ queryKey }) => {
-    const url = queryKey[0] as string;
-    
-    const cached = await getCachedApiResponse<T>(url);
-    if (cached !== null) {
-      queryClient.setQueryData(queryKey, cached);
-    }
-    
-    return fetchAndCache<T>(url, unauthorizedBehavior, cacheTtl);
-  };
-}
-
-async function fetchAndCache<T>(
-  url: string, 
-  unauthorizedBehavior: UnauthorizedBehavior,
-  cacheTtl: number
-): Promise<T> {
-  const headers: Record<string, string> = {};
-  
-  const initData = getTelegramInitData();
-  if (initData) {
-    headers["X-Telegram-Init-Data"] = initData;
-  }
-
-  const startTime = performance.now();
-  
-  const res = await fetch(url, {
-    credentials: "include",
-    headers,
-  });
-
-  const duration = Math.round(performance.now() - startTime);
-  logger.api('GET', url, res.status, duration);
-
-  if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-    return null as T;
-  }
-
-  await throwIfResNotOk(res);
-  const data = await res.json();
-  
-  try {
-    await cacheApiResponse(url, data, cacheTtl);
-  } catch {
-    // Silently ignore storage errors - caching is optional
-  }
-  
-  return data;
+  return getQueryFn<T>({ on401: options.on401 });
 }
 
 export { CACHE_TIME, CACHE_TTL };

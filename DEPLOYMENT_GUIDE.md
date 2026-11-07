@@ -192,7 +192,7 @@ git push -u origin main
 #### 🔑 TELEGRAM_BOT_TOKEN
 ```
 Variable Name: TELEGRAM_BOT_TOKEN
-Value: 8583828594:AAG9u61RdSfkdxoGo5xGs21wENkxzwty1Ew
+Value: YOUR_TELEGRAM_BOT_TOKEN
 ```
 (Ваш токен бота)
 
@@ -232,11 +232,11 @@ Value: 5000
 ### Шаг 2: Настройте Telegram Webhook
 1. Откройте браузер и перейдите по адресу:
 ```
-https://api.telegram.org/bot8583828594:AAG9u61RdSfkdxoGo5xGs21wENkxzwty1Ew/setWebhook?url=https://your-app-name.up.railway.app/api/telegram/webhook
+https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/setWebhook?url=https://your-app-name.up.railway.app/api/telegram/webhook
 ```
 
 Замените:
-- `8583828594:AAG9u61RdSfkdxoGo5xGs21wENkxzwty1Ew` - на ваш токен бота
+- `YOUR_TELEGRAM_BOT_TOKEN` - на ваш токен бота
 - `your-app-name.up.railway.app` - на ваш домен Railway
 
 2. Вы должны увидеть ответ:
@@ -252,7 +252,7 @@ https://api.telegram.org/bot8583828594:AAG9u61RdSfkdxoGo5xGs21wENkxzwty1Ew/setWe
 
 ### Шаг 3: Проверьте Webhook
 ```
-https://api.telegram.org/bot8583828594:AAG9u61RdSfkdxoGo5xGs21wENkxzwty1Ew/getWebhookInfo
+https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/getWebhookInfo
 ```
 
 Вы должны увидеть:

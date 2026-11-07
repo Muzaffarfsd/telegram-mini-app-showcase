@@ -26,14 +26,12 @@ export const TubesBackground = memo(function TubesBackground({
     iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;pointer-events:none;';
     iframe.setAttribute('tabindex', '-1');
     iframe.setAttribute('aria-hidden', 'true');
+    iframe.setAttribute('sandbox', 'allow-scripts');
+    iframe.setAttribute('referrerpolicy', 'no-referrer');
     iframeRef.current = iframe;
     containerRef.current.appendChild(iframe);
 
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-    if (!iframeDoc) return;
-
-    iframeDoc.open();
-    iframeDoc.write(`<!DOCTYPE html>
+    iframe.srcdoc = `<!DOCTYPE html>
 <html><head><style>
   * { margin:0; padding:0; }
   html, body, canvas { width:100%; height:100%; display:block; background:#000; overflow:hidden; }
@@ -69,12 +67,11 @@ export const TubesBackground = memo(function TubesBackground({
     } catch(e) {}
   }
 
-  window.parent.postMessage('tubes-loaded', '*');
-<\/script></body></html>`);
-    iframeDoc.close();
+  window.parent.postMessage('tubes-loaded', ${JSON.stringify(window.location.origin)});
+<\/script></body></html>`;
 
     const onMessage = (e: MessageEvent) => {
-      if (e.data === 'tubes-loaded') setIsLoaded(true);
+      if (e.source === iframe.contentWindow && e.origin === 'null' && e.data === 'tubes-loaded') setIsLoaded(true);
     };
     window.addEventListener('message', onMessage);
 

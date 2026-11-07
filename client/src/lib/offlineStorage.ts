@@ -142,16 +142,10 @@ class OfflineStorage {
   }
 
   async addPendingAction(action: Omit<PendingAction, 'id' | 'createdAt' | 'retryCount'>): Promise<string> {
-    const store = await this.getStore('pendingActions', 'readwrite');
-    const id = `action-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const pendingAction: PendingAction = {
-      ...action,
-      id,
-      createdAt: Date.now(),
-      retryCount: 0
-    };
-    await this.promisifyRequest(store.put(pendingAction));
-    return id;
+    // Retrying writes needs an explicit idempotent endpoint and a fresh session.
+    // A generic device-wide queue cannot provide those guarantees.
+    void action;
+    throw new Error('Changes require an internet connection; please retry explicitly.');
   }
 
   async getPendingActions(): Promise<PendingAction[]> {
@@ -184,26 +178,9 @@ class OfflineStorage {
 
   async syncPendingActions(fetcher: (action: PendingAction) => Promise<boolean>): Promise<{ synced: number; failed: number }> {
     const actions = await this.getPendingActions();
-    let synced = 0;
-    let failed = 0;
-
-    for (const action of actions) {
-      try {
-        const success = await fetcher(action);
-        if (success) {
-          await this.removePendingAction(action.id);
-          synced++;
-        } else {
-          await this.updatePendingAction(action.id, { retryCount: action.retryCount + 1 });
-          failed++;
-        }
-      } catch {
-        await this.updatePendingAction(action.id, { retryCount: action.retryCount + 1 });
-        failed++;
-      }
-    }
-
-    return { synced, failed };
+    void fetcher;
+    await this.clearPendingActions();
+    return { synced: 0, failed: actions.length };
   }
 
   async saveToCache(key: string, data: unknown): Promise<void> {

@@ -8,6 +8,7 @@ import {
 import type { TelegramUserData } from '../types/api';
 import Stripe from 'stripe';
 import { createSignedCsrfToken, verifySignedCsrfToken } from '../csrfTokens';
+export { requireAdmin } from '../securityAccess';
 
 const XSS_SANITIZE_FIELDS = new Set(['text', 'comment', 'message', 'description', 'bio', 'content']);
 
@@ -20,7 +21,8 @@ export function sanitizeHtmlString(input: string): string {
     .replace(/on\w+\s*=/gi, '');
 }
 
-export function sanitizeUserInput(obj: unknown, parentKey?: string): unknown {
+export function sanitizeUserInput(obj: unknown, parentKey?: string, depth = 0): unknown {
+  if (depth > 16) throw new Error('Request nesting exceeds limit');
   if (typeof obj === 'string') {
     if (parentKey && XSS_SANITIZE_FIELDS.has(parentKey.toLowerCase())) {
       return sanitizeHtmlString(obj);
@@ -28,12 +30,14 @@ export function sanitizeUserInput(obj: unknown, parentKey?: string): unknown {
     return obj;
   }
   if (Array.isArray(obj)) {
-    return obj.map((item) => sanitizeUserInput(item, parentKey));
+    if (obj.length > 1000) throw new Error('Request array exceeds limit');
+    return obj.map((item) => sanitizeUserInput(item, parentKey, depth + 1));
   }
   if (obj && typeof obj === 'object') {
-    const sanitized: Record<string, unknown> = {};
+    const sanitized: Record<string, unknown> = Object.create(null);
     for (const key of Object.keys(obj)) {
-      sanitized[key] = sanitizeUserInput((obj as Record<string, unknown>)[key], key);
+      if (['__proto__', 'prototype', 'constructor'].includes(key)) throw new Error('Reserved request key');
+      sanitized[key] = sanitizeUserInput((obj as Record<string, unknown>)[key], key, depth + 1);
     }
     return sanitized;
   }
@@ -41,8 +45,11 @@ export function sanitizeUserInput(obj: unknown, parentKey?: string): unknown {
 }
 
 export function sanitizeBodyMiddleware(req: Request, res: Response, next: NextFunction) {
-  if (req.body && typeof req.body === 'object') {
-    req.body = sanitizeUserInput(req.body);
+  try {
+    if (req.body && typeof req.body === 'object') req.body = sanitizeUserInput(req.body);
+  } catch {
+    res.status(400).json({ error: 'Invalid request structure' });
+    return;
   }
   next();
 }
@@ -148,14 +155,14 @@ export const referralApplySchema = z.object({
 });
 
 export const awardXpSchema = z.object({
-  telegramId: z.number(),
-  xpAmount: z.number(),
-  action: z.string(),
+  telegramId: z.number().int().positive().safe(),
+  xpAmount: z.number().int().min(1).max(1000),
+  action: z.string().min(1).max(100),
 });
 
 export const uploadUrlSchema = z.object({
-  fileSize: z.number().optional(),
-  fileType: z.string().optional(),
+  fileSize: z.number().int().min(1).max(MAX_FILE_SIZE),
+  fileType: z.enum(['image/jpeg', 'image/png', 'image/webp']),
 });
 
 export const notificationSendSchema = z.object({

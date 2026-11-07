@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { apiClient } from '@/lib/apiClient';
 import { ObjectUploader } from "@/components/ObjectUploader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -81,14 +82,15 @@ export default function PhotoGallery() {
   };
 
   // Get presigned upload URL
-  const getUploadUrl = async () => {
-    const response = await fetch("/api/photos/upload-url", {
-      method: "POST",
+  const getUploadUrl = async (file: { size?: number | null; type?: string }) => {
+    const data = await apiClient.post<{ uploadURL: string }>("/api/photos/upload-url", {
+      fileSize: file.size,
+      fileType: file.type,
     });
-    const data = await response.json();
     return {
       method: "PUT" as const,
       url: data.uploadURL,
+      headers: { 'Content-Type': file.type || 'application/octet-stream' },
     };
   };
 
@@ -111,7 +113,7 @@ export default function PhotoGallery() {
           <h1 className="text-base font-medium">Фотогалерея</h1>
           <ObjectUploader
             maxNumberOfFiles={1}
-            maxFileSize={10485760}
+            maxFileSize={5242880}
             onGetUploadParameters={getUploadUrl}
             onComplete={handleUploadComplete}
             buttonClassName="bg-blue-600 hover:bg-blue-700 rounded-full h-10 px-6"

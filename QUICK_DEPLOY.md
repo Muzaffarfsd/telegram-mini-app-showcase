@@ -45,7 +45,7 @@ git push -u origin main
 В Railway → Ваш сервис → Variables → + New Variable:
 
 ```env
-TELEGRAM_BOT_TOKEN=8583828594:AAG9u61RdSfkdxoGo5xGs21wENkxzwty1Ew
+TELEGRAM_BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN
 NODE_ENV=production
 PORT=5000
 ```
@@ -67,14 +67,14 @@ PORT=5000
 ### Установите webhook:
 Откройте в браузере:
 ```
-https://api.telegram.org/bot8583828594:AAG9u61RdSfkdxoGo5xGs21wENkxzwty1Ew/setWebhook?url=https://YOUR-APP.up.railway.app/api/telegram/webhook
+https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/setWebhook?url=https://YOUR-APP.up.railway.app/api/telegram/webhook
 ```
 
 Должен вернуть: `{"ok": true, "result": true}`
 
 ### Проверьте webhook:
 ```
-https://api.telegram.org/bot8583828594:AAG9u61RdSfkdxoGo5xGs21wENkxzwty1Ew/getWebhookInfo
+https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/getWebhookInfo
 ```
 
 ---

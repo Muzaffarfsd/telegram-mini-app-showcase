@@ -1,3 +1,5 @@
+import { sameOriginApiUrl } from './apiUrl';
+
 export class ProfileRequestError extends Error {
   constructor(
     message: string,
@@ -31,6 +33,7 @@ async function readResponse<T>(response: Response): Promise<T> {
 
 /** Mutations use the same Telegram session and CSRF protection as the profile. */
 export async function profilePost<T>(url: string, initData: string, body: unknown): Promise<T> {
+  url = sameOriginApiUrl(url);
   if (!initData) throw new ProfileRequestError('Telegram authorization is required', 401);
   const headers = { 'x-telegram-init-data': initData };
   const controller = new AbortController();
@@ -39,6 +42,8 @@ export async function profilePost<T>(url: string, initData: string, body: unknow
     const tokenResponse = await fetch('/api/csrf-token', {
       headers,
       credentials: 'include',
+      cache: 'no-store',
+      redirect: 'error',
       signal: controller.signal,
     });
     const tokenData = await readResponse<{ csrfToken?: string; token?: string }>(tokenResponse);
@@ -47,6 +52,8 @@ export async function profilePost<T>(url: string, initData: string, body: unknow
     const response = await fetch(url, {
       method: 'POST',
       credentials: 'include',
+      cache: 'no-store',
+      redirect: 'error',
       headers: { ...headers, 'Content-Type': 'application/json', 'x-csrf-token': token },
       body: JSON.stringify(body),
       signal: controller.signal,

@@ -7,11 +7,14 @@ import rateLimit from "express-rate-limit";
 import * as Sentry from '@sentry/node';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { logRequest, logInfo, logError } from "./logger";
+import { logRequest, logInfo, logError, redactSensitiveText } from "./logger";
 import { errorHandler } from "./errorHandler";
 import { setupSwagger } from "./swagger";
 import { pool } from "./db";
 import { initializeEmptyDatabase } from "./initializeDatabase";
+import { apiAccessPolicy, apiOriginPolicy, contentSecurityDirectives, protectStaticFiles, railwayClientAddress, safeBodyPolicy } from './security';
+import { redactMonitoringEvent } from './redaction';
+import { secureExistingTelegramWebhook } from './webhookProvisioning';
 
 // Initialize Sentry for error tracking
 if (process.env.SENTRY_DSN) {
@@ -19,22 +22,48 @@ if (process.env.SENTRY_DSN) {
     dsn: process.env.SENTRY_DSN,
     environment: process.env.NODE_ENV || 'development',
     tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+    sendDefaultPii: false,
+    beforeSend(event) {
+      if (event.request) {
+        delete event.request.data;
+        delete event.request.cookies;
+        if (event.request.url) event.request.url = event.request.url.split('?')[0];
+        for (const name of Object.keys(event.request.headers || {})) {
+          if (/authorization|cookie|telegram|csrf|token|secret/i.test(name)) delete event.request.headers![name];
+        }
+      }
+      for (const item of event.exception?.values || []) if (item.value) item.value = redactSensitiveText(item.value);
+      if (event.message) event.message = redactSensitiveText(event.message);
+      return redactMonitoringEvent(event);
+    },
+    beforeSendTransaction: event => redactMonitoringEvent(event),
   });
 }
 
 const app = express();
 
 // Trust proxy for proper IP detection behind reverse proxy (Replit/Railway)
-app.set('trust proxy', 1);
+const proxyHops = Number(process.env.TRUST_PROXY_HOPS ?? (process.env.RAILWAY_PUBLIC_DOMAIN ? '1' : '0'));
+app.set('trust proxy', Number.isInteger(proxyHops) && proxyHops >= 0 && proxyHops <= 5 ? proxyHops : 0);
+app.use(railwayClientAddress);
+app.disable('x-powered-by');
+app.set('query parser', 'simple');
 
 // Security: Helmet for HTTP headers protection
 app.use(helmet({
-  contentSecurityPolicy: false, // Disabled for Telegram WebApp compatibility
+  contentSecurityPolicy: { directives: contentSecurityDirectives(path.resolve(import.meta.dirname, '..', 'dist', 'index.html')), useDefaults: false },
   crossOriginEmbedderPolicy: false,
   crossOriginResourcePolicy: { policy: "cross-origin" },
   // Allow iframe embedding from Telegram + our local widget in development.
-  frameguard: process.env.NODE_ENV === 'development' ? false : { action: 'sameorigin' },
+  frameguard: false, // CSP frame-ancestors allows Telegram Web and our own origin.
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  strictTransportSecurity: process.env.NODE_ENV === 'production' ? { maxAge: 31536000, includeSubDomains: true } : false,
 }));
+app.use((_req, res, next) => {
+  res.setHeader('Permissions-Policy', 'camera=(), geolocation=(), payment=(self "https://js.stripe.com"), microphone=(self)');
+  next();
+});
+app.use(protectStaticFiles);
 
 // Cache control for Telegram Mini App - force refresh
 app.use((req, res, next) => {
@@ -50,42 +79,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// Security: CORS configuration
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  // Allow Telegram domains and local development
-  const allowedOrigins = [
-    'https://web.telegram.org',
-    'https://telegram.org',
-    'https://t.me',
-  ];
-  
-  if (origin && (allowedOrigins.some(o => origin.includes(o)) || process.env.NODE_ENV === 'development')) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  } else if (process.env.NODE_ENV === 'development') {
-    // In development, allow all origins for VPN/geolocation testing
-    res.setHeader('Access-Control-Allow-Origin', '*');
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Telegram-Init-Data, X-CSRF-Token');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  // Add Access-Control-Max-Age for better performance
-  res.setHeader('Access-Control-Max-Age', '86400');
-  
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
-  }
-  next();
-});
+// Exact origin matching, never substring matching or credentialed wildcards.
+app.use('/api', apiOriginPolicy);
 
 // Security: Rate limiting for API endpoints
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per window per IP
+  windowMs: 5 * 60 * 1000,
+  max: 300, // A coarse perimeter budget; stricter per-route and burst budgets apply below.
   message: { error: 'Too many requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => !req.path.startsWith('/api'), // Only limit API routes
+  skip: (req) => req.path === '/health', // Mounted at /api: req.path is already relative.
 });
 
 const strictLimiter = rateLimit({
@@ -97,6 +101,8 @@ const strictLimiter = rateLimit({
 app.use('/api', apiLimiter);
 app.use('/api/referral', strictLimiter);
 app.use('/api/coins', strictLimiter);
+app.use('/api/ai', strictLimiter);
+app.use('/api', apiAccessPolicy);
 
 let earlyHintLinks: string[] = [];
 if (process.env.NODE_ENV === 'production') {
@@ -175,8 +181,11 @@ app.use(compression({
   }
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// Bound memory/CPU before route validation. Images have a separate, bounded budget.
+app.use('/api/ai/chat', express.json({ limit: '6mb', strict: true, inflate: false }));
+app.use(express.json({ limit: '128kb', strict: true, inflate: false }));
+app.use(express.urlencoded({ extended: false, limit: '32kb', parameterLimit: 100, inflate: false }));
+app.use(safeBodyPolicy);
 
 // Disable caching ONLY in development to ensure fresh content
 if (process.env.NODE_ENV === 'development') {
@@ -193,13 +202,6 @@ if (process.env.NODE_ENV === 'development') {
 app.use((req, res, next) => {
   const start = Date.now();
   const pathname = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
 
   res.on("finish", () => {
     const duration = Date.now() - start;
@@ -209,9 +211,6 @@ app.use((req, res, next) => {
       });
 
       let logLine = `${req.method} ${pathname} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
 
       if (logLine.length > 80) {
         logLine = logLine.slice(0, 79) + "…";
@@ -239,8 +238,13 @@ app.use((req, res, next) => {
   }
   const server = await registerRoutes(app);
 
+  if (process.env.NODE_ENV === 'production') {
+    const webhookStatus = await secureExistingTelegramWebhook();
+    logInfo('Telegram webhook security provisioning', { status: webhookStatus });
+  }
+
   // Setup Swagger API documentation
-  setupSwagger(app);
+  if (process.env.NODE_ENV !== 'production') setupSwagger(app);
 
   // Custom error handler (also sends to Sentry via errorHandler)
   app.use(errorHandler);
@@ -259,6 +263,10 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
+  server.requestTimeout = 30_000;
+  server.headersTimeout = 15_000;
+  server.keepAliveTimeout = 5_000;
+  server.maxHeadersCount = 100;
   server.listen({
     port,
     host: "0.0.0.0",

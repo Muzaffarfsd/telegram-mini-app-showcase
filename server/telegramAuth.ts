@@ -1,16 +1,9 @@
 import * as crypto from 'crypto';
 import type { Request, Response, NextFunction } from 'express';
+import type { TelegramUserData } from './types/api';
+import { isUsableBotCredential } from './revokedCredentialFingerprints';
 
-export interface TelegramUser {
-  id: number;
-  first_name: string;
-  last_name?: string;
-  username?: string;
-  language_code?: string;
-  photo_url?: string;
-  is_premium?: boolean;
-  allows_write_to_pm?: boolean;
-}
+export type TelegramUser = TelegramUserData;
 
 export interface ParsedInitData {
   user?: TelegramUser;
@@ -33,7 +26,8 @@ export interface ValidationOptions {
   allowMissingUser?: boolean;
 }
 
-const DEFAULT_MAX_AUTH_AGE = 86400;
+const configuredAuthAge = Number(process.env.TELEGRAM_INIT_DATA_MAX_AGE_SECONDS || 3600);
+const DEFAULT_MAX_AUTH_AGE = Number.isInteger(configuredAuthAge) && configuredAuthAge >= 60 && configuredAuthAge <= 86400 ? configuredAuthAge : 3600;
 
 export class TelegramAuthError extends Error {
   public readonly code: string;
@@ -54,27 +48,29 @@ export function validateTelegramInitData(
 ): ParsedInitData | null {
   const { maxAuthAge = DEFAULT_MAX_AUTH_AGE, allowMissingUser = false } = options;
 
-  if (!initData || typeof initData !== 'string') {
+  if (!initData || typeof initData !== 'string' || initData.length > 16384) {
     return null;
   }
 
-  if (!botToken || typeof botToken !== 'string') {
+  if (!botToken || typeof botToken !== 'string' || !isUsableBotCredential(botToken)) {
     console.error('TelegramAuth: Bot token is missing or invalid');
     return null;
   }
 
   try {
     const params = new URLSearchParams(initData);
+    const keys = Array.from(params.keys());
+    if (new Set(keys).size !== keys.length || keys.length > 32) return null;
     const hash = params.get('hash');
 
-    if (!hash) {
+    if (!hash || !/^[a-fA-F0-9]{64}$/.test(hash)) {
       return null;
     }
 
     params.delete('hash');
 
     const dataCheckString = Array.from(params.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
+      .sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)
       .map(([key, value]) => `${key}=${value}`)
       .join('\n');
 
@@ -100,13 +96,13 @@ export function validateTelegramInitData(
       return null;
     }
 
-    const authDate = parseInt(authDateStr, 10);
-    if (isNaN(authDate) || authDate <= 0) {
+    const authDate = Number(authDateStr);
+    if (!/^\d+$/.test(authDateStr) || !Number.isSafeInteger(authDate) || authDate <= 0) {
       return null;
     }
 
     const now = Math.floor(Date.now() / 1000);
-    if (now - authDate > maxAuthAge) {
+    if (authDate > now + 30 || now - authDate > maxAuthAge) {
       return null;
     }
 
@@ -116,7 +112,7 @@ export function validateTelegramInitData(
     if (userStr) {
       try {
         user = JSON.parse(userStr) as TelegramUser;
-        if (!user.id || typeof user.id !== 'number') {
+        if (!user || !Number.isSafeInteger(user.id) || user.id <= 0 || typeof user.first_name !== 'string') {
           return null;
         }
       } catch {
@@ -186,8 +182,7 @@ export function telegramAuthMiddleware(
 
     const initData =
       (req.headers['x-telegram-init-data'] as string) ||
-      (req.body?.initData as string) ||
-      (req.query?.initData as string);
+      (req.body?.initData as string);
 
     if (!initData) {
       return res.status(401).json({
@@ -220,26 +215,21 @@ export function optionalTelegramAuthMiddleware(
   const token = botToken || process.env.TELEGRAM_BOT_TOKEN;
 
   return (req: TelegramAuthRequest, res: Response, next: NextFunction) => {
-    if (!token) {
-      return next();
-    }
-
     const initData =
-      (req.headers['x-telegram-init-data'] as string) ||
-      (req.body?.initData as string) ||
-      (req.query?.initData as string);
+      req.headers['x-telegram-init-data'] ?? req.body?.initData;
 
-    if (!initData) {
+    if (initData === undefined) {
       return next();
     }
+    if (!token) return res.status(503).json({ error: 'Telegram bot not configured', code: 'BOT_NOT_CONFIGURED' });
+    if (typeof initData !== 'string' || !initData) return res.status(401).json({ error: 'Invalid Telegram authentication', code: 'INVALID_AUTH' });
 
     const validated = validateTelegramInitData(initData, token, options);
 
-    if (validated) {
-      req.telegramUser = validated.user;
-      req.telegramAuthDate = validated.auth_date;
-      req.telegramQueryId = validated.query_id;
-    }
+    if (!validated) return res.status(401).json({ error: 'Invalid Telegram authentication', code: 'INVALID_AUTH' });
+    req.telegramUser = validated.user;
+    req.telegramAuthDate = validated.auth_date;
+    req.telegramQueryId = validated.query_id;
 
     next();
   };

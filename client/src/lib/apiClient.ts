@@ -1,5 +1,6 @@
 import { z, ZodSchema } from 'zod';
 import { logger } from './logger';
+import { sameOriginApiUrl } from './apiUrl';
 
 type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -44,7 +45,7 @@ let csrfTokenPromise: Promise<string> | null = null;
 let csrfSession: string | null = null;
 let csrfRefreshAt = 0;
 
-async function getCSRFToken(): Promise<string> {
+export async function getCSRFToken(): Promise<string> {
   const session = getTelegramInitData();
   if (csrfSession !== session) {
     csrfSession = session;
@@ -56,7 +57,7 @@ async function getCSRFToken(): Promise<string> {
   
   if (csrfTokenPromise) return csrfTokenPromise;
   
-  const pending = fetch('/api/csrf-token', { credentials: 'include', headers: session ? { 'X-Telegram-Init-Data': session } : {} })
+  const pending = fetch('/api/csrf-token', { credentials: 'include', cache: 'no-store', redirect: 'error', headers: session ? { 'X-Telegram-Init-Data': session } : {} })
     .then(res => { if (!res.ok) throw new Error('CSRF token request failed'); return res.json(); })
     .then(data => {
       const token = data.csrfToken || data.token;
@@ -90,6 +91,7 @@ async function request<T>(
   url: string,
   options: RequestOptions<T> = {}
 ): Promise<APIResponse<T>> {
+  url = sameOriginApiUrl(url);
   const {
     method = 'GET',
     body,
@@ -120,9 +122,8 @@ async function request<T>(
 
       if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
         const token = await getCSRFToken();
-        if (token) {
-          requestHeaders['X-CSRF-Token'] = token;
-        }
+        if (!token) throw new Error('Could not prepare secure request');
+        requestHeaders['X-CSRF-Token'] = token;
       }
     }
 
@@ -131,6 +132,8 @@ async function request<T>(
       headers: requestHeaders,
       body: body ? JSON.stringify(body) : undefined,
       credentials: 'include',
+      cache: 'no-store',
+      redirect: 'error',
       signal: controller.signal,
     });
 

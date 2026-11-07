@@ -1,601 +1,171 @@
-const CACHE_VERSION = 'v12';
+// Cache only public application assets. API credentials, private responses and
+// writes must never enter an offline cache or a background replay queue.
+const CACHE_VERSION = 'v13-security';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
-const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
-const DATA_CACHE = `data-${CACHE_VERSION}`;
-const API_CACHE = `api-${CACHE_VERSION}`;
-const VIDEO_CACHE = `video-${CACHE_VERSION}`;
+const ASSET_CACHE = `dynamic-${CACHE_VERSION}`;
 const OFFLINE_PAGE = '/offline.html';
+const STATIC_ASSETS = ['/', '/offline.html', '/manifest.json', '/favicon.png'];
+const MAX_ASSETS = 160;
 
-const NAVIGATION_PRELOAD_SUPPORTED = 'navigationPreload' in self.registration;
-
-const CACHEABLE_API_ENDPOINTS = [
-  '/api/reviews',
-  '/api/leaderboard',
-  '/api/achievements',
-  '/api/daily-tasks',
-  '/api/user/stats',
-  '/api/categories',
-  '/api/demos'
-];
-
-const API_CACHE_TTL = 60 * 60 * 1000;
-
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/offline.html',
-  '/manifest.json',
-  '/favicon.png',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
-];
-
-const CRITICAL_ASSETS = [
-  '/assets/',
-  '.js',
-  '.css',
-  '.woff2',
-  '.woff',
-  '.ttf'
-];
-
-const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.ico'];
-const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.ogg'];
-const MAX_VIDEO_CACHE_SIZE = 50 * 1024 * 1024;
-
-const SYNC_QUEUE_DB = 'syncQueue';
-const SYNC_QUEUE_STORE = 'pendingRequests';
-
-let syncQueueDB = null;
-
-function getNetworkType() {
-  if (self.navigator && self.navigator.connection) {
-    return self.navigator.connection.effectiveType || '4g';
-  }
-  return '4g';
+function sameOriginUrl(value) {
+  try {
+    const url = new URL(value, self.location.origin);
+    return url.origin === self.location.origin && !url.username && !url.password &&
+      ['https:', 'http:'].includes(url.protocol) ? url : null;
+  } catch { return null; }
 }
 
-function getAdaptiveApiTTL() {
-  const net = getNetworkType();
-  if (net === 'slow-2g' || net === '2g') return API_CACHE_TTL * 4;
-  if (net === '3g') return API_CACHE_TTL * 2;
-  return API_CACHE_TTL;
+function isPublicAsset(url) {
+  if (!url || url.search || url.hash) return false;
+  if (STATIC_ASSETS.includes(url.pathname)) return true;
+  return /^\/(?:assets|icons|showcase|about-studio|attached_assets)\//.test(url.pathname) &&
+    /\.(?:js|css|woff2?|ttf|png|jpe?g|webp|gif|ico|svg|avif)$/i.test(url.pathname);
 }
 
-async function openSyncDB() {
-  if (syncQueueDB) return syncQueueDB;
+function hasCredentials(request) {
+  return ['authorization', 'x-telegram-init-data', 'x-csrf-token'].some(name => request.headers.has(name));
+}
 
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(SYNC_QUEUE_DB, 1);
-    request.onerror = () => reject(request.error);
+async function clearLegacyRequests() {
+  // Clear an existing queue without creating one, then drop the database. An old
+  // open worker may delay deletion, but clearing prevents its records replaying.
+  await new Promise(resolve => {
+    const request = indexedDB.open('syncQueue');
+    request.onupgradeneeded = () => { request.transaction.abort(); resolve(); };
+    request.onerror = () => resolve();
     request.onsuccess = () => {
-      syncQueueDB = request.result;
-      resolve(syncQueueDB);
+      const db = request.result;
+      if (!db.objectStoreNames.contains('pendingRequests')) { db.close(); resolve(); return; }
+      const tx = db.transaction('pendingRequests', 'readwrite');
+      tx.objectStore('pendingRequests').clear();
+      tx.oncomplete = tx.onerror = tx.onabort = () => { db.close(); resolve(); };
     };
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains(SYNC_QUEUE_STORE)) {
-        db.createObjectStore(SYNC_QUEUE_STORE, { keyPath: 'id', autoIncrement: true });
-      }
-    };
-  });
+  }).catch(() => {});
+  try {
+    const deletion = indexedDB.deleteDatabase('syncQueue');
+    deletion.onerror = () => {};
+  } catch { /* The new worker still never reads or replays an old queue. */ }
 }
 
-async function addToSyncQueue(request, body) {
-  try {
-    const db = await openSyncDB();
-    const tx = db.transaction(SYNC_QUEUE_STORE, 'readwrite');
-    const store = tx.objectStore(SYNC_QUEUE_STORE);
-
-    await new Promise((resolve, reject) => {
-      const req = store.add({
-        url: request.url,
-        method: request.method,
-        headers: Object.fromEntries(request.headers.entries()),
-        body: body,
-        timestamp: Date.now()
-      });
-      req.onsuccess = () => resolve();
-      req.onerror = () => reject(req.error);
-    });
-
-    const count = await getPendingSyncCount();
-    notifyClients({ type: 'SYNC_QUEUED', count });
-  } catch (error) {
-    console.error('Failed to queue request:', error);
-  }
-}
-
-async function getPendingSyncCount() {
-  try {
-    const db = await openSyncDB();
-    const tx = db.transaction(SYNC_QUEUE_STORE, 'readonly');
-    const store = tx.objectStore(SYNC_QUEUE_STORE);
-    return new Promise((resolve, reject) => {
-      const request = store.count();
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-  } catch {
-    return 0;
-  }
-}
-
-async function processSyncQueue() {
-  try {
-    const db = await openSyncDB();
-    const tx = db.transaction(SYNC_QUEUE_STORE, 'readonly');
-    const store = tx.objectStore(SYNC_QUEUE_STORE);
-
-    const allRequests = await new Promise((resolve, reject) => {
-      const request = store.getAll();
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-
-    let successCount = 0;
-    let failCount = 0;
-
-    for (const item of allRequests) {
+self.addEventListener('install', event => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(STATIC_CACHE);
+    await Promise.all(STATIC_ASSETS.map(async path => {
       try {
-        const response = await fetch(item.url, {
-          method: item.method,
-          headers: item.headers,
-          body: item.body ? JSON.stringify(item.body) : undefined
-        });
+        const response = await fetch(path, { credentials: 'omit', redirect: 'error' });
+        if (response.ok) await cache.put(path, response);
+      } catch { /* Offline installation must not cache an error response. */ }
+    }));
+    await self.skipWaiting();
+  })());
+});
 
-        if (response.ok) {
-          const deleteTx = db.transaction(SYNC_QUEUE_STORE, 'readwrite');
-          const deleteStore = deleteTx.objectStore(SYNC_QUEUE_STORE);
-          await new Promise((resolve, reject) => {
-            const deleteRequest = deleteStore.delete(item.id);
-            deleteRequest.onsuccess = () => resolve();
-            deleteRequest.onerror = () => reject(deleteRequest.error);
-          });
-          successCount++;
-        } else {
-          failCount++;
-        }
-      } catch {
-        failCount++;
-      }
-    }
+self.addEventListener('activate', event => {
+  event.waitUntil((async () => {
+    const keep = new Set([STATIC_CACHE, ASSET_CACHE]);
+    await Promise.all((await caches.keys())
+      .filter(name => /^(?:static|dynamic|data|api|video)-/.test(name) && !keep.has(name))
+      .map(name => caches.delete(name)));
+    await clearLegacyRequests();
+    if ('navigationPreload' in self.registration) await self.registration.navigationPreload.enable();
+    await self.clients.claim();
+  })());
+});
 
-    const remaining = await getPendingSyncCount();
-    notifyClients({
-      type: 'SYNC_COMPLETE',
-      synced: successCount,
-      failed: failCount,
-      remaining
-    });
-
-    return { successCount, failCount, remaining };
-  } catch (error) {
-    console.error('Sync queue processing failed:', error);
-    return { successCount: 0, failCount: 0, remaining: 0 };
-  }
-}
-
-async function notifyClients(message) {
-  const allClients = await clients.matchAll({ includeUncontrolled: true });
-  allClients.forEach(client => client.postMessage(message));
-}
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    (async () => {
+async function navigation(event) {
+  try {
+    const response = await event.preloadResponse || await fetch(event.request);
+    // Store only the shared shell key, never Telegram launch parameters in URLs.
+    if (response.ok) {
       const cache = await caches.open(STATIC_CACHE);
-      await cache.addAll(STATIC_ASSETS);
-
-      try {
-        const response = await fetch('/');
-        const html = await response.text();
-        const assetMatches = html.matchAll(/\/assets\/[^"'\s]+\.(js|css|woff2?|ttf)/g);
-        const additionalAssets = [...new Set([...assetMatches].map(m => m[0]))];
-        if (additionalAssets.length > 0) {
-          await cache.addAll(additionalAssets.slice(0, 50));
-        }
-      } catch (e) {
-        console.log('Could not pre-cache additional assets:', e);
-      }
-
-      self.skipWaiting();
-    })()
-  );
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    (async () => {
-      if (NAVIGATION_PRELOAD_SUPPORTED) {
-        await self.registration.navigationPreload.enable();
-      }
-
-      const keys = await caches.keys();
-      await Promise.all(
-        keys
-          .filter(k => !k.includes(CACHE_VERSION))
-          .map(k => caches.delete(k))
-      );
-
-      await self.clients.claim();
-      notifyClients({ type: 'SW_ACTIVATED', version: CACHE_VERSION });
-    })()
-  );
-});
-
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  if (url.origin !== location.origin) return;
-
-  if (request.method === 'POST' || request.method === 'PUT' || request.method === 'PATCH') {
-    event.respondWith(handleMutationRequest(request));
-    return;
+      await cache.put('/', response.clone());
+    }
+    return response;
+  } catch {
+    return await caches.match('/') || await caches.match(OFFLINE_PAGE) ||
+      new Response('Offline', { status: 503 });
   }
+}
 
-  if (request.method !== 'GET') return;
+async function publicAsset(request) {
+  const cache = await caches.open(ASSET_CACHE);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+  const response = await fetch(request);
+  if (response.ok && response.type !== 'opaque' && !/no-store|private/i.test(response.headers.get('cache-control') || '')) {
+    await cache.put(request, response.clone());
+    const keys = await cache.keys();
+    await Promise.all(keys.slice(0, Math.max(0, keys.length - MAX_ASSETS)).map(key => cache.delete(key)));
+  }
+  return response;
+}
 
+self.addEventListener('fetch', event => {
+  const request = event.request;
+  const url = sameOriginUrl(request.url);
+  // Let the browser perform every API/write/credentialled request normally.
+  // In particular, a failed mutation remains failed and is never replayed.
+  if (!url || request.method !== 'GET' || url.pathname.startsWith('/api/') ||
+      hasCredentials(request) || request.headers.has('range')) return;
   if (request.mode === 'navigate') {
-    event.respondWith(handleNavigationRequest(event));
-    return;
+    if (!['/', '/index.html'].includes(url.pathname)) return;
+    event.respondWith(navigation(event));
+  } else if (isPublicAsset(url)) {
+    event.respondWith(publicAsset(request));
   }
-
-  if (url.pathname.startsWith('/api/')) {
-    const isCacheableEndpoint = CACHEABLE_API_ENDPOINTS.some(ep => url.pathname.startsWith(ep));
-    if (isCacheableEndpoint) {
-      event.respondWith(staleWhileRevalidateAPI(request));
-    } else {
-      event.respondWith(networkFirstWithOffline(request));
-    }
-    return;
-  }
-
-  if (isVideoAsset(url.pathname)) {
-    event.respondWith(handleVideoRequest(request));
-    return;
-  }
-
-  if (isCriticalAsset(url.pathname)) {
-    event.respondWith(cacheFirst(request));
-    return;
-  }
-
-  if (isImageAsset(url.pathname)) {
-    event.respondWith(cacheFirstWithLimit(request));
-    return;
-  }
-
-  event.respondWith(staleWhileRevalidate(request));
 });
 
-async function handleNavigationRequest(event) {
-  try {
-    const preloadResponse = await event.preloadResponse;
-    if (preloadResponse) return preloadResponse;
-
-    const networkResponse = await Promise.race([
-      fetch(event.request),
-      new Promise((_, reject) => setTimeout(() => reject(), 3000))
-    ]);
-
-    if (networkResponse && networkResponse.ok) {
-      const cache = await caches.open(STATIC_CACHE);
-      cache.put(event.request, networkResponse.clone());
-      return networkResponse;
-    }
-    throw new Error('Network failed');
-  } catch {
-    const cached = await caches.match('/');
-    return cached || caches.match(OFFLINE_PAGE) || new Response('Offline', { status: 503 });
-  }
+async function trustedClient(event) {
+  if (!event.source || !event.source.id) return null;
+  const client = await self.clients.get(event.source.id);
+  return client && client.type === 'window' && sameOriginUrl(client.url) ? client : null;
 }
 
-async function handleMutationRequest(request) {
-  const clone = request.clone();
-  let body = null;
-
-  try {
-    body = await clone.json();
-  } catch {
-    body = null;
-  }
-
-  try {
-    const response = await fetch(request);
-    return response;
-  } catch {
-    await addToSyncQueue(request, body);
-
-    return new Response(
-      JSON.stringify({
-        error: 'offline',
-        message: 'Request queued for sync',
-        queued: true,
-        timestamp: Date.now()
-      }),
-      {
-        status: 202,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
-}
-
-function isCriticalAsset(pathname) {
-  return CRITICAL_ASSETS.some(asset => pathname.includes(asset));
-}
-
-function isImageAsset(pathname) {
-  return IMAGE_EXTENSIONS.some(ext => pathname.toLowerCase().endsWith(ext));
-}
-
-function isVideoAsset(pathname) {
-  return VIDEO_EXTENSIONS.some(ext => pathname.toLowerCase().endsWith(ext));
-}
-
-async function handleVideoRequest(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      const clone = response.clone();
-      const cache = await caches.open(VIDEO_CACHE);
-      const keys = await cache.keys();
-      if (keys.length > 6) {
-        await cache.delete(keys[0]);
-      }
-      cache.put(request, clone);
+self.addEventListener('message', event => {
+  event.waitUntil((async () => {
+    const client = await trustedClient(event);
+    if (!client) return;
+    if (event.data === 'skipWaiting') { await self.skipWaiting(); return; }
+    if (event.data?.type === 'CACHE_URLS' && Array.isArray(event.data.urls)) {
+      const urls = event.data.urls.slice(0, 20).map(sameOriginUrl).filter(isPublicAsset);
+      await Promise.all(urls.map(async url => {
+        try { await publicAsset(new Request(url.href, { credentials: 'omit', redirect: 'error' })); } catch {}
+      }));
     }
-    return response;
-  } catch {
-    return new Response('', { status: 503 });
-  }
-}
-
-async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      const cache = await caches.open(STATIC_CACHE);
-      cache.put(request, response.clone());
+    if (event.data?.type === 'GET_SYNC_STATUS' || event.data?.type === 'TRIGGER_SYNC') {
+      client.postMessage({ type: 'SYNC_STATUS', pendingCount: 0 });
     }
-    return response;
-  } catch {
-    return new Response('Offline', { status: 503 });
-  }
-}
-
-async function cacheFirstWithLimit(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      const cache = await caches.open(DYNAMIC_CACHE);
-      cache.put(request, response.clone());
+    if (event.data?.type === 'CHECK_ONLINE') {
+      let online = false;
+      try { online = (await fetch('/api/health', { method: 'HEAD', cache: 'no-store', redirect: 'error' })).ok; } catch {}
+      client.postMessage({ type: 'ONLINE_STATUS', online });
     }
-    return response;
-  } catch {
-    return new Response('', {
-      status: 503,
-      headers: { 'Content-Type': 'image/svg+xml' }
-    });
-  }
-}
+  })());
+});
 
-async function networkFirstWithOffline(request) {
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      const cache = await caches.open(DATA_CACHE);
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch {
-    const cached = await caches.match(request);
-    if (cached) {
-      const modifiedHeaders = new Headers(cached.headers);
-      modifiedHeaders.set('X-From-Cache', 'true');
-      return new Response(cached.body, {
-        status: cached.status,
-        statusText: cached.statusText,
-        headers: modifiedHeaders
-      });
-    }
-
-    return new Response(
-      JSON.stringify({
-        error: 'offline',
-        message: 'No internet connection',
-        cached: false,
-        timestamp: Date.now()
-      }),
-      {
-        status: 503,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
-}
-
-async function staleWhileRevalidate(request) {
-  const cache = await caches.open(STATIC_CACHE);
-  const cached = await cache.match(request);
-
-  const fetchPromise = fetch(request).then(response => {
-    if (response.ok) {
-      cache.put(request, response.clone());
-    }
-    return response;
-  }).catch(() => null);
-
-  if (cached) return cached;
-
-  const response = await fetchPromise;
-  if (response) return response;
-
-  const offlinePage = await caches.match(OFFLINE_PAGE);
-  if (offlinePage) return offlinePage;
-
-  return new Response('Offline', { status: 503 });
-}
-
-async function staleWhileRevalidateAPI(request) {
-  const cache = await caches.open(API_CACHE);
-  const cached = await cache.match(request);
-  const ttl = getAdaptiveApiTTL();
-
-  let isFresh = false;
-  if (cached) {
-    const cachedTime = cached.headers.get('X-Cached-Time');
-    if (cachedTime) {
-      const age = Date.now() - parseInt(cachedTime, 10);
-      isFresh = age < ttl;
-    }
-  }
-
-  const fetchAndCache = async () => {
-    try {
-      const response = await fetch(request);
-      if (response.ok) {
-        const clonedResponse = response.clone();
-        const headers = new Headers(clonedResponse.headers);
-        headers.set('X-Cached-Time', Date.now().toString());
-
-        const cachedResponse = new Response(clonedResponse.body, {
-          status: clonedResponse.status,
-          statusText: clonedResponse.statusText,
-          headers: headers
-        });
-
-        cache.put(request, cachedResponse);
-      }
-      return response;
-    } catch {
-      return null;
-    }
-  };
-
-  if (cached && isFresh) {
-    return cached;
-  }
-
-  if (cached && !isFresh) {
-    const net = getNetworkType();
-    if (net !== 'slow-2g' && net !== '2g') {
-      fetchAndCache();
-    }
-    return cached;
-  }
-
-  const response = await fetchAndCache();
-  if (response) return response;
-
-  return new Response(
-    JSON.stringify({
-      error: 'offline',
-      message: 'No cached data available',
-      timestamp: Date.now()
-    }),
+self.addEventListener('push', event => {
+  let data = {};
+  try { data = event.data?.json() || {}; } catch {}
+  const target = sameOriginUrl(typeof data.url === 'string' ? data.url : '/');
+  event.waitUntil(self.registration.showNotification(
+    typeof data.title === 'string' ? data.title.slice(0, 120) : 'WEB4TG',
     {
-      status: 503,
-      headers: { 'Content-Type': 'application/json' }
-    }
-  );
-}
-
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'background-sync') {
-    event.waitUntil(processSyncQueue());
-  }
-});
-
-self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : {};
-
-  const options = {
-    body: data.body || 'New notification',
-    icon: data.icon || '/favicon.png',
-    badge: data.badge || '/favicon.png',
-    vibrate: [100, 50, 100],
-    data: {
-      url: data.url || '/',
-      dateOfArrival: Date.now(),
+      body: typeof data.body === 'string' ? data.body.slice(0, 500) : '',
+      icon: '/favicon.png', badge: '/favicon.png',
+      data: { url: target ? target.href : self.location.origin + '/' },
     },
-    actions: data.actions || [
-      { action: 'open', title: 'Open' },
-      { action: 'close', title: 'Close' }
-    ]
-  };
-
-  event.waitUntil(
-    self.registration.showNotification(data.title || 'WEB4TG', options)
-  );
+  ));
 });
 
-self.addEventListener('notificationclick', (event) => {
+self.addEventListener('notificationclick', event => {
   event.notification.close();
-
   if (event.action === 'close') return;
-
-  const urlToOpen = event.notification.data?.url || '/';
-
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true })
-      .then(clientList => {
-        for (const client of clientList) {
-          if (client.url.includes(urlToOpen) && 'focus' in client) {
-            return client.focus();
-          }
-        }
-        return clients.openWindow(urlToOpen);
-      })
-  );
-});
-
-self.addEventListener('message', async (event) => {
-  if (event.data === 'skipWaiting') {
-    self.skipWaiting();
-  }
-
-  if (event.data?.type === 'CACHE_URLS') {
-    const urls = event.data.urls;
-    const cache = await caches.open(DYNAMIC_CACHE);
-    await cache.addAll(urls);
-  }
-
-  if (event.data?.type === 'CACHE_DEMO_DATA') {
-    const { demoId, data } = event.data;
-    const cache = await caches.open(DATA_CACHE);
-    const response = new Response(JSON.stringify(data), {
-      headers: { 'Content-Type': 'application/json' }
-    });
-    await cache.put(`/api/demos/${demoId}`, response);
-  }
-
-  if (event.data?.type === 'GET_SYNC_STATUS') {
-    const count = await getPendingSyncCount();
-    event.source.postMessage({ type: 'SYNC_STATUS', pendingCount: count });
-  }
-
-  if (event.data?.type === 'TRIGGER_SYNC') {
-    await processSyncQueue();
-  }
-
-  if (event.data?.type === 'CHECK_ONLINE') {
-    try {
-      const response = await fetch('/api/health', { method: 'HEAD' });
-      event.source.postMessage({ type: 'ONLINE_STATUS', online: response.ok });
-    } catch {
-      event.source.postMessage({ type: 'ONLINE_STATUS', online: false });
+  const url = sameOriginUrl(event.notification.data?.url || '/');
+  if (!url) return;
+  event.waitUntil((async () => {
+    for (const client of await self.clients.matchAll({ type: 'window', includeUncontrolled: true })) {
+      if (client.url === url.href && 'focus' in client) return client.focus();
     }
-  }
+    return self.clients.openWindow(url.href);
+  })());
 });

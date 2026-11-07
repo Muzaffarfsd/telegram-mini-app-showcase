@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["server/**/*.ts", "shared/**/*.ts"],
+  "exclude": ["node_modules", "dist", "build", "**/*.test.ts"],
+  "compilerOptions": {
+    "target": "ES2022",
+    "incremental": false,
+    "noEmit": true
+  }
+}

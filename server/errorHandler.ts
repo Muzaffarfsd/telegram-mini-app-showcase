@@ -20,8 +20,13 @@ export const errorHandler = (
   err: Error | ApiError,
   _req: Request,
   res: Response,
-  _next: NextFunction
+  next: NextFunction
 ) => {
+  if (res.headersSent) return next(err);
+  const parserType = (err as Error & { type?: string }).type;
+  if (['entity.too.large', 'parameters.too.many'].includes(parserType || '')) return res.status(413).json({ error: 'Request is too large' });
+  if (parserType === 'encoding.unsupported') return res.status(415).json({ error: 'Unsupported content encoding' });
+  if (parserType === 'entity.parse.failed') return res.status(400).json({ error: 'Invalid JSON body' });
   // Log the error
   if (err instanceof ApiError) {
     logError(`API Error: ${err.message}`, err, {
@@ -42,7 +47,7 @@ export const errorHandler = (
       error: {
         message: err.message,
         code: err.code || 'UNKNOWN_ERROR',
-        details: err.details,
+        details: err.statusCode < 500 ? err.details : undefined,
       },
     });
   }

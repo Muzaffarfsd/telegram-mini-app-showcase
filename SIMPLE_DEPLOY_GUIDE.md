@@ -55,7 +55,7 @@
 3. Добавьте переменные:
 
 ```
-TELEGRAM_BOT_TOKEN=8583828594:AAG9u61RdSfkdxoGo5xGs21wENkxzwty1Ew
+TELEGRAM_BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN
 NODE_ENV=production
 PORT=5000
 ```
@@ -87,12 +87,12 @@ PORT=5000
 2. Вставьте этот URL (замените YOUR_RAILWAY_URL на ваш Railway URL):
 
 ```
-https://api.telegram.org/bot8583828594:AAG9u61RdSfkdxoGo5xGs21wENkxzwty1Ew/setWebhook?url=YOUR_RAILWAY_URL/api/telegram/webhook
+https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/setWebhook?url=YOUR_RAILWAY_URL/api/telegram/webhook
 ```
 
 Пример:
 ```
-https://api.telegram.org/bot8583828594:AAG9u61RdSfkdxoGo5xGs21wENkxzwty1Ew/setWebhook?url=https://telegram-mini-app-showcase-production.up.railway.app/api/telegram/webhook
+https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/setWebhook?url=https://telegram-mini-app-showcase-production.up.railway.app/api/telegram/webhook
 ```
 
 3. Нажмите Enter

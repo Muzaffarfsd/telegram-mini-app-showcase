@@ -43,7 +43,14 @@
   <!-- Google Fonts: Syne, Instrument Serif, Russo One (display, Cyrillic-friendly Onder alternative) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=Russo+One&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link id="studio-external-fonts" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=Russo+One&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print">
+  <script>
+    (function () {
+      var fonts = document.getElementById('studio-external-fonts');
+      if (fonts.sheet) fonts.media = 'all';
+      else fonts.addEventListener('load', function () { fonts.media = 'all'; }, { once: true });
+    })();
+  </script>
   <noscript><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=Russo+One&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
 
   <!-- On a direct Apple demo link, prioritize its first illustration instead of unrelated display fonts. -->

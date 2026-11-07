@@ -4,13 +4,16 @@ import { users, dailyTasks } from "../../shared/schema";
 import { desc, eq, and, sql, count } from "drizzle-orm";
 import { parsePaginationParams, createPaginatedResponse, withTimeout, isDbTimeoutError, dbTimeoutError, internalError } from "../apiUtils";
 import { getCached, setCache, invalidateCache, cacheKeys, CACHE_TTL } from '../redis';
-import { verifyTelegramUser, awardXpSchema, calculateXpToNextLevel } from "./shared";
+import { verifyTelegramUser, requireAdmin, awardXpSchema, calculateXpToNextLevel } from "./shared";
 
 const router = Router();
 
-router.get("/api/gamification/stats/:telegram_id", async (req, res) => {
+router.get("/api/gamification/stats/:telegram_id", verifyTelegramUser, async (req, res) => {
   try {
-    const telegram_id = parseInt(req.params.telegram_id);
+    const requestedId = req.params.telegram_id;
+    if (typeof requestedId !== 'string' || !/^[1-9]\d{0,15}$/.test(requestedId) || !Number.isSafeInteger(Number(requestedId))) return res.status(400).json({ error: 'Invalid user identifier' });
+    const telegram_id = Number(requestedId);
+    if (String(req.telegramUser!.id) !== requestedId) return res.status(403).json({ error: 'Forbidden' });
 
     let [userData] = await db.select().from(users).where(eq(users.telegramId, telegram_id));
 
@@ -51,7 +54,7 @@ router.get("/api/gamification/stats/:telegram_id", async (req, res) => {
   }
 });
 
-router.post("/api/gamification/award-xp", verifyTelegramUser, async (req: any, res) => {
+router.post("/api/gamification/award-xp", verifyTelegramUser, requireAdmin, async (req: any, res) => {
   try {
     const validationResult = awardXpSchema.safeParse({
       telegramId: req.body.telegram_id,
@@ -164,7 +167,8 @@ router.get("/api/gamification/daily-tasks/:telegram_id", verifyTelegramUser, asy
   }
 });
 
-router.post("/api/gamification/complete-task", verifyTelegramUser, async (req: any, res) => {
+// Legacy manual XP completion is administrative. User rewards use server-verified /api/tasks/complete.
+router.post("/api/gamification/complete-task", verifyTelegramUser, requireAdmin, async (req: any, res) => {
   try {
     const { telegram_id, task_id } = req.body;
     const today = new Date().toISOString().split('T')[0];

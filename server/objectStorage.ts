@@ -2,6 +2,7 @@
 import { Storage, File } from "@google-cloud/storage";
 import { Response } from "express";
 import { randomUUID } from "crypto";
+import { hasAllowedMediaSignature } from './securityAccess';
 import {
   ObjectAclPolicy,
   ObjectPermission,
@@ -116,7 +117,7 @@ export class ObjectStorageService {
       const stream = file.createReadStream();
 
       stream.on("error", (err) => {
-        console.error("Stream error:", err);
+        console.error("Stream error:", err instanceof Error ? err.name : "unknown");
         if (!res.headersSent) {
           res.status(500).json({ error: "Error streaming file" });
         }
@@ -124,7 +125,7 @@ export class ObjectStorageService {
 
       stream.pipe(res);
     } catch (error) {
-      console.error("Error downloading file:", error);
+      console.error("Error downloading file:", error instanceof Error ? error.name : 'unknown');
       if (!res.headersSent) {
         res.status(500).json({ error: "Error downloading file" });
       }
@@ -132,7 +133,8 @@ export class ObjectStorageService {
   }
 
   // Gets the upload URL for an object entity.
-  async getObjectEntityUploadURL(): Promise<string> {
+  async getObjectEntityUploadURL(ownerId: string): Promise<string> {
+    if (!/^[1-9]\d*$/.test(ownerId)) throw new Error('Authenticated upload owner required');
     const privateObjectDir = this.getPrivateObjectDir();
     if (!privateObjectDir) {
       throw new Error(
@@ -142,7 +144,7 @@ export class ObjectStorageService {
     }
 
     const objectId = randomUUID();
-    const fullPath = `${privateObjectDir}/uploads/${objectId}`;
+    const fullPath = `${privateObjectDir}/uploads/${ownerId}/${objectId}`;
 
     const { bucketName, objectName } = parseObjectPath(fullPath);
 
@@ -211,13 +213,38 @@ export class ObjectStorageService {
     aclPolicy: ObjectAclPolicy
   ): Promise<string> {
     const normalizedPath = this.normalizeObjectEntityPath(rawPath);
-    if (!normalizedPath.startsWith("/")) {
-      return normalizedPath;
-    }
+    // Publication can only claim an object minted in this authenticated user's upload namespace.
+    const owner = aclPolicy.owner;
+    if (!/^[1-9]\d*$/.test(owner) || !normalizedPath.startsWith(`/objects/uploads/${owner}/`) ||
+        !/^\/objects\/uploads\/[1-9]\d*\/[0-9a-f-]{36}$/.test(normalizedPath)) throw new Error('Invalid upload ownership');
 
     const objectFile = await this.getObjectEntityFile(normalizedPath);
-    await setObjectAclPolicy(objectFile, aclPolicy);
-    return normalizedPath;
+    const [metadata] = await objectFile.getMetadata();
+    const mediaType = metadata.contentType || '';
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm'];
+    const maxSize = mediaType.startsWith('video/') ? 20 * 1024 * 1024 : 5 * 1024 * 1024;
+    const size = Number(metadata.size);
+    if (!allowed.includes(mediaType) || !Number.isSafeInteger(size) || size <= 0 || size > maxSize ||
+        (metadata.contentEncoding && metadata.contentEncoding !== 'identity')) throw new Error('Invalid uploaded media');
+    const generation = metadata.generation;
+    if (!generation || !/^\d+$/.test(String(generation))) throw new Error('Upload generation unavailable');
+    // Bind both validation and copying to the exact immutable source version.
+    // A still-valid staging PUT URL must not be able to replace a published object.
+    const source = objectFile.bucket.file(objectFile.name, { generation });
+    const chunks: Buffer[] = [];
+    for await (const chunk of source.createReadStream({ start: 0, end: 31 })) chunks.push(Buffer.from(chunk));
+    if (!hasAllowedMediaSignature(mediaType, Buffer.concat(chunks))) throw new Error('Uploaded media signature does not match its type');
+    const publishedId = randomUUID();
+    const publishedPath = `${this.getPrivateObjectDir().replace(/\/$/, '')}/published/${owner}/${publishedId}`;
+    const { bucketName, objectName } = parseObjectPath(publishedPath);
+    const target = objectStorageClient.bucket(bucketName).file(objectName);
+    await source.copy(target, {
+      preconditionOpts: { ifGenerationMatch: 0 },
+      contentType: mediaType, contentDisposition: 'inline', cacheControl: 'public, max-age=31536000, immutable', metadata: {},
+    });
+    await setObjectAclPolicy(target, aclPolicy);
+    try { await source.delete({ ignoreNotFound: true }); } catch { /* The File is generation-bound; lifecycle cleans stale staging versions. */ }
+    return `/objects/published/${owner}/${publishedId}`;
   }
 
   // Checks if the user can access the object entity.

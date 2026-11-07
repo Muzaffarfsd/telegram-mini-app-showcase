@@ -44,6 +44,8 @@ function SplineSceneInner({ scene, className, onLoad, iframeRefCallback }: Splin
     iframe.setAttribute('tabindex', '-1')
     iframe.setAttribute('aria-hidden', 'true')
     iframe.setAttribute('loading', 'lazy')
+    iframe.setAttribute('sandbox', 'allow-scripts')
+    iframe.setAttribute('referrerpolicy', 'no-referrer')
     iframeRef.current = iframe
 
     const html = `<!DOCTYPE html>
@@ -56,10 +58,12 @@ function SplineSceneInner({ scene, className, onLoad, iframeRefCallback }: Splin
 import { Application } from '@splinetool/runtime';
 const canvas = document.getElementById('c');
 const app = new Application(canvas);
-app.load('${scene}').then(() => {
-  window.parent.postMessage({type:'spline-loaded'},'*');
+const parentOrigin = ${JSON.stringify(window.location.origin)};
+app.load(${JSON.stringify(scene).replace(/</g, '\\u003c')}).then(() => {
+  window.parent.postMessage({type:'spline-loaded'},parentOrigin);
 }).catch(err => console.error('[Spline iframe] Error:', err));
 window.addEventListener('message', (e) => {
+  if (e.source !== window.parent || e.origin !== parentOrigin) return;
   if (e.data?.type === 'spline-stop') { try { app.stop(); } catch(ex){} }
   if (e.data?.type === 'spline-play') { try { app.play(); } catch(ex){} }
 });
@@ -71,7 +75,7 @@ window.addEventListener('message', (e) => {
     iframeRefCallback?.(iframe)
 
     const handleMessage = (e: MessageEvent) => {
-      if (e.source !== iframeRef.current?.contentWindow) return
+      if (e.source !== iframeRef.current?.contentWindow || e.origin !== 'null') return
       if (e.data?.type === 'spline-loaded') {
         setIsReady(true)
         onLoad?.()

@@ -29,7 +29,7 @@ router.get("/api/user-stories", async (req, res) => {
     const total = totalResult[0]?.count ?? 0;
     res.json(createPaginatedResponse(storiesList, total, { limit, offset }));
   } catch (error) {
-    console.error('Error fetching user stories:', error);
+    console.error('Error fetching user stories:', error instanceof Error ? error.name : 'unknown');
     if (isDbTimeoutError(error)) {
       return dbTimeoutError(res, 'Failed to fetch stories: database timeout');
     }
@@ -48,7 +48,7 @@ router.get("/api/user-stories/my", verifyTelegramUser, async (req: any, res) => 
     
     res.json({ stories: myStories });
   } catch (error) {
-    console.error('Error fetching my stories:', error);
+    console.error('Error fetching my stories:', error instanceof Error ? error.name : 'unknown');
     return internalError(res, 'Failed to fetch your stories');
   }
 });
@@ -56,10 +56,10 @@ router.get("/api/user-stories/my", verifyTelegramUser, async (req: any, res) => 
 router.post("/api/user-stories/upload-url", verifyTelegramUser, async (req: any, res) => {
   try {
     const objectStorageService = new ObjectStorageService();
-    const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+    const uploadURL = await objectStorageService.getObjectEntityUploadURL(String(req.telegramUser.id));
     res.json({ uploadURL });
   } catch (error) {
-    console.error('Error getting story upload URL:', error);
+    console.error('Error getting story upload URL:', error instanceof Error ? error.name : 'unknown');
     res.status(500).json({ error: 'Failed to get upload URL' });
   }
 });
@@ -82,7 +82,7 @@ router.post("/api/user-stories", verifyTelegramUser, async (req: any, res) => {
     
     const validationResult = createUserStorySchema.safeParse(req.body);
     if (!validationResult.success) {
-      return validationError(res, 'Validation failed', { errors: validationResult.error.errors });
+      return validationError(res, 'Validation failed', { errors: validationResult.error.issues });
     }
     
     const { title, description, mediaType, mediaUrl, thumbnailUrl, category, hashtags, linkedDemoId, location } = validationResult.data;
@@ -123,7 +123,7 @@ router.post("/api/user-stories", verifyTelegramUser, async (req: any, res) => {
       message: 'Story created successfully. It will be visible after moderation.'
     });
   } catch (error) {
-    console.error('Error creating user story:', error);
+    console.error('Error creating user story:', error instanceof Error ? error.name : 'unknown');
     res.status(500).json({ error: 'Failed to create story' });
   }
 });
@@ -141,10 +141,10 @@ router.patch("/api/user-stories/:id", verifyTelegramUser, async (req: any, res) 
     
     const validationResult = updateSchema.safeParse(req.body);
     if (!validationResult.success) {
-      return validationError(res, 'Validation failed', { errors: validationResult.error.errors });
+      return validationError(res, 'Validation failed', { errors: validationResult.error.issues });
     }
     
-    const updateData: Record<string, unknown> = {};
+    const updateData: Record<string, unknown> = { isApproved: false };
     if (validationResult.data.title) updateData.title = sanitizeHtmlString(validationResult.data.title);
     if (validationResult.data.description !== undefined) {
       updateData.description = validationResult.data.description ? sanitizeHtmlString(validationResult.data.description) : null;
@@ -162,7 +162,7 @@ router.patch("/api/user-stories/:id", verifyTelegramUser, async (req: any, res) 
     
     res.json({ success: true, story: updatedStory });
   } catch (error) {
-    console.error('Error updating story:', error);
+    console.error('Error updating story:', error instanceof Error ? error.name : 'unknown');
     res.status(500).json({ error: 'Failed to update story' });
   }
 });
@@ -173,11 +173,11 @@ router.post("/api/user-stories/:id/view", async (req, res) => {
     
     await db.update(userStories)
       .set({ viewCount: sql`${userStories.viewCount} + 1` })
-      .where(eq(userStories.id, storyId));
+      .where(and(eq(userStories.id, storyId), eq(userStories.isApproved, true), eq(userStories.isActive, true)));
     
     res.json({ success: true });
   } catch (error) {
-    console.error('Error incrementing view count:', error);
+    console.error('Error incrementing view count:', error instanceof Error ? error.name : 'unknown');
     res.status(500).json({ error: 'Failed to update view count' });
   }
 });
@@ -198,7 +198,7 @@ router.delete("/api/user-stories/:id", verifyTelegramUser, async (req: any, res)
     
     res.json({ success: true, story: deactivatedStory });
   } catch (error) {
-    console.error('Error deleting story:', error);
+    console.error('Error deleting story:', error instanceof Error ? error.name : 'unknown');
     res.status(500).json({ error: 'Failed to delete story' });
   }
 });
@@ -212,9 +212,11 @@ const reactionCountFields = {
   rocket: userStories.rocketCount,
 } as const;
 
-router.get("/api/user-stories/:id/reactions", optionalTelegramAuthMiddleware, async (req: any, res) => {
+router.get("/api/user-stories/:id/reactions", optionalTelegramAuthMiddleware(), async (req: any, res) => {
   try {
-    const storyId = parseInt(req.params.id);
+    const requestedId = req.params.id;
+    if (typeof requestedId !== 'string' || !/^[1-9]\d{0,9}$/.test(requestedId) || Number(requestedId) > 2147483647) return res.status(400).json({ error: 'Invalid story identifier' });
+    const storyId = Number(requestedId);
     const telegramId = req.telegramUser?.id;
     
     const [story] = await db.select({
@@ -226,7 +228,7 @@ router.get("/api/user-stories/:id/reactions", optionalTelegramAuthMiddleware, as
       rocketCount: userStories.rocketCount,
     })
       .from(userStories)
-      .where(eq(userStories.id, storyId))
+      .where(and(eq(userStories.id, storyId), eq(userStories.isApproved, true), eq(userStories.isActive, true)))
       .limit(1);
     
     if (!story) {
@@ -255,7 +257,7 @@ router.get("/api/user-stories/:id/reactions", optionalTelegramAuthMiddleware, as
       userReactions,
     });
   } catch (error) {
-    console.error('Error fetching reactions:', error);
+    console.error('Error fetching reactions:', error instanceof Error ? error.name : 'unknown');
     res.status(500).json({ error: 'Failed to fetch reactions' });
   }
 });
@@ -278,7 +280,7 @@ router.post("/api/user-stories/:id/reactions", verifyTelegramUser, async (req: a
     
     const [story] = await db.select({ id: userStories.id })
       .from(userStories)
-      .where(eq(userStories.id, storyId))
+      .where(and(eq(userStories.id, storyId), eq(userStories.isApproved, true), eq(userStories.isActive, true)))
       .limit(1);
     
     if (!story) {
@@ -319,7 +321,7 @@ router.post("/api/user-stories/:id/reactions", verifyTelegramUser, async (req: a
       res.json({ success: true, action: 'added', reactionType });
     }
   } catch (error) {
-    console.error('Error toggling reaction:', error);
+    console.error('Error toggling reaction:', error instanceof Error ? error.name : 'unknown');
     res.status(500).json({ error: 'Failed to toggle reaction' });
   }
 });

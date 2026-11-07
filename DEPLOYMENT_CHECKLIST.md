@@ -93,7 +93,7 @@
 
 ### Текущий токен
 ```
-8583828594:AAG9u61RdSfkdxoGo5xGs21wENkxzwty1Ew
+YOUR_TELEGRAM_BOT_TOKEN
 ```
 
 ---

@@ -29,7 +29,7 @@
 4. Выберите `telegram-mini-app-showcase`
 5. Добавьте PostgreSQL (кнопка **+ New** → **Database** → **PostgreSQL**)
 6. Настройте переменные окружения:
-   - `TELEGRAM_BOT_TOKEN` = 8583828594:AAG9u61RdSfkdxoGo5xGs21wENkxzwty1Ew
+   - `TELEGRAM_BOT_TOKEN` = YOUR_TELEGRAM_BOT_TOKEN
    - `DATABASE_URL` = автоматически из PostgreSQL
    - `NODE_ENV` = production
    - `PORT` = 5000
@@ -40,7 +40,7 @@
 
 9. Настройте Telegram webhook:
    ```
-   https://api.telegram.org/bot8583828594:AAG9u61RdSfkdxoGo5xGs21wENkxzwty1Ew/setWebhook?url=https://ваш-проект.railway.app/api/telegram/webhook
+   https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/setWebhook?url=https://ваш-проект.railway.app/api/telegram/webhook
    ```
 
 🎉 Готово! Ваше приложение работает!

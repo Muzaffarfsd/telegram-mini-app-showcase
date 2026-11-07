@@ -6,7 +6,8 @@
 
 ## Stack
 
-- **Frontend**: React 19 + Vite 5 + TypeScript + Wouter (routing) + TanStack Query + Tailwind + Radix UI + Framer Motion + Three.js + Zustand
+- **Frontend**: React 19 + Vite 6 + TypeScript + Wouter (routing) + TanStack Query + Tailwind + Radix UI + Framer Motion + Three.js + Zustand
+- **Runtime**: Node 24 LTS; pinned Nixpacks package set, exact npm lock, dependency lifecycle scripts disabled.
 - **Backend**: Express + tsx + Drizzle ORM + PostgreSQL (Neon/Railway) + Helmet + Redis (Upstash) + Sentry
 - **Telegram**: `@twa-dev/sdk` + custom Telegram Bot API webhook handler
 - **Deploy**: Railway (prod) — see `.railway.toml`. Build: `vite build && cp -r attached_assets dist/`
@@ -284,7 +285,13 @@ sw.js                          - service worker (cache + offline)
 index.ts                       - Express bootstrap: helmet, CORS, compression, rate-limit,
                                  trust-proxy. Listens on PORT (default 5000).
                                  [PATCH] reusePort skipped on Windows.
-                                 [PATCH] frameguard off in development (lets iPhone widget iframe it).
+                                 CSP frame-ancestors allows Telegram Web and same-origin embedding.
+security.ts                    - global default-private API boundary, exact origins, CSP bootstrap hashes,
+                                 input structure limits and private/source path denial
+securityAccess.ts              - admin allowlist and Telegram webhook secret verification
+webhookProvisioning.ts         - safe secret registration for the existing exact production callback
+revokedCredentialFingerprints.ts - denies reuse of bot credentials exposed in historical documents (hashes only)
+redaction.ts                   - removes credential material from logs, monitoring events and tracing spans
 routes.ts                      - mounts all routers under /api/. CSRF + sanitization middleware.
                                  + GET /api/health, /api/csrf-token
 db.ts                          - Drizzle init w/ node-postgres pool (max 5 dev / 20 prod)
@@ -294,10 +301,10 @@ logger.ts                      - pino w/ pretty in dev
 apiUtils.ts                    - pagination, response wrappers, DB timeouts
 rateLimiter.ts                 - Redis-backed rate limiters (sensitive/burst/analytics)
 redis.ts                       - Upstash Redis client (optional)
-objectStorage.ts               - GCS pre-signed upload URLs
+objectStorage.ts               - owner-scoped uploads, byte/type/size validation and immutable publication copies
 objectAcl.ts                   - GCS ACL policy management
 telegramAuth.ts                - validate Telegram initData HMAC signature
-swagger.ts                     - auto-generated /api/docs
+swagger.ts                     - auto-generated /api/docs (development only)
 vite.ts                        - dev-mode Vite middleware integration (setupVite/serveStatic)
 types/api.ts                   - shared TS types for API contracts
 ```
@@ -369,8 +376,19 @@ photos                         - title, objectPath, thumbnailPath, userId
 1. **Looking for a feature** → scan section headers, find the file, then `Read` exact lines.
 2. **Adding a new page** → register in App.tsx lazy imports + NonCachedRoute or cached-tabs.
 3. **Adding a new demo** → drop into `components/demos/`, register in `DemoRegistry.ts` + `demoApps.ts`.
-4. **New API endpoint** → add to existing or new `server/routes/*.ts`, mount in `server/routes.ts`.
+4. **New API endpoint** → add to existing or new `server/routes/*.ts`, mount in `server/routes.ts`. Authentication is required by default; check owner/tenant inside every data operation. Public exceptions require explicit review in `server/security.ts`. Follow `SECURITY.md` and add an access-control regression.
 5. **DB change** → edit `shared/schema.ts`, then `npm run db:push` (drizzle-kit).
 6. **i18n** → keys in `client/src/lib/translations.ts`, accessed via `useLanguage().t`.
 
 This file is updated when files are added/removed. **EDIT_LOG.md** tracks per-change diffs.
+
+## Security verification
+
+- `SECURITY.md` / `SECURITY-ASSESSMENT-2026-11-07.md` — architecture, new-demo requirements, verification and remaining provider configuration.
+- `client/src/lib/apiUrl.ts` — same-origin API credential boundary used by shared request helpers.
+- `client/public/sw.js` — public-asset caching only; no private API persistence or mutation replay.
+- `scripts/check-secrets.mjs` — tracked-file credential checks, locations only in output.
+- `.github/workflows/security.yml` / `.github/dependabot.yml` — security regression/build/audit workflow and dependency review updates.
+- `tests/security-boundary.test.ts`, `telegram-auth-security.test.ts`, `webhook-provisioning.test.ts`, `backend-security.integration.mts` — shared, signed identity, admin, owner, payment/reward, rollout and media regressions.
+- `tests/client-security.test.ts`, `service-worker-security.test.ts`, `client-service-worker.e2e.cjs` — credential, cache and queue regressions.
+- `tests/dependency-compatibility.test.ts`, `security-production.e2e.cjs` — patched SDK compatibility and real production CSP/main/demo checks.

@@ -1,10 +1,16 @@
 import pino from 'pino';
+import { redactSensitiveText } from './redaction';
+export { redactSensitiveText } from './redaction';
 
 // Create Pino logger with structured logging
 const logger = pino(
   {
     level: process.env.LOG_LEVEL || 'info',
     timestamp: pino.stdTimeFunctions.isoTime,
+    redact: {
+      paths: ['authorization', 'cookie', 'initData', 'csrfToken', 'token', 'secret', 'password', 'headers.authorization', 'headers.cookie', 'headers["x-telegram-init-data"]', 'headers["x-csrf-token"]', '*.password', '*.token', '*.secret', '*.initData'],
+      censor: '[REDACTED]',
+    },
   },
   process.env.NODE_ENV === 'production'
     ? pino.destination()
@@ -27,13 +33,13 @@ export const logInfo = (message: string, data?: Record<string, any>) => {
 export const logError = (message: string, error?: Error | unknown, data?: Record<string, any>) => {
   const errorData = error instanceof Error 
     ? { 
-        error: error.message,
-        stack: error.stack,
+        error: redactSensitiveText(error.message),
+        stack: error.stack ? redactSensitiveText(error.stack) : undefined,
         ...data 
       }
-    : { error: String(error), ...data };
+    : { error: redactSensitiveText(String(error)), ...data };
   
-  logger.error(errorData, message);
+  logger.error(errorData, redactSensitiveText(message));
 };
 
 export const logWarn = (message: string, data?: Record<string, any>) => {

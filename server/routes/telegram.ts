@@ -2,18 +2,19 @@ import { Router } from "express";
 import { db } from "../db";
 import { users, referrals, tasksProgress, dailyTasks } from "../../shared/schema";
 import { eq, and } from "drizzle-orm";
-import { TELEGRAM_BOT_TOKEN } from "./shared";
+import { TELEGRAM_BOT_TOKEN, verifyTelegramUser, requireAdmin } from "./shared";
+import { verifyTelegramWebhook, telegramWebhookSecret } from '../securityAccess';
 
 const router = Router();
 
-router.post("/api/telegram/webhook", async (req, res) => {
+router.post("/api/telegram/webhook", verifyTelegramWebhook, async (req, res) => {
   if (!TELEGRAM_BOT_TOKEN) {
     return res.status(503).json({ error: "Telegram bot not configured" });
   }
 
   try {
     const update = req.body;
-    console.log('Telegram webhook:', JSON.stringify(update, null, 2));
+    if (!update || !Number.isSafeInteger(update.update_id) || update.update_id < 0) return res.status(400).json({ error: 'Invalid update' });
     
     const webAppUrl = process.env.WEBAPP_URL || (
       process.env.RAILWAY_PUBLIC_DOMAIN 
@@ -483,24 +484,27 @@ router.post("/api/telegram/webhook", async (req, res) => {
     
     res.json({ success: true });
   } catch (error: any) {
-    console.error('Telegram webhook error:', error);
-    res.json({ success: false, error: error.message });
+    console.error('Telegram webhook error:', error instanceof Error ? error.name : 'unknown');
+    res.status(500).json({ success: false, error: 'Webhook processing failed' });
   }
 });
 
-router.post("/api/telegram/setup-webhook", async (req, res) => {
+router.post("/api/telegram/setup-webhook", verifyTelegramUser, requireAdmin, async (req, res) => {
   if (!TELEGRAM_BOT_TOKEN) {
     return res.status(503).json({ error: "Telegram bot not configured" });
   }
+  if (!telegramWebhookSecret()) return res.status(503).json({ error: 'Webhook secret is not configured correctly' });
 
   try {
     const { url } = req.body;
     
-    if (!url || !url.startsWith('https://')) {
+    const configuredOrigin = process.env.WEBAPP_URL || (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : '');
+    const requested = typeof url === 'string' ? new URL(url) : null;
+    if (!requested || requested.protocol !== 'https:' || requested.username || requested.password || !configuredOrigin || requested.origin !== new URL(configuredOrigin).origin) {
       return res.status(400).json({ error: "Valid HTTPS URL required" });
     }
 
-    const webhookUrl = `${url}/api/telegram/webhook`;
+    const webhookUrl = new URL('/api/telegram/webhook', requested.origin).href;
     
     const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook`, {
       method: 'POST',
@@ -508,21 +512,22 @@ router.post("/api/telegram/setup-webhook", async (req, res) => {
       body: JSON.stringify({
         url: webhookUrl,
         allowed_updates: ['message', 'callback_query', 'inline_query'],
-        drop_pending_updates: true
+        drop_pending_updates: false,
+        secret_token: telegramWebhookSecret(),
       })
     });
     
     const result = await response.json();
-    console.log('Webhook setup result:', result);
+    console.log('Webhook setup completed', { ok: Boolean(result.ok) });
     
     res.json({ success: result.ok, result });
   } catch (error: any) {
-    console.error('Webhook setup error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Webhook setup error:', error instanceof Error ? error.name : 'unknown');
+    res.status(500).json({ error: 'Telegram service unavailable' });
   }
 });
 
-router.get("/api/telegram/webhook-info", async (req, res) => {
+router.get("/api/telegram/webhook-info", verifyTelegramUser, requireAdmin, async (req, res) => {
   if (!TELEGRAM_BOT_TOKEN) {
     return res.status(503).json({ error: "Telegram bot not configured" });
   }
@@ -532,12 +537,12 @@ router.get("/api/telegram/webhook-info", async (req, res) => {
     const result = await response.json();
     res.json(result);
   } catch (error: any) {
-    console.error('Webhook info error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Webhook info error:', error instanceof Error ? error.name : 'unknown');
+    res.status(500).json({ error: 'Telegram service unavailable' });
   }
 });
 
-router.get("/api/telegram/bot-info", async (req, res) => {
+router.get("/api/telegram/bot-info", verifyTelegramUser, requireAdmin, async (req, res) => {
   if (!TELEGRAM_BOT_TOKEN) {
     return res.status(503).json({ error: "Telegram bot not configured" });
   }
@@ -547,12 +552,12 @@ router.get("/api/telegram/bot-info", async (req, res) => {
     const result = await response.json();
     res.json(result);
   } catch (error: any) {
-    console.error('Bot info error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Bot info error:', error instanceof Error ? error.name : 'unknown');
+    res.status(500).json({ error: 'Telegram service unavailable' });
   }
 });
 
-router.post("/api/telegram/setup-commands", async (req, res) => {
+router.post("/api/telegram/setup-commands", verifyTelegramUser, requireAdmin, async (req, res) => {
   if (!TELEGRAM_BOT_TOKEN) {
     return res.status(503).json({ error: "Telegram bot not configured" });
   }
@@ -576,12 +581,12 @@ router.post("/api/telegram/setup-commands", async (req, res) => {
     const result = await response.json();
     res.json({ success: result.ok, result });
   } catch (error: any) {
-    console.error('Setup commands error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Setup commands error:', error instanceof Error ? error.name : 'unknown');
+    res.status(500).json({ error: 'Telegram service unavailable' });
   }
 });
 
-router.post("/api/telegram/setup-menu-button", async (req, res) => {
+router.post("/api/telegram/setup-menu-button", verifyTelegramUser, requireAdmin, async (req, res) => {
   if (!TELEGRAM_BOT_TOKEN) {
     return res.status(503).json({ error: "Telegram bot not configured" });
   }
@@ -612,8 +617,8 @@ router.post("/api/telegram/setup-menu-button", async (req, res) => {
     const result = await response.json();
     res.json({ success: result.ok, result });
   } catch (error: any) {
-    console.error('Menu button setup error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Menu button setup error:', error instanceof Error ? error.name : 'unknown');
+    res.status(500).json({ error: 'Telegram service unavailable' });
   }
 });
 

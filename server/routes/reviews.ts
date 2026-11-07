@@ -3,7 +3,7 @@ import { db } from "../db";
 import { reviews, insertReviewSchema } from "../../shared/schema";
 import { and, desc, eq, count, isNotNull } from "drizzle-orm";
 import { parsePaginationParams, createPaginatedResponse, withTimeout, isDbTimeoutError, dbTimeoutError, internalError } from "../apiUtils";
-import { verifyTelegramUser } from "./shared";
+import { verifyTelegramUser, requireAdmin } from "./shared";
 
 const router = Router();
 
@@ -86,7 +86,8 @@ router.post("/api/reviews", verifyTelegramUser, async (req: any, res) => {
   }
 });
 
-router.post("/api/reviews/seed", async (req, res) => {
+router.post("/api/reviews/seed", verifyTelegramUser, requireAdmin, async (req, res) => {
+  if (process.env.NODE_ENV === 'production') return res.status(404).json({ error: 'Not found' });
   try {
     const existingReviews = await db.select().from(reviews).limit(1);
     if (existingReviews.length > 0) {

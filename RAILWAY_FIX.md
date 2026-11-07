@@ -47,7 +47,7 @@ Railway использовал Node.js 18, а приложение требуе�
 1. Скопируйте Railway URL (Settings → Domains)
 2. Настройте Telegram webhook:
    ```
-   https://api.telegram.org/bot8583828594:AAG9u61RdSfkdxoGo5xGs21wENkxzwty1Ew/setWebhook?url=YOUR_RAILWAY_URL/api/telegram/webhook
+   https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/setWebhook?url=YOUR_RAILWAY_URL/api/telegram/webhook
    ```
 3. Настройте Menu Button в @BotFather
 4. Откройте бота - приложение работает! 🎉

@@ -281,14 +281,22 @@ export async function setUserPreference(key: string, value: unknown): Promise<vo
 }
 
 export async function cacheApiResponse<T>(endpoint: string, data: T, ttlMs: number = CACHE_TTL.FIVE_MINUTES): Promise<void> {
-  const cacheKey = `api_${endpoint.replace(/\//g, '_')}`;
-  await deviceStorage.set(cacheKey, data, ttlMs);
+  // API responses may belong to a signed-in person. Keep them in memory only.
+  void endpoint; void data; void ttlMs;
 }
 
 export async function getCachedApiResponse<T>(endpoint: string): Promise<T | null> {
   const cacheKey = `api_${endpoint.replace(/\//g, '_')}`;
-  return deviceStorage.get<T>(cacheKey);
+  await deviceStorage.remove(cacheKey);
+  return null;
 }
+
+async function clearLegacyApiCache(): Promise<void> {
+  const keys = await deviceStorage.getKeys();
+  await Promise.all(keys.filter(key => key.startsWith('api_')).map(key => deviceStorage.remove(key)));
+}
+
+if (typeof window !== 'undefined') void clearLegacyApiCache().catch(() => {});
 
 /**
  * Storage info for debugging

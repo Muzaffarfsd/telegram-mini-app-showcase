@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from 'zod';
-import { verifyTelegramUser } from './shared';
+import { verifyTelegramUser, requireAdmin } from './shared';
 
 const router = Router();
 
@@ -18,13 +18,13 @@ router.get("/api/user-projects/:telegramId", verifyTelegramUser, (req, res) => {
   }
 });
 
-router.post("/api/create-project", (req, res) => {
+router.post("/api/create-project", verifyTelegramUser, (req, res) => {
   const projectCreateSchema = z.object({
-    telegramId: z.string().min(1),
+    telegramId: z.string().regex(/^[1-9]\d{0,15}$/),
     projectName: z.string().min(1).max(255).optional(),
     projectType: z.string().max(50).optional(),
-    features: z.array(z.string()).optional(),
-    paymentIntentId: z.string().optional(),
+    features: z.array(z.string().max(100)).max(50).optional(),
+    paymentIntentId: z.string().max(200).optional(),
   });
   
   const validationResult = projectCreateSchema.safeParse(req.body);
@@ -36,17 +36,19 @@ router.post("/api/create-project", (req, res) => {
   }
   
   try {
-    const { telegramId, projectName, projectType, features, paymentIntentId } = validationResult.data;
+    const { telegramId, projectName, projectType, features } = validationResult.data;
+    if (telegramId !== String(req.telegramUser!.id)) return res.status(403).json({ error: 'Forbidden' });
+    if ((userProjects.get(telegramId)?.length || 0) >= 25) return res.status(429).json({ error: 'Project limit reached' });
+    if (!userProjects.has(telegramId) && userProjects.size >= 2000) return res.status(503).json({ error: 'Project intake temporarily unavailable' });
     
     const newProject = {
       id: Date.now(),
       name: projectName || 'Новый проект',
       type: projectType || 'basic',
-      status: 'Оплачено',
-      progress: 10,
+      status: 'Заявка',
+      progress: 0,
       createdAt: new Date().toISOString(),
       features: features || [],
-      paymentIntentId,
       telegramUserId: telegramId
     };
     
@@ -54,7 +56,6 @@ router.post("/api/create-project", (req, res) => {
     existingProjects.push(newProject);
     userProjects.set(telegramId, existingProjects);
     
-    console.log(`Created project for user ${telegramId}:`, projectName);
     res.json({ success: true, project: newProject });
   } catch (error) {
     console.error('Error creating project:', error);
@@ -62,10 +63,10 @@ router.post("/api/create-project", (req, res) => {
   }
 });
 
-router.post("/api/update-project-status", (req, res) => {
+router.post("/api/update-project-status", verifyTelegramUser, requireAdmin, (req, res) => {
   const projectUpdateSchema = z.object({
-    telegramId: z.string().min(1),
-    projectId: z.number(),
+    telegramId: z.string().regex(/^[1-9]\d{0,15}$/),
+    projectId: z.number().int().positive().safe(),
     status: z.string().max(100).optional(),
     progress: z.number().min(0).max(100).optional(),
   });
@@ -101,9 +102,11 @@ router.post("/api/update-project-status", (req, res) => {
   }
 });
 
-router.post("/api/init-demo-projects/:telegramId", (req, res) => {
+router.post("/api/init-demo-projects/:telegramId", verifyTelegramUser, requireAdmin, (req, res) => {
+  if (process.env.NODE_ENV === 'production') return res.status(404).json({ error: 'Not found' });
   try {
     const { telegramId } = req.params;
+    if (typeof telegramId !== 'string' || !/^[1-9]\d{0,15}$/.test(telegramId) || !Number.isSafeInteger(Number(telegramId))) return res.status(400).json({ error: 'Invalid user identifier' });
     
     const demoProjects = [
       {

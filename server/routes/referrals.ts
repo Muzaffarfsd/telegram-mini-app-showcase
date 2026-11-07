@@ -106,9 +106,10 @@ router.get("/api/referrals/stats/:telegram_id", verifyTelegramUser, async (req: 
   }
 });
 
-router.get("/api/referrals/referrals/:telegram_id", async (req, res) => {
+router.get("/api/referrals/referrals/:telegram_id", verifyTelegramUser, async (req, res) => {
   try {
-    const telegram_id = parseInt(req.params.telegram_id);
+    const telegram_id = req.telegramUser!.id;
+    if (String(telegram_id) !== req.params.telegram_id) return res.status(403).json({ error: 'Forbidden' });
 
     const referralsList = await db
       .select({

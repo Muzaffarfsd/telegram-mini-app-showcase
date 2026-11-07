@@ -102,7 +102,7 @@ export function serveStatic(app: Express) {
     lastModified: true,
     setHeaders: (res, filepath) => {
       // HTML files should not be cached (SPA routing)
-      if (filepath.endsWith('.html')) {
+      if (filepath.endsWith('.html') || filepath.endsWith('sw.js')) {
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       }
     }
@@ -118,7 +118,6 @@ export function serveStatic(app: Express) {
     // Force content-type and disable any proxy caching
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }

@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { db } from "../db";
 import { users } from "../../shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, and, gte, sql } from "drizzle-orm";
+import { randomBytes } from 'node:crypto';
 import { verifyTelegramUser } from "./shared";
 
 const router = Router();
@@ -48,14 +49,15 @@ router.post("/api/coinshop/redeem", verifyTelegramUser, async (req: any, res) =>
 
     const [updatedUser] = await db.update(users)
       .set({
-        availableCoins: availableCoins - tier.coins,
-        spentCoins: (userData.spentCoins || 0) + tier.coins,
+        availableCoins: sql`${users.availableCoins} - ${tier.coins}`,
+        spentCoins: sql`COALESCE(${users.spentCoins}, 0) + ${tier.coins}`,
         updatedAt: new Date(),
       })
-      .where(eq(users.telegramId, telegramId))
+      .where(and(eq(users.telegramId, telegramId), gte(users.availableCoins, tier.coins)))
       .returning();
+    if (!updatedUser) return res.status(409).json({ error: 'Insufficient coins or concurrent redemption' });
 
-    const discountCode = `W4T-${tier.discount}OFF-${Date.now().toString(36).toUpperCase()}`;
+    const discountCode = `W4T-${tier.discount}OFF-${randomBytes(12).toString('hex').toUpperCase()}`;
 
     res.json({
       success: true,
