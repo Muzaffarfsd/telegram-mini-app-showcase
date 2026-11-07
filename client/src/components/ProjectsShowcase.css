@@ -26,7 +26,7 @@
 .folder__paper i:first-child { width:14px; height:14px; border-radius:50%; background:var(--paper); opacity:1; }
 .folder--rose { --paper:#efd3d0; }.folder--blue { --paper:#cbdde2; }.folder--sand { --paper:#e8d7b7; }.folder--lime { --paper:#d9e4ce; }
 .folder__mark { position:absolute; z-index:3; left:13%; bottom:13%; color:#b2b4b2; font-size:7px; line-height:1; font-weight:800; letter-spacing:-.06em; transform:rotate(-5deg); }
-.folder__sticker { position:absolute; z-index:4; width:44%; height:44%; right:8%; bottom:7%; overflow:visible; filter:drop-shadow(0 2px 2px rgba(0,0,0,.12)); }
+.folder__sticker { position:absolute; z-index:4; width:56%; height:48%; right:5%; bottom:6%; overflow:visible; filter:drop-shadow(0 2px 2px rgba(0,0,0,.12)); }
 .ps-store__copy { display:flex; flex-direction:column; align-items:center; gap:5px; width:100%; padding:12px 0 0; }
 .ps-store__copy strong { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:15px; line-height:1.1; font-weight:700; letter-spacing:-.035em; }
 .ps-store__copy small { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#8b8b87; font-size:11px; line-height:1.2; }
@@ -37,3 +37,4 @@
 @media (hover:hover) { .folder { transition:transform .22s ease; }.ps-store:hover .folder { transform:translateY(-3px); } }
 @media (max-width:350px) { .ps-inner { padding-inline:15px; }.ps-grid { column-gap:10px; }.ps-filters { gap:6px; }.ps-filters button { padding-inline:14px; } }
 @media (prefers-reduced-motion:reduce) { .folder { transition:none; } }
+
