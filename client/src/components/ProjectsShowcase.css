@@ -10,12 +10,16 @@
 .ps-header h1 { display:flex; align-items:baseline; gap:8px; font-size:clamp(33px,10vw,43px); line-height:1; font-weight:700; letter-spacing:-.06em; }
 .ps-count { color:#aaa; font-size:14px; font-weight:500; letter-spacing:0; }
 .ps-layout { display:flex; align-items:center; gap:2px; padding:3px; border-radius:99px; background:#f1f1ef; }
-.ps-layout button { position:relative; display:grid; place-items:center; width:33px; height:33px; border:0; border-radius:50%; background:transparent; color:#858581; }
+.ps-layout button { position:relative; display:grid; place-items:center; width:33px; height:33px; border:0; border-radius:50%; background:transparent; color:#858581; transition:none; }
+.ps-layout button:active { transform:none; opacity:1; }
+.projects-showcase .ps-layout svg, .projects-showcase .ps-layout svg * { transition:none; }
 .ps-layout button::after { content:""; position:absolute; top:-6px; bottom:-6px; left:-1px; right:-1px; }
 .ps-layout button[aria-pressed="true"] { background:#fff; color:#151515; box-shadow:0 1px 4px #00000012; }
 .ps-filters { display:flex; gap:8px; margin:24px 0 28px; }
 .ps-filters button { min-height:37px; padding:0 16px; border:0; border-radius:99px; background:#f1f1f0; color:#343432; font-size:13px; font-weight:600; white-space:nowrap; }
 .ps-filters button[aria-pressed="true"] { color:#fff; background:#111; }
+/* Avoid global transition: all on every SVG and layout descendant. */
+.projects-showcase .ps-grid, .projects-showcase .ps-grid * { transition:none; }
 .ps-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:14px; row-gap:24px; }
 .ps-store { display:flex; min-width:0; flex-direction:column; align-items:center; padding:0; border:0; background:transparent; color:inherit; text-align:center; }
 .folder { --glass-hi:#f3f3f2; --glass-mid:#e9e9e8; --glass-low:#d9dad8; position:relative; display:block; width:100%; aspect-ratio:180 / 187; isolation:isolate; }
@@ -47,9 +51,16 @@
 .ps-grid--list .ps-store { flex-direction:row; gap:18px; padding:8px 12px; border-radius:18px; text-align:left; background:#f7f7f6; }
 .ps-grid--list .folder { width:100px; flex:none; }
 .ps-grid--list .ps-store__copy { align-items:flex-start; padding:0; }
-@media (hover:hover) { .folder { transition:transform .22s ease; }.ps-store:hover .folder { transform:translateY(-3px); } }
+@media (hover:hover) { .projects-showcase .ps-grid .folder { transition:transform .22s ease; }.ps-store:hover .folder { transform:translateY(-3px); } }
 @media (max-width:350px) { .ps-inner { padding-inline:15px; }.ps-grid { column-gap:10px; }.ps-filters { gap:6px; }.ps-filters button { padding-inline:14px; } }
-@media (prefers-reduced-motion:reduce) { .folder { transition:none; } }
+@media (prefers-reduced-motion:reduce) { .projects-showcase .ps-grid .folder, .ps-layout button { transition:none; } }
+
+
+
+
+
+
+
 
 
 

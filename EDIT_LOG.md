@@ -873,6 +873,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Mobile browser 320/390: scrolled showcase to home and back to cached showcase; each starts at top. CPU-throttled dev profile showed less scroll-reset work; physical device not measured. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell.
 
 ---
+## 2026-11-07 · Remove grid-switch latency
+
+**What:** Removed the FLIP geometry measurements and animation, and disabled inherited transition-all rules on showcase geometry and toggle icons. The view now changes immediately.
+**Files:** client/src/components/ProjectsPage.tsx, ProjectsShowcase.css.
+**Checkpoint:** `a8fa648`.
+**Verification:** Mobile browser 320/390: rapid repeated toggles, filtering, demo navigation, reduced motion; no page errors or lingering geometry transitions. CPU-throttled browser inspection confirmed removal of geometry transitions and showed shorter first-frame samples; physical-device performance remains unverified. Vite build passed; existing unrelated CSS keyframes warning remains; assets copied with PowerShell.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -884,6 +892,7 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 
 

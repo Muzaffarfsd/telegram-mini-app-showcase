@@ -1,5 +1,4 @@
-import { memo, useEffect, useRef, useState, type ReactNode } from 'react';
-import { flushSync } from 'react-dom';
+import { memo, useState, type ReactNode } from 'react';
 import { Grid2X2, List } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { preloadDemo } from './demos/DemoRegistry';
@@ -62,45 +61,6 @@ export default memo(function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
   const ru = language === 'ru';
   const [category, setCategory] = useState<Category>('all');
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
-  const gridRef = useRef<HTMLElement>(null);
-  const layoutAnimations = useRef<Animation[]>([]);
-  const pendingFrame = useRef<number | null>(null);
-  useEffect(() => () => { if (pendingFrame.current !== null) cancelAnimationFrame(pendingFrame.current); layoutAnimations.current.forEach(animation => animation.cancel()); }, []);
-  const changeLayout = (next: 'grid' | 'list') => {
-    if (next === layout) return;
-    // Cancel first so rapid reversals never queue unfinished transitions.
-    if (pendingFrame.current !== null) cancelAnimationFrame(pendingFrame.current);
-    pendingFrame.current = null;
-    layoutAnimations.current.forEach(animation => animation.cancel());
-    layoutAnimations.current = [];
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const parts = reduceMotion ? [] : Array.from(gridRef.current?.querySelectorAll<HTMLElement>('.ps-store > .folder, .ps-store > .ps-store__copy') ?? []);
-    const before = parts.map(element => element.getBoundingClientRect());
-    // Commit the accessible state and final layout immediately, then animate only
-    // the visible folder and label from their previous screen positions.
-    flushSync(() => setLayout(next));
-    if (reduceMotion) return;
-    pendingFrame.current = requestAnimationFrame(() => {
-      pendingFrame.current = null;
-      const height = window.innerHeight;
-      parts.forEach((element, index) => {
-      if (!element.isConnected) return;
-      const oldRect = before[index];
-      const newRect = element.getBoundingClientRect();
-      if (!oldRect.width || !newRect.width || oldRect.bottom < 0 || oldRect.top > height || newRect.bottom < 0 || newRect.top > height) return;
-      const dx = oldRect.left - newRect.left;
-      const dy = oldRect.top - newRect.top;
-      const isFolder = element.classList.contains('folder');
-      const sx = isFolder ? oldRect.width / newRect.width : 1;
-      const sy = isFolder ? oldRect.height / newRect.height : 1;
-      if (Math.abs(dx) < .5 && Math.abs(dy) < .5 && Math.abs(sx - 1) < .01 && Math.abs(sy - 1) < .01) return;
-      layoutAnimations.current.push(element.animate(
-        [{ transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`, transformOrigin: 'top left' }, { transform: 'translate(0, 0) scale(1)', transformOrigin: 'top left' }],
-        { duration: 180, easing: 'cubic-bezier(.2,.7,.2,1)' },
-      ));
-      });
-    });
-  };
   const filtered = stores.filter(store => category === 'all' || store.category === category);
   const filters: { id: Category; label: string }[] = [
     { id: 'all', label: ru ? 'Все' : 'All' },
@@ -111,16 +71,17 @@ export default memo(function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
     <header className="ps-header">
       <div><p className="ps-kicker">WEB4TG / {ru ? 'КОЛЛЕКЦИЯ' : 'COLLECTION'}</p><h1>{ru ? 'Витрина' : 'Showcase'}<span className="ps-count">{stores.length}</span></h1></div>
       <div className="ps-layout" aria-label={ru ? 'Вид витрины' : 'Showcase layout'}>
-        <button type="button" aria-label={ru ? 'Сетка' : 'Grid'} aria-pressed={layout === 'grid'} onClick={() => changeLayout('grid')}><Grid2X2 size={17}/></button>
-        <button type="button" aria-label={ru ? 'Список' : 'List'} aria-pressed={layout === 'list'} onClick={() => changeLayout('list')}><List size={18}/></button>
+        <button type="button" aria-label={ru ? 'Сетка' : 'Grid'} aria-pressed={layout === 'grid'} onClick={() => setLayout('grid')}><Grid2X2 size={17}/></button>
+        <button type="button" aria-label={ru ? 'Список' : 'List'} aria-pressed={layout === 'list'} onClick={() => setLayout('list')}><List size={18}/></button>
       </div>
     </header>
     <div className="ps-filters" aria-label={ru ? 'Направления' : 'Categories'}>{filters.map(filter => <button key={filter.id} type="button" aria-pressed={category === filter.id} onClick={() => setCategory(filter.id)}>{filter.label}</button>)}</div>
-    <section ref={gridRef} className={`ps-grid${layout === 'list' ? ' ps-grid--list' : ''}`} aria-label={ru ? 'Примеры приложений' : 'App examples'}>
+    <section className={`ps-grid${layout === 'list' ? ' ps-grid--list' : ''}`} aria-label={ru ? 'Примеры приложений' : 'App examples'}>
       {filtered.map(store => <StoreCard key={store.id} store={store} ru={ru} onOpenDemo={onOpenDemo} />)}
     </section>
   </div></main>;
 });
+
 
 
 
