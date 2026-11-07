@@ -2,8 +2,15 @@ import crypto from 'node:crypto';
 import type { Request, Response, NextFunction } from 'express';
 import { isUsableBotCredential } from './revokedCredentialFingerprints';
 
+/** Preserve the operator's previous private admin chat when no new allowlist is set. */
+export function configuredAdminTelegramIds(env: NodeJS.ProcessEnv = process.env): string {
+  if (env.ADMIN_TELEGRAM_IDS !== undefined) return env.ADMIN_TELEGRAM_IDS;
+  const legacyId = env.TELEGRAM_ADMIN_CHAT_ID?.trim() || '';
+  return /^[1-9]\d*$/.test(legacyId) && Number.isSafeInteger(Number(legacyId)) ? legacyId : '';
+}
+
 /** Administrative access is explicit and never inferred from a client-supplied ID. */
-export function isAdminTelegramId(id: unknown, configuredIds = process.env.ADMIN_TELEGRAM_IDS || ''): boolean {
+export function isAdminTelegramId(id: unknown, configuredIds = configuredAdminTelegramIds()): boolean {
   if (!Number.isSafeInteger(id) || Number(id) <= 0) return false;
   return configuredIds.split(',').map(value => value.trim()).filter(value => /^[1-9]\d*$/.test(value)).some(value => value === String(id));
 }

@@ -992,6 +992,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** 37 unit/regression tests plus isolated backend integration passed; strict server/shared type checking passed. Production build and 26 browser route checks passed (5 core, 11 active demo routes, 10 retired safe fallbacks), with no page/CSP errors; real service-worker cache/queue regression passed. Full and production dependency audit: 0 known advisories after updates. Clean install/SDK/native/schema tooling checks passed. Global UI type check still has 45 diagnostics outside the changed server/request boundary. One historical credential was rejected by Telegram in a read-only check; no credential values or real bot messages were exposed. Provider IAM/WAF/MFA/backups and actual cloud deployment are separately identified, not claimed tested by local checks.
 
 ---
+## 2026-11-07 18:46 · Preserve the existing private Telegram administrator
+
+**What:** Added safe compatibility with the previous server-only `TELEGRAM_ADMIN_CHAT_ID` when `ADMIN_TELEGRAM_IDS` is absent. Explicit new configuration, including an empty value, takes priority. Group/channel IDs, lists, noncanonical and unsafe values never grant a user role. No real ID was inserted into source or inferred from public contact information.
+**Why:** User confirmed the administrator ID should remain the same as before. Git history identified the old variable used for administrator notifications but contains no actual configured value.
+**Files:** `server/securityAccess.ts`, `tests/telegram-auth-security.test.ts`, `.env.example`, security documentation and codebase index.
+**Checkpoint:** `checkpoint/admin-legacy-20261107-1846` at `9aeec9a`.
+**Verification:** 39 security unit/regression tests and isolated backend integration passed; strict server/shared type checking passed. The change is server configuration only. The initial security release `9aeec9a` was separately confirmed on Railway with all 26 production routes passing and GitHub Security checks successful. Read-only account audit found `main` unprotected; the available token cannot change repository administration settings. Actual Railway admin variable, runtime and webhook provisioning remain uninspected because no authenticated Railway configuration access is available.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description

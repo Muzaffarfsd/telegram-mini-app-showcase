@@ -288,7 +288,7 @@ index.ts                       - Express bootstrap: helmet, CORS, compression, r
                                  CSP frame-ancestors allows Telegram Web and same-origin embedding.
 security.ts                    - global default-private API boundary, exact origins, CSP bootstrap hashes,
                                  input structure limits and private/source path denial
-securityAccess.ts              - admin allowlist and Telegram webhook secret verification
+securityAccess.ts              - admin allowlist, safe legacy private-admin compatibility, Telegram webhook secret verification
 webhookProvisioning.ts         - safe secret registration for the existing exact production callback
 revokedCredentialFingerprints.ts - denies reuse of bot credentials exposed in historical documents (hashes only)
 redaction.ts                   - removes credential material from logs, monitoring events and tracing spans
