@@ -897,6 +897,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Alpha inspected for all 24 WebPs plus hero, visual comparison on contrasting backgrounds and against originals. Mobile browser 320/390: all 24 catalog images decode; categories, product photo, cart and favorites load the new paths; no 404, page errors or horizontal overflow. Reviewed `../muraka-alpha-home-390.png`, `../muraka-integration-catalog-390-10.png`, `../muraka-integration-detail-390.png`. Vite build passed; existing unrelated CSS keyframes warning remains; assets copied with PowerShell. Generative images preserve overall design but small details can differ.
 
 ---
+## 2026-11-07 · Faster product image display across demos
+
+**What:** Added intent-based first-image warming, small embedded previews for product and service images, on-demand sharper gallery previews, responsive FLORA images, local optimized Aura assets, and removed Aura's artificial image delay. Preview remains until the original decodes or if it fails. Legacy FLORA previews load in a separate chunk.
+**Files:** app and showcase preload hooks; demo components and image preview manifests; new responsive/preview WebPs for FLORA, APPLE, MURAKA, MIRA, China Buyer and Aura.
+**Checkpoint:** `5f6c954`.
+**Verification:** All ten demo IDs checked in mobile Chromium and WebKit with delayed original requests; a preview is visible before the image arrives, catalogs/services and first details open without page errors or image 404s. Additional delayed, failed and decode-race checks cover gallery photos and zoom. Prewarming for four representative demos verified before click; all referenced preview manifest files exist. Vite build passed; existing unrelated CSS keyframes warning remains. Type check reports 266 diagnostics, including pre-existing App/FLORA errors. Physical-device speed and first-load network latency are not guaranteed.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -908,6 +916,7 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 
 

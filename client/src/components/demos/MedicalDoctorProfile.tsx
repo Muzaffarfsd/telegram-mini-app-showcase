@@ -1,3 +1,5 @@
+import medicalPreviews from './imagePreview-medical.json';
+import { previewProps } from './imagePreview';
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Clock3, Film, Stethoscope } from 'lucide-react';
 import type { MedicalDoctor } from './MedicalBooking';
@@ -33,7 +35,7 @@ export default function MedicalDoctorProfile({doctor,onBack,onBook,onService}:Pr
    <h1>{doctor.name}<span>.</span></h1>
    <p className="meddoc-intro">{doctor.intro}</p>
    <div className="meddoc-book"><div><span>{doctor.id==='ultrasound'?'ИССЛЕДОВАНИЕ':'КОНСУЛЬТАЦИЯ'} · {doctor.duration} МИН</span><strong>{money(doctor.price)}</strong></div><button type="button" data-med-book="doctor" onClick={()=>onBook('doctor')}>Записаться <ArrowRight size={18}/></button></div>
-   <div className="meddoc-gallery"><div className="meddoc-gallery-rail">{photos.slice(1).map((src,index)=><button key={src} type="button" onClick={()=>setSelected(index+1)} aria-pressed={selected===index+1} aria-label={`Показать иллюстрацию приёма ${index+2}`}><img src={src} alt=""/></button>)}</div><div className="meddoc-main-image"><img src={photos[selected]} alt={selected===0?`Демонстрационный портрет специалиста ${doctor.name}`:`Иллюстрация консультации по направлению ${doctor.specialty}`}/><span>{String(selected+1).padStart(2,'0')} / 04</span></div></div>
+   <div className="meddoc-gallery"><div className="meddoc-gallery-rail">{photos.slice(1).map((src,index)=><button key={src} type="button" onClick={()=>setSelected(index+1)} aria-pressed={selected===index+1} aria-label={`Показать иллюстрацию приёма ${index+2}`}><img src={src} {...previewProps(src,medicalPreviews)} alt=""/></button>)}</div><div className="meddoc-main-image"><img src={photos[selected]} {...previewProps(photos[selected],medicalPreviews)} alt={selected===0?`Демонстрационный портрет специалиста ${doctor.name}`:`Иллюстрация консультации по направлению ${doctor.specialty}`}/><span>{String(selected+1).padStart(2,'0')} / 04</span></div></div>
    <div className="meddoc-gallery-note"><span>{selected===0?'ПОРТРЕТ СПЕЦИАЛИСТА':`ИЛЛЮСТРАЦИЯ ПРИЁМА ${selected+1} / 04`}</span>{selected!==0&&<button type="button" onClick={()=>setSelected(0)}>Вернуть портрет <ArrowRight size={14}/></button>}</div>
    <p className="meddoc-demo">Демонстрационный профиль. Имя, фотографии и квалификация — пример оформления, не сведения о действующем враче.</p>
    <section className="meddoc-section"><div className="meddoc-rule"><span>01 / ЗНАКОМСТВО</span><span>МЕДИЦИНА С ВНИМАНИЕМ</span></div><h2>ВРЕМЯ ВАС<br/>УСЛЫШАТЬ<span>.</span></h2><p>{profile.approach}</p><p>{doctor.details}</p></section>

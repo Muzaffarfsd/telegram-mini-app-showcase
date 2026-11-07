@@ -1,3 +1,5 @@
+import chinaPreviews from './imagePreview-china.json';
+import { previewProps } from './imagePreview';
 import { useMemo, useState } from 'react';
 import { ArrowRight, ChevronDown, Heart, Search, SlidersHorizontal, X } from 'lucide-react';
 import './ChinaBuyerCatalogV5.css';
@@ -33,7 +35,7 @@ function ideaCount(count: number) {
 function CatalogItem({ item, favorite, onOpen, onFavorite }: { item: ChinaBuyerCatalogItem; favorite: boolean; onOpen: () => void; onFavorite: () => void }) {
   return <article className="cb-card cb5-catalog-card" data-testid={`buyer-item-${item.id}`}>
     <div className="cb-card__image cb5-catalog-card__photo">
-      <button type="button" className="cb-card__open" onClick={onOpen} aria-label={`Открыть ${item.name}`}><img src={item.image} alt="" loading="lazy" decoding="async" /></button>
+      <button type="button" className="cb-card__open" onClick={onOpen} aria-label={`Открыть ${item.name}`}><img src={item.image} {...previewProps(item.image,chinaPreviews,item.id==='v5-feature'?'contain':'cover')} alt="" loading="lazy" decoding="async" /></button>
       <button type="button" className="cb-heart" onClick={onFavorite} aria-label={`${favorite ? 'Убрать из избранного' : 'В избранное'}: ${item.name}`} aria-pressed={favorite}><Heart size={19} fill={favorite ? 'currentColor' : 'none'} /></button>
     </div>
     <div className="cb5-catalog-card__meta"><span>{item.category}</span><span>ИДЕЯ ДЛЯ ПОИСКА</span></div>
@@ -61,7 +63,7 @@ export function ChinaBuyerCatalogV5({ items, categories, category, query, favori
 
     {showFeature && <div className="cb5-catalog-feature" aria-label="Подборка идей">
       <div className="cb5-catalog-feature__copy"><span>ВЫБОР БАЙЕРА / 01</span><strong>Вещи<br/>с характером.</strong><p>Образы и предметы для вашего поиска.</p><button type="button" onClick={()=>onOpen(featured[0].id)}>Смотреть идею <ArrowRight size={16}/></button></div>
-      <div className="cb5-catalog-feature__photos" aria-hidden="true"><img src={featured[0].image} alt="" />{featured[1] && <img src={featured[1].image} alt="" />}</div>
+      <div className="cb5-catalog-feature__photos" aria-hidden="true"><img src={featured[0].image} {...previewProps(featured[0].image,chinaPreviews,'contain')} alt="" />{featured[1] && <img src={featured[1].image} {...previewProps(featured[1].image,chinaPreviews,'cover')} alt="" />}</div>
       <span className="cb5-catalog-feature__character cb-ink-font" lang="zh-Hans" aria-hidden="true">选</span>
     </div>}
 

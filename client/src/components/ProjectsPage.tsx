@@ -51,7 +51,7 @@ const Folder = memo(function Folder({ id, paper }: { id: string; paper: string }
 
 type Store = (typeof stores)[number];
 const StoreCard = memo(function StoreCard({ store, ru, onOpenDemo }: { store: Store; ru: boolean; onOpenDemo: (id: string) => void }) {
-  return <button type="button" className="ps-store" data-testid={`card-app-${store.id}`} aria-label={`${ru ? 'Открыть демо' : 'Open demo'}: ${ru ? store.ru : store.en}`} onClick={() => onOpenDemo(store.id)} onPointerEnter={() => preloadDemo(store.id)} onTouchStart={() => preloadDemo(store.id)}>
+  return <button type="button" className="ps-store" data-testid={`card-app-${store.id}`} aria-label={`${ru ? 'Открыть демо' : 'Open demo'}: ${ru ? store.ru : store.en}`} onClick={() => onOpenDemo(store.id)} onPointerEnter={() => preloadDemo(store.id)} onTouchStart={() => preloadDemo(store.id)} onFocus={() => preloadDemo(store.id)}>
     <Folder id={store.id} paper={store.paper}/><span className="ps-store__copy"><strong>{ru ? store.ru : store.en}</strong></span>
   </button>;
 });

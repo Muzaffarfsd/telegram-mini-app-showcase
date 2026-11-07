@@ -1,5 +1,8 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {Grid2X2, Heart, List, Minus, Plus, Search, SlidersHorizontal, X} from 'lucide-react';
+import {warmImage} from '@/lib/warmImage';
+import {imagePreviews} from './OptMarketImagePreviews';
+import {afterImageDecode} from './ImagePreviewDecode';
 import './PartiyaCatalog.css';
 
 export type PartiyaProduct = {id:string; assetName?:string; name:string; category:string; detail:string; pack:string; units:number; price:number; label:string; description:string};
@@ -35,13 +38,16 @@ const countLabel=(n:number)=>`${n} ${n%100>=11&&n%100<=14?'товаров':n%10=
 // Preserve browsing choices when opening a product and returning to the catalog.
 let catalogView:{layout:'grid'|'list';brand:string;format:string;sorting:string;favoritesOnly:boolean;filtersOpen:boolean}={layout:'grid',brand:'',format:'',sorting:'featured',favoritesOnly:false,filtersOpen:false};
 
-function CatalogCard({p,qty,open,change,favorite,toggle}:{p:PartiyaProduct;qty:number;open:()=>void;change:(n:number)=>void;favorite:boolean;toggle:()=>void}){
+function CatalogCard({p,qty,open,change,favorite,toggle,eager=false}:{p:PartiyaProduct;qty:number;open:()=>void;change:(n:number)=>void;favorite:boolean;toggle:()=>void;eager?:boolean}){
   const [failed,setFailed]=useState(false);
   const [fallback,setFallback]=useState(false);
+  const [loadedSrc,setLoadedSrc]=useState('');
+  const src=`/b2b/generated/${p.assetName||p.id}${fallback?'':'-scene-v2'}.webp`;
+  const preview=imagePreviews[src];
   return <article className="opt-product-card parti-catalog-card">
     <div className="parti-catalog-picture-wrap">
-      <button type="button" className="opt-product-picture" data-opt-focus={`product-picture-${p.id}`} aria-label={`Открыть товар: ${p.name}`} onClick={open}>
-        {failed?<span className="opt-no-image">Изображение<br/>недоступно</span>:<img src={`/b2b/generated/${p.assetName||p.id}${fallback?'':'-scene-v2'}.webp`} alt="" loading="lazy" decoding="async" className={fallback?'':'opt-scene-image'} onError={()=>{if(!fallback)setFallback(true);else setFailed(true);}}/>}
+      <button type="button" className="opt-product-picture" data-opt-focus={`product-picture-${p.id}`} aria-label={`Открыть товар: ${p.name}`} onClick={open} onPointerEnter={()=>warmImage(`/b2b/generated/${p.assetName||p.id}.webp`, 'high')} onTouchStart={()=>warmImage(`/b2b/generated/${p.assetName||p.id}.webp`, 'high')}>
+        {failed?(preview?<img src={preview} alt={`Предпросмотр ${p.name}: исходное фото недоступно`} className={fallback?'':'opt-scene-image'}/>:<span className="opt-no-image">Изображение<br/>недоступно</span>):<img src={src} alt="" loading={eager?'eager':'lazy'} decoding="async" className={fallback?'':'opt-scene-image'} style={preview&&loadedSrc!==src?{backgroundImage:`url(${preview})`,backgroundSize:fallback?'contain':'cover',backgroundPosition:'center',backgroundRepeat:'no-repeat'}:undefined} onLoad={event=>afterImageDecode(event.currentTarget,()=>setLoadedSrc(src))} onError={()=>{if(!fallback)setFallback(true);else setFailed(true);}}/>}
       </button>
       <button type="button" className="parti-catalog-heart" aria-label={`${favorite?'Убрать из избранного':'В избранное'}: ${p.name}`} aria-pressed={favorite} onClick={toggle}><Heart size={18} fill={favorite?'currentColor':'none'}/></button>
     </div>
@@ -96,7 +102,7 @@ export function PartiyaCatalog({products,cart,category,query,categories,setCateg
       </div>}
     </div>
     <p className="opt-results" aria-live="polite">{countLabel(shown.length)} · демо-цены за коробку</p>
-    {shown.length?<div className={`opt-grid parti-catalog-grid ${layout==='list'?'is-list':''}`}>{shown.map(p=><CatalogCard key={p.id} p={p} qty={cart.find(l=>l.id===p.id)?.qty||0} open={()=>open(p.id)} change={n=>change(p.id,n)} favorite={isFavorite(p.id)} toggle={()=>toggleFavorite(p.id)}/>)}</div>:<div className="opt-empty"><Search size={24}/><h2>Ничего не нашли</h2><p>Попробуйте изменить запрос или фильтры.</p><button type="button" onClick={reset}>Показать все товары</button></div>}
+    {shown.length?<div className={`opt-grid parti-catalog-grid ${layout==='list'?'is-list':''}`}>{shown.map((p,i)=><CatalogCard key={p.id} p={p} eager={i<4} qty={cart.find(l=>l.id===p.id)?.qty||0} open={()=>open(p.id)} change={n=>change(p.id,n)} favorite={isFavorite(p.id)} toggle={()=>toggleFavorite(p.id)}/>)}</div>:<div className="opt-empty"><Search size={24}/><h2>Ничего не нашли</h2><p>Попробуйте изменить запрос или фильтры.</p><button type="button" onClick={reset}>Показать все товары</button></div>}
     <p className="opt-note">Изображения созданы с помощью ИИ. Цены, наличие и количество в коробке — пример.</p>
   </section>;
 }

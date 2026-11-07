@@ -10,6 +10,7 @@ import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useRouting, navigate } from "./hooks/useRouting";
+import { warmDemoImage } from "./lib/demoImagePreload";
 import { isProfileRoute } from "./lib/profileRoutes";
 import { useScrollHaptic } from "./hooks/useScrollHaptic";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
@@ -450,6 +451,9 @@ function AppContent() {
   const { hapticFeedback, user } = useTelegram();
   
   const { route } = useRouting();
+  useLayoutEffect(() => {
+    if (route.component === 'demoApp') warmDemoImage(route.params?.id, 'high');
+  }, [route.component, route.params?.id]);
   const prefetchStarted = useRef(false);
   const demoReturnPath = useRef<'/' | '/projects'>('/');
   const pendingDemoHash = useRef<string | null>(null);
@@ -514,6 +518,7 @@ function AppContent() {
   }, [hapticFeedback]);
 
   const handleOpenDemo = useCallback((demoId: string) => {
+    warmDemoImage(demoId, 'high');
     demoReturnPath.current = route.component === 'projects' ? '/projects' : '/';
     pendingDemoHash.current = `#/demos/${demoId}/app`;
     navigate(`/demos/${demoId}/app`);

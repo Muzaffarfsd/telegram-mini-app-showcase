@@ -1,3 +1,5 @@
+import chinaPreviews from './imagePreview-china.json';
+import { previewProps } from './imagePreview';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Heart, Minus, Plus } from 'lucide-react';
 import './BuyerProductDetail.css';
@@ -33,14 +35,14 @@ export function BuyerProductDetail({ item, favorite, related, onFavorite, onRequ
     <div className="bpd-gallery" aria-label="Изображения идеи товара">
       <div className="bpd-main-photo">
         <button className="bpd-image-button" type="button" ref={imageButton} onClick={()=>setEnlarged(v=>!v)} aria-label={`${enlarged?'Уменьшить':'Увеличить'} изображение ${item.name}`} aria-pressed={enlarged}>
-          <img key={`${item.id}-${current}`} src={views[current]} alt={`Иллюстрация: ${item.name}${hasGallery ? `, изображение ${current+1} из 4` : ` — ${cropNames[current]}`}`} className={`${!hasGallery ? `is-crop-${current}` : ''} ${enlarged?'is-enlarged':''}`}/>
+          <img key={`${item.id}-${current}`} src={views[current]} {...previewProps(views[current],chinaPreviews,views[current]===item.image && item.id==='v5-feature'?'contain':'cover')} alt={`Иллюстрация: ${item.name}${hasGallery ? `, изображение ${current+1} из 4` : ` — ${cropNames[current]}`}`} className={`${!hasGallery ? `is-crop-${current}` : ''} ${enlarged?'is-enlarged':''}`}/>
           <span className="bpd-zoom">{enlarged?<Minus size={15}/>:<Plus size={15}/>} <span>{enlarged?'Уменьшить':'Увеличить'}</span></span>
         </button>
         <button className="bpd-heart" type="button" onClick={onFavorite} aria-label={`${favorite?'Убрать из избранного':'В избранное'}: ${item.name}`} aria-pressed={favorite}><Heart size={20} fill={favorite?'currentColor':'none'}/></button>
 
         <span className="bpd-index">{hasGallery ? `${String(current+1).padStart(2,'0')} / 04` : `${String(current+1).padStart(2,'0')} / 03`}</span>
       </div>
-      <div className="bpd-thumbs" aria-label={hasGallery ? 'Другие изображения' : 'Кадрирования изображения'}>{views.map((src,i) => hasGallery && i===current ? null : <button type="button" key={`${src}-${i}`} onClick={()=>changeView(i)} aria-label={hasGallery ? `Показать фото ${i+1} из 4` : `${cropNames[i]}: показать`} aria-pressed={!hasGallery ? current===i : undefined}><span className="bpd-thumb__image"><img src={src} alt="" className={!hasGallery ? `is-crop-${i}` : ''} loading="lazy"/></span><span className="bpd-thumb__label">0{i+1}</span></button>)}</div>
+      <div className="bpd-thumbs" aria-label={hasGallery ? 'Другие изображения' : 'Кадрирования изображения'}>{views.map((src,i) => hasGallery && i===current ? null : <button type="button" key={`${src}-${i}`} onClick={()=>changeView(i)} aria-label={hasGallery ? `Показать фото ${i+1} из 4` : `${cropNames[i]}: показать`} aria-pressed={!hasGallery ? current===i : undefined}><span className="bpd-thumb__image"><img src={src} {...previewProps(src,chinaPreviews,src===item.image && item.id==='v5-feature'?'contain':'cover')} alt="" className={!hasGallery ? `is-crop-${i}` : ''} loading="lazy"/></span><span className="bpd-thumb__label">0{i+1}</span></button>)}</div>
     </div>
     <p className="bpd-gallery-note">{hasGallery ? 'Сгенерированные иллюстрации одной идеи: мелкие детали могут различаться.' : 'Три кадрирования одного изображения — чтобы рассмотреть идею ближе.'}</p>
     <div className="bpd-body">
@@ -58,7 +60,7 @@ export function BuyerProductDetail({ item, favorite, related, onFavorite, onRequ
       </div>
       <div className="bpd-story-block"><p className="bpd-section-label">ИСТОРИЯ НАХОДКИ <span>01 / 03</span></p><h2>У каждой детали<br/><em>своё значение.</em></h2><p className="bpd-story">{item.story}</p><div className="bpd-advice"><span>ВАЖНО ДЛЯ ПОИСКА</span><p>{buyerNote(item.category)}</p></div></div>
       <div className="bpd-process"><p className="bpd-section-label">ВАШ ПУТЬ <span>02 / 03</span></p><h2>От идеи<br/><em>к личному запросу.</em></h2><div><b>01</b><p><strong>Вы выбираете идею</strong><small>Сохраните понравившуюся вещь или добавьте свою ссылку.</small></p></div><div><b>02</b><p><strong>Описываете детали</strong><small>Размер, цвет и бюджет помогут составить запрос.</small></p></div><div><b>03</b><p><strong>Проверяете заявку</strong><small>В этой версии она сохраняется только на устройстве.</small></p></div></div>
-      {related.length>0 && <section className="bpd-related" aria-labelledby="bpd-related-title"><div className="bpd-related__head"><div><p>ПРОДОЛЖИТЬ ВЫБОР / 03</p><h2 id="bpd-related-title">Вам может<br/><em>понравиться.</em></h2></div><button type="button" onClick={onCatalog}>В каталог <ArrowRight size={15}/></button></div><div className="bpd-related__track">{related.map(candidate=><button type="button" key={candidate.id} onClick={()=>onOpen(candidate.id)} aria-label={`Открыть ${candidate.name}`}><span><img src={candidate.image} alt="" loading="lazy"/></span><strong>{candidate.name}</strong><small>{candidate.category} · идея для поиска</small></button>)}</div></section>}
+      {related.length>0 && <section className="bpd-related" aria-labelledby="bpd-related-title"><div className="bpd-related__head"><div><p>ПРОДОЛЖИТЬ ВЫБОР / 03</p><h2 id="bpd-related-title">Вам может<br/><em>понравиться.</em></h2></div><button type="button" onClick={onCatalog}>В каталог <ArrowRight size={15}/></button></div><div className="bpd-related__track">{related.map(candidate=><button type="button" key={candidate.id} onClick={()=>onOpen(candidate.id)} aria-label={`Открыть ${candidate.name}`}><span><img src={candidate.image} {...previewProps(candidate.image,chinaPreviews,candidate.id==='v5-feature'?'contain':'cover')} alt="" loading="lazy"/></span><strong>{candidate.name}</strong><small>{candidate.category} · идея для поиска</small></button>)}</div></section>}
     </div>
   </section>;
 }

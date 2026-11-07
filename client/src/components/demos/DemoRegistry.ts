@@ -1,6 +1,7 @@
 // Dynamic demo registry for lazy loading
 import { ComponentType } from 'react';
 import { lazyWithRecovery as lazy } from '../../utils/lazyWithRecovery';
+import { warmDemoImage } from '../../lib/demoImagePreload';
 
 // Type for demo components
 export interface DemoComponent {
@@ -140,6 +141,7 @@ export const isDemoAvailable = (demoId: string): boolean => {
 };
 
 export const preloadDemo = (demoId: string): void => {
+  warmDemoImage(demoId);
   if (preloadedSet.has(demoId)) return;
   const demo = demoRegistry[demoId];
   if (demo?.preload) {

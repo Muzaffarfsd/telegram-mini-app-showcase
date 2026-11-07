@@ -17,7 +17,7 @@
 .cb-catalog-v5 .cb5-catalog-feature__copy button {display:flex;align-items:center;gap:7px;min-height:44px;margin-top:auto;padding:0;border:0;background:transparent;color:#9d292d;font-size:11px;font-weight:700;}
 .cb-catalog-v5 .cb5-catalog-feature__photos {position:relative;min-width:0;overflow:hidden;}
 .cb-catalog-v5 .cb5-catalog-feature__photos img:first-child {width:100%;height:100%;position:absolute;inset:0;object-fit:cover;object-position:center 22%;}
-.cb-catalog-v5 .cb5-catalog-feature__photos img:first-child[src$="v5-feature.png"] {object-fit:contain;padding:14px 8px;}
+.cb-catalog-v5 .cb5-catalog-feature__photos img:first-child[data-preview-src$="v5-feature-fast.webp"] {object-fit:contain;padding:14px 8px;}
 .cb-catalog-v5 .cb5-catalog-feature__photos img:nth-child(2) {position:absolute;width:47%;height:43%;right:8px;bottom:9px;object-fit:cover;border:3px solid #f2f1ee;box-shadow:0 4px 14px #0002;}
 .cb-catalog-v5 .cb5-catalog-feature__character {position:absolute;right:8px;top:8px;z-index:1;display:grid;place-items:center;width:30px;height:30px;background:#a92b30;color:white;font-size:22px;line-height:1;}
 .cb-catalog-v5 .cb5-catalog-filter-heading {display:flex;align-items:end;justify-content:space-between;gap:12px;margin-top:42px;}
@@ -32,7 +32,7 @@
 .cb-catalog-v5 .cb5-catalog-controls select {appearance:none;-webkit-appearance:none;max-width:160px;padding:8px 0;border:0;border-radius:0;outline-offset:2px;background:transparent;color:#3a3a3a;font-size:11px;font-weight:600;}
 .cb-catalog-v5 .cb5-catalog-grid {gap:28px 10px;}
 .cb-catalog-v5 .cb5-catalog-card__photo {aspect-ratio:4/5;border-radius:3px;background:#eeedeb;}
-.cb-catalog-v5 .cb5-catalog-card__photo img[src$="v5-feature.png"] {object-fit:contain;padding:10px;}
+.cb-catalog-v5 .cb5-catalog-card__photo img[data-preview-src$="v5-feature-fast.webp"] {object-fit:contain;padding:10px;}
 .cb-catalog-v5 .cb5-catalog-card__photo .cb-heart {top:7px;right:7px;}
 .cb-catalog-v5 .cb5-catalog-card__meta {display:flex;justify-content:space-between;gap:6px;margin-top:12px;color:#a23b3e;font-size:9px;font-weight:700;letter-spacing:.055em;text-transform:uppercase;}
 .cb-catalog-v5 .cb5-catalog-card__meta span:last-child {text-align:right;color:#aaa;font-size:8px;}

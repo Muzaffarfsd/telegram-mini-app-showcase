@@ -8,6 +8,7 @@ import MedicalDoctorCatalog from './MedicalDoctorCatalog';
 import MedicalNavigation from './MedicalNavigation';
 import { MedicalCatalog, MedicalServiceDetail } from './MedicalServices';
 import { medicalServices, medicalServiceFor } from './MedicalServiceData';
+import { warmImage, warmImages } from '@/lib/warmImage';
 import './MedicalCenter.css';
 
 type Doctor = MedicalDoctor & { intro: string; focus: string[]; details: string; };
@@ -50,7 +51,7 @@ export default function MedicalCenter() {
   }, []);
   useEffect(() => { const root = document.getElementById('root'); const shouldRestore = screen !== 'booking' && !!restoreFocus.current; root?.scrollTo({ top: shouldRestore ? restoreScroll.current : 0, behavior: 'instant' }); if (shouldRestore) { const key = restoreFocus.current; restoreFocus.current = ''; requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-med-book="${key}"]`)?.focus({preventScroll:true})); } }, [screen]);
   function apply(snapshot: Snapshot) { current.current = snapshot; setScreen(snapshot.screen); setSelected(snapshot.selected); setSelectedSpecialty(snapshot.selectedSpecialty); setPrevious(snapshot.previous); setBookingDoctor(snapshot.bookingDoctor); setBookingService(snapshot.bookingService); }
-  function go(next: Screen, changes: Partial<Snapshot> = {}) { const state = {...(history.state && typeof history.state === 'object' ? history.state : {})}; delete state.__medicalFlow; const snapshot = {...current.current, ...changes, screen:next}; history.pushState({...state,__medical:{session:session.current,snapshot}},'',location.href); apply(snapshot); }
+  function go(next: Screen, changes: Partial<Snapshot> = {}) { if(next === 'service'){const item=medicalServiceFor(changes.selectedSpecialty || selectedSpecialty);warmImage(item ? photo(item.photos[0]) : undefined,'high');} else if(next === 'doctor'){const item=doctors.find(d=>d.id===(changes.selected || selected));warmImage(item?.image,'high');} else if(next === 'services'){warmImage(photo('med-v2-center-room'),'high');warmImages(medicalServices.slice(0,2).map(item=>photo(item.photos[0])));} else if(next === 'doctors'){warmImages(doctors.slice(0,2).map(item=>item.image),'high');} const state = {...(history.state && typeof history.state === 'object' ? history.state : {})}; delete state.__medicalFlow; const snapshot = {...current.current, ...changes, screen:next}; history.pushState({...state,__medical:{session:session.current,snapshot}},'',location.href); apply(snapshot); }
   function showDoctor(id: string) { go('doctor', {selected:id,previous:screen}); }
   function showSpecialty(title: string) { go('service', {selectedSpecialty:title,previous:screen === 'service' ? previous : screen}); }
   function book(id?: string, focusKey = '', serviceId?: string) { restoreFocus.current = focusKey; restoreScroll.current = document.getElementById('root')?.scrollTop || 0; go('booking', {previous:screen,bookingDoctor:id,bookingService:serviceId}); }

@@ -1,5 +1,8 @@
 import { useState, useCallback, useEffect, useRef, memo } from "react";
 import { createPortal } from "react-dom";
+import { warmImage, warmImages } from "@/lib/warmImage";
+import { imagePreviews } from "./SkincareImagePreviews";
+import { afterImageDecode } from "./ImagePreviewDecode";
 import {
   Search, Heart, Plus, Minus, ChevronRight, Star, ArrowLeft, Check,
   ShoppingBag, Truck, ShieldCheck, X, Tag, Info, Sparkles, Layers, Droplet, Gift,
@@ -29,7 +32,7 @@ const IC = { sm: 16, md: 20, lg: 24 };
 const SW = 2;
 const FREE_SHIP = 5000;
 
-const IMG = "https://d8j0ntlcm91z4.cloudfront.net/user_39EkWaVwA7CfpRMWZth7HiaC1oQ/";
+const IMG = "/skincare-aura/";
 
 interface Props {
   activeTab: "home" | "catalog" | "cart" | "profile";
@@ -287,14 +290,18 @@ const recommend = (ans: { skin?: string; concern?: string; budget?: string }): P
 };
 
 /* --- изображение со скелетон-загрузкой --- */
-function Img({ src, alt, r = 0, cover = true }: { src: string; alt: string; r?: number; cover?: boolean }) {
-  const [loaded, setLoaded] = useState(false);
+function Img({ src, alt, r = 0, cover = true, eager = false, priority = false, onReady }: { src: string; alt: string; r?: number; cover?: boolean; eager?: boolean; priority?: boolean; onReady?: () => void }) {
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const loaded = loadedSrc === src;
+  const failed = failedSrc === src;
   return (
     <div className="relative w-full h-full overflow-hidden" style={{ borderRadius: r, background: SOFT }}>
-      {!loaded && <div className="aura-shim absolute inset-0" style={{ borderRadius: r }} aria-hidden="true" />}
-      <img src={src} alt={alt} loading="lazy" decoding="async" onLoad={() => setLoaded(true)}
+      {!loaded && (imagePreviews[src] ? <div className="absolute inset-0" style={{ borderRadius: r, backgroundImage: `url(${imagePreviews[src]})`, backgroundSize: cover ? 'cover' : 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }} aria-hidden="true" /> : !failed && <div className="aura-shim absolute inset-0" style={{ borderRadius: r }} aria-hidden="true" />)}
+      {failed && <div className="absolute inset-x-0 bottom-0 flex items-center justify-center" role="img" aria-label={`${alt || 'Изображение'}: оригинал недоступен`} style={{ color: MUTED, fontSize: T.cap, background: 'rgba(255,255,255,.9)' }}>Фото недоступно</div>}
+      <img src={src} alt={alt} loading={eager ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} decoding="async" onLoad={event => afterImageDecode(event.currentTarget, () => { setLoadedSrc(src); onReady?.(); })} onError={() => setFailedSrc(src)}
         className="w-full h-full"
-        style={{ objectFit: cover ? "cover" : "contain", display: "block", borderRadius: r, opacity: loaded ? 1 : 0, transition: "opacity .35s ease-out" }} />
+        style={{ objectFit: cover ? "cover" : "contain", display: failed ? "none" : "block", borderRadius: r }} />
     </div>
   );
 }
@@ -320,8 +327,8 @@ function Label({ children, mt = 22 }: { children: React.ReactNode; mt?: number }
 }
 
 /* --- карточка товара --- */
-const ProductCard = memo(function ProductCard({ p, fav, onFav, onOpen, onAdd, w, idx = 0 }: {
-  p: Product; fav: boolean; onFav: () => void; onOpen: () => void; onAdd: () => void; w?: number | string; idx?: number;
+const ProductCard = memo(function ProductCard({ p, fav, onFav, onOpen, onAdd, w, eager = false }: {
+  p: Product; fav: boolean; onFav: () => void; onOpen: () => void; onAdd: () => void; w?: number | string; idx?: number; eager?: boolean;
 }) {
   const d = pct(p);
   return (
@@ -330,12 +337,14 @@ const ProductCard = memo(function ProductCard({ p, fav, onFav, onOpen, onAdd, w,
       tabIndex={0}
       aria-label={`${p.brand} ${p.name}, ${rub(p.price)}`}
       onClick={onOpen}
+      onPointerEnter={() => warmImage(p.img, 'high')}
+      onTouchStart={() => warmImage(p.img, 'high')}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(); } }}
       className="flex-shrink-0 cursor-pointer active:scale-[0.98] transition-transform"
-      style={{ width: w ?? 168, animation: "auraUp .42s ease-out both", animationDelay: `${Math.min(idx, 9) * 0.04}s` }}
+      style={{ width: w ?? 168 }}
     >
       <div className="relative" style={{ aspectRatio: "1 / 1.04", borderRadius: 20, background: SOFT, padding: 8 }}>
-        <Img src={p.img} alt={p.name} r={13} />
+        <Img src={p.img} alt={p.name} r={13} eager={eager} />
         {p.badge && (
           <span className="absolute" style={{
             top: 10, left: 10, background: INK, color: PAPER, fontSize: T.micro, fontWeight: 700,
@@ -530,7 +539,7 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
         <div className="flex" style={{ gap: 12, padding: "0 20px", width: "max-content" }}>
           {BANNERS.map((b, i) => (
             <div key={i} className="flex-shrink-0 relative overflow-hidden" style={{ width: 300, height: 188, borderRadius: 24 }}>
-              <Img src={b.img} alt="" r={24} />
+              <Img src={b.img} alt="" r={24} eager={i === 0} priority={i === 0} onReady={i === 0 ? () => { if (!(navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData) warmImages(PRODUCTS.slice(0, 4).map(p => p.img)); } : undefined} />
               <div className="absolute inset-0" aria-hidden="true"
                 style={{ background: "linear-gradient(120deg, rgba(8,10,6,0.74) 8%, rgba(8,10,6,0.30) 55%, rgba(8,10,6,0.05) 100%)" }} />
               <div className="absolute" style={{ left: 20, top: 20, right: 20 }}>
@@ -727,7 +736,7 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, padding: "0 20px" }}>
           {catProducts.map((p, i) => (
-            <ProductCard key={p.id} p={p} idx={i} w="100%" fav={favs.has(p.id)} onFav={() => toggleFav(p.id)}
+            <ProductCard key={p.id} p={p} idx={i} w="100%" eager={i < 4} fav={favs.has(p.id)} onFav={() => toggleFav(p.id)}
               onOpen={() => setSelected(p)} onAdd={() => addToCart(p.id)} />
           ))}
         </div>
@@ -1069,7 +1078,7 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
             </div>
 
             <div className="relative" style={{ margin: "4px 20px 0", height: 316, borderRadius: 24, background: SOFT, padding: 20 }}>
-              <Img src={selected.img} alt={selected.name} r={16} />
+              <Img src={selected.img} alt={selected.name} r={16} eager />
               {pct(selected) > 0 && (
                 <span className="absolute flex items-center" style={{
                   top: 14, left: 14, background: LIME, color: ON_LIME, fontSize: T.cap, fontWeight: 800,

@@ -5,3 +5,6 @@
 .medsvc-categories{display:flex;gap:8px;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none;margin:16px -20px 0;padding:0 20px 3px}.medsvc-categories::-webkit-scrollbar{display:none}.medsvc-categories button{flex:none;min-height:42px;padding:0 15px;border:1px solid #cadbd5;border-radius:24px;background:#fff;color:#43655e;font-size:12px;font-weight:700}.medsvc-categories button[aria-pressed=true]{background:#1b393b;color:#fff;border-color:#1b393b}.medsvc-list-copy>.medsvc-list-meta{display:block;margin:10px 0 0;padding:0;color:#284e49;font-size:11px;letter-spacing:0;font-weight:750}.medsvc-list-meta span{color:#6c8a82;padding:0 3px}@media(max-width:350px){.medsvc-categories{margin-left:-16px;margin-right:-16px;padding-left:16px;padding-right:16px}}
 
 .medsvc-duration-note{margin:-10px 0 20px!important;color:#526c68;font-size:12px;line-height:1.55}
+
+/* Keep the preview visible while the full-size photo is loading. */
+.medsvc-lightbox>img{width:100%;height:calc(100dvh - 160px);object-fit:contain}

@@ -1,3 +1,5 @@
+import medicalPreviews from './imagePreview-medical.json';
+import { previewProps } from './imagePreview';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, CalendarDays, Check, ChevronRight, Clock, X } from 'lucide-react';
 import { medicalServices } from './MedicalServiceData';
@@ -212,20 +214,20 @@ export default function MedicalBooking({ doctors, initialDoctorId, initialServic
           <p className="medical-booking__eyebrow">01 / УСЛУГА</p><h1>Что вы хотите<br/>выбрать?</h1>
           <p className="medical-booking__intro">{serviceDoctor ? `Услуги специалиста ${serviceDoctor.name}. Стоимость и расписание — примеры.` : 'Выберите консультацию, исследование или программу. Стоимость и расписание — примеры.'}</p>
           {serviceDoctor && <button className="medical-booking__all-services" type="button" onClick={()=>setDoctorId('')}>Посмотреть все услуги <ArrowRight size={16}/></button>}
-          <div className="medical-booking__doctor-list">{visibleServices.map(item=><button type="button" className="medical-booking__doctor-row medical-booking__service-row" key={item.id} onClick={()=>chooseService(item.id)}><img src={`/medical/generated/${item.photos[0]}.webp`} alt=""/><span><small>{item.category}</small><strong>{item.heading}</strong><b>{formatPrice(item.price)} · {item.duration} мин</b></span><ChevronRight size={18}/></button>)}</div>
+          <div className="medical-booking__doctor-list">{visibleServices.map(item=><button type="button" className="medical-booking__doctor-row medical-booking__service-row" key={item.id} onClick={()=>chooseService(item.id)}><img src={`/medical/generated/${item.photos[0]}.webp`} {...previewProps(`/medical/generated/${item.photos[0]}.webp`,medicalPreviews)} alt=""/><span><small>{item.category}</small><strong>{item.heading}</strong><b>{formatPrice(item.price)} · {item.duration} мин</b></span><ChevronRight size={18}/></button>)}</div>
           {!visibleServices.length && <p className="medical-booking__hint">Для этого специалиста пока нет услуг в демо.</p>}
         </section>}
         {step === 'doctors' && <section>
           <p className="medical-booking__eyebrow">02 / СПЕЦИАЛИСТ</p><h1>К кому вы<br/>хотите записаться?</h1>
           <p className="medical-booking__intro">{service ? `Услуга: ${service.heading}. Выберите специалиста.` : 'Сначала выберите услугу.'}</p>
           <div className="medical-booking__doctor-list">{compatibleDoctors.map(item => <button type="button" className="medical-booking__doctor-row" key={item.id} onClick={() => chooseDoctor(item.id)}>
-            <img src={item.image} alt=""/><span><strong>{item.name}</strong><small>{item.specialty}</small><b>{service ? `${formatPrice(service.price)} · ${service.duration} мин` : ''}</b></span><ChevronRight size={18}/>
+            <img src={item.image} {...previewProps(item.image,medicalPreviews)} alt=""/><span><strong>{item.name}</strong><small>{item.specialty}</small><b>{service ? `${formatPrice(service.price)} · ${service.duration} мин` : ''}</b></span><ChevronRight size={18}/>
           </button>)}</div>
           {!compatibleDoctors.length && <p className="medical-booking__hint">Для этой услуги нет специалиста в демо. Попробуйте другое направление.</p>}
         </section>}
         {step === 'time' && doctor && service && <section>
           <p className="medical-booking__eyebrow">03 / ДАТА И ВРЕМЯ</p><h1>Выберите удобное<br/>время</h1>
-          <div className="medical-booking__selected"><img src={doctor.image} alt=""/><div><small>{service.heading}</small><strong>{doctor.name}</strong><span>{duration} мин · {formatPrice(price)}</span></div>{!editingId && <button type="button" onClick={() => changeStep('doctors')} aria-label="Изменить специалиста"><ChevronRight size={19}/></button>}</div>
+          <div className="medical-booking__selected"><img src={doctor.image} {...previewProps(doctor.image,medicalPreviews)} alt=""/><div><small>{service.heading}</small><strong>{doctor.name}</strong><span>{duration} мин · {formatPrice(price)}</span></div>{!editingId && <button type="button" onClick={() => changeStep('doctors')} aria-label="Изменить специалиста"><ChevronRight size={19}/></button>}</div>
           {service.id==='checkup-basic' && <p className="medical-booking__hint">Длительность относится к первой встрече. Анализы и обсуждение результатов в демо проходят отдельно.</p>}
           <p className="medical-booking__section-label">Дата приёма</p>
           <div className="medical-booking__dates" aria-label="Дата приёма">{dates.map(day => <button key={day} type="button" className={date === day ? 'is-selected' : ''} aria-pressed={date === day} onClick={() => { setDate(day); setTime(''); setError(''); }}><span>{dayOfWeek(day)}</span><strong>{dayOfMonth(day)}</strong></button>)}</div>
