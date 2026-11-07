@@ -119,6 +119,44 @@ const prefetchAllRoutes = () => {
   loadNext();
 };
 
+// Opening the menu is a strong signal that one of its destinations is next.
+// Start at idle, so parsing a page cannot stall the opening gesture itself.
+let menuPrefetchStarted = false;
+const prefetchMenuRoutes = () => {
+  if (menuPrefetchStarted || isSlowNetwork()) return;
+  menuPrefetchStarted = true;
+  const destinations = [
+    () => import('./components/ShowcasePage'),
+    () => import('./components/ProjectsPage'),
+    () => import('./components/OrderExperience'),
+    () => import('./components/AIConsultantPage'),
+    () => import('./components/AboutPage'),
+    () => import('./pages/analytics'),
+  ];
+  let next = 0;
+  const loadNext = () => {
+    const load = destinations[next++];
+    if (!load) return;
+    load().catch(() => {}).finally(scheduleNext);
+  };
+  const scheduleNext = () => {
+    if ('requestIdleCallback' in window) window.requestIdleCallback(loadNext, { timeout: 1000 });
+    else window.setTimeout(loadNext, 50);
+  };
+  scheduleNext();
+};
+
+function MenuRouteSkeleton({ label }: { label: string }) {
+  return <main role="status" aria-label={label} aria-busy="true" style={{ minHeight: '100dvh', background: '#fff', padding: 'calc(max(env(safe-area-inset-top, 0px), var(--csat, 0px), 12px) + 90px) 20px 80px' }}>
+    <div aria-hidden="true" style={{ maxWidth: 448, margin: '0 auto', display: 'grid', gap: 16 }}>
+      <div className="profile-skeleton" style={{ width: '38%', height: 12, borderRadius: 8 }} />
+      <div className="profile-skeleton" style={{ width: '72%', height: 32, borderRadius: 8 }} />
+      <div className="profile-skeleton" style={{ width: '90%', height: 14, borderRadius: 8 }} />
+      <div className="profile-skeleton" style={{ width: '100%', height: 190, borderRadius: 22, marginTop: 12 }} />
+    </div>
+  </main>;
+}
+
 const CACHED_TABS = ['showcase', 'projects', 'aiProcess', 'constructor', 'profile'] as const;
 type CachedTab = typeof CACHED_TABS[number];
 
@@ -558,12 +596,13 @@ function AppContent() {
                     <GlobalSidebar 
                       currentRoute={isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore ? 'showcase' : route.component}
                       onNavigate={handleNavigate}
+                      onOpen={prefetchMenuRoutes}
                       user={user}
                     />
                   </ErrorBoundary>
                 )}
                 
-                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={route.component.includes('demo') ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'projects', 'constructor', 'aiProcess', 'aiAgent'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
+                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={route.component.includes('demo') ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'projects', 'constructor', 'aiProcess', 'aiAgent', 'about', 'analytics'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
                   {(visitedTabs.has('showcase') || route.component === 'showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
                       <Suspense fallback={<StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} />}>
@@ -602,7 +641,7 @@ function AppContent() {
                   {!isCachedTab && (
                     <PageTransition routeKey={`${route.component}-${route.params?.id || ''}`}>
                       <ErrorBoundary>
-                        <Suspense fallback={route.component.includes('demo') ? <DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} /> : isProfile ? <ProfileDetailSkeleton label={language === 'ru' ? 'Загрузка страницы профиля' : 'Loading profile page'} /> : route.component === 'aiAgent' ? <AIConsultantSkeleton label={language === 'ru' ? 'Загрузка страницы консультанта' : 'Loading consultant page'} /> : null}>
+                        <Suspense fallback={route.component.includes('demo') ? <DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} /> : isProfile ? <ProfileDetailSkeleton label={language === 'ru' ? 'Загрузка страницы профиля' : 'Loading profile page'} /> : route.component === 'aiAgent' ? <AIConsultantSkeleton label={language === 'ru' ? 'Загрузка страницы консультанта' : 'Loading consultant page'} /> : <MenuRouteSkeleton label={language === 'ru' ? 'Загрузка страницы' : 'Loading page'} />}>
                           <NonCachedRoute
                             route={route}
                             handleNavigate={handleNavigate}

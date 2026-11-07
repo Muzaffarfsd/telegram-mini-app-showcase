@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import { scrollToTop } from './useScrollToTop';
 import { trackPageView } from '../utils/vitals';
 
@@ -73,8 +73,17 @@ export function useRouting() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  useEffect(() => {
-    scrollToTop();
+  useLayoutEffect(() => {
+    // The app shell scrolls in #root. Reset it before the next paint without
+    // scanning every descendant twice on ordinary menu navigation. Demos may
+    // have their own scroll containers, so preserve their existing reset.
+    if (route.component.includes('demo')) {
+      scrollToTop();
+      return;
+    }
+    const root = document.getElementById('root');
+    if (root) root.scrollTop = 0;
+    window.scrollTo(0, 0);
   }, [route.component, route.params?.id]);
 
   useEffect(() => {

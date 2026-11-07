@@ -857,6 +857,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Mobile browser at 320/390 px: rapid repeated toggles, reduced motion, filtering and opening a demo; no errors or lingering animations. Reviewed `../flip-real-mid-390.png` and `../flip-final-390-no-preference-list.png`. CPU throttling measurements were browser emulation, not a physical-device test. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell.
 
 ---
+## 2026-11-07 · Responsive menu and navigation
+
+**What:** Removed the menu's 170 ms navigation delay and staggered row delays, simplified the moving panel, preloaded menu destinations, replaced empty lazy-route fallback with a light skeleton, and reduced route-change scroll work while retaining demo resets.
+**Files:** client/src/components/GlobalSidebar.tsx, client/src/App.tsx, client/src/hooks/useRouting.ts.
+**Checkpoint:** `3b2d3cd`.
+**Verification:** Mobile browser 320/390, CPU throttling, all seven menu destinations, repeated opening and closing, route scroll reset, reduced motion; artificial 2.2-second delayed chunks for home, about and analytics show light skeletons, not a black blank screen. No page errors. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell. Physical-device performance not measured.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -868,6 +876,7 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 
 

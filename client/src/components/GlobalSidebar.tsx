@@ -10,6 +10,7 @@ import { BrandMark } from "./BrandMark";
 interface GlobalSidebarProps {
   currentRoute: string;
   onNavigate: (section: string) => void;
+  onOpen?: () => void;
   user?: { photo_url?: string; first_name?: string };
 }
 
@@ -57,12 +58,11 @@ const AnimatedHamburgerIcon = memo(forwardRef<HTMLButtonElement, AnimatedHamburg
 ));
 AnimatedHamburgerIcon.displayName = 'AnimatedHamburgerIcon';
 
-export default function GlobalSidebar({ currentRoute, onNavigate, user }: GlobalSidebarProps) {
+export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }: GlobalSidebarProps) {
   useTheme();
   const { t, language } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [pressedItem, setPressedItem] = useState<string | null>(null);
-  const [, setIsAnimating] = useState(false);
+  const focusFrame = useRef<number | null>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
   const firstFocusableRef = useRef<HTMLButtonElement>(null);
@@ -125,22 +125,31 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   }, []);
 
   const openSidebar = useCallback(() => {
-    setIsAnimating(true);
+    if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
     setSidebarOpen(true);
     triggerHaptic('medium');
-    setTimeout(() => { firstFocusableRef.current?.focus(); }, 100);
-  }, [triggerHaptic]);
+    onOpen?.();
+    focusFrame.current = requestAnimationFrame(() => {
+      focusFrame.current = null;
+      firstFocusableRef.current?.focus({ preventScroll: true });
+    });
+  }, [onOpen, triggerHaptic]);
 
-  const closeSidebar = useCallback(() => {
-    setIsAnimating(true);
+  const closeSidebar = useCallback((restoreFocus = true) => {
+    if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
+    focusFrame.current = null;
     setSidebarOpen(false);
     setSwipeOffset(0);
     triggerHaptic('light');
-    setTimeout(() => {
-      setIsAnimating(false);
-      triggerButtonRef.current?.focus();
-    }, 350);
+    if (restoreFocus) focusFrame.current = requestAnimationFrame(() => {
+      focusFrame.current = null;
+      triggerButtonRef.current?.focus({ preventScroll: true });
+    });
   }, [triggerHaptic]);
+
+  useEffect(() => () => {
+    if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -245,14 +254,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
   const isProfileActive = isProfileRoute(currentRoute);
 
   const handleNavClick = useCallback((section: string) => {
-    setPressedItem(section);
-    triggerHaptic('light');
-    setTimeout(() => {
-      onNavigate(section);
-      closeSidebar();
-      setPressedItem(null);
-    }, 170);
-  }, [onNavigate, closeSidebar, triggerHaptic]);
+    closeSidebar(false);
+    onNavigate(section);
+  }, [onNavigate, closeSidebar]);
 
   return (
     <>
@@ -287,16 +291,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         .w4m-overlay{
           position:fixed;inset:0;z-index:100000;background:rgba(30,32,38,0.19);
           opacity:0;pointer-events:none;
-          transition:opacity .24s cubic-bezier(0.22,1,0.36,1);
+          transition:opacity .16s cubic-bezier(0.22,1,0.36,1);
           touch-action:none;
         }
         .w4m-overlay.open{opacity:1;pointer-events:auto;}
         .w4m-panel{
           position:fixed;top:0;left:0;height:100%;z-index:100001;
           width:min(372px,calc(100vw - 38px));
-          background:rgba(250,250,252,0.86);
-          backdrop-filter:blur(22px) saturate(130%);
-          -webkit-backdrop-filter:blur(22px) saturate(130%);
+          background:#f4f4f6;
           border-right:1px solid rgba(255,255,255,0.75);
           border-radius:0 26px 26px 0;
           color:#252529;font-family:${FONT};
@@ -307,11 +309,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           display:flex;flex-direction:column;
           overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
           transform:translate3d(-100%,0,0);
-          /* Apple-snap timing: 280ms with the same curve used on main page.
-             Only transform animates — backdrop-filter is NOT in the transition
-             list, so the GPU keeps the same blur and just composites a translated
-             layer (cheap). */
-          transition:transform .28s cubic-bezier(0.22,1,0.36,1);
+          /* A solid, near-opaque panel keeps the same light surface without
+             re-blurring the entire page on every frame of the slide. */
+          transition:transform .18s cubic-bezier(0.22,1,0.36,1);
           will-change:transform;
           /* Isolate layout/paint so the rest of the page doesn't get re-painted
              while the panel slides in/out. */
@@ -333,10 +333,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           padding:17px 4px;background:transparent;border:none;cursor:pointer;
           border-top:1px solid rgba(40,40,48,0.09);
           text-align:left;-webkit-tap-highlight-color:transparent;
-          opacity:0;transform:translateX(-10px);
-          transition:opacity .5s ease,transform .5s cubic-bezier(.22,1,.36,1),background-color .18s ease;
+          transition:background-color .18s ease;
         }
-        .w4m-panel.open .w4m-row{opacity:1;transform:translateX(0);}
         .w4m-row:active{background-color:rgba(40,40,48,0.04);}
 
         /* ── controls ── */
@@ -386,7 +384,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
       {/* overlay */}
       <div
         className={`w4m-overlay ${sidebarOpen ? 'open' : ''}`}
-        onClick={closeSidebar}
+        onClick={() => closeSidebar()}
         aria-hidden="true"
         style={{
           opacity: sidebarOpen ? 1 : swipeOpenOffset > 0 ? swipeOpenOffset / 370 : 0,
@@ -471,7 +469,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
               {t('sidebar.navigation')}
             </div>
             <div>
-              {menuItems.map((item, i) => {
+              {menuItems.map((item) => {
                 const active = isActive(item.routes);
                 return (
                   <button
@@ -479,7 +477,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
                     onClick={() => handleNavClick(item.section)}
                     className="w4m-row"
                     data-testid={`button-nav-${item.section || 'home'}`}
-                    style={{ transitionDelay: sidebarOpen ? `${0.12 + i * 0.04}s` : '0s' }}
                   >
                     <span style={{
                       flex: 1, minWidth: 0, fontFamily: FONT, fontSize: '1.0625rem',
