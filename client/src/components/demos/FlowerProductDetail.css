@@ -32,7 +32,6 @@
 .flower-store .f3-gallery-main,.flower-store .f3-editorial-frames figure>button{background:#fff}
 .flower-lightbox{background:#fff;color:#18211a}.flower-lightbox button{background:#f0f2ef;color:#18211a}
 /* Keep the close control below the host safe area and the fixed app header. */
-.flower-lightbox{bottom:max(0px,calc(100dvh - var(--tg-viewport-height,100dvh)));padding-top:calc(max(env(safe-area-inset-top,0px),var(--sat,0px),var(--csat,0px),12px) + 72px);padding-bottom:calc(max(env(safe-area-inset-bottom,0px),var(--sab,0px),var(--csab,0px),12px) + 6px)}
 .flower-store .f3-thumbs button{background:#fff}
 
 /* Flower-specific notes stay with the illustrated composition. */
@@ -91,3 +90,10 @@
 
 /* Avoid grid intrinsic sizing making tall botanical images spill into the next section. */
 .flower-store .f3-botanical-image{display:block}
+
+.flower-store .f3-image.is-zoomed{overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y}
+.flower-store .f3-image.is-zoomed img{width:200%;height:200%;max-width:none}
+.flower-store .f3-image.is-zoomed .f3-expand{display:none}
+.flower-inline-zoom-close{position:fixed;z-index:10000;top:calc(max(env(safe-area-inset-top,0px),var(--sat,0px),var(--csat,0px),12px) + 80px);right:max(16px,calc((100vw - 448px)/2 + 16px));display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid #ddd;border-radius:50%;background:#fff;color:#18211a;box-shadow:0 2px 12px #0002;cursor:pointer}
+.flower-inline-zoom-close:focus-visible{outline:2px solid #243b2c;outline-offset:3px}
+.flower-store .f3-image img{transition:none!important}

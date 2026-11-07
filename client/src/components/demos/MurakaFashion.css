@@ -145,9 +145,6 @@
 .mf-overlay { position:fixed; z-index:10000; inset:0; bottom:var(--mf-obscured); display:flex; align-items:flex-end; justify-content:center; background:rgba(0,0,0,.42); }
 .mf-sheet { width:min(100%,448px); max-height:min(88svh, calc(var(--tg-viewport-height, 100dvh) - 24px), 760px); display:flex; flex-direction:column; background:#fff; color:#1b1b1b; border-radius:18px 18px 0 0; box-shadow:0 -10px 35px #0002; }
 /* Keep the photo viewer header below Telegram's top controls and the app bar. */
-.mf-photo-sheet { max-height:min(88svh, max(0px, calc(var(--tg-viewport-height, 100dvh) - max(env(safe-area-inset-top, 0px), var(--sat, 0px), var(--csat, 0px), 12px) - 72px)), 760px); overflow:hidden; }
-.mf-photo-sheet .mf-photo-viewer { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; }
-.mf-photo-sheet .mf-sheet-header .mf-icon { width:44px; height:44px; }
 .mf-sheet-handle { flex:none; display:grid; place-items:center; height:24px; }
 .mf-sheet-handle span { width:36px; height:4px; border-radius:4px; background:#c8c8c8; }
 .mf-sheet-header { flex:none; display:flex; align-items:center; justify-content:space-between; margin:0 20px; padding-bottom:9px; border-bottom:1px solid #eee; }
@@ -213,3 +210,12 @@
 
 .mf-field input, .mf-field textarea { scroll-margin-top:110px; scroll-margin-bottom:160px; }
 .mf-chip { min-height:44px; }
+
+.mf-gallery-image-viewport{width:100%;height:100%;overflow:hidden}
+.mf-gallery-image-viewport.is-zoomed{overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y}
+.mf-gallery-image-viewport.is-zoomed .mf-gallery-main{display:block;width:200%;height:200%;max-width:none}
+.mf-inline-zoom-close{position:fixed;z-index:10000;top:calc(max(env(safe-area-inset-top,0px),var(--sat,0px),var(--csat,0px),12px) + 80px);right:max(16px,calc((100vw - 448px)/2 + 16px));display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid #ddd;border-radius:50%;background:#fff;color:#171717;box-shadow:0 2px 12px #0002;cursor:pointer}
+.mf-inline-zoom-close:focus-visible{outline:2px solid #111;outline-offset:3px}
+
+.mf-gallery.is-zoomed{touch-action:pan-x pan-y}
+.mf-gallery-image-viewport .mf-gallery-main{transition:none!important}

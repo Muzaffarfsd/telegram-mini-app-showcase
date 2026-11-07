@@ -22,7 +22,7 @@ type CartItem = { id: string; size: number; quantity: number; name?: string; uni
 type Order = { id: string; items: CartItem[]; total: number; date: string; delivery: string };
 type CustomerReview = { id: string; productId: string; name: string; text: string; rating: number; date: string };
 type Screen = 'home' | 'catalog' | 'product' | 'checkout' | 'success' | 'account';
-type Sheet = 'cart' | 'menu' | 'filters' | 'zoom' | null;
+type Sheet = 'cart' | 'menu' | 'filters' | null;
 
 const products: Product[] = [
   { id:'airforce', name:"Nike Air Force 1 '07", price:14900, image:'/royal-step/airforce-1.webp', category:'Классика', summary:'Белая классика на каждый день', details:'Знаковый баскетбольный силуэт в чистом белом цвете. Гладкая кожа, узнаваемые линии и амортизация Nike Air.', materials:'Кожаный верх · Амортизация Nike Air', sizes:[38,39,40,41,42,43,44,45] },
@@ -120,6 +120,7 @@ export default function RoyalStep({ onClose }: { onClose: () => void }) {
   const [sheet, setSheet] = useState<Sheet>(null);
   const [productId, setProductId] = useState('airforce');
   const [imageIndex, setImageIndex] = useState(0);
+  const [photoZoomed, setPhotoZoomed] = useState(false);
   const [size, setSize] = useState<number | null>(null);
   const [sizeError, setSizeError] = useState(false);
   const [query, setQuery] = useState('');
@@ -233,7 +234,32 @@ export default function RoyalStep({ onClose }: { onClose: () => void }) {
     return [...filtered].sort((a, b) => sort === 'price-up' ? a.price - b.price : sort === 'price-down' ? b.price - a.price : 0);
   }, [query, category, filterSize, sort]);
 
-  function go(next: Screen) { setSheet(null); setScreen(next); setSizeError(false); scrollTop(); }
+  useEffect(() => {
+    if (!photoZoomed || sheet) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      setPhotoZoomed(false);
+      requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.rs-photo-main')?.focus({ preventScroll:true }));
+    };
+    document.addEventListener('keydown', close);
+    return () => document.removeEventListener('keydown', close);
+  }, [photoZoomed, sheet]);
+  useEffect(() => {
+    if (!photoZoomed) return;
+    const frame = requestAnimationFrame(() => {
+      const root = document.getElementById('root');
+      const close = document.querySelector<HTMLButtonElement>('.rs-photo-close');
+      if (!root || !close) return;
+      const rect = close.getBoundingClientRect();
+      const headerBottom = document.querySelector<HTMLElement>('.w4-topbar')?.getBoundingClientRect().bottom ?? 0;
+      const minTop = Math.max(headerBottom + 8, parseFloat(getComputedStyle(close).top) || 0);
+      if (rect.top < minTop) root.scrollTop = Math.max(0, root.scrollTop - (minTop - rect.top + 1));
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [photoZoomed, imageIndex]);
+
+  function go(next: Screen) { setPhotoZoomed(false); setSheet(null); setScreen(next); setSizeError(false); scrollTop(); }
   function openProduct(id: string) { warmImage(`/royal-step/${id}-1.webp`, 'high'); experience.visit(id); setPreviousScreen(screen === 'product' ? previousScreen : screen); setProductId(id); setImageIndex(0); setSize(preferred !== null && byId(id)?.sizes.includes(preferred) ? preferred : null); setSizeError(false); setReviewOpen(false); setReviewName(''); setReviewText(''); setReviewRating(0); setReviewError(''); go('product'); }
   function toggleFavorite(id: string) { setFavorites(items => items.includes(id) ? items.filter(item => item !== id) : [...items, id]); }
   function changeQuantity(id: string, selectedSize: number, delta: number) { setCart(items => items.map(item => item.id === id && item.size === selectedSize ? { ...item, quantity: Math.min(10, item.quantity + delta) } : item).filter(item => item.quantity > 0)); }
@@ -295,14 +321,14 @@ export default function RoyalStep({ onClose }: { onClose: () => void }) {
       </section>}
 
       {screen === 'product' && <section className="rs-product">
-        <div className="rs-gallery"><div className="rs-product__photo"
+        <div className={`rs-gallery${photoZoomed ? ' is-zoomed' : ''}`}><div className="rs-product__photo"
           onTouchStart={event => { const t = event.touches[0]; if (t) photoTouch.current = { x: t.clientX, y: t.clientY }; }}
           onTouchEnd={event => { const t = event.changedTouches[0], start = photoTouch.current; if (t && start) { const dx = t.clientX - start.x, dy = t.clientY - start.y; if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) setImageIndex(value => Math.min(3, Math.max(0, value + (dx < 0 ? 1 : -1)))); } photoTouch.current = null; }}>
-          <button type="button" className="rs-photo-main" onClick={() => setSheet('zoom')} aria-label={`Увеличить фотографию ${imageIndex + 1} модели ${selected.name}`}><RoyalImage key={`${selected.id}-${imageIndex}`} src={`/royal-step/${selected.id}-${imageIndex + 1}.webp`} alt={`Кроссовки ${selected.name}, фотография ${imageIndex + 1} из 4`} loading="eager" priority /><span>Рассмотреть ближе ↗</span></button>
+          <button type="button" className="rs-photo-main" onClick={() => setPhotoZoomed(value => !value)} aria-pressed={photoZoomed} aria-label={`${photoZoomed ? 'Уменьшить' : 'Увеличить'} фотографию ${imageIndex + 1} модели ${selected.name}`}><RoyalImage key={`${selected.id}-${imageIndex}`} src={`/royal-step/${selected.id}-${imageIndex + 1}.webp`} alt={`Кроссовки ${selected.name}, фотография ${imageIndex + 1} из 4`} loading="eager" priority /><span>Рассмотреть ближе ↗</span></button>
           <button type="button" className="rs-product__heart rs-icon" onClick={() => toggleFavorite(selected.id)} aria-label={`${favorites.includes(selected.id) ? 'Убрать из избранного' : 'В избранное'}: ${selected.name}`} aria-pressed={favorites.includes(selected.id)}><Heart size={22} strokeWidth={1.5} fill={favorites.includes(selected.id) ? 'currentColor' : 'none'}/></button>
           <span className="rs-photo-count">{imageIndex + 1} / 4</span>
         </div>
-        <div className="rs-photo-thumbs" aria-label="Другие фотографии товара">{[0,1,2,3].filter(index => index !== imageIndex).map(index => <button type="button" key={index} aria-label={`Показать фотографию ${index + 1} из 4`} onClick={() => { setImageIndex(index); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.rs-photo-main')?.focus({preventScroll:true})); }}><RoyalImage key={`${selected.id}-${index}`} src={`/royal-step/${selected.id}-${index + 1}.webp`}/></button>)}</div></div>
+        <div className="rs-photo-thumbs" aria-label="Другие фотографии товара">{[0,1,2,3].filter(index => index !== imageIndex).map(index => <button type="button" key={index} aria-label={`Показать фотографию ${index + 1} из 4`} onClick={() => { setImageIndex(index); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.rs-photo-main')?.focus({preventScroll:true})); }}><RoyalImage key={`${selected.id}-${index}`} src={`/royal-step/${selected.id}-${index + 1}.webp`}/></button>)}</div>{photoZoomed && <button type="button" className="rs-photo-close rs-icon" aria-label="Закрыть увеличение" onClick={() => { setPhotoZoomed(false); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.rs-photo-main')?.focus({preventScroll:true})); }}><X size={20}/></button>}</div>
         <div className="rs-product__body">
           <p className="rs-eyebrow">{selected.category} / NIKE</p><div className="rs-product__title"><h1>{selected.name}</h1><span>{price(selected.price)}</span></div>
           <button type="button" className="rs-review-jump" onClick={() => document.getElementById('rs-reviews-title')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start' })}><Star size={15} fill="currentColor"/> Отзывы о модели <span>({reviews.filter(review => review.productId === selected.id).length + 1})</span></button>
@@ -331,8 +357,7 @@ export default function RoyalStep({ onClose }: { onClose: () => void }) {
 
     {createPortal(<div className="royal-step rs-portal" lang="ru"><nav className="rs-nav" aria-label="Навигация магазина"><button type="button" onClick={() => go('home')} aria-label="Главная" className={tab === 'home' && !sheet ? 'is-active' : ''} aria-current={tab === 'home' && !sheet ? 'page' : undefined}><Home size={21}/><span className="rs-nav__label">Главная</span></button><button type="button" onClick={() => go('catalog')} aria-label="Каталог" className={tab === 'catalog' && !sheet ? 'is-active' : ''} aria-current={tab === 'catalog' && !sheet ? 'page' : undefined}><Grid3X3 size={21}/><span className="rs-nav__label">Каталог</span></button><button type="button" onClick={() => setSheet('cart')} className={sheet === 'cart' ? 'is-active' : ''} aria-label={`Корзина, товаров: ${cartCount}`}><span className="rs-nav__bag"><ShoppingBag size={21}/>{cartCount > 0 && <i>{cartCount}</i>}</span><span className="rs-nav__label">Корзина</span></button><button type="button" onClick={() => go('account')} aria-label="Профиль" className={tab === 'account' && !sheet ? 'is-active' : ''} aria-current={tab === 'account' && !sheet ? 'page' : undefined}><UserRound size={21}/><span className="rs-nav__label">Профиль</span></button></nav>
 
-    {sheet && <div className="rs-scrim" onClick={() => setSheet(null)}><section className={`rs-sheet${sheet === 'zoom' ? ' rs-sheet--zoom' : ''}`} role="dialog" aria-modal="true" aria-labelledby="rs-sheet-title" onClick={event => event.stopPropagation()}><div className="rs-sheet__grab" onTouchStart={event => { dragStart.current = event.touches[0]?.clientY ?? null; }} onTouchEnd={event => { if (dragStart.current !== null && (event.changedTouches[0]?.clientY ?? 0) - dragStart.current > 70) setSheet(null); dragStart.current = null; }}><span/></div><div className="rs-sheet__top"><h2 id="rs-sheet-title">{sheet === 'cart' ? 'Ваша корзина' : sheet === 'filters' ? 'Фильтры' : sheet === 'zoom' ? selected.name : 'Меню'}</h2><button type="button" className="rs-icon" onClick={() => setSheet(null)} aria-label="Закрыть"><X size={22}/></button></div>
-      {sheet === 'zoom' && <div className="rs-sheet__scroll rs-zoom"><RoyalImage key={`${selected.id}-${imageIndex}`} src={`/royal-step/${selected.id}-${imageIndex + 1}.webp`} alt={`${selected.name}, увеличенная фотография ${imageIndex + 1} из 4`} loading="eager" priority/><div><button type="button" disabled={imageIndex === 0} onClick={() => setImageIndex(i => Math.max(0, i - 1))}>← Предыдущая</button><span>{imageIndex + 1} / 4</span><button type="button" disabled={imageIndex === 3} onClick={() => setImageIndex(i => Math.min(3, i + 1))}>Следующая →</button></div></div>}
+    {sheet && <div className="rs-scrim" onClick={() => setSheet(null)}><section className="rs-sheet" role="dialog" aria-modal="true" aria-labelledby="rs-sheet-title" onClick={event => event.stopPropagation()}><div className="rs-sheet__grab" onTouchStart={event => { dragStart.current = event.touches[0]?.clientY ?? null; }} onTouchEnd={event => { if (dragStart.current !== null && (event.changedTouches[0]?.clientY ?? 0) - dragStart.current > 70) setSheet(null); dragStart.current = null; }}><span/></div><div className="rs-sheet__top"><h2 id="rs-sheet-title">{sheet === 'cart' ? 'Ваша корзина' : sheet === 'filters' ? 'Фильтры' : 'Меню'}</h2><button type="button" className="rs-icon" onClick={() => setSheet(null)} aria-label="Закрыть"><X size={22}/></button></div>
       {sheet === 'cart' && <><div className="rs-sheet__scroll">{cartMessage && <p className="rs-cart-feedback" role="status">{cartMessage}</p>}{cart.length ? <><p className="rs-sheet__caption">{cartCount} {cartCount === 1 ? 'товар' : cartCount >= 2 && cartCount <= 4 ? 'товара' : 'товаров'}</p><div className="rs-cart-list">{cart.map(item => { const p = byId(item.id); if (!p) return null; return <article className="rs-cart-item" key={`${item.id}-${item.size}`}><button type="button" className="rs-cart-item__image" onClick={() => openProduct(item.id)} aria-label={`Открыть ${p.name}`}><RoyalImage src={p.image}/></button><div className="rs-cart-item__info"><strong>{p.name}</strong><RoyalCartSize product={p} size={item.size} onChange={next => { const result = changeRoyalCartSize(cart, item.id, item.size, next, p.sizes); setCart(result.cart); setCartMessage(result.error || "Размер изменён."); }}/><b>{price(p.price * item.quantity)}</b><div className="rs-quantity"><button type="button" aria-label={`Уменьшить количество ${p.name}, размер ${item.size}`} onClick={() => changeQuantity(item.id, item.size, -1)}><Minus size={14}/></button><span>{item.quantity}</span><button type="button" aria-label={`Увеличить количество ${p.name}, размер ${item.size}`} onClick={() => changeQuantity(item.id, item.size, 1)} disabled={item.quantity >= 10}><Plus size={14}/></button></div></div><button type="button" className="rs-icon" aria-label={`Удалить ${p.name}, размер ${item.size}`} onClick={() => setCart(items => items.filter(current => current !== item))}><X size={18}/></button></article>; })}</div></> : <div className="rs-empty rs-empty--cart"><ShoppingBag size={28}/><h3>Пока пусто</h3><p>Добавьте понравившуюся пару, и она появится здесь.</p><button className="rs-button rs-button--outline" type="button" onClick={() => go('catalog')}>Перейти в каталог</button></div>}</div>{!!cart.length && <div className="rs-sheet__footer"><div><span>Итого</span><strong>{price(subtotal)}</strong></div><button type="button" className="rs-button rs-button--dark rs-button--full" onClick={() => { setPreviousScreen(screen); setSubmitted(false); go('checkout'); }}>Оформить демо-заказ <ArrowRight size={17}/></button><p className="rs-demo-note">Без реальной оплаты и отправки данных.</p></div>}</>}
       {sheet === 'filters' && <div className="rs-sheet__scroll rs-filter-sheet"><h3>Коллекция</h3><div className="rs-filter-options">{['Все', 'На каждый день', 'Классика', 'Для прогулок'].map(value => <button key={value} type="button" aria-pressed={category === value} className={category === value ? 'is-selected' : ''} onClick={() => setCategory(value)}>{value}</button>)}</div><h3>Размер EU</h3><div className="rs-filter-options">{[38,39,40,41,42,43,44,45].map(value => <button key={value} type="button" aria-pressed={filterSize === value} className={filterSize === value ? 'is-selected' : ''} onClick={() => setFilterSize(filterSize === value ? null : value)}>{value}</button>)}</div><button className="rs-button rs-button--dark rs-button--full" type="button" onClick={() => setSheet(null)}>Показать модели</button><button className="rs-button rs-button--outline rs-button--full" type="button" onClick={resetFilters}>Сбросить</button></div>}
       {sheet === 'menu' && <div className="rs-menu"><button type="button" onClick={() => go('home')}>Главная <ChevronRight size={18}/></button><button type="button" onClick={() => go('catalog')}>Коллекция <ChevronRight size={18}/></button><button type="button" onClick={() => go('account')}>Избранное и заказы <ChevronRight size={18}/></button><button type="button" onClick={onClose}>Вернуться в WEB4TG <ArrowRight size={18}/></button><p className="rs-demo-note">Демонстрационный магазин от WEB4TG.</p></div>}

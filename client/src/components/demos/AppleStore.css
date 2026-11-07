@@ -137,8 +137,6 @@
 .as-overlay { position:fixed; z-index:3; inset:0 0 var(--as-obscured); display:flex; align-items:flex-end; justify-content:center; background:rgba(0,0,0,.38); }
 .as-sheet { display:flex; flex-direction:column; width:100%; max-width:448px; max-height:min(88svh,calc(var(--tg-viewport-height,100svh) - 20px)); overflow:hidden; border-radius:22px 22px 0 0; background:#fff; color:#17171c; }
 /* The close control remains below Telegram's safe area and the app header. */
-.as-photo-sheet { max-height:min(88svh, max(0px, calc(var(--tg-viewport-height, 100dvh) - max(env(safe-area-inset-top, 0px), var(--sat, 0px), var(--csat, 0px), 12px) - 72px))); }
-.as-photo-sheet .as-sheet-head { flex:none; }
 .as-sheet-handle { display:flex; justify-content:center; padding-top:10px; }
 .as-sheet-handle span { width:36px; height:4px; border-radius:3px; background:#c8c8cb; }
 .as-sheet-head { display:flex; justify-content:space-between; align-items:center; min-height:66px; margin:0 20px; border-bottom:1px solid #eee; }
@@ -185,3 +183,16 @@
 .as-photo-controls .as-icon:disabled { opacity:.3; }
 .as-photo-controls>span { min-width:44px; color:#777981; text-align:center; font-size:11px; font-weight:700; }
 .as-photo-toggle { display:flex; align-items:center; justify-content:center; gap:7px; min-height:44px; margin-left:auto; padding:0 13px; border:1px solid #ddd; border-radius:24px; background:#fff; color:#1c1d20; font-size:11px; font-weight:700; }
+
+.as-inline-photo{width:100%;height:100%;overflow:hidden}
+.as-inline-photo>img{display:block;width:100%;height:100%;object-fit:contain}
+.as-inline-photo.is-zoomed{overflow:auto;overscroll-behavior:contain;touch-action:pan-x pan-y}
+.as-inline-photo.is-zoomed>img{width:200%;height:200%;max-width:none}
+.as-inline-zoom-close{position:fixed;z-index:10000;top:calc(max(env(safe-area-inset-top,0px),var(--sat,0px),var(--csat,0px),12px) + 80px);right:max(16px,calc((100vw - 448px)/2 + 16px));display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid #ddd;border-radius:50%;background:#fff;color:#171717;box-shadow:0 2px 12px #0002;cursor:pointer}
+.as-inline-zoom-close:focus-visible{outline:2px solid #111;outline-offset:3px}
+.as-inline-photo>img{padding:20px 25px 12px}
+.as-inline-photo>.as-image-unavailable{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;height:100%;padding:32px;color:#62636b;font-size:13px;line-height:1.4;text-align:center}
+@media(max-height:700px){.as-inline-photo>img{padding:10px 20px 8px}}
+
+.as-product-gallery.is-zoomed{touch-action:pan-x pan-y}
+.as-inline-photo>img{transition:none!important}

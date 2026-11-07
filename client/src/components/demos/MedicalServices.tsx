@@ -1,8 +1,8 @@
 import medicalPreviews from './imagePreview-medical.json';
 import { previewProps } from './imagePreview';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Clock3, Search, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowLeft, ArrowRight, Clock3, Search } from 'lucide-react';
+import { GalleryInlineZoom } from './GalleryInlineZoom';
 import type { MedicalDoctor } from './MedicalBooking';
 import './MedicalServices.css';
 
@@ -13,18 +13,11 @@ const asset=(name:string)=>`/medical/generated/${name}.webp`;
 const money=(price:number)=>`${new Intl.NumberFormat('ru-RU').format(price)} ₽`;
 
 function ServiceGallery({item,doctor}:{item:MedicalService;doctor:MedicalDoctor}){
-  const images=[...item.photos.slice(0,3).map(asset),doctor.image];
-  const descriptions=[`Иллюстрация услуги: ${item.heading}`,`Иллюстрация медицинского пространства: ${item.heading}`,`Иллюстрация заботы: ${item.heading}`, `Демонстрационный портрет специалиста ${doctor.name}`];
-  const [selected,setSelected]=useState(0);
-  const [open,setOpen]=useState(false);
-  const origin=useRef<HTMLButtonElement>(null);
-  const close=useRef<HTMLButtonElement>(null);
-  const dialog=useRef<HTMLDivElement>(null);
-  const touch=useRef<number|null>(null);
-  const move=(n:number)=>setSelected(i=>(i+n+images.length)%images.length);
-  useEffect(()=>{setSelected(0);setOpen(false)},[item.slug]);
-  useEffect(()=>{if(!open)return;close.current?.focus({preventScroll:true});const key=(event:KeyboardEvent)=>{if(event.key==='Escape'){event.preventDefault();setOpen(false)}else if(event.key==='ArrowLeft'){event.preventDefault();move(-1)}else if(event.key==='ArrowRight'){event.preventDefault();move(1)}else if(event.key==='Tab'){const buttons=dialog.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)');if(!buttons?.length)return;const first=buttons[0],last=buttons[buttons.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}}};window.addEventListener('keydown',key);return()=>{window.removeEventListener('keydown',key);origin.current?.focus({preventScroll:true})}},[open]);
-  return <><div className="medsvc-gallery" aria-label={`Фотографии: ${item.heading}`}><div className="medsvc-gallery-rail">{images.slice(1).map((src,index)=><button type="button" key={src} aria-label={`Показать фотографию ${index+2}: ${item.heading}`} aria-pressed={selected===index+1} onClick={()=>setSelected(index+1)}><img src={src} {...previewProps(src,medicalPreviews)} alt="" loading="lazy"/></button>)}</div><button ref={origin} type="button" className="medsvc-gallery-main" onClick={()=>setOpen(true)} aria-label={`Открыть фотографию: ${item.heading}`}><img src={images[selected]} {...previewProps(images[selected],medicalPreviews)} alt={descriptions[selected]}/><span>{String(selected+1).padStart(2,'0')} / 04</span></button></div><div className="medsvc-gallery-caption"><span aria-live="polite">{selected===0?'ОСНОВНОЙ КАДР':`ФОТОГРАФИЯ ${selected+1} / 04`}</span>{selected!==0&&<button type="button" onClick={()=>setSelected(0)}>Основной кадр <ArrowRight size={14}/></button>}</div>{open&&createPortal(<div ref={dialog} className="medsvc-lightbox" role="dialog" aria-modal="true" aria-label={`Фотографии: ${item.heading}`} onTouchStart={e=>{touch.current=e.changedTouches[0]?.clientX??null}} onTouchEnd={e=>{if(touch.current===null)return;const dx=e.changedTouches[0].clientX-touch.current;if(Math.abs(dx)>45)move(dx<0?1:-1);touch.current=null}}><button ref={close} type="button" className="medsvc-lightbox-close" onClick={()=>setOpen(false)} aria-label="Закрыть фотографии"><X size={23}/></button><img src={images[selected]} {...previewProps(images[selected],medicalPreviews,'contain')} alt={descriptions[selected]}/><div className="medsvc-lightbox-controls"><button type="button" onClick={()=>move(-1)} aria-label="Предыдущая фотография"><ChevronLeft size={22}/></button><span aria-live="polite">{selected+1} / 4</span><button type="button" onClick={()=>move(1)} aria-label="Следующая фотография"><ChevronRight size={22}/></button></div></div>,document.body)}</>;
+ const images=[...item.photos.slice(0,3).map(asset),doctor.image];
+ const descriptions=[`Иллюстрация услуги: ${item.heading}`,`Иллюстрация медицинского пространства: ${item.heading}`,`Иллюстрация заботы: ${item.heading}`,`Демонстрационный портрет специалиста ${doctor.name}`];
+ const [selected,setSelected]=useState(0);
+ useEffect(()=>{setSelected(0)},[item.slug]);
+ return <><div className="medsvc-gallery" aria-label={`Фотографии: ${item.heading}`}><div className="medsvc-gallery-rail">{images.slice(1).map((src,index)=><button type="button" key={src} aria-label={`Показать фотографию ${index+2}: ${item.heading}`} aria-pressed={selected===index+1} onClick={event=>{setSelected(index+1);event.currentTarget.focus({preventScroll:true})}}><img src={src} {...previewProps(src,medicalPreviews)} alt="" loading="lazy"/></button>)}</div><GalleryInlineZoom className="medsvc-gallery-main" src={images[selected]} preview={previewProps(images[selected],medicalPreviews)} alt={descriptions[selected]} label={item.heading} counter={`${String(selected+1).padStart(2,'0')} / 04`}/></div><div className="medsvc-gallery-caption"><span aria-live="polite">{selected===0?'ОСНОВНОЙ КАДР':`ФОТОГРАФИЯ ${selected+1} / 04`}</span>{selected!==0&&<button type="button" onClick={()=>setSelected(0)}>Основной кадр <ArrowRight size={14}/></button>}</div></>;
 }
 
 export function MedicalCatalog({onBack,onOpen}:{onBack:()=>void;onOpen:(id:string)=>void}){

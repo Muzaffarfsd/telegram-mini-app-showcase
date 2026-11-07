@@ -1,8 +1,8 @@
 import lumiPreviews from './imagePreview-lumi.json';
 import { previewProps } from './imagePreview';
-import React, {useEffect, useRef, useState} from 'react';
-import {createPortal} from 'react-dom';
-import {ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Clock3, X} from 'lucide-react';
+import {useEffect, useState} from 'react';
+import {ArrowLeft, ArrowRight, Clock3} from 'lucide-react';
+import {GalleryInlineZoom} from './GalleryInlineZoom';
 import {Search, SlidersHorizontal} from 'lucide-react';
 import type {LumiMaster, LumiService} from './lumiData';
 import {galleryImagesFor, homeGallery} from './lumiGalleryData';
@@ -26,32 +26,17 @@ const preparations:Record<string,string>={
  face:'Расскажите специалисту о чувствительности кожи и привычном уходе. Детали процедуры уточняются индивидуально.'
 };
 
-/** Three distinct details accompany the cover; the cover remains accessible after selection. */
+/** The gallery stays in the service card when the photo is magnified. */
 function ServiceGallery({item}:{item:LumiService}){
  const gallery=galleryImagesFor(item);
  const photos=[gallery.main,...gallery.details.slice(0,3)];
  const [selected,setSelected]=useState(0);
- const [expanded,setExpanded]=useState(false);
- const origin=useRef<HTMLButtonElement>(null);
- const closeButton=useRef<HTMLButtonElement>(null);
- const lightbox=useRef<HTMLDivElement>(null);
- const touchStart=useRef<number|null>(null);
- const didSwipe=useRef(false);
- const move=(direction:number)=>setSelected(current=>(current+direction+photos.length)%photos.length);
- useEffect(()=>{if(!expanded)return;requestAnimationFrame(()=>closeButton.current?.focus());const onKey=(e:KeyboardEvent)=>{if(e.key==='Escape'){e.preventDefault();setExpanded(false);}else if(e.key==='ArrowLeft'){e.preventDefault();move(-1);}else if(e.key==='ArrowRight'){e.preventDefault();move(1);}else if(e.key==='Tab'){const buttons=lightbox.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)');if(!buttons?.length)return;const first=buttons[0],last=buttons[buttons.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}};document.addEventListener('keydown',onKey);return()=>{document.removeEventListener('keydown',onKey);origin.current?.focus({preventScroll:true});};},[expanded]);
- const start=(e:React.TouchEvent)=>{didSwipe.current=false;touchStart.current=e.changedTouches[0]?.clientX??null;};
- const end=(e:React.TouchEvent)=>{if(touchStart.current===null)return;const delta=e.changedTouches[0].clientX-touchStart.current;if(Math.abs(delta)>45){didSwipe.current=true;move(delta<0?1:-1);}touchStart.current=null;};
  return <>
   <div className="lumi-v4-gallery" aria-label={`Фотографии услуги ${item.name}`}>
-   <div className="lumi-v4-gallery-rail">{gallery.details.slice(0,3).map((src,i)=><button type="button" key={`${src}-${i}`} className="lumi-v4-gallery-thumb" aria-label={`Показать фотографию ${i+1} услуги ${item.name}`} aria-pressed={selected===i+1} onClick={()=>setSelected(i+1)}><img src={image(src)} {...previewProps(image(src),lumiPreviews)} alt="" loading="lazy"/></button>)}</div>
-   <button ref={origin} type="button" className="lumi-v4-gallery-main" aria-label={`Открыть фотографию услуги ${item.name} полностью`} onClick={()=>{if(didSwipe.current){didSwipe.current=false;return;}setExpanded(true);}} onTouchStart={start} onTouchEnd={end}><img src={image(photos[selected])} {...previewProps(image(photos[selected]),lumiPreviews)} alt={`Демонстрационное изображение: ${item.name}`}/><span className="lumi-v4-gallery-counter" aria-hidden="true">{String(selected+1).padStart(2,'0')} / {String(photos.length).padStart(2,'0')}</span></button>
+   <div className="lumi-v4-gallery-rail">{gallery.details.slice(0,3).map((src,i)=><button type="button" key={`${src}-${i}`} className="lumi-v4-gallery-thumb" aria-label={`Показать фотографию ${i+2} услуги ${item.name}`} aria-pressed={selected===i+1} onClick={event=>{setSelected(i+1);event.currentTarget.focus({preventScroll:true})}}><img src={image(src)} {...previewProps(image(src),lumiPreviews)} alt="" loading="lazy"/></button>)}</div>
+   <GalleryInlineZoom className="lumi-v4-gallery-main" src={image(photos[selected])} preview={previewProps(image(photos[selected]),lumiPreviews)} alt={`Демонстрационное изображение: ${item.name}`} label={item.name} counter={`${String(selected+1).padStart(2,'0')} / ${String(photos.length).padStart(2,'0')}`} counterClass="lumi-v4-gallery-counter"/>
   </div>
-  <div className="lumi-v4-gallery-actions"><span aria-live="polite">{selected===0?'ОСНОВНОЙ КАДР':`ФОТОГРАФИЯ ${selected} ИЗ ${photos.length-1}`}</span>{selected!==0&&<button type="button" onClick={()=>setSelected(0)}>Вернуться к основному <ArrowRight size={14}/></button>}</div>
-  {expanded&&createPortal(<div ref={lightbox} className="lumi-v4-lightbox" role="dialog" aria-modal="true" aria-label={`Фотография услуги ${item.name}`} onTouchStart={start} onTouchEnd={end}>
-   <button ref={closeButton} type="button" className="lumi-v4-lightbox-close" aria-label="Закрыть просмотр фотографии" onClick={()=>setExpanded(false)}><X size={23}/></button>
-   <img src={image(photos[selected])} {...previewProps(image(photos[selected]),lumiPreviews,'contain')} alt={`Демонстрационное изображение: ${item.name}, ${selected+1} из ${photos.length}`}/>
-   <div className="lumi-v4-lightbox-controls"><button type="button" aria-label="Предыдущая фотография" onClick={()=>move(-1)}><ChevronLeft size={22}/></button><span aria-live="polite">{selected+1} / {photos.length}</span><button type="button" aria-label="Следующая фотография" onClick={()=>move(1)}><ChevronRight size={22}/></button></div>
-  </div>,document.body)}
+  <div className="lumi-v4-gallery-actions"><span aria-live="polite">{selected===0?'ОСНОВНОЙ КАДР':`ФОТОГРАФИЯ ${selected+1} ИЗ ${photos.length}`}</span>{selected!==0&&<button type="button" onClick={()=>setSelected(0)}>Вернуться к основному <ArrowRight size={14}/></button>}</div>
  </>;
 }
 

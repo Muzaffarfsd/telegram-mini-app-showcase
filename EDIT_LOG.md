@@ -913,6 +913,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Ten showcase demos checked in mobile Chromium and WebKit, with 320/390 px, short viewports and simulated Telegram safe-area/viewport variables. Close controls checked via elementFromPoint and actual click; Escape/back, repeated opening, photo previews and scrolling checked where available. Vite build passed; existing unrelated CSS keyframes warning remains; assets copied with PowerShell. Native Telegram/device not tested.
 
 ---
+## 2026-11-07 · Inline product photo enlargement
+
+**What:** Following the user's clarification, moved photo enlargement into existing product/service galleries instead of separate photo viewers; added an accessible close control below the header and Telegram safe area, image panning, Escape and focus handling. Stores without a separate zoom retain their existing card behavior.
+**Files:** APPLE, FLORA, MURAKA/MIRA, NIKE, China Buyer, Lumi and Medical gallery components/styles; shared GalleryInlineZoom and useGalleryPan.
+**Checkpoint:** `a1bf511`.
+**Verification:** Mobile Chromium/WebKit at 320/390 and short heights with simulated Telegram safe-area: close button hit-tested and clicked below header; Escape, repeated opening, photo changes, panning and previews verified. No page errors in checked flows. Vite build passed; existing unrelated CSS keyframes warning remains. Full type check still reports 266 existing project diagnostics, none in checked changed TS files. Physical Telegram device not tested.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -924,6 +932,7 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 
 
