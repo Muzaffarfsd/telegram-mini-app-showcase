@@ -1,406 +1,87 @@
-import { ArrowRight, Zap, Shield, Clock, Users, Code, Rocket } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUpRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import './AboutPage.css';
 
-interface AboutPageProps {
-  onNavigate: (section: string) => void;
-}
+interface AboutPageProps { onNavigate: (section: string) => void }
 
 export default function AboutPage({ onNavigate }: AboutPageProps) {
-  const { t } = useLanguage();
+  const { language } = useLanguage();
+  const ru = language === 'ru';
+  const copy = ru ? {
+    eyebrow: 'СТУДИЯ WEB4TG', title: 'Создаём Mini App',
+    intro: 'Приложения для бизнеса, которые работают прямо в Telegram.',
+    heroAlt: 'Органайзер с карточкой товара и листами',
+    order: 'Обсудить проект', explore: 'Узнать о студии',
+    sectionLabel: 'ОТ ИДЕИ ДО ЗАПУСКА', sectionTitle: 'Продумано для людей',
+    sectionText: 'Соединяем задачи бизнеса и удобство клиентов в одном приложении.',
+    designLabel: '01 / ПРОЕКТИРОВАНИЕ', designTitle: 'Сначала — смысл',
+    designText: 'Изучаем задачу и продумываем, как человек будет пользоваться приложением.',
+    designAlt: 'Портфолио с эскизами интерфейса',
+    launchLabel: '02 / РАЗРАБОТКА', launchTitle: 'Затем — в жизнь',
+    launchText: 'Создаём интерфейс, собираем приложение и проверяем основные сценарии.',
+    launchAlt: 'Устройство с распечатанным чеком',
+    resultLabel: 'ДЛЯ ВАШЕГО БИЗНЕСА', resultTitle: 'Начнём с идеи',
+    resultText: 'Магазин, запись или сервис — вместе найдём формат под вашу задачу.',
+    examples: 'Посмотреть витрину', contact: 'Написать в Telegram',
+  } : {
+    eyebrow: 'WEB4TG STUDIO', title: 'We create Mini Apps',
+    intro: 'Apps for businesses that work right inside Telegram.',
+    heroAlt: 'An organizer with a product card and sheets',
+    order: 'Discuss a project', explore: 'Discover the studio',
+    sectionLabel: 'FROM IDEA TO LAUNCH', sectionTitle: 'Designed for people',
+    sectionText: 'We bring business needs and customer experience together in one app.',
+    designLabel: '01 / DESIGN', designTitle: 'Start with purpose',
+    designText: 'We explore your needs and design how people will use the app.',
+    designAlt: 'A portfolio of interface sketches',
+    launchLabel: '02 / DEVELOPMENT', launchTitle: 'Bring it to life',
+    launchText: 'We build the interface and the app, then check the essential journeys.',
+    launchAlt: 'A device with a printed receipt',
+    resultLabel: 'FOR YOUR BUSINESS', resultTitle: 'Start with an idea',
+    resultText: 'A store, booking or service — together we will find the right format.',
+    examples: 'Explore the showcase', contact: 'Message us on Telegram',
+  };
 
-  const principles = [
-    { 
-      icon: Shield, 
-      title: t('about.quality'), 
-      desc: t('about.qualityDesc')
-    },
-    { 
-      icon: Clock, 
-      title: t('about.speed'), 
-      desc: t('about.speedDesc')
-    },
-    { 
-      icon: Code, 
-      title: t('about.technology'), 
-      desc: t('about.technologyDesc')
-    },
-    { 
-      icon: Users, 
-      title: t('about.partnership'), 
-      desc: t('about.partnershipDesc')
-    }
-  ];
+  const explore = () => document.getElementById('about-story')?.scrollIntoView({
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    block: 'start',
+  });
 
-  const stats = [
-    { value: '50+', label: t('about.projectsLaunched') },
-    { value: '14', label: t('about.averageDays') },
-    { value: '127%', label: t('about.salesGrowth') },
-    { value: '24/7', label: t('about.clientSupport') }
-  ];
+  return <main className="studio-about" data-testid="about-page">
+    <div className="studio-about__inner">
+      <header className="studio-about__hero">
+        <span className="studio-about__eyebrow">{copy.eyebrow}</span>
+        <h1>{copy.title}</h1>
+        <p>{copy.intro}</p>
+        <div className="studio-about__hero-art">
+          <img src="/about-studio/hero.webp" alt={copy.heroAlt} fetchPriority="high" decoding="async" onError={event => { event.currentTarget.hidden = true; }}/>
+        </div>
+        <button className="studio-about__primary" type="button" onClick={() => onNavigate('constructor')} data-testid="button-cta-constructor">{copy.order}<ArrowRight size={19} aria-hidden="true"/></button>
+        <button className="studio-about__more" type="button" onClick={explore}>{copy.explore}<ArrowDown size={16} aria-hidden="true"/></button>
+      </header>
 
-  return (
-    <div 
-      className="min-h-screen pb-32 smooth-scroll-page"
-     
-      style={{ 
-        background: 'var(--surface)',
-        color: 'var(--text-secondary)',
-        paddingTop: '140px'
-      }}
-    >
-      <div className="max-w-md mx-auto">
-        
-        <header className="px-7 pt-8 pb-16">
-          <p 
-            className="scroll-fade-in"
-            style={{
-              fontSize: '11px',
-              fontWeight: 500,
-              letterSpacing: '0.18em',
-              color: 'var(--text-tertiary)',
-              textTransform: 'uppercase',
-              marginBottom: '24px'
-            }}
-          >
-            {t('about.title')}
-          </p>
-          
-          <h1 
-            className="scroll-fade-in-delay-1"
-            style={{
-              fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-              fontSize: '32px',
-              fontWeight: 600,
-              letterSpacing: '-0.025em',
-              lineHeight: '1.2',
-              color: 'var(--text-primary)'
-            }}
-          >
-            {t('about.heroTitle1')}
-            <br />
-            <span style={{ color: 'var(--accent-primary)' }}>{t('about.heroTitle2')}</span>
-            <br />
-            {t('about.heroTitle3')}
-          </h1>
-          
-          <p 
-            className="scroll-fade-in-delay-2"
-            style={{
-              fontSize: '15px',
-              fontWeight: 400,
-              letterSpacing: '-0.01em',
-              lineHeight: '1.6',
-              color: 'var(--text-tertiary)',
-              marginTop: '20px',
-              maxWidth: '320px'
-            }}
-          >
-            {t('about.heroDesc')}
-          </p>
-        </header>
+      <section className="studio-about__story" id="about-story" aria-labelledby="about-story-title">
+        <span className="studio-about__eyebrow">{copy.sectionLabel}</span>
+        <h2 id="about-story-title">{copy.sectionTitle}</h2>
+        <p className="studio-about__section-intro">{copy.sectionText}</p>
+        <div className="studio-about__features">
+          <article className="studio-about__feature">
+            <div className="studio-about__feature-copy"><span className="studio-about__eyebrow">{copy.designLabel}</span><h3>{copy.designTitle}</h3><p>{copy.designText}</p></div>
+            <img src="/about-studio/design.webp" alt={copy.designAlt} loading="lazy" decoding="async" onError={event => { event.currentTarget.hidden = true; }}/>
+          </article>
+          <article className="studio-about__feature">
+            <div className="studio-about__feature-copy"><span className="studio-about__eyebrow">{copy.launchLabel}</span><h3>{copy.launchTitle}</h3><p>{copy.launchText}</p></div>
+            <img src="/about-studio/launch.webp" alt={copy.launchAlt} loading="lazy" decoding="async" onError={event => { event.currentTarget.hidden = true; }}/>
+          </article>
+        </div>
+      </section>
 
-        <div 
-          className="mx-7"
-          style={{ height: '1px', background: 'var(--divider)' }}
-        />
-
-        <section className="px-7 py-12">
-          <p 
-            style={{
-              fontSize: '10px',
-              fontWeight: 600,
-              letterSpacing: '0.12em',
-              color: 'var(--text-tertiary)',
-              textTransform: 'uppercase',
-              marginBottom: '16px'
-            }}
-          >
-            {t('about.mission')}
-          </p>
-          
-          <div 
-            style={{
-              padding: '24px',
-              borderRadius: 'var(--card-radius)',
-              background: 'var(--hero-gradient)',
-              border: '1px solid var(--hero-border)',
-              boxShadow: 'var(--card-shadow)'
-            }}
-          >
-            <p style={{
-              fontSize: '17px',
-              fontWeight: 500,
-              color: 'var(--text-secondary)',
-              lineHeight: '1.5',
-              fontStyle: 'italic'
-            }}>
-              {t('about.missionText')}
-            </p>
-          </div>
-        </section>
-
-        <section className="px-7 py-8">
-          <p 
-            style={{
-              fontSize: '10px',
-              fontWeight: 600,
-              letterSpacing: '0.12em',
-              color: 'var(--text-tertiary)',
-              textTransform: 'uppercase',
-              marginBottom: '20px'
-            }}
-          >
-            {t('about.principles')}
-          </p>
-          
-          <div className="space-y-4">
-            {principles.map((item, index) => (
-              <div 
-                key={index}
-                style={{
-                  display: 'flex',
-                  gap: '16px',
-                  padding: '20px',
-                  borderRadius: 'var(--card-radius)',
-                  background: 'var(--card-bg)',
-                  border: '1px solid var(--card-border)',
-                  boxShadow: 'var(--card-shadow)'
-                }}
-              >
-                <div style={{
-                  width: '44px',
-                  height: '44px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '12px',
-                  background: 'var(--button-secondary-bg)',
-                  flexShrink: 0
-                }}>
-                  <item.icon size={20} style={{ color: 'var(--accent-primary)' }} />
-                </div>
-                <div>
-                  <p style={{
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    color: 'var(--text-primary)',
-                    marginBottom: '4px'
-                  }}>
-                    {item.title}
-                  </p>
-                  <p style={{
-                    fontSize: '13px',
-                    color: 'var(--text-tertiary)',
-                    lineHeight: '1.4'
-                  }}>
-                    {item.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="px-7 py-8">
-          <p 
-            style={{
-              fontSize: '10px',
-              fontWeight: 600,
-              letterSpacing: '0.12em',
-              color: 'var(--text-tertiary)',
-              textTransform: 'uppercase',
-              marginBottom: '20px'
-            }}
-          >
-            {t('about.inNumbers')}
-          </p>
-          
-          <div 
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '12px'
-            }}
-          >
-            {stats.map((stat, index) => (
-              <div 
-                key={index}
-                style={{
-                  padding: '20px',
-                  borderRadius: 'var(--card-radius)',
-                  background: 'var(--card-bg)',
-                  border: '1px solid var(--card-border)',
-                  boxShadow: 'var(--card-shadow)',
-                  textAlign: 'center',
-                  minHeight: '100px'
-                }}
-              >
-                <p style={{
-                  fontSize: '28px',
-                  fontWeight: 700,
-                  color: 'var(--text-primary)',
-                  letterSpacing: '-0.03em'
-                }}>
-                  {stat.value}
-                </p>
-                <p style={{
-                  fontSize: '10px',
-                  color: 'var(--text-tertiary)',
-                  marginTop: '4px',
-                  lineHeight: '1.3'
-                }}>
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="px-7 py-12">
-          <div 
-            style={{
-              padding: '28px',
-              borderRadius: 'var(--card-radius)',
-              background: 'var(--hero-gradient)',
-              border: '1px solid var(--hero-border)',
-              boxShadow: 'var(--card-shadow)',
-              textAlign: 'center'
-            }}
-          >
-            <div style={{
-              width: '56px',
-              height: '56px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '16px',
-              background: 'var(--button-secondary-bg)',
-              margin: '0 auto 16px'
-            }}>
-              <Rocket size={28} style={{ color: 'var(--accent-primary)' }} />
-            </div>
-            
-            <h3 style={{
-              fontSize: '20px',
-              fontWeight: 600,
-              color: 'var(--text-primary)',
-              marginBottom: '8px'
-            }}>
-              {t('about.readyToStart')}
-            </h3>
-            
-            <p style={{
-              fontSize: '14px',
-              color: 'var(--text-tertiary)',
-              marginBottom: '20px',
-              lineHeight: '1.5'
-            }}>
-              {t('about.discussProject')}
-              <br />
-              {t('about.optimalSolution')}
-            </p>
-            
-            <button
-              onClick={() => onNavigate('constructor')}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '14px 28px',
-                borderRadius: '12px',
-                background: 'var(--button-primary-bg)',
-                border: 'none',
-                color: 'var(--button-primary-text)',
-                fontSize: '15px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              data-testid="button-cta-constructor"
-            >
-              {t('about.orderProject')}
-              <ArrowRight size={18} />
-            </button>
-          </div>
-        </section>
-
-        <section className="px-7 py-8 pb-16">
-          <p 
-            style={{
-              fontSize: '10px',
-              fontWeight: 600,
-              letterSpacing: '0.12em',
-              color: 'var(--text-tertiary)',
-              textTransform: 'uppercase',
-              marginBottom: '16px'
-            }}
-          >
-            {t('about.contact')}
-          </p>
-          
-          <div 
-            style={{
-              padding: '24px',
-              borderRadius: 'var(--card-radius)',
-              background: 'var(--card-bg)',
-              border: '1px solid var(--card-border)',
-              boxShadow: 'var(--card-shadow)'
-            }}
-          >
-            <div style={{ marginBottom: '16px' }}>
-              <p style={{
-                fontSize: '12px',
-                color: 'var(--text-tertiary)',
-                marginBottom: '4px'
-              }}>
-                Telegram
-              </p>
-              <p style={{
-                fontSize: '15px',
-                fontWeight: 500,
-                color: 'var(--text-primary)'
-              }}>
-                @web4tg_studio
-              </p>
-            </div>
-            
-            <div style={{ marginBottom: '16px' }}>
-              <p style={{
-                fontSize: '12px',
-                color: 'var(--text-tertiary)',
-                marginBottom: '4px'
-              }}>
-                Email
-              </p>
-              <p style={{
-                fontSize: '15px',
-                fontWeight: 500,
-                color: 'var(--text-primary)'
-              }}>
-                hello@web4tg.studio
-              </p>
-            </div>
-            
-            <div>
-              <p style={{
-                fontSize: '12px',
-                color: 'var(--text-tertiary)',
-                marginBottom: '4px'
-              }}>
-                {t('about.workingHours')}
-              </p>
-              <p style={{
-                fontSize: '15px',
-                fontWeight: 500,
-                color: 'var(--text-primary)'
-              }}>
-                {t('about.workingHoursValue')}
-              </p>
-            </div>
-          </div>
-        </section>
-
-      </div>
+      <section className="studio-about__finish" aria-labelledby="about-finish-title">
+        <span className="studio-about__eyebrow">{copy.resultLabel}</span>
+        <h2 id="about-finish-title">{copy.resultTitle}</h2>
+        <p>{copy.resultText}</p>
+        <button className="studio-about__primary" type="button" onClick={() => onNavigate('projects')} data-testid="about-open-projects">{copy.examples}<ArrowRight size={19} aria-hidden="true"/></button>
+        <a className="studio-about__contact" href="https://t.me/web4tgs" target="_blank" rel="noopener noreferrer">{copy.contact}<ArrowUpRight size={16} aria-hidden="true"/></a>
+      </section>
     </div>
-  );
+  </main>;
 }

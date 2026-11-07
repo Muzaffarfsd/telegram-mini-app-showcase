@@ -272,7 +272,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
         }}
       >
         <nav 
-          className={`relative flex items-center rounded-[22px] gpu-layer ${isProfile ? 'profile-nav' : route.component === 'constructor' ? 'order-nav' : isAI ? 'consultant-nav' : route.component === 'showcase' ? 'home-nav' : route.component === 'projects' ? 'projects-nav' : ''}`}
+          className={`relative flex items-center rounded-[22px] gpu-layer ${isProfile ? 'profile-nav' : route.component === 'constructor' ? 'order-nav' : isAI ? 'consultant-nav' : route.component === 'showcase' ? 'home-nav' : route.component === 'projects' || route.component === 'about' ? 'projects-nav' : ''}`}
           style={{
             padding: '5px 6px',
             gap: '2px',
@@ -698,7 +698,7 @@ function AppContent() {
               
               {(shouldShowBottomNav || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore) && route.component !== 'aiProcess' && route.component !== 'aiAgent' && (
                 <Suspense fallback={null}>
-                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : route.component === 'projects' ? 'projects-ai-surface' : route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore ? 'home-ai-surface' : undefined}><AIAgentButton profileMode={isProfile || route.component === 'constructor' || route.component === 'projects' || route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore} /></div>
+                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : route.component === 'projects' || route.component === 'about' ? 'projects-ai-surface' : route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore ? 'home-ai-surface' : undefined}><AIAgentButton profileMode={isProfile || route.component === 'constructor' || route.component === 'projects' || route.component === 'about' || route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore} /></div>
                 </Suspense>
               )}
 

@@ -929,6 +929,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Mobile Chromium and WebKit normal/reduced motion: inspected opening and closing frames, rapid reversal, Escape, focus, swipe and background scroll; closed page pixels matched before/after in tested region. Browser CPU-throttled samples indicated earlier movement and shorter frame gaps, not a physical device measurement. Verified background imports resume after the pause and direct navigation/demo imports do not wait. Vite build passed; unrelated existing CSS warning remains. Full TypeScript check still reports 266 existing project diagnostics, including unchanged App errors. Native Telegram/device not tested.
 
 ---
+## 2026-11-07 · Rebuild About studio page
+
+**What:** Rebuilt the About page with a light interface, new reference-led 3D illustrations, working navigation and localized copy. Switched the About navigation and AI button to the existing light chrome.
+**Why:** User requested a new page matching the application's visual language and asked that icons follow the supplied references; an earlier illustration set was rejected and replaced.
+**Files:** `client/src/components/AboutPage.tsx`, `client/src/components/AboutPage.css`, `client/src/App.tsx`, `client/public/about-studio/`, `about-studio-design-notes.md`.
+**Checkpoint:** `c9fed2d` (before page redesign).
+**Verification:** Local mobile and desktop browser review; Chromium and WebKit at 320 and 390 px, desktop at 1280 px, Russian and English, CTA navigation, transparent image edges, and Vite build. User has not yet evaluated the revised illustrations; not deployed.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
