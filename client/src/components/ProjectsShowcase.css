@@ -10,7 +10,8 @@
 .ps-header h1 { display:flex; align-items:baseline; gap:8px; font-size:clamp(33px,10vw,43px); line-height:1; font-weight:700; letter-spacing:-.06em; }
 .ps-count { color:#aaa; font-size:14px; font-weight:500; letter-spacing:0; }
 .ps-layout { display:flex; align-items:center; gap:2px; padding:3px; border-radius:99px; background:#f1f1ef; }
-.ps-layout button { display:grid; place-items:center; width:33px; height:33px; border:0; border-radius:50%; background:transparent; color:#858581; }
+.ps-layout button { position:relative; display:grid; place-items:center; width:33px; height:33px; border:0; border-radius:50%; background:transparent; color:#858581; }
+.ps-layout button::after { content:""; position:absolute; top:-6px; bottom:-6px; left:-1px; right:-1px; }
 .ps-layout button[aria-pressed="true"] { background:#fff; color:#151515; box-shadow:0 1px 4px #00000012; }
 .ps-filters { display:flex; gap:8px; margin:24px 0 28px; }
 .ps-filters button { min-height:37px; padding:0 16px; border:0; border-radius:99px; background:#f1f1f0; color:#343432; font-size:13px; font-weight:600; white-space:nowrap; }
@@ -49,6 +50,9 @@
 @media (hover:hover) { .folder { transition:transform .22s ease; }.ps-store:hover .folder { transform:translateY(-3px); } }
 @media (max-width:350px) { .ps-inner { padding-inline:15px; }.ps-grid { column-gap:10px; }.ps-filters { gap:6px; }.ps-filters button { padding-inline:14px; } }
 @media (prefers-reduced-motion:reduce) { .folder { transition:none; } }
+
+
+
 
 
 

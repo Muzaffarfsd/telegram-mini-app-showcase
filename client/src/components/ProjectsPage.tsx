@@ -1,4 +1,5 @@
-import { memo, useState, type ReactNode } from 'react';
+import { memo, useEffect, useRef, useState, type ReactNode } from 'react';
+import { flushSync } from 'react-dom';
 import { Grid2X2, List } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { preloadDemo } from './demos/DemoRegistry';
@@ -34,7 +35,7 @@ const fileMarks: Record<string, ReactNode> = {
   'skincare-aura': <><path d="M14 5c-2 3-5 6-5 9a5 5 0 0 0 10 0c0-3-3-6-5-9Z"/><path d="M11.5 14a2.5 2.5 0 0 0 2.5 2.5"/></>,
 };
 
-function Folder({ id, paper }: { id: string; paper: string }) {
+const Folder = memo(function Folder({ id, paper }: { id: string; paper: string }) {
   return <span className={`folder folder--${paper} folder--${id}`} aria-hidden="true">
     <span className="folder__paper folder__paper--back"><i /><b /></span>
     <span className="folder__paper folder__paper--front"><svg viewBox="0 0 90 50" aria-hidden="true"><g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">{fileMarks[id]}</g><path d="M29 8h20M29 12h28M29 16h14" fill="none" stroke="currentColor" strokeOpacity=".35" strokeWidth="1.7" strokeLinecap="round" /></svg></span>
@@ -47,13 +48,59 @@ function Folder({ id, paper }: { id: string; paper: string }) {
     <span className="folder__mark">WEB4TG</span>
     <StoreStickers id={id} className="folder__sticker" />
   </span>;
-}
+});
+
+type Store = (typeof stores)[number];
+const StoreCard = memo(function StoreCard({ store, ru, onOpenDemo }: { store: Store; ru: boolean; onOpenDemo: (id: string) => void }) {
+  return <button type="button" className="ps-store" data-testid={`card-app-${store.id}`} aria-label={`${ru ? 'Открыть демо' : 'Open demo'}: ${ru ? store.ru : store.en}`} onClick={() => onOpenDemo(store.id)} onPointerEnter={() => preloadDemo(store.id)} onTouchStart={() => preloadDemo(store.id)}>
+    <Folder id={store.id} paper={store.paper}/><span className="ps-store__copy"><strong>{ru ? store.ru : store.en}</strong></span>
+  </button>;
+});
 
 export default memo(function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
   const { language } = useLanguage();
   const ru = language === 'ru';
   const [category, setCategory] = useState<Category>('all');
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
+  const gridRef = useRef<HTMLElement>(null);
+  const layoutAnimations = useRef<Animation[]>([]);
+  const pendingFrame = useRef<number | null>(null);
+  useEffect(() => () => { if (pendingFrame.current !== null) cancelAnimationFrame(pendingFrame.current); layoutAnimations.current.forEach(animation => animation.cancel()); }, []);
+  const changeLayout = (next: 'grid' | 'list') => {
+    if (next === layout) return;
+    // Cancel first so rapid reversals never queue unfinished transitions.
+    if (pendingFrame.current !== null) cancelAnimationFrame(pendingFrame.current);
+    pendingFrame.current = null;
+    layoutAnimations.current.forEach(animation => animation.cancel());
+    layoutAnimations.current = [];
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const parts = reduceMotion ? [] : Array.from(gridRef.current?.querySelectorAll<HTMLElement>('.ps-store > .folder, .ps-store > .ps-store__copy') ?? []);
+    const before = parts.map(element => element.getBoundingClientRect());
+    // Commit the accessible state and final layout immediately, then animate only
+    // the visible folder and label from their previous screen positions.
+    flushSync(() => setLayout(next));
+    if (reduceMotion) return;
+    pendingFrame.current = requestAnimationFrame(() => {
+      pendingFrame.current = null;
+      const height = window.innerHeight;
+      parts.forEach((element, index) => {
+      if (!element.isConnected) return;
+      const oldRect = before[index];
+      const newRect = element.getBoundingClientRect();
+      if (!oldRect.width || !newRect.width || oldRect.bottom < 0 || oldRect.top > height || newRect.bottom < 0 || newRect.top > height) return;
+      const dx = oldRect.left - newRect.left;
+      const dy = oldRect.top - newRect.top;
+      const isFolder = element.classList.contains('folder');
+      const sx = isFolder ? oldRect.width / newRect.width : 1;
+      const sy = isFolder ? oldRect.height / newRect.height : 1;
+      if (Math.abs(dx) < .5 && Math.abs(dy) < .5 && Math.abs(sx - 1) < .01 && Math.abs(sy - 1) < .01) return;
+      layoutAnimations.current.push(element.animate(
+        [{ transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`, transformOrigin: 'top left' }, { transform: 'translate(0, 0) scale(1)', transformOrigin: 'top left' }],
+        { duration: 180, easing: 'cubic-bezier(.2,.7,.2,1)' },
+      ));
+      });
+    });
+  };
   const filtered = stores.filter(store => category === 'all' || store.category === category);
   const filters: { id: Category; label: string }[] = [
     { id: 'all', label: ru ? 'Все' : 'All' },
@@ -64,18 +111,21 @@ export default memo(function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
     <header className="ps-header">
       <div><p className="ps-kicker">WEB4TG / {ru ? 'КОЛЛЕКЦИЯ' : 'COLLECTION'}</p><h1>{ru ? 'Витрина' : 'Showcase'}<span className="ps-count">{stores.length}</span></h1></div>
       <div className="ps-layout" aria-label={ru ? 'Вид витрины' : 'Showcase layout'}>
-        <button type="button" aria-label={ru ? 'Сетка' : 'Grid'} aria-pressed={layout === 'grid'} onClick={() => setLayout('grid')}><Grid2X2 size={17}/></button>
-        <button type="button" aria-label={ru ? 'Список' : 'List'} aria-pressed={layout === 'list'} onClick={() => setLayout('list')}><List size={18}/></button>
+        <button type="button" aria-label={ru ? 'Сетка' : 'Grid'} aria-pressed={layout === 'grid'} onClick={() => changeLayout('grid')}><Grid2X2 size={17}/></button>
+        <button type="button" aria-label={ru ? 'Список' : 'List'} aria-pressed={layout === 'list'} onClick={() => changeLayout('list')}><List size={18}/></button>
       </div>
     </header>
     <div className="ps-filters" aria-label={ru ? 'Направления' : 'Categories'}>{filters.map(filter => <button key={filter.id} type="button" aria-pressed={category === filter.id} onClick={() => setCategory(filter.id)}>{filter.label}</button>)}</div>
-    <section className={`ps-grid${layout === 'list' ? ' ps-grid--list' : ''}`} aria-label={ru ? 'Примеры приложений' : 'App examples'}>
-      {filtered.map(store => <button key={store.id} type="button" className="ps-store" data-testid={`card-app-${store.id}`} aria-label={`${ru ? 'Открыть демо' : 'Open demo'}: ${ru ? store.ru : store.en}`} onClick={() => onOpenDemo(store.id)} onPointerEnter={() => preloadDemo(store.id)} onTouchStart={() => preloadDemo(store.id)}>
-        <Folder id={store.id} paper={store.paper}/><span className="ps-store__copy"><strong>{ru ? store.ru : store.en}</strong></span>
-      </button>)}
+    <section ref={gridRef} className={`ps-grid${layout === 'list' ? ' ps-grid--list' : ''}`} aria-label={ru ? 'Примеры приложений' : 'App examples'}>
+      {filtered.map(store => <StoreCard key={store.id} store={store} ru={ru} onOpenDemo={onOpenDemo} />)}
     </section>
   </div></main>;
 });
+
+
+
+
+
 
 
 

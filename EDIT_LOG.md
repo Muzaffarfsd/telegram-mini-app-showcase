@@ -849,6 +849,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Visually reviewed at 320 and 390 px (`../glass-soft-390-top.png`, `../glass-soft-390-middle.png`); ten cards, no page errors or horizontal overflow. The preceding Vite build passed; this change is limited to SVG paint attributes.
 
 ---
+## 2026-11-07 · Smooth showcase layout switching
+
+**What:** Added a short FLIP transition between grid and list, memoized cards, and expanded the toggle hit area. Rapid changes cancel pending animation; reduced-motion skips it.
+**Files:** client/src/components/ProjectsPage.tsx, ProjectsShowcase.css.
+**Checkpoint:** `9d3be22`.
+**Verification:** Mobile browser at 320/390 px: rapid repeated toggles, reduced motion, filtering and opening a demo; no errors or lingering animations. Reviewed `../flip-real-mid-390.png` and `../flip-final-390-no-preference-list.png`. CPU throttling measurements were browser emulation, not a physical-device test. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -860,6 +868,7 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 
 
