@@ -825,6 +825,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Playwright at 390 px: ten folders and ten stickers, no picture cards or page errors; reviewed `../glass-folder-reverted.png`.
 
 ---
+## 2026-11-07 · Frosted folders and illustrated documents
+
+**What:** Gave the existing folders a subtle frosted finish and redesigned the visible document details for each category without changing folder shape.
+**Files:** client/src/components/ProjectsPage.tsx, ProjectsShowcase.css, showcase-folder-design-notes.md.
+**Checkpoint:** `af6a679`.
+**Verification:** Mobile 320 and 390 px visually reviewed (`../matte-folders-final-390-top.png`, `../matte-folders-final-390-middle.png`), no page errors or horizontal overflow. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -836,6 +844,7 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 
 

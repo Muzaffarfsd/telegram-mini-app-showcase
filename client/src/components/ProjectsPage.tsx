@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, type ReactNode } from 'react';
 import { Grid2X2, List } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { preloadDemo } from './demos/DemoRegistry';
@@ -20,13 +20,27 @@ const stores = [
   { id: 'skincare-aura', ru: 'Магазин косметики', en: 'Skincare store', category: 'shops', paper: 'lime' },
 ] as const;
 
+// Tiny editorial marks on the exposed document, specific to each direction.
+const fileMarks: Record<string, ReactNode> = {
+  'flower-store': <><path d="M13 17V9m0 5c-3 0-5-2-5-5 3 0 5 2 5 5Zm0-2c0-3 2-5 5-5 0 3-2 5-5 5Z"/><circle cx="13" cy="7" r="2" fill="currentColor" stroke="none"/></>,
+  'apple-store': <><rect x="8" y="5" width="10" height="13" rx="2"/><path d="M11 15h4M12 7h2"/></>,
+  'muraka-fashion': <><path d="m8 9 3-3 3 2 3-2 3 3-2 2-1-1v8h-6v-8l-1 1Z"/><path d="M11 15h6"/></>,
+  'nike-sneakers': <><path d="M7 15c4 0 5-2 6-6l3 3 4 2v3H7Z"/><path d="M12 17h8"/></>,
+  'lumi-studio': <><path d="M14 5c0 4-1 6-5 7 4 1 5 3 5 7 0-4 1-6 5-7-4-1-5-3-5-7Z"/><path d="M19 6v3m-1.5-1.5h3"/></>,
+  'china-buyer': <><path d="M8 8h11v9H8zM8 11h11M13.5 8v9"/><path d="m17 5 3 2-3 2"/></>,
+  'medical-center': <><path d="M14 5v13M7.5 11.5h13"/><path d="M8 16h2l2-3 2 4 2-3h3"/></>,
+  'opt-market': <><path d="m7 9 7-4 7 4-7 4-7-4Zm0 0v6l7 4 7-4V9M14 13v6"/></>,
+  'women-fashion': <><path d="m14 7-2-2-4 4 3 2-2 7h10l-2-7 3-2-4-4-2 2Z"/><path d="M11 13h6"/></>,
+  'skincare-aura': <><path d="M14 5c-2 3-5 6-5 9a5 5 0 0 0 10 0c0-3-3-6-5-9Z"/><path d="M11.5 14a2.5 2.5 0 0 0 2.5 2.5"/></>,
+};
+
 function Folder({ id, paper }: { id: string; paper: string }) {
-  return <span className={`folder folder--${paper}`} aria-hidden="true">
-    <span className="folder__paper folder__paper--back"><i /></span>
-    <span className="folder__paper folder__paper--front"><i /><i /><i /></span>
+  return <span className={`folder folder--${paper} folder--${id}`} aria-hidden="true">
+    <span className="folder__paper folder__paper--back"><i /><b /></span>
+    <span className="folder__paper folder__paper--front"><svg viewBox="0 0 90 50" aria-hidden="true"><g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">{fileMarks[id]}</g><path d="M29 8h20M29 12h28M29 16h14" fill="none" stroke="currentColor" strokeOpacity=".35" strokeWidth="1.7" strokeLinecap="round" /></svg></span>
     <svg className="folder__body" viewBox="0 0 180 162" preserveAspectRatio="none" aria-hidden="true">
-      <defs><linearGradient id={`folder-gradient-${id}`} x1="0" y1="0" x2="0.8" y2="1"><stop stopColor="#f0f0ef"/><stop offset="1" stopColor="#dededd"/></linearGradient></defs>
-      <path d="M1 42C1 30 9 23 21 23H60C69 23 75 25 83 30L96 37H159C171 37 179 45 179 57V142C179 154 171 161 159 161H21C9 161 1 154 1 142Z" fill={`url(#folder-gradient-${id})`} stroke="#dededc" strokeWidth="1"/>
+      <defs><linearGradient id={`folder-gradient-${id}`} x1="0" y1="0" x2="0.8" y2="1"><stop stopColor="#f3f3f2" stopOpacity=".94"/><stop offset=".55" stopColor="#e9e9e8" stopOpacity=".94"/><stop offset="1" stopColor="#d9dad8" stopOpacity=".96"/></linearGradient></defs>
+      <path d="M1 42C1 30 9 23 21 23H60C69 23 75 25 83 30L96 37H159C171 37 179 45 179 57V142C179 154 171 161 159 161H21C9 161 1 154 1 142Z" fill={`url(#folder-gradient-${id})`} stroke="#d1d2d0" strokeOpacity=".85" strokeWidth="1"/>
       <path d="M2 43C2 31 9 24 21 24H60C69 24 75 26 83 31L96 38H159" fill="none" stroke="#fff" strokeOpacity=".58"/>
     </svg>
     <span className="folder__mark">WEB4TG</span>
@@ -61,4 +75,6 @@ export default memo(function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
     </section>
   </div></main>;
 });
+
+
 

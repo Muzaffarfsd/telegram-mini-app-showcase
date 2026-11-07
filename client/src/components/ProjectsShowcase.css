@@ -21,10 +21,22 @@
 .folder__body { position:absolute; z-index:2; width:100%; height:87%; left:0; bottom:0; overflow:visible; filter:drop-shadow(0 6px 5px rgba(0,0,0,.06)); }
 .folder__paper { position:absolute; z-index:1; display:block; width:57%; height:47%; top:7%; left:21%; border:1px solid #dddeda; border-radius:9px 9px 2px 2px; background:#f8f8f6; box-shadow:0 2px 7px #0000000b; }
 .folder__paper--back { transform:rotate(-9deg); background:var(--paper); }
-.folder__paper--front { left:31%; top:10%; transform:rotate(9deg); background:#fafaf8; }
+.folder__paper--front { left:31%; top:10%; transform:rotate(9deg); background:linear-gradient(145deg,#fff,#f5f5f3); color:var(--file-ink); }
+.folder__paper--front svg { display:block; width:100%; height:auto; }
+.folder__paper--back b { display:block; width:42%; height:2px; margin:5px 0 0 10px; background:rgba(70,70,70,.14); border-radius:2px; }
 .folder__paper i { display:block; width:35%; height:3px; margin:8px 0 0 10px; border-radius:2px; background:#d6d7d4; opacity:.8; }
 .folder__paper i:first-child { width:14px; height:14px; border-radius:50%; background:var(--paper); opacity:1; }
 .folder--rose { --paper:#efd3d0; }.folder--blue { --paper:#cbdde2; }.folder--sand { --paper:#e8d7b7; }.folder--lime { --paper:#d9e4ce; }
+.folder--flower-store { --paper:#efd7d7; --file-ink:#ae5c68; }
+.folder--apple-store { --paper:#d6dce1; --file-ink:#586771; }
+.folder--muraka-fashion { --paper:#e6ddd5; --file-ink:#6e5b59; }
+.folder--nike-sneakers { --paper:#e8d6cc; --file-ink:#a15e47; }
+.folder--lumi-studio { --paper:#e9d6e3; --file-ink:#9d668e; }
+.folder--china-buyer { --paper:#ecd8ce; --file-ink:#ab5e50; }
+.folder--medical-center { --paper:#d3e4e1; --file-ink:#508e81; }
+.folder--opt-market { --paper:#e9ddc6; --file-ink:#9d7b48; }
+.folder--women-fashion { --paper:#e8d7d9; --file-ink:#995969; }
+.folder--skincare-aura { --paper:#dce6d7; --file-ink:#738c6d; }
 .folder__mark { position:absolute; z-index:3; left:13%; bottom:13%; color:#b2b4b2; font-size:7px; line-height:1; font-weight:800; letter-spacing:-.06em; transform:rotate(-5deg); }
 .folder__sticker { position:absolute; z-index:4; width:56%; height:48%; right:5%; bottom:6%; overflow:visible; filter:drop-shadow(0 2px 2px rgba(0,0,0,.12)); }
 .ps-store__copy { display:flex; flex-direction:column; align-items:center; gap:5px; width:100%; padding:12px 0 0; }
@@ -37,4 +49,5 @@
 @media (hover:hover) { .folder { transition:transform .22s ease; }.ps-store:hover .folder { transform:translateY(-3px); } }
 @media (max-width:350px) { .ps-inner { padding-inline:15px; }.ps-grid { column-gap:10px; }.ps-filters { gap:6px; }.ps-filters button { padding-inline:14px; } }
 @media (prefers-reduced-motion:reduce) { .folder { transition:none; } }
+
 
