@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Info } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { appTemplatesBase, availableFeaturesBase, subscriptionPlansBase } from './orderCatalog';
-import shopArt from '../assets/order/shop-v6.webp';
-import restaurantArt from '../assets/order/restaurant-v3.webp';
-import fitnessArt from '../assets/order/fitness-v3.webp';
-import servicesArt from '../assets/order/services-v7.webp';
-import basicArt from '../assets/order/feature-basic-v2.webp';
-import paymentsArt from '../assets/order/feature-payments-v2.webp';
-import deliveryArt from '../assets/order/feature-delivery-v2.webp';
-import messageArt from '../assets/order/feature-communications-v2.webp';
-import marketingArt from '../assets/order/feature-marketing-v2.webp';
-import managementArt from '../assets/order/feature-management-v2.webp';
-import bookingArt from '../assets/order/feature-booking-v2.webp';
-import automationArt from '../assets/order/feature-ai-v2.webp';
-import integrationsArt from '../assets/order/feature-integrations-v2.webp';
+import shopArt from '../assets/order/reference-shop-v2.webp';
+import restaurantArt from '../assets/order/reference-restaurant-v2.webp';
+import fitnessArt from '../assets/order/reference-fitness-v3.webp';
+import servicesArt from '../assets/order/reference-services-v3.webp';
+import basicArt from '../assets/order/reference-feature-basic-v2.webp';
+import paymentsArt from '../assets/order/reference-feature-payments-v2.webp';
+import deliveryArt from '../assets/order/reference-feature-delivery-v2.webp';
+import messageArt from '../assets/order/reference-feature-communications-v2.webp';
+import marketingArt from '../assets/order/reference-feature-marketing-v2.webp';
+import managementArt from '../assets/order/reference-feature-management-v2.webp';
+import bookingArt from '../assets/order/reference-feature-booking-v2.webp';
+import automationArt from '../assets/order/reference-feature-ai-v2.webp';
+import integrationsArt from '../assets/order/reference-feature-integrations-v2.webp';
 import subscriptionArt from '../assets/order/support-v2.webp';
 import { OrderSkeleton } from './OrderSkeleton';
 import { OrderInfoSheet } from './OrderInfoSheet';
@@ -180,9 +180,9 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
             <button type="button" className={`order-template ${templateId === item.id ? 'is-selected' : ''}`} aria-pressed={templateId === item.id} onClick={() => chooseTemplate(item)} data-testid={`template-${item.id}`}>
               <span className="order-template-copy"><strong>{t(item.nameKey)}</strong><span>{directionDescriptions[item.id]?.[ru ? 'ru' : 'en'] || t(item.descriptionKey)}</span><small>{ru ? 'от' : 'from'} {money(item.estimatedPrice)}</small></span>
               <img className="order-template-art" src={art[item.id]} alt="" draggable={false} />
-              <span className="order-choice" aria-hidden="true">{templateId === item.id && <Check size={12} strokeWidth={3} />}</span>
+              <span className="order-template-action" aria-hidden="true">{ru ? 'Выбрать' : 'Choose'} <ArrowUpRight size={17} strokeWidth={1.8} /></span><span className="order-choice" aria-hidden="true">{templateId === item.id && <Check size={12} strokeWidth={3} />}</span>
             </button>
-            <button className="order-template-info" type="button" onClick={() => setInfo({ kind: 'template', id: item.id })} aria-label={`${ru ? 'Подробнее' : 'Details'}: ${t(item.nameKey)}`} data-testid={`template-info-${item.id}`}><span>{ru ? 'Подробнее' : 'Details'}</span><ChevronRight size={13} /></button>
+            <button className="order-template-info" type="button" onClick={() => setInfo({ kind: 'template', id: item.id })} aria-label={`${ru ? 'Подробнее' : 'Details'}: ${t(item.nameKey)}`} data-testid={`template-info-${item.id}`}><Info size={18} strokeWidth={1.7} /></button>
           </div>)}
           {notice && <p className="order-notice" role="alert">{notice}</p>}
         </section>}

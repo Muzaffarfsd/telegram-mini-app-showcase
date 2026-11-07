@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { Check, ChevronDown, ChevronRight, Info, Plus } from 'lucide-react';
 import { appTemplatesBase, availableFeaturesBase, categoryKeys } from './orderCatalog';
+import basicArt from '../assets/order/reference-feature-basic-v2.webp';
+import paymentsArt from '../assets/order/reference-feature-payments-v2.webp';
+import deliveryArt from '../assets/order/reference-feature-delivery-v2.webp';
+import communicationsArt from '../assets/order/reference-feature-communications-v2.webp';
+import marketingArt from '../assets/order/reference-feature-marketing-v2.webp';
+import managementArt from '../assets/order/reference-feature-management-v2.webp';
+import bookingArt from '../assets/order/reference-feature-booking-v2.webp';
+import aiArt from '../assets/order/reference-feature-ai-v2.webp';
+import integrationsArt from '../assets/order/reference-feature-integrations-v2.webp';
 import './OrderFeaturesStep.css';
 
 type Feature = typeof availableFeaturesBase[number];
@@ -29,6 +38,17 @@ const suggestions: Record<string, string[]> = {
 
 const numberFormat = new Intl.NumberFormat('ru-RU');
 const money = (amount: number) => `${numberFormat.format(amount)} ₽`;
+const categoryVisuals: Record<string, { image: string; ru: string; en: string }> = {
+  'constructor.basicFeatures': { image: basicArt, ru: 'Всё для удобного старта', en: 'Everything for a smooth start' },
+  'constructor.paymentsCategory': { image: paymentsArt, ru: 'Оплата и подписки', en: 'Payments and subscriptions' },
+  'constructor.deliveryCategory': { image: deliveryArt, ru: 'Доставка и самовывоз', en: 'Delivery and pickup' },
+  'constructor.communicationsCategory': { image: communicationsArt, ru: 'Будьте на связи с клиентами', en: 'Stay connected with customers' },
+  'constructor.marketingCategory': { image: marketingArt, ru: 'Привлекайте и возвращайте клиентов', en: 'Attract and retain customers' },
+  'constructor.managementCategory': { image: managementArt, ru: 'Управление и аналитика', en: 'Management and analytics' },
+  'constructor.bookingCategory': { image: bookingArt, ru: 'Запись и расписание', en: 'Bookings and scheduling' },
+  'constructor.aiAutomationCategory': { image: aiArt, ru: 'Умные инструменты для бизнеса', en: 'Smart tools for your business' },
+  'constructor.integrationsCategory': { image: integrationsArt, ru: 'Связь с нужными сервисами', en: 'Connect the services you need' },
+};
 
 export function OrderFeaturesStep({ ru, t, template, artSrc, projectName, onProjectNameChange, includedIds, extras, onToggleFeature, onFeatureInfo, onChangeTemplate, total }: Props) {
   const [catalogOpen, setCatalogOpen] = useState(false);
@@ -86,7 +106,11 @@ export function OrderFeaturesStep({ ru, t, template, artSrc, projectName, onProj
             const open = event.currentTarget.open;
             setOpenGroups((current) => Boolean(current[key]) === open ? current : { ...current, [key]: open });
           }}>
-            <summary><span>{t(key)}</span><span className="order-group-meta">{selectedCount > 0 && <small aria-label={ru ? `Выбрано: ${selectedCount}` : `Selected: ${selectedCount}`}>{selectedCount}</small>}<ChevronDown size={17} aria-hidden="true" /></span></summary>
+            <summary>
+              <span className="order-group-copy"><strong>{t(key)}</strong><span>{categoryVisuals[key]?.[ru ? 'ru' : 'en']}</span><span className="order-group-action">{openGroups[key] ? (ru ? 'Свернуть' : 'Close') : (ru ? 'Посмотреть' : 'Explore')} <ChevronDown size={15} aria-hidden="true" /></span></span>
+              <img className="order-group-art" src={categoryVisuals[key]?.image} alt="" loading="lazy" decoding="async" />
+              {selectedCount > 0 && <span className="order-group-meta"><small aria-label={ru ? `Выбрано: ${selectedCount}` : `Selected: ${selectedCount}`}>{selectedCount}</small></span>}
+            </summary>
             {openGroups[key] && <div className="order-group-list">{features.map((feature) => featureRow(feature, 'catalog'))}</div>}
           </details>;
         })}
