@@ -18,7 +18,7 @@ const details: Record<string, { name: string; ru: string; en: string }> = {
   'skincare-aura': { name: 'AURA', ru: 'Косметика и уход', en: 'Skincare' },
 };
 function AppImage({ id, eager = false }: { id: string; eager?: boolean }) {
-  return <img src={`/showcase/app-tile-icons/${id}.webp`} alt="" data-compact={['apple-store','muraka-fashion','women-fashion','nike-sneakers','skincare-aura'].includes(id) ? 'true' : undefined} loading={eager ? 'eager' : 'lazy'} decoding="async" />;
+  return <img src={`/showcase/reference-icons/${id}.webp`} alt="" loading={eager ? 'eager' : 'lazy'} decoding="async" />;
 }
 function label(id: string, ru: boolean) { const item = details[id]; return `${ru ? 'Открыть демо' : 'Open demo'} ${item.name}: ${ru ? item.ru : item.en}`; }
 function copy(id: string, ru: boolean) { return ru ? details[id].ru : details[id].en; }
@@ -26,8 +26,8 @@ function copy(id: string, ru: boolean) { return ru ? details[id].ru : details[id
 export default memo(function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
   const { language } = useLanguage(); const ru = language === 'ru';
   const cardProps = (id: string) => ({ type: 'button' as const, 'data-testid': `card-app-${id}`, 'aria-label': label(id, ru), onClick: () => onOpenDemo(id), onPointerEnter: () => preloadDemo(id), onTouchStart: () => preloadDemo(id) });
-  const tile = (id: string, editorial = false) => <button key={id} className={`ps-tile${editorial ? ' ps-tile--editorial' : ''}`} {...cardProps(id)}><span className="ps-tile__image"><AppImage id={id}/></span><span className="ps-tile__copy"><strong>{details[id].name}</strong><small>{copy(id, ru)}</small><b>{ru ? 'Открыть демо' : 'Open demo'} <ArrowUpRight size={14} aria-hidden="true"/></b></span></button>;
-  const row = (id: string) => <button key={id} className="ps-row" {...cardProps(id)}><span className="ps-row__copy"><strong>{details[id].name}</strong><small>{copy(id, ru)}</small><b>{ru ? 'Открыть демо' : 'Open demo'} <ArrowRight size={14} aria-hidden="true"/></b></span><AppImage id={id}/></button>;
+  const tile = (id: string, editorial = false) => <button key={id} className={`ps-tile${editorial ? ' ps-tile--editorial' : ''}`} {...cardProps(id)}><span className="ps-tile__image"><AppImage id={id}/></span><span className="ps-tile__copy">{editorial && <span className="ps-tile__eyebrow">{ru ? 'ПОДБОРКА / WEB4TG' : 'COLLECTION / WEB4TG'}</span>}<strong>{details[id].name}</strong><small>{copy(id, ru)}</small><b>{ru ? 'Открыть демо' : 'Open demo'} <ArrowRight size={14} aria-hidden="true"/></b></span></button>;
+  const row = (id: string) => <button key={id} className="ps-row" {...cardProps(id)}><span className="ps-row__copy"><strong>{details[id].name}</strong><small>{copy(id, ru)}</small></span><AppImage id={id}/><span className="ps-row__action">{ru ? 'Открыть демо' : 'Open demo'} <ArrowUpRight size={17} aria-hidden="true"/></span></button>;
   return <main className="projects-showcase" data-testid="projects-showcase"><div className="ps-inner">
     <header className="ps-intro" aria-labelledby="ps-title"><div className="ps-brand">WEB4TG<span>.</span></div><h1 id="ps-title">{ru ? <>ВАШ БИЗНЕС.<br/>ВАШЕ<br/>ПРИЛОЖЕНИЕ.<br/>В TELEGRAM.</> : <>YOUR BUSINESS.<br/>YOUR<br/>APP.<br/>IN TELEGRAM.</>}</h1></header>
     <section className="ps-showcase" aria-label={ru ? 'Примеры приложений' : 'App examples'}>
