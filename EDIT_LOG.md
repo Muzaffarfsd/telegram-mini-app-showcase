@@ -841,6 +841,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Mobile 320 and 390 px visually reviewed (`../tinted-folders-390-top.png`, `../tinted-folders-390-middle.png`); no page errors or horizontal overflow. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell.
 
 ---
+## 2026-11-07 · Subtler glass finish
+
+**What:** Made the existing tinted folder surfaces slightly more transparent and added a small soft edge highlight.
+**Files:** client/src/components/ProjectsPage.tsx.
+**Checkpoint:** `e599302`.
+**Verification:** Visually reviewed at 320 and 390 px (`../glass-soft-390-top.png`, `../glass-soft-390-middle.png`); ten cards, no page errors or horizontal overflow. The preceding Vite build passed; this change is limited to SVG paint attributes.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -852,6 +860,7 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 
 

@@ -39,9 +39,10 @@ function Folder({ id, paper }: { id: string; paper: string }) {
     <span className="folder__paper folder__paper--back"><i /><b /></span>
     <span className="folder__paper folder__paper--front"><svg viewBox="0 0 90 50" aria-hidden="true"><g fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">{fileMarks[id]}</g><path d="M29 8h20M29 12h28M29 16h14" fill="none" stroke="currentColor" strokeOpacity=".35" strokeWidth="1.7" strokeLinecap="round" /></svg></span>
     <svg className="folder__body" viewBox="0 0 180 162" preserveAspectRatio="none" aria-hidden="true">
-      <defs><linearGradient id={`folder-gradient-${id}`} x1="0" y1="0" x2="0.8" y2="1"><stop stopColor="var(--glass-hi)" stopOpacity=".94"/><stop offset=".55" stopColor="var(--glass-mid)" stopOpacity=".94"/><stop offset="1" stopColor="var(--glass-low)" stopOpacity=".96"/></linearGradient></defs>
+      <defs><linearGradient id={`folder-gradient-${id}`} x1="0" y1="0" x2="0.8" y2="1"><stop stopColor="var(--glass-hi)" stopOpacity=".91"/><stop offset=".55" stopColor="var(--glass-mid)" stopOpacity=".91"/><stop offset="1" stopColor="var(--glass-low)" stopOpacity=".94"/></linearGradient></defs>
       <path d="M1 42C1 30 9 23 21 23H60C69 23 75 25 83 30L96 37H159C171 37 179 45 179 57V142C179 154 171 161 159 161H21C9 161 1 154 1 142Z" fill={`url(#folder-gradient-${id})`} stroke="#d1d2d0" strokeOpacity=".85" strokeWidth="1"/>
-      <path d="M2 43C2 31 9 24 21 24H60C69 24 75 26 83 31L96 38H159" fill="none" stroke="#fff" strokeOpacity=".58"/>
+      <path d="M2 43C2 31 9 24 21 24H60C69 24 75 26 83 31L96 38H159" fill="none" stroke="#fff" strokeOpacity=".82"/>
+      <path d="M7 48C7 35 12 29 23 29H39" fill="none" stroke="#fff" strokeOpacity=".28" strokeWidth="2" strokeLinecap="round"/>
     </svg>
     <span className="folder__mark">WEB4TG</span>
     <StoreStickers id={id} className="folder__sticker" />
@@ -75,6 +76,7 @@ export default memo(function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
     </section>
   </div></main>;
 });
+
 
 
 
