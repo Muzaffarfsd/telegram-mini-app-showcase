@@ -818,6 +818,13 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Playwright at 320, 390 and 430 px: all ten images decode, no horizontal overflow or page errors. Visually reviewed `../glass-folder-real-header.png`, `../glass-folder-real-middle.png`, `../glass-folder-real-bottom.png`. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell.
 
 ---
+## 2026-11-07 · Restore folders without pictures
+
+**What:** Reverted the glass folders and generated category images at the user's request, restoring the preceding folder design and stickers.
+**Checkpoint:** `7db2556`; restored component and CSS match `792b5cf`.
+**Verification:** Playwright at 390 px: ten folders and ten stickers, no picture cards or page errors; reviewed `../glass-folder-reverted.png`.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -829,6 +836,7 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 
 
