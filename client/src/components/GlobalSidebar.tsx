@@ -291,7 +291,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
         .w4m-overlay{
           position:fixed;inset:0;z-index:100000;background:rgba(30,32,38,0.19);
           opacity:0;pointer-events:none;
-          transition:opacity .16s cubic-bezier(0.22,1,0.36,1);
+          transition:opacity .26s cubic-bezier(.4,0,.2,1);
+          transition-duration:.26s!important;
           touch-action:none;
         }
         .w4m-overlay.open{opacity:1;pointer-events:auto;}
@@ -302,24 +303,28 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
           border-right:1px solid rgba(255,255,255,0.75);
           border-radius:0 26px 26px 0;
           color:#252529;font-family:${FONT};
-          /* No shadow on the closed panel — the shadow extends 36+110px to
-             the right of the panel and would leak onto the page even when
-             translated off-screen.  Shadow set instantly on .open. */
-          box-shadow:none;
+          /* Visibility is held through the closing slide, keeping the panel,
+             its text and its shadow together until they are off screen. */
+          box-shadow:18px 0 55px rgba(34,37,46,0.16);
           display:flex;flex-direction:column;
           overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
           transform:translate3d(-100%,0,0);
+          visibility:hidden;
           /* A solid, near-opaque panel keeps the same light surface without
              re-blurring the entire page on every frame of the slide. */
-          transition:transform .18s cubic-bezier(0.22,1,0.36,1);
+          transition:transform .28s cubic-bezier(.4,0,.2,1),visibility 0s linear .28s;
+          transition-duration:.28s,0s!important;
           will-change:transform;
           /* Isolate layout/paint so the rest of the page doesn't get re-painted
              while the panel slides in/out. */
           contain:layout paint;
         }
+        .w4m-panel.open,.w4m-panel.peeking{
+          visibility:visible;
+          transition:transform .28s cubic-bezier(.4,0,.2,1),visibility 0s;
+        }
         .w4m-panel.open{
           transform:translate3d(0,0,0);
-          box-shadow:18px 0 55px rgba(34,37,46,0.16);
         }
         .w4m-panel::-webkit-scrollbar{display:none;}
         .w4m-panel{scrollbar-width:none;}
@@ -378,6 +383,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
           .hb-btn,.hb-line,.w4m-overlay,.w4m-panel,.w4m-row,.w4m-cta,.w4m-soc,.w4m-tap{
             transition-duration:.01ms!important;
           }
+          .w4m-panel,.w4m-overlay{transition-delay:0s!important;}
         }
       `}</style>
 
@@ -395,14 +401,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
       {/* panel */}
       <div
         ref={sidebarRef}
-        className={`w4m-panel ${sidebarOpen ? 'open' : ''}`}
+        className={`w4m-panel ${sidebarOpen ? 'open' : swipeOpenOffset > 0 ? 'peeking' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-label={t('sidebar.navigation')}
         aria-hidden={!sidebarOpen}
+        inert={!sidebarOpen}
         style={{
           pointerEvents: sidebarOpen || swipeOpenOffset > 0 ? 'auto' : 'none',
-          visibility: sidebarOpen || swipeOpenOffset > 0 ? 'visible' : 'hidden',
           transform: sidebarOpen
             ? `translateX(${-swipeOffset}px)`
             : swipeOpenOffset > 0

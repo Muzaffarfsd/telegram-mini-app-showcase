@@ -881,6 +881,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Mobile browser 320/390: rapid repeated toggles, filtering, demo navigation, reduced motion; no page errors or lingering geometry transitions. CPU-throttled browser inspection confirmed removal of geometry transitions and showed shorter first-frame samples; physical-device performance remains unverified. Vite build passed; existing unrelated CSS keyframes warning remains; assets copied with PowerShell.
 
 ---
+## 2026-11-07 · Smooth menu motion
+
+**What:** Kept the menu panel visible through its exit slide and synchronized the overlay; restored a smoother 280 ms motion despite the global mobile duration rule, retaining immediate navigation and reduced-motion support. Closed menu is inert.
+**Files:** client/src/components/GlobalSidebar.tsx.
+**Checkpoint:** `5a87602`.
+**Verification:** Mobile browser 320/390: inspected opening and closing frames, repeated reversals, Escape, Tab, navigation, and reduced motion; no page errors or separate text remnants observed. Vite build passed; existing unrelated CSS keyframes warning remains; assets copied with PowerShell. Physical device not tested.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -892,6 +900,7 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 
 
