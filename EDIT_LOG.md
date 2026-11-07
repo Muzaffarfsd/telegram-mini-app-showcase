@@ -956,6 +956,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Inspected alpha on white and gray; reviewed the About page at 320 and 390 px in Chromium, with the image loaded, no horizontal overflow and no page errors. The new artwork has not yet been evaluated by the user.
 
 ---
+## 2026-11-07 · Regenerate About illustrations from user references
+
+**What:** Regenerated the first-screen scene and both feature illustrations, and adjusted image sizing and descriptions for the new artwork. Image URLs use a new version so browsers can retrieve updated assets.
+**Why:** The user supplied image references and explicitly requested that the actual images be passed to the image generator for each illustration.
+**Files:** `client/public/about-studio/hero.webp`, `design.webp`, `launch.webp`, `client/src/components/AboutPage.tsx`, `client/src/components/AboutPage.css`, `about-studio-design-notes.md`.
+**Checkpoint:** `9f89ffc`.
+**Verification:** Vite build passed; reviewed Chromium and WebKit at 320 and 390 px, plus English and desktop. Images loaded without visible clipping or text overlap, and order/showcase navigation worked. New artwork has not yet been evaluated by the user; not deployed.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description

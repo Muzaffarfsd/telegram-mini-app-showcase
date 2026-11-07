@@ -10,32 +10,32 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
   const copy = ru ? {
     eyebrow: 'СТУДИЯ WEB4TG', title: 'Приложения в Telegram',
     intro: 'Онлайн-магазины, запись на услуги и другие сервисы для вашего бизнеса.',
-    heroAlt: 'Творческий набор с макетом приложения',
+    heroAlt: 'Улыбающийся компьютер для создания приложений',
     order: 'Обсудить проект', explore: 'Узнать о студии',
     sectionLabel: 'ОТ ИДЕИ ДО ЗАПУСКА', sectionTitle: 'Продумано для людей',
     sectionText: 'Соединяем задачи бизнеса и удобство клиентов в одном приложении.',
     designLabel: '01 / ПРОЕКТИРОВАНИЕ', designTitle: 'Сначала — смысл',
     designText: 'Изучаем задачу и продумываем, как человек будет пользоваться приложением.',
-    designAlt: 'Портфолио с эскизами интерфейса',
+    designAlt: 'Папка с макетами интерфейса',
     launchLabel: '02 / РАЗРАБОТКА', launchTitle: 'Затем — в жизнь',
     launchText: 'Создаём интерфейс, собираем приложение и проверяем основные сценарии.',
-    launchAlt: 'Устройство с распечатанным чеком',
+    launchAlt: 'Устройство с экраном приложения и квитанцией',
     resultLabel: 'ДЛЯ ВАШЕГО БИЗНЕСА', resultTitle: 'Начнём с идеи',
     resultText: 'Магазин, запись или сервис — вместе найдём формат под вашу задачу.',
     examples: 'Посмотреть витрину', contact: 'Написать в Telegram',
   } : {
     eyebrow: 'WEB4TG STUDIO', title: 'Apps in Telegram',
     intro: 'Online stores, appointment booking and other services for your business.',
-    heroAlt: 'A creative kit with an app design',
+    heroAlt: 'A smiling computer for creating apps',
     order: 'Discuss a project', explore: 'Discover the studio',
     sectionLabel: 'FROM IDEA TO LAUNCH', sectionTitle: 'Designed for people',
     sectionText: 'We bring business needs and customer experience together in one app.',
     designLabel: '01 / DESIGN', designTitle: 'Start with purpose',
     designText: 'We explore your needs and design how people will use the app.',
-    designAlt: 'A portfolio of interface sketches',
+    designAlt: 'A folder of interface designs',
     launchLabel: '02 / DEVELOPMENT', launchTitle: 'Bring it to life',
     launchText: 'We build the interface and the app, then check the essential journeys.',
-    launchAlt: 'A device with a printed receipt',
+    launchAlt: 'A device with an app screen and receipt',
     resultLabel: 'FOR YOUR BUSINESS', resultTitle: 'Start with an idea',
     resultText: 'A store, booking or service — together we will find the right format.',
     examples: 'Explore the showcase', contact: 'Message us on Telegram',
@@ -53,7 +53,7 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
         <h1>{copy.title}</h1>
         <p>{copy.intro}</p>
         <div className="studio-about__hero-art">
-          <img src="/about-studio/hero.webp" alt={copy.heroAlt} fetchPriority="high" decoding="async" onError={event => { event.currentTarget.hidden = true; }}/>
+          <img src="/about-studio/hero.webp?v=retro-1" alt={copy.heroAlt} fetchPriority="high" decoding="async" onError={event => { event.currentTarget.hidden = true; }}/>
         </div>
         <button className="studio-about__primary" type="button" onClick={() => onNavigate('constructor')} data-testid="button-cta-constructor">{copy.order}<ArrowRight size={19} aria-hidden="true"/></button>
         <button className="studio-about__more" type="button" onClick={explore}>{copy.explore}<ArrowDown size={16} aria-hidden="true"/></button>
@@ -66,11 +66,11 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
         <div className="studio-about__features">
           <article className="studio-about__feature">
             <div className="studio-about__feature-copy"><span className="studio-about__eyebrow">{copy.designLabel}</span><h3>{copy.designTitle}</h3><p>{copy.designText}</p></div>
-            <img src="/about-studio/design.webp" alt={copy.designAlt} loading="lazy" decoding="async" onError={event => { event.currentTarget.hidden = true; }}/>
+            <img src="/about-studio/design.webp?v=objects-2" alt={copy.designAlt} loading="lazy" decoding="async" onError={event => { event.currentTarget.hidden = true; }}/>
           </article>
           <article className="studio-about__feature">
             <div className="studio-about__feature-copy"><span className="studio-about__eyebrow">{copy.launchLabel}</span><h3>{copy.launchTitle}</h3><p>{copy.launchText}</p></div>
-            <img src="/about-studio/launch.webp" alt={copy.launchAlt} loading="lazy" decoding="async" onError={event => { event.currentTarget.hidden = true; }}/>
+            <img src="/about-studio/launch.webp?v=objects-2" alt={copy.launchAlt} loading="lazy" decoding="async" onError={event => { event.currentTarget.hidden = true; }}/>
           </article>
         </div>
       </section>
