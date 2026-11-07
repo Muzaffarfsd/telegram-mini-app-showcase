@@ -110,7 +110,7 @@ export const demoApps: DemoApp[] = [
     title: 'Магазин одежды',
     description: 'Демо магазина одежды и кроссовок',
     category: 'Электронная коммерция',
-    image: '/muraka-fashion/jacket-patchwork-product.webp',
+    image: '/muraka-fashion/transparent-v2/jacket-patchwork-product.webp',
     creator: 'WEB4TG',
     likes: '0',
     badge: 'Демо',

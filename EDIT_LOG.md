@@ -889,6 +889,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Mobile browser 320/390: inspected opening and closing frames, repeated reversals, Escape, Tab, navigation, and reduced motion; no page errors or separate text remnants observed. Vite build passed; existing unrelated CSS keyframes warning remains; assets copied with PowerShell. Physical device not tested.
 
 ---
+## 2026-11-07 · MURAKA transparent product photos
+
+**What:** Regenerated all 24 standalone product photos with real alpha, derived the hero jacket from the matching new product, and updated catalog, categories, product detail, cart, wardrobe, looks and demo image paths. Model/editorial photography remains contextual.
+**Files:** client/public/muraka-fashion/transparent-v2/*.webp; client/src/components/demos/MurakaFashion.tsx, FashionAccount.tsx, FashionLooks.tsx; client/src/data/demoApps.ts; muraka-transparency-notes.md.
+**Checkpoint:** `34f9e5f`.
+**Verification:** Alpha inspected for all 24 WebPs plus hero, visual comparison on contrasting backgrounds and against originals. Mobile browser 320/390: all 24 catalog images decode; categories, product photo, cart and favorites load the new paths; no 404, page errors or horizontal overflow. Reviewed `../muraka-alpha-home-390.png`, `../muraka-integration-catalog-390-10.png`, `../muraka-integration-detail-390.png`. Vite build passed; existing unrelated CSS keyframes warning remains; assets copied with PowerShell. Generative images preserve overall design but small details can differ.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -900,6 +908,7 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 
 

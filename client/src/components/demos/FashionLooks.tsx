@@ -15,7 +15,7 @@ export const fashionLookPresets: Look[] = [
 const plural=(count:number)=>count%100>=11&&count%100<=14?'вещей':count%10===1?'вещь':count%10>=2&&count%10<=4?'вещи':'вещей';
 const money=(value:number)=>`${new Intl.NumberFormat('ru-RU').format(value)} ₽`;
 const modelImage=(id:string)=>`/muraka-fashion/${id}-model.webp`;
-const productImage=(id:string)=>`/muraka-fashion/${id}-product.webp`;
+const productImage=(id:string)=>`/muraka-fashion/transparent-v2/${id}-product.webp`;
 const lines=(title:string)=>title.split('\n').map((line,index)=><React.Fragment key={line}>{index>0&&<br/>}{line}</React.Fragment>);
 type SavedProps={savedIds?:string[];onToggleSaved?:(id:FashionLookId)=>void};
 function SaveLook({look,savedIds,onToggleSaved}:{look:Look}&SavedProps){if(!onToggleSaved)return null;const saved=!!savedIds?.includes(look.id);return <button type="button" className="mfl-save" aria-label={`${saved?'Убрать образ из избранного':'Сохранить образ'}: ${look.title.replace('\n',' ')}`} aria-pressed={saved} onClick={()=>onToggleSaved(look.id)}><Heart size={19} fill={saved?'currentColor':'none'}/></button>}
