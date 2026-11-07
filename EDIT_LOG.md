@@ -794,6 +794,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Playwright at 320, 390 and 430 px: all ten labels fit, no horizontal overflow or page errors, category filter and list view work. Visually reviewed `../folder-stickers-v3-top.png` and `../folder-stickers-v3-bottom.png`. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell.
 
 ---
+## 2026-11-07 · Redraw showcase stickers
+
+**What:** Replaced all ten sticker designs after the user rejected the preceding series; created distinctive graphic marks informed by the supplied folder reference.
+**Files:** client/src/components/StoreStickers.tsx.
+**Checkpoint:** `8630d22`.
+**Verification:** Playwright at 320 and 390 px: ten stickers render, no overflow or page errors. Visually reviewed `../folder-stickers-v5-top.png` and `../folder-stickers-v5-middle.png`. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -805,5 +813,6 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 

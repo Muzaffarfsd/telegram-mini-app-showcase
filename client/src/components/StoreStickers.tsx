@@ -1,77 +1,93 @@
 import type { ReactNode } from 'react';
 
-// Original die-cut symbols: bold silhouettes stay legible at folder scale.
+// Original die-cut emblems for each showcase category. Each is a distinct mark,
+// with a substantial white edge like the stickers in the supplied reference.
 const artwork: Record<string, ReactNode> = {
   'flower-store': (
-    <g transform="rotate(-8 50 50)" strokeLinejoin="round">
-      <path d="M50 51C38 47 30 37 31 25C32 15 42 12 50 20C58 12 68 15 69 25C70 37 62 47 50 51ZM50 51C39 54 25 52 19 43C14 35 20 27 30 30C31 40 39 48 50 51ZM50 51C61 54 75 52 81 43C86 35 80 27 70 30C69 40 61 48 50 51ZM50 51V78" fill="#e64947" stroke="#fff" strokeWidth="8" strokeLinecap="round" />
-      <path d="M50 51C38 47 30 37 31 25C32 15 42 12 50 20Z" fill="#f66e5d" />
-      <path d="M50 51C62 47 70 37 69 25C68 15 58 12 50 20Z" fill="#d83f50" />
-      <path d="M50 51C39 54 25 52 19 43C14 35 20 27 30 30C31 40 39 48 50 51Z" fill="#f3a441" />
-      <path d="M50 51C61 54 75 52 81 43C86 35 80 27 70 30C69 40 61 48 50 51Z" fill="#e95b4c" />
-      <path d="M50 51V78" fill="none" stroke="#1c7558" strokeWidth="7" strokeLinecap="round" />
+    <g transform="rotate(-8 50 50)" strokeLinejoin="round" strokeLinecap="round">
+      <path d="M50 54V77" stroke="#fff" strokeWidth="12" />
+      <path d="M49 64C32 61 21 49 23 37C36 37 47 47 49 64Z" fill="#e74e4d" stroke="#fff" strokeWidth="5" />
+      <path d="M51 64C68 61 79 49 77 37C64 37 53 47 51 64Z" fill="#f28d52" stroke="#fff" strokeWidth="5" />
+      <path d="M50 59C39 47 38 31 50 22C62 31 61 47 50 59Z" fill="#a52e48" stroke="#fff" strokeWidth="5" />
+      <path d="M50 57V77" stroke="#257c62" strokeWidth="7" />
     </g>
   ),
   'apple-store': (
-    <g transform="rotate(7 50 50)" fill="#131313" stroke="#fff" strokeWidth="7" strokeLinejoin="round">
-      <path d="M51 25C47 16 51 8 63 7C64 17 59 23 51 25Z" />
-      <path d="M50 32C44 32 40 26 32 27C20 28 15 40 18 53C20 66 30 80 37 81C43 81 45 77 51 77C57 77 59 81 65 81C72 81 79 70 82 62C72 58 70 46 80 40C75 28 65 25 58 28C55 29 52 32 50 32Z" />
+    <g transform="rotate(7 50 50)" strokeLinejoin="round">
+      <path d="M16 23L48 12 82 25 75 39 86 47 69 81 37 87 14 70 22 54 12 44Z" fill="#fff" stroke="#fff" strokeWidth="7" />
+      <path d="M16 23L48 12 82 25 69 43 37 54 12 44Z" fill="#151515" />
+      <path d="M22 54L46 46 75 39 86 47 69 81 37 87 14 70Z" fill="#292929" />
+      <path d="M24 31L48 23 69 30 63 37 41 45 20 39Z" fill="#d8d9d8" />
+      <path d="M35 60L67 50 77 52 63 72 41 77 27 68Z" fill="#818887" />
     </g>
   ),
   'muraka-fashion': (
-    <g transform="rotate(-8 50 50)" strokeLinejoin="round">
-      <path d="M28 19L40 14C42 22 58 22 60 14L72 19 87 31 77 45 70 40 70 81H30V40L23 45 13 31Z" fill="#171717" stroke="#fff" strokeWidth="7" />
-      <path d="M40 15C42 22 58 22 60 15L65 18C63 29 37 29 35 18Z" fill="#c1a7a2" />
-      <path d="M30 69H70V81H30Z" fill="#b85e53" />
+    <g transform="rotate(-7 50 50)" strokeLinejoin="round">
+      <path d="M13 27L31 13 49 27 67 13 87 27 80 72 65 86 49 70 34 86 18 72Z" fill="#fff" stroke="#fff" strokeWidth="7" />
+      <path d="M13 27L31 13 49 27 38 40 34 76 18 72Z" fill="#171717" />
+      <path d="M49 27L67 13 87 27 80 72 65 76 60 40Z" fill="#171717" />
+      <path d="M31 13L49 27 67 13 60 40 49 53 38 40Z" fill="#ac9a98" />
+      <path d="M38 40L49 53 60 40 65 76 49 70 34 76Z" fill="#722f38" />
     </g>
   ),
   'nike-sneakers': (
     <g transform="rotate(-9 50 50)" strokeLinejoin="round">
-      <path d="M13 51C20 50 25 44 29 30L41 25 51 40C58 45 68 49 80 52C86 54 89 59 88 69L85 75C67 80 35 81 14 75C10 74 10 59 13 51Z" fill="#141414" stroke="#fff" strokeWidth="7" />
-      <path d="M16 65C37 70 65 71 85 64L85 70C67 76 35 76 15 71Z" fill="#ef513e" />
-      <path d="M33 35L41 32 50 43 64 49 49 53 30 46Z" fill="#fff" />
+      <path d="M9 58L22 38 51 40 73 17 86 24 76 45 91 53 81 73 56 78 47 70 23 79Z" fill="#fff" stroke="#fff" strokeWidth="7" />
+      <path d="M11 57L24 39 50 41 73 18 85 25 68 51 43 59Z" fill="#141414" />
+      <path d="M24 63L43 59 69 50 89 54 80 70 57 76 48 66 25 76Z" fill="#ee4d3a" />
+      <path d="M22 54L48 47 64 34 58 46 43 55Z" fill="#fff" />
     </g>
   ),
   'lumi-studio': (
-    <g transform="rotate(10 50 50)" strokeLinejoin="round">
-      <path d="M22 17L52 43 77 16 84 23 58 50 84 76 77 83 51 57 24 84 17 77 44 50 16 24Z" fill="#1d1c1d" stroke="#fff" strokeWidth="7" />
-      <path d="M22 17L52 43 45 50 16 24Z" fill="#d75a78" />
-      <circle cx="51" cy="50" r="5" fill="#f4ca61" />
+    <g transform="rotate(8 50 50)" strokeLinejoin="round">
+      <path d="M51 9L61 33 86 20 73 45 91 54 67 61 77 85 51 72 26 87 34 61 9 53 28 44 15 19 40 33Z" fill="#fff" stroke="#fff" strokeWidth="7" />
+      <path d="M51 11L59 38 78 23 65 47 88 54 62 59 75 82 51 68 51 52Z" fill="#bd4c82" />
+      <path d="M51 11V52L27 43 17 21 41 37Z" fill="#f0a4b2" />
+      <path d="M51 52V68L27 84 38 59 12 53 37 47Z" fill="#292431" />
     </g>
   ),
   'china-buyer': (
     <g transform="rotate(-8 50 50)" strokeLinejoin="round">
-      <path d="M10 53L39 49 57 15C60 10 65 10 66 15L62 45 81 42C87 41 90 43 90 47C90 51 86 53 81 55L62 60 65 77 59 81 48 63 31 68 25 78 20 79 22 65 11 60Z" fill="#da483a" stroke="#fff" strokeWidth="7" />
-      <path d="M23 54L41 51 56 21 54 53 78 48 58 57 58 69 51 59 31 65Z" fill="#f17a55" />
+      <path d="M18 14H61L87 37 75 49 88 61 62 86H19L11 65 25 50 11 35Z" fill="#fff" stroke="#fff" strokeWidth="7" />
+      <path d="M18 14H61L87 37 63 49 48 35H16Z" fill="#d83932" />
+      <path d="M16 35H48L63 49 48 63H16L27 49Z" fill="#9e252a" />
+      <path d="M16 63H48L63 49 88 61 62 86H19Z" fill="#ef6550" />
+      <path d="M50 24L61 28 67 35 55 38 46 33Z" fill="#f4c85c" />
     </g>
   ),
   'medical-center': (
     <g transform="rotate(7 50 50)" strokeLinejoin="round">
-      <path d="M37 13H63V36H86V63H63V86H37V63H14V36H37Z" fill="#1d7c69" stroke="#fff" strokeWidth="7" />
-      <path d="M22 50H38L43 40 51 61 57 48H78" fill="none" stroke="#fff" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M22 17C34 8 45 13 50 24C55 13 67 8 79 17C92 28 83 43 71 50C83 58 92 72 79 83C67 92 55 87 50 76C45 87 34 92 22 83C8 72 17 58 29 50C17 43 8 28 22 17Z" fill="#fff" stroke="#fff" strokeWidth="7" />
+      <path d="M23 21C34 12 44 20 50 35C56 20 66 12 77 21C87 29 78 40 65 47L50 57 35 47C22 40 13 29 23 21Z" fill="#247a6d" />
+      <path d="M23 79C34 88 44 80 50 65C56 80 66 88 77 79C87 71 78 60 65 53L50 43 35 53C22 60 13 71 23 79Z" fill="#5db49f" />
+      <path d="M35 50L50 41 65 50 50 59Z" fill="#0d514a" />
     </g>
   ),
   'opt-market': (
     <g transform="rotate(-7 50 50)" strokeLinejoin="round">
-      <path d="M50 9L88 28V70L50 90 12 70V28Z" fill="#1762d7" stroke="#fff" strokeWidth="7" />
-      <path d="M50 9L88 28 50 47 12 28Z" fill="#62a3ff" />
-      <path d="M50 47L88 28V70L50 90Z" fill="#0046b4" />
-      <path d="M50 47L12 28M50 47L88 28M50 47V87" fill="none" stroke="#fff" strokeWidth="4" />
+      <path d="M12 30L39 13 60 24 74 16 89 27 73 43 89 52 71 70 57 64 38 83 11 67 27 49 11 40Z" fill="#fff" stroke="#fff" strokeWidth="6" />
+      <path d="M12 30L39 13 60 24 33 42Z" fill="#3688ed" />
+      <path d="M33 42L60 24 74 16 89 27 62 49 48 54Z" fill="#0955c4" />
+      <path d="M11 67L33 47 48 54 38 72 27 77Z" fill="#1269d7" />
+      <path d="M38 72L62 49 89 52 71 70 57 64 38 83Z" fill="#03429e" />
     </g>
   ),
   'women-fashion': (
-    <g transform="rotate(7 50 50)" strokeLinejoin="round">
-      <path d="M37 14L49 24 62 14 73 25 64 35 62 44 79 82H21L38 44 35 35 27 25Z" fill="#171717" stroke="#fff" strokeWidth="7" />
-      <path d="M38 44L62 44 79 82H57Z" fill="#a7374f" />
-      <path d="M49 24L62 14 73 25 64 35 62 44H50Z" fill="#323133" />
-      <path d="M38 44H62" fill="none" stroke="#fff" strokeWidth="3.5" />
+    <g transform="rotate(8 50 50)" strokeLinejoin="round">
+      <path d="M19 13L49 30 78 13 88 27 68 50 87 73 76 87 49 69 21 87 12 73 31 50 12 27Z" fill="#fff" stroke="#fff" strokeWidth="7" />
+      <path d="M19 13L49 30 41 44 12 27Z" fill="#191619" />
+      <path d="M78 13L88 27 57 56 42 46Z" fill="#bd405b" />
+      <path d="M31 50L45 60 21 87 12 73Z" fill="#bd405b" />
+      <path d="M49 55L68 50 87 73 76 87 49 69Z" fill="#191619" />
+      <path d="M40 45L49 30 68 50 57 56Z" fill="#6b293b" />
     </g>
   ),
   'skincare-aura': (
     <g transform="rotate(-8 50 50)" strokeLinejoin="round">
-      <path d="M50 10C42 23 22 41 22 58C22 74 34 85 50 85C66 85 78 74 78 58C78 41 58 23 50 10Z" fill="#216c73" stroke="#fff" strokeWidth="7" />
-      <path d="M50 28C45 39 35 48 35 59C35 68 41 74 50 75C59 75 65 68 65 59C65 48 55 38 50 28Z" fill="#64c8be" />
-      <path d="M36 59C36 52 40 46 44 41" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
+      <path d="M50 10C30 10 13 27 13 49C13 68 24 83 42 88L50 72 58 88C76 83 87 68 87 49C87 27 70 10 50 10Z" fill="#fff" stroke="#fff" strokeWidth="7" />
+      <path d="M50 12C29 12 14 28 14 49C14 65 23 79 39 85L45 69C35 66 30 58 30 49C30 37 39 28 50 28Z" fill="#177b79" />
+      <path d="M50 12C71 12 86 28 86 49C86 65 77 79 61 85L55 69C65 66 70 58 70 49C70 37 61 28 50 28Z" fill="#78c6b6" />
+      <path d="M50 35L61 49 50 65 39 49Z" fill="#f2b99c" />
     </g>
   ),
 };
@@ -79,5 +95,4 @@ const artwork: Record<string, ReactNode> = {
 export function StoreStickers({ id, className }: { id: string; className?: string }) {
   return <svg className={className} viewBox="0 0 100 100" fill="none" aria-hidden="true" focusable="false">{artwork[id] ?? artwork['opt-market']}</svg>;
 }
-
 
