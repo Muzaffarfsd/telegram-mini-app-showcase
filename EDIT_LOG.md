@@ -965,6 +965,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite build passed; reviewed Chromium and WebKit at 320 and 390 px, plus English and desktop. Images loaded without visible clipping or text overlap, and order/showcase navigation worked. New artwork has not yet been evaluated by the user; not deployed.
 
 ---
+## 2026-11-07 · Keep only the main About illustration
+
+**What:** Removed the two feature illustrations and compacted the text cards; kept the main illustration.
+**Why:** User asked to retain only the main illustration and send the changes.
+**Files:** `client/src/components/AboutPage.tsx`, `client/src/components/AboutPage.css`, `client/public/about-studio/`, `about-studio-design-notes.md`.
+**Checkpoint:** `d34ef60`.
+**Verification:** Local browser review at 320 and 390 px, checked the remaining illustration and order/showcase navigation; Vite build.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description

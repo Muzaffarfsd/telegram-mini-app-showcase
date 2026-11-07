@@ -20,14 +20,12 @@
 .studio-about__story h2,.studio-about__finish h2 { margin-top:10px; font-size:clamp(24px,7vw,30px); line-height:1.1; font-weight:700; letter-spacing:-.045em; }
 .studio-about__section-intro,.studio-about__finish > p { max-width:370px; margin-top:10px!important; color:#69717b; font-size:14px; line-height:1.5; }
 .studio-about__features { display:grid; gap:10px; margin-top:20px; }
-.studio-about__feature { position:relative; display:grid; grid-template-columns:1fr 43%; align-items:center; min-height:222px; overflow:hidden; padding:22px 0 22px 22px; border-radius:24px; background:#f3f4f5; }
-.studio-about__feature-copy { position:relative; z-index:1; }
+.studio-about__feature { padding:24px 22px; border-radius:24px; background:#f3f4f5; }
 .studio-about__feature .studio-about__eyebrow { font-size:10px; letter-spacing:.045em; }
 .studio-about__feature h3 { margin-top:10px; font-size:20px; line-height:1.08; font-weight:700; letter-spacing:-.04em; }
-.studio-about__feature p { margin-top:10px; color:#606973; font-size:13px; line-height:1.45; }
-.studio-about__feature img { display:block; width:130%; max-width:none!important; height:185px!important; margin-left:-15%; object-fit:contain; }
+.studio-about__feature p { max-width:340px; margin-top:10px; color:#606973; font-size:13px; line-height:1.45; }
 .studio-about__finish { margin-top:68px; padding:28px 22px; border-radius:24px; background:#f3f4f5; }
 .studio-about__finish .studio-about__primary { margin-top:23px; padding-inline:32px; }
 .studio-about__contact { display:flex; align-items:center; justify-content:center; gap:7px; min-height:48px; margin:6px auto -7px; color:#333a43; font-size:13px!important; font-weight:700!important; text-decoration:none; }
-@media(max-width:350px) { .studio-about__inner { padding-inline:16px; }.studio-about__hero h1 { font-size:25px; }.studio-about__feature { grid-template-columns:1fr 42%; padding-left:18px; }.studio-about__feature h3 { font-size:18px; }.studio-about__feature .studio-about__eyebrow { font-size:9px; }.studio-about__feature img { height:165px!important; } }
+@media(max-width:350px) { .studio-about__inner { padding-inline:16px; }.studio-about__hero h1 { font-size:25px; }.studio-about__feature { padding:22px 20px; }.studio-about__feature h3 { font-size:18px; }.studio-about__feature .studio-about__eyebrow { font-size:9px; } }
 @media(prefers-reduced-motion:reduce) { .studio-about *, .studio-about *::before, .studio-about *::after { animation:none!important; transition-duration:.01ms!important; scroll-behavior:auto!important; } }

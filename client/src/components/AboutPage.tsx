@@ -16,10 +16,8 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
     sectionText: 'Соединяем задачи бизнеса и удобство клиентов в одном приложении.',
     designLabel: '01 / ПРОЕКТИРОВАНИЕ', designTitle: 'Сначала — смысл',
     designText: 'Изучаем задачу и продумываем, как человек будет пользоваться приложением.',
-    designAlt: 'Папка с макетами интерфейса',
     launchLabel: '02 / РАЗРАБОТКА', launchTitle: 'Затем — в жизнь',
     launchText: 'Создаём интерфейс, собираем приложение и проверяем основные сценарии.',
-    launchAlt: 'Устройство с экраном приложения и квитанцией',
     resultLabel: 'ДЛЯ ВАШЕГО БИЗНЕСА', resultTitle: 'Начнём с идеи',
     resultText: 'Магазин, запись или сервис — вместе найдём формат под вашу задачу.',
     examples: 'Посмотреть витрину', contact: 'Написать в Telegram',
@@ -32,10 +30,8 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
     sectionText: 'We bring business needs and customer experience together in one app.',
     designLabel: '01 / DESIGN', designTitle: 'Start with purpose',
     designText: 'We explore your needs and design how people will use the app.',
-    designAlt: 'A folder of interface designs',
     launchLabel: '02 / DEVELOPMENT', launchTitle: 'Bring it to life',
     launchText: 'We build the interface and the app, then check the essential journeys.',
-    launchAlt: 'A device with an app screen and receipt',
     resultLabel: 'FOR YOUR BUSINESS', resultTitle: 'Start with an idea',
     resultText: 'A store, booking or service — together we will find the right format.',
     examples: 'Explore the showcase', contact: 'Message us on Telegram',
@@ -66,11 +62,9 @@ export default function AboutPage({ onNavigate }: AboutPageProps) {
         <div className="studio-about__features">
           <article className="studio-about__feature">
             <div className="studio-about__feature-copy"><span className="studio-about__eyebrow">{copy.designLabel}</span><h3>{copy.designTitle}</h3><p>{copy.designText}</p></div>
-            <img src="/about-studio/design.webp?v=objects-2" alt={copy.designAlt} loading="lazy" decoding="async" onError={event => { event.currentTarget.hidden = true; }}/>
           </article>
           <article className="studio-about__feature">
             <div className="studio-about__feature-copy"><span className="studio-about__eyebrow">{copy.launchLabel}</span><h3>{copy.launchTitle}</h3><p>{copy.launchText}</p></div>
-            <img src="/about-studio/launch.webp?v=objects-2" alt={copy.launchAlt} loading="lazy" decoding="async" onError={event => { event.currentTarget.hidden = true; }}/>
           </article>
         </div>
       </section>
