@@ -810,6 +810,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Playwright at 320, 390 and 430 px: ten stickers render, no horizontal overflow or page errors. Visually reviewed `../folder-stickers-type-final-top.png` and `../folder-stickers-type-final-middle.png`. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell.
 
 ---
+## 2026-11-07 · Glass folders and images
+
+**What:** Added ten new generated category images inside translucent glass folders, keeping the stickers in front.
+**Files:** client/src/components/ProjectsPage.tsx, ProjectsShowcase.css, client/public/showcase/folder-art/*.webp, showcase-folder-design-notes.md.
+**Checkpoint:** `792b5cf`.
+**Verification:** Playwright at 320, 390 and 430 px: all ten images decode, no horizontal overflow or page errors. Visually reviewed `../glass-folder-real-header.png`, `../glass-folder-real-middle.png`, `../glass-folder-real-bottom.png`. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -821,6 +829,7 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 
 

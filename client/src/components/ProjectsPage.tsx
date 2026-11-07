@@ -23,11 +23,12 @@ const stores = [
 function Folder({ id, paper }: { id: string; paper: string }) {
   return <span className={`folder folder--${paper}`} aria-hidden="true">
     <span className="folder__paper folder__paper--back"><i /></span>
-    <span className="folder__paper folder__paper--front"><i /><i /><i /></span>
+    <span className="folder__picture"><img src={`/showcase/folder-art/${id}.webp`} alt="" loading="lazy" decoding="async" /></span>
     <svg className="folder__body" viewBox="0 0 180 162" preserveAspectRatio="none" aria-hidden="true">
-      <defs><linearGradient id={`folder-gradient-${id}`} x1="0" y1="0" x2="0.8" y2="1"><stop stopColor="#f0f0ef"/><stop offset="1" stopColor="#dededd"/></linearGradient></defs>
-      <path d="M1 42C1 30 9 23 21 23H60C69 23 75 25 83 30L96 37H159C171 37 179 45 179 57V142C179 154 171 161 159 161H21C9 161 1 154 1 142Z" fill={`url(#folder-gradient-${id})`} stroke="#dededc" strokeWidth="1"/>
-      <path d="M2 43C2 31 9 24 21 24H60C69 24 75 26 83 31L96 38H159" fill="none" stroke="#fff" strokeOpacity=".58"/>
+      <defs><linearGradient id={`folder-gradient-${id}`} x1="0" y1="0" x2="0.85" y2="1"><stop stopColor="#f5faff" stopOpacity=".62"/><stop offset=".48" stopColor="#e8f0f5" stopOpacity=".42"/><stop offset="1" stopColor="#cad6df" stopOpacity=".65"/></linearGradient></defs>
+      <path d="M1 42C1 30 9 23 21 23H60C69 23 75 25 83 30L96 37H159C171 37 179 45 179 57V142C179 154 171 161 159 161H21C9 161 1 154 1 142Z" fill={`url(#folder-gradient-${id})`} stroke="#c8d5dc" strokeOpacity=".85" strokeWidth="1.1"/>
+      <path d="M2 43C2 31 9 24 21 24H60C69 24 75 26 83 31L96 38H159" fill="none" stroke="#fff" strokeOpacity=".9" strokeWidth="1.3"/>
+      <path d="M8 118C37 108 70 102 112 105C144 107 165 115 176 125V142C176 151 169 158 159 158H21C13 158 8 152 8 143Z" fill="#fff" fillOpacity=".08"/>
     </svg>
     <span className="folder__mark">WEB4TG</span>
     <StoreStickers id={id} className="folder__sticker" />
@@ -61,4 +62,6 @@ export default memo(function ProjectsPage({ onOpenDemo }: ProjectsPageProps) {
     </section>
   </div></main>;
 });
+
+
 
