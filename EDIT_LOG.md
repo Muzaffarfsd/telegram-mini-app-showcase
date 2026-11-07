@@ -833,6 +833,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Mobile 320 and 390 px visually reviewed (`../matte-folders-final-390-top.png`, `../matte-folders-final-390-middle.png`), no page errors or horizontal overflow. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell.
 
 ---
+## 2026-11-07 · Tinted frosted folders
+
+**What:** Added soft individual colors to the frosted folder surfaces, preserving the existing shapes, documents and stickers.
+**Files:** client/src/components/ProjectsPage.tsx, ProjectsShowcase.css.
+**Checkpoint:** `3f11d95`.
+**Verification:** Mobile 320 and 390 px visually reviewed (`../tinted-folders-390-top.png`, `../tinted-folders-390-middle.png`); no page errors or horizontal overflow. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -844,6 +852,7 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 
 

@@ -17,7 +17,7 @@
 .ps-filters button[aria-pressed="true"] { color:#fff; background:#111; }
 .ps-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:14px; row-gap:24px; }
 .ps-store { display:flex; min-width:0; flex-direction:column; align-items:center; padding:0; border:0; background:transparent; color:inherit; text-align:center; }
-.folder { position:relative; display:block; width:100%; aspect-ratio:180 / 187; isolation:isolate; }
+.folder { --glass-hi:#f3f3f2; --glass-mid:#e9e9e8; --glass-low:#d9dad8; position:relative; display:block; width:100%; aspect-ratio:180 / 187; isolation:isolate; }
 .folder__body { position:absolute; z-index:2; width:100%; height:87%; left:0; bottom:0; overflow:visible; filter:drop-shadow(0 6px 5px rgba(0,0,0,.06)); }
 .folder__paper { position:absolute; z-index:1; display:block; width:57%; height:47%; top:7%; left:21%; border:1px solid #dddeda; border-radius:9px 9px 2px 2px; background:#f8f8f6; box-shadow:0 2px 7px #0000000b; }
 .folder__paper--back { transform:rotate(-9deg); background:var(--paper); }
@@ -27,16 +27,16 @@
 .folder__paper i { display:block; width:35%; height:3px; margin:8px 0 0 10px; border-radius:2px; background:#d6d7d4; opacity:.8; }
 .folder__paper i:first-child { width:14px; height:14px; border-radius:50%; background:var(--paper); opacity:1; }
 .folder--rose { --paper:#efd3d0; }.folder--blue { --paper:#cbdde2; }.folder--sand { --paper:#e8d7b7; }.folder--lime { --paper:#d9e4ce; }
-.folder--flower-store { --paper:#efd7d7; --file-ink:#ae5c68; }
-.folder--apple-store { --paper:#d6dce1; --file-ink:#586771; }
-.folder--muraka-fashion { --paper:#e6ddd5; --file-ink:#6e5b59; }
-.folder--nike-sneakers { --paper:#e8d6cc; --file-ink:#a15e47; }
-.folder--lumi-studio { --paper:#e9d6e3; --file-ink:#9d668e; }
-.folder--china-buyer { --paper:#ecd8ce; --file-ink:#ab5e50; }
-.folder--medical-center { --paper:#d3e4e1; --file-ink:#508e81; }
-.folder--opt-market { --paper:#e9ddc6; --file-ink:#9d7b48; }
-.folder--women-fashion { --paper:#e8d7d9; --file-ink:#995969; }
-.folder--skincare-aura { --paper:#dce6d7; --file-ink:#738c6d; }
+.folder--flower-store { --paper:#efd7d7; --file-ink:#ae5c68; --glass-hi:#faf0ef; --glass-mid:#f2dfdf; --glass-low:#e5cdce; }
+.folder--apple-store { --paper:#d6dce1; --file-ink:#586771; --glass-hi:#f3f1f9; --glass-mid:#e7e3f2; --glass-low:#d5cfe3; }
+.folder--muraka-fashion { --paper:#e6ddd5; --file-ink:#6e5b59; --glass-hi:#f6f1ee; --glass-mid:#eae2dc; --glass-low:#d8cec6; }
+.folder--nike-sneakers { --paper:#e8d6cc; --file-ink:#a15e47; --glass-hi:#f9f1ed; --glass-mid:#efdfd9; --glass-low:#e2cbc4; }
+.folder--lumi-studio { --paper:#e9d6e3; --file-ink:#9d668e; --glass-hi:#f0f7f8; --glass-mid:#e1eff0; --glass-low:#cadfe1; }
+.folder--china-buyer { --paper:#ecd8ce; --file-ink:#ab5e50; --glass-hi:#faf1eb; --glass-mid:#f2dfd3; --glass-low:#e7ccbc; }
+.folder--medical-center { --paper:#d3e4e1; --file-ink:#508e81; --glass-hi:#f0f7f4; --glass-mid:#e1efea; --glass-low:#cbded7; }
+.folder--opt-market { --paper:#e9ddc6; --file-ink:#9d7b48; --glass-hi:#f9f6ea; --glass-mid:#f0e8d2; --glass-low:#e1d6b8; }
+.folder--women-fashion { --paper:#e8d7d9; --file-ink:#995969; --glass-hi:#f8f1f3; --glass-mid:#eee0e4; --glass-low:#e0cdd3; }
+.folder--skincare-aura { --paper:#dce6d7; --file-ink:#738c6d; --glass-hi:#f4f7f0; --glass-mid:#e6eee1; --glass-low:#d0dfc9; }
 .folder__mark { position:absolute; z-index:3; left:13%; bottom:13%; color:#b2b4b2; font-size:7px; line-height:1; font-weight:800; letter-spacing:-.06em; transform:rotate(-5deg); }
 .folder__sticker { position:absolute; z-index:4; width:56%; height:48%; right:5%; bottom:6%; overflow:visible; filter:drop-shadow(0 2px 2px rgba(0,0,0,.12)); }
 .ps-store__copy { display:flex; flex-direction:column; align-items:center; gap:5px; width:100%; padding:12px 0 0; }
@@ -49,5 +49,6 @@
 @media (hover:hover) { .folder { transition:transform .22s ease; }.ps-store:hover .folder { transform:translateY(-3px); } }
 @media (max-width:350px) { .ps-inner { padding-inline:15px; }.ps-grid { column-gap:10px; }.ps-filters { gap:6px; }.ps-filters button { padding-inline:14px; } }
 @media (prefers-reduced-motion:reduce) { .folder { transition:none; } }
+
 
 
