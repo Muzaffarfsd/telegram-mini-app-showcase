@@ -974,6 +974,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Local browser review at 320 and 390 px, checked the remaining illustration and order/showcase navigation; Vite build.
 
 ---
+## 2026-11-07 · Expand studio information below the preserved hero
+
+**What:** Rebuilt the lower About page with a studio introduction, four interactive business scenarios, customer/team benefits, optional AI, project stages, support, practical FAQ and project actions. The main hero is unchanged.
+**Why:** User asked for a substantially more informative and considered About page and explicitly required preserving the main block with its illustration.
+**Files:** `client/src/components/AboutPage.tsx`, `AboutPage.css`, `aboutStudioContent.ts`, `about-studio-design-notes.md`, `CODEBASE_INDEX.md`.
+**Checkpoint:** `9cb51e4`.
+**Verification:** Vite build passed. Checked RU/EN mobile and desktop, Chromium/WebKit at 320 and 390 px, keyboard tabs/FAQ, reduced motion and navigation to ordering, showcase and AI. Scenario panels preserve equal heights; hero crop matched the published baseline pixel for pixel. One WebKit test click missed during auto-scroll; with stable geometry the real button click passed three consecutive times without a product change. Content checked against current order, AI and help sources; no new numeric claims or extra artwork.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description

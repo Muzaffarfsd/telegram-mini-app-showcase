@@ -71,6 +71,7 @@ ProfilePage.tsx                - /profile — user profile, settings, stats (55K
 AIProcessPage.tsx              - /ai-process — AI agent workflow explainer
 AIAgentPage.tsx                - /ai-agent — AI assistant chat
 AboutPage.tsx                  - /about — about WEB4TG Studio
+aboutStudioContent.ts          - RU/EN studio copy, business scenarios, process and FAQ for AboutPage
 DemoAppLanding.tsx             - /demos/:id — landing page for a demo
 DemoAppShell.tsx               - /demos/:id/app — wrapper that mounts the actual demo from DemoRegistry
 CheckoutPage.tsx               - /checkout — Stripe checkout
