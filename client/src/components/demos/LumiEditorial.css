@@ -41,3 +41,12 @@
 
 /* Keep the preview visible while the full-size photo is loading. */
 .lumi-v4-lightbox>img{width:100%;height:calc(100dvh - 150px);object-fit:contain}
+
+/* Keep gallery controls below the Telegram safe area and the fixed app header. */
+.lumi-v4-lightbox{inset:calc(max(env(safe-area-inset-top,0px),var(--sat,0px),var(--csat,0px),12px) + 72px) 0 max(0px,calc(100dvh - var(--tg-viewport-height,100dvh))) 0;display:grid;grid-template-rows:minmax(0,1fr) auto;justify-items:center;padding:60px 16px max(12px,env(safe-area-inset-bottom,0px),var(--sab,0px),var(--csab,0px))}
+.lumi-v4-lightbox>img{height:100%;min-height:0;max-height:none}
+.lumi-v4-lightbox-close{top:8px}
+.lumi-v4-lightbox-controls{margin-top:8px}
+.lumi-v4-lightbox{display:flex;flex-direction:column;box-sizing:border-box}
+.lumi-v4-lightbox>img{flex:1 1 0;height:0}
+.lumi-v4-lightbox-controls{flex:none}

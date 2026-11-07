@@ -144,6 +144,10 @@
 .mf-nav-bag i { position:absolute; top:-7px; right:-9px; display:grid; place-items:center; min-width:15px; height:15px; border-radius:50%; background:#1b1b1b; color:#fff; font-style:normal; font-size:9px; }
 .mf-overlay { position:fixed; z-index:10000; inset:0; bottom:var(--mf-obscured); display:flex; align-items:flex-end; justify-content:center; background:rgba(0,0,0,.42); }
 .mf-sheet { width:min(100%,448px); max-height:min(88svh, calc(var(--tg-viewport-height, 100dvh) - 24px), 760px); display:flex; flex-direction:column; background:#fff; color:#1b1b1b; border-radius:18px 18px 0 0; box-shadow:0 -10px 35px #0002; }
+/* Keep the photo viewer header below Telegram's top controls and the app bar. */
+.mf-photo-sheet { max-height:min(88svh, max(0px, calc(var(--tg-viewport-height, 100dvh) - max(env(safe-area-inset-top, 0px), var(--sat, 0px), var(--csat, 0px), 12px) - 72px)), 760px); overflow:hidden; }
+.mf-photo-sheet .mf-photo-viewer { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; }
+.mf-photo-sheet .mf-sheet-header .mf-icon { width:44px; height:44px; }
 .mf-sheet-handle { flex:none; display:grid; place-items:center; height:24px; }
 .mf-sheet-handle span { width:36px; height:4px; border-radius:4px; background:#c8c8c8; }
 .mf-sheet-header { flex:none; display:flex; align-items:center; justify-content:space-between; margin:0 20px; padding-bottom:9px; border-bottom:1px solid #eee; }

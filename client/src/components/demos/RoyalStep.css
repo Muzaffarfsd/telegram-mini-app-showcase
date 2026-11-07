@@ -226,6 +226,7 @@
 .rs-scrim { position:fixed; inset:0; bottom:var(--rs-viewport-obscured); z-index:10000; background:rgba(20,20,20,.48); display:flex; align-items:flex-end; justify-content:center; animation:rs-fade .18s ease both; }
 @keyframes rs-fade { from { opacity:0; } to { opacity:1; } }
 .rs-sheet { width:min(100%,448px); max-height:min(88svh, calc(var(--tg-viewport-height, 100dvh) - 24px), 760px); display:flex; flex-direction:column; background:#fff; border-radius:20px 20px 0 0; color:#171817; box-shadow:0 -12px 44px #0002; animation:rs-sheet-in .24s cubic-bezier(.22,.8,.25,1) both; }
+.rs-sheet--zoom { max-height:min(88svh, max(0px, calc(var(--tg-viewport-height, 100dvh) - max(env(safe-area-inset-top, 0px), var(--sat, 0px), var(--csat, 0px), 12px) - 72px)), 760px); }
 @keyframes rs-sheet-in { from { transform:translateY(28px); opacity:.7; } to { transform:translateY(0); opacity:1; } }
 .rs-sheet__grab { flex:none; height:25px; display:grid; place-items:center; touch-action:none; }
 .rs-sheet__grab span { width:36px; height:4px; border-radius:4px; background:#c8c7c3; }

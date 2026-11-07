@@ -6,3 +6,6 @@ body:has(.medical-booking) .home-ai-surface{visibility:hidden}
 .med-overline,.med-demo-tag,.med-kicker,.med-count,.med-direction-list button>span,.med-doctor-info p{color:#52716c}.med-hero-lead,.med-hero-action>span,.med-section-intro,.med-direction-list small,.med-doctor-info>div,.med-page-lead,.med-detail-copy p,.med-service-intro p,.med-fine,.med-last>small{color:#526c68!important}.med-search input::placeholder{color:#657c78}.med-nav button{color:#617c76}.med-nav button.active{color:#284e49}.med-philosophy-body p,.med-last p{color:#526b66}
 
 .med-detail-book div>span{color:#526c68}.med-hero-image-label,.med-philosophy-image span,.med-services-feature span,.med-detail-image span{background:rgba(17,39,38,.78);padding:7px 9px;text-shadow:none}.med-hero-image-label{left:0;right:0;bottom:0;padding:12px 16px;background:linear-gradient(transparent,rgba(17,39,38,.88))}
+/* Reserve the fixed header and Telegram overlay even in an expanded safe area. */
+.med-main{padding-top:calc(max(env(safe-area-inset-top,0px),var(--sat,0px),var(--csat,0px),12px) + 72px)}
+#root.medical-scroll-root .med :is(button,input){scroll-margin-top:calc(max(env(safe-area-inset-top,0px),var(--sat,0px),var(--csat,0px),12px) + 88px)}

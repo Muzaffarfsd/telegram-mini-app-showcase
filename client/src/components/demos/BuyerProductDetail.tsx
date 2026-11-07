@@ -23,6 +23,7 @@ export function BuyerProductDetail({ item, favorite, related, onFavorite, onRequ
   const imageButton=useRef<HTMLButtonElement>(null);
   const briefRef=useRef<HTMLDivElement>(null);
   useEffect(()=>{setIndex(0);setEnlarged(false);setSize('');setColor('');setNotes('');},[item.id]);
+  useEffect(()=>{if(!enlarged)return;const onKey=(event:KeyboardEvent)=>{if(event.key==='Escape'){event.preventDefault();setEnlarged(false);imageButton.current?.focus({preventScroll:true});}};window.addEventListener('keydown',onKey);return()=>window.removeEventListener('keydown',onKey);},[enlarged]);
   const alternatives = Array.from(new Set((item.gallery || []).filter(path => typeof path === 'string' && path && path !== item.image))).slice(0,3);
   const hasGallery = alternatives.length === 3;
   const views = hasGallery ? [item.image,...alternatives] : [item.image,item.image,item.image];

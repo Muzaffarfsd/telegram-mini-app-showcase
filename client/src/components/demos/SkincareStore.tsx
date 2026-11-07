@@ -1051,17 +1051,27 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
   useEffect(() => {
     if (selected) { const t = setTimeout(() => detailCloseRef.current?.focus(), 60); return () => clearTimeout(t); }
   }, [selected]);
+  useEffect(() => {
+    if (!selected) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      if (ingredient) setIngredient(null);
+      else setSelected(null);
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [selected, ingredient]);
   const similar = selected ? PRODUCTS.filter((p) => p.id !== selected.id).slice(0, 6) : [];
   const dist = selected ? distFor(selected.rating) : [];
 
   const Detail = selected && (
     <div className={"aura" + (dark ? " dark" : "")}>
       <div className="fixed inset-0 z-[10000] flex justify-center" style={{ background: PAPER }}
-        role="dialog" aria-modal="true" aria-label={selected.name}
-        onKeyDown={(e) => { if (e.key === "Escape") setSelected(null); }}>
+        role="dialog" aria-modal="true" aria-label={selected.name}>
         <div className="w-full flex flex-col" style={{ maxWidth: 448, animation: "auraSheet .34s cubic-bezier(.22,1,.36,1) both" }}>
           <div key={selected.id} className="flex-1 overflow-y-auto scrollbar-hide" style={{ minHeight: 0 }}>
-            <div className="sticky top-0 flex items-center justify-between" style={{ padding: "calc(env(safe-area-inset-top, 0px) + 16px) 20px 12px", background: PAPER, zIndex: 3 }}>
+            <div className="sticky top-0 flex items-center justify-between" style={{ padding: "calc(max(env(safe-area-inset-top, 0px), var(--sat, 0px), var(--csat, 0px), 12px) + 88px) max(20px, env(safe-area-inset-right, 0px)) 12px max(20px, env(safe-area-inset-left, 0px))", background: PAPER, zIndex: 3 }}>
               <button type="button" ref={detailCloseRef} onClick={() => setSelected(null)} aria-label="Закрыть карточку товара"
                 className="flex items-center justify-center active:scale-90 transition-transform"
                 style={{ width: 44, height: 44, borderRadius: 999, background: SOFT }}>

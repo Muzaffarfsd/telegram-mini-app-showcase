@@ -31,6 +31,8 @@
 @media(max-width:340px){.flower-store .f3-heading h1{font-size:37px}.flower-store .f3-editorial-frames figcaption span{font-size:8px}.flower-store .f3-delivery{padding-inline:15px}.flower-store .f3-delivery-grid{gap:12px}}
 .flower-store .f3-gallery-main,.flower-store .f3-editorial-frames figure>button{background:#fff}
 .flower-lightbox{background:#fff;color:#18211a}.flower-lightbox button{background:#f0f2ef;color:#18211a}
+/* Keep the close control below the host safe area and the fixed app header. */
+.flower-lightbox{bottom:max(0px,calc(100dvh - var(--tg-viewport-height,100dvh)));padding-top:calc(max(env(safe-area-inset-top,0px),var(--sat,0px),var(--csat,0px),12px) + 72px);padding-bottom:calc(max(env(safe-area-inset-bottom,0px),var(--sab,0px),var(--csab,0px),12px) + 6px)}
 .flower-store .f3-thumbs button{background:#fff}
 
 /* Flower-specific notes stay with the illustrated composition. */

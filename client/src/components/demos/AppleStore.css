@@ -136,6 +136,9 @@
 .as-bag i { position:absolute; top:-8px; right:-9px; display:grid; place-items:center; min-width:18px; height:18px; padding:0 4px; border-radius:50%; background:#19191e; color:#fff; font-size:10px; font-style:normal; }
 .as-overlay { position:fixed; z-index:3; inset:0 0 var(--as-obscured); display:flex; align-items:flex-end; justify-content:center; background:rgba(0,0,0,.38); }
 .as-sheet { display:flex; flex-direction:column; width:100%; max-width:448px; max-height:min(88svh,calc(var(--tg-viewport-height,100svh) - 20px)); overflow:hidden; border-radius:22px 22px 0 0; background:#fff; color:#17171c; }
+/* The close control remains below Telegram's safe area and the app header. */
+.as-photo-sheet { max-height:min(88svh, max(0px, calc(var(--tg-viewport-height, 100dvh) - max(env(safe-area-inset-top, 0px), var(--sat, 0px), var(--csat, 0px), 12px) - 72px))); }
+.as-photo-sheet .as-sheet-head { flex:none; }
 .as-sheet-handle { display:flex; justify-content:center; padding-top:10px; }
 .as-sheet-handle span { width:36px; height:4px; border-radius:3px; background:#c8c8cb; }
 .as-sheet-head { display:flex; justify-content:space-between; align-items:center; min-height:66px; margin:0 20px; border-bottom:1px solid #eee; }

@@ -905,6 +905,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** All ten demo IDs checked in mobile Chromium and WebKit with delayed original requests; a preview is visible before the image arrives, catalogs/services and first details open without page errors or image 404s. Additional delayed, failed and decode-race checks cover gallery photos and zoom. Prewarming for four representative demos verified before click; all referenced preview manifest files exist. Vite build passed; existing unrelated CSS keyframes warning remains. Type check reports 266 diagnostics, including pre-existing App/FLORA errors. Physical-device speed and first-load network latency are not guaranteed.
 
 ---
+## 2026-11-07 · Keep photo viewer close controls accessible
+
+**What:** Kept photo viewer close controls below the Telegram safe area and fixed header on short screens; made relevant viewers scrollable, corrected Medical back-button positioning and added Escape handling for inline zoom/Aura.
+**Files:** APPLE, FLORA, MURAKA/MIRA, NIKE, Aura, China Buyer, Lumi and Medical demo viewer components/styles. ПАРТИЯ has no separate photo zoom; its product back button was checked.
+**Checkpoint:** `2aae84f`.
+**Verification:** Ten showcase demos checked in mobile Chromium and WebKit, with 320/390 px, short viewports and simulated Telegram safe-area/viewport variables. Close controls checked via elementFromPoint and actual click; Escape/back, repeated opening, photo previews and scrolling checked where available. Vite build passed; existing unrelated CSS keyframes warning remains; assets copied with PowerShell. Native Telegram/device not tested.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -916,6 +924,7 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 
 
