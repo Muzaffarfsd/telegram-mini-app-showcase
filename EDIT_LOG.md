@@ -865,6 +865,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Mobile browser 320/390, CPU throttling, all seven menu destinations, repeated opening and closing, route scroll reset, reduced motion; artificial 2.2-second delayed chunks for home, about and analytics show light skeletons, not a black blank screen. No page errors. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell. Physical-device performance not measured.
 
 ---
+## 2026-11-07 · Reduce route scroll layout work
+
+**What:** Reset shell scroll before rendering the destination and only when needed, reducing forced layout on navigation; demo reset remains unchanged.
+**Files:** client/src/hooks/useRouting.ts.
+**Checkpoint:** `4b17579`.
+**Verification:** Mobile browser 320/390: scrolled showcase to home and back to cached showcase; each starts at top. CPU-throttled dev profile showed less scroll-reset work; physical device not measured. Vite build passed; existing CSS keyframes warning remains; assets copied with PowerShell.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
@@ -876,6 +884,7 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** run_browser_test result (load OK, 0 console errors, 0 page errors, screenshot saved at <path>)
 
 -->
+
 
 
 

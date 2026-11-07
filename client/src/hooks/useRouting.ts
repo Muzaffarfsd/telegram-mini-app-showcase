@@ -65,7 +65,16 @@ export function useRouting() {
 
   useEffect(() => {
     const handleHashChange = () => {
-      setRoute(parseHash());
+      const next = parseHash();
+      // Reset the old shell before React mounts and lays out the destination.
+      // The root is the sole page scroller; avoid scroll writes when already
+      // at the top so navigation doesn't force a layout of the new screen.
+      if (!next.component.includes('demo')) {
+        const root = document.getElementById('root');
+        if (root && root.scrollTop !== 0) root.scrollTop = 0;
+        if (window.scrollX !== 0 || window.scrollY !== 0) window.scrollTo(0, 0);
+      }
+      setRoute(next);
     };
     
     window.addEventListener('hashchange', handleHashChange);
@@ -74,16 +83,11 @@ export function useRouting() {
   }, []);
 
   useLayoutEffect(() => {
-    // The app shell scrolls in #root. Reset it before the next paint without
-    // scanning every descendant twice on ordinary menu navigation. Demos may
-    // have their own scroll containers, so preserve their existing reset.
+    // Demos may have their own scroll containers, so preserve their existing
+    // reset. Ordinary shell navigation was already reset in hashchange.
     if (route.component.includes('demo')) {
       scrollToTop();
-      return;
     }
-    const root = document.getElementById('root');
-    if (root) root.scrollTop = 0;
-    window.scrollTo(0, 0);
   }, [route.component, route.params?.id]);
 
   useEffect(() => {
