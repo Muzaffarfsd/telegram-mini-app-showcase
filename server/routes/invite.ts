@@ -12,7 +12,7 @@ const schema = z.object({
 
 const miniAppUrl = 'https://t.me/w4tg_bot/w4tg';
 // Telegram downloads the JPEG itself. This is a fixed, public application asset.
-const inviteImageUrl = 'https://w4tg.up.railway.app/share/invite.jpg';
+const inviteImageUrl = 'https://w4tg.up.railway.app/share/invite-three-stores-v1.jpg';
 
 interface InviteDependencies {
   findReferralCode: (telegramId: number) => Promise<string | null>;
@@ -65,10 +65,11 @@ export function createInviteRouter(dependencies: InviteDependencies = defaults) 
             id: 'web4tg-invite',
             photo_url: inviteImageUrl,
             thumbnail_url: inviteImageUrl,
+            parse_mode: 'HTML',
             caption: ru
-              ? 'WEB4TG\nПосмотри, как может выглядеть магазин для бизнеса прямо в Telegram.'
-              : 'WEB4TG\nSee what a store for your business could look like in Telegram.',
-            reply_markup: { inline_keyboard: [[{ text: ru ? 'Открыть приложение' : 'Open app', url: deepLink }]] },
+              ? '<b>WEB4TG</b>\n\nПосмотри, как может выглядеть твой магазин в Telegram.'
+              : '<b>WEB4TG</b>\n\nSee what your store could look like in Telegram.',
+            reply_markup: { inline_keyboard: [[{ text: ru ? 'Открыть приложение' : 'Open app', url: deepLink, style: 'primary' }]] },
           },
           allow_user_chats: true,
           allow_group_chats: true,

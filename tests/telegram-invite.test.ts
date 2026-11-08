@@ -62,10 +62,12 @@ test('a verified user gets a prepared picture with a real Mini App button', asyn
   const { body } = calls[0];
   assert.equal(body.user_id, 123);
   assert.equal(body.result.type, 'photo');
-  assert.equal(body.result.photo_url, 'https://w4tg.up.railway.app/share/invite.jpg');
+  assert.equal(body.result.photo_url, 'https://w4tg.up.railway.app/share/invite-three-stores-v1.jpg');
   assert.equal(body.result.thumbnail_url, body.result.photo_url);
+  assert.equal(body.result.parse_mode, 'HTML');
+  assert.match(body.result.caption, /^<b>WEB4TG<\/b>\n\n/);
   assert.match(body.result.caption, /магазин.*Telegram/);
-  assert.deepEqual(body.result.reply_markup.inline_keyboard, [[{ text: 'Открыть приложение', url: 'https://t.me/w4tg_bot/w4tg' }]]);
+  assert.deepEqual(body.result.reply_markup.inline_keyboard, [[{ text: 'Открыть приложение', url: 'https://t.me/w4tg_bot/w4tg', style: 'primary' }]]);
   assert.equal(body.allow_user_chats, true);
   assert.equal(body.allow_group_chats, true);
 });
@@ -80,7 +82,9 @@ test('referral is resolved for the authenticated user, not from the request', as
   const data = await response.json() as any;
   assert.equal(data.deepLink, 'https://t.me/w4tg_bot/w4tg?startapp=REF123');
   assert.equal(calls[0].body.user_id, 321);
-  assert.deepEqual(calls[0].body.result.reply_markup.inline_keyboard, [[{ text: 'Open app', url: data.deepLink }]]);
+  assert.equal(calls[0].body.result.parse_mode, 'HTML');
+  assert.match(calls[0].body.result.caption, /^<b>WEB4TG<\/b>\n\n/);
+  assert.deepEqual(calls[0].body.result.reply_markup.inline_keyboard, [[{ text: 'Open app', url: data.deepLink, style: 'primary' }]]);
 });
 
 test('missing or unusable referral codes yield a general invitation, and database errors fail closed', async () => {
