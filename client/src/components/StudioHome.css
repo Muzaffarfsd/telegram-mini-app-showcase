@@ -14,49 +14,7 @@ html.lang-ru .studio-editorial h1, html.lang-en .studio-editorial h1, .studio-ed
 .studio-intro-actions { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:12px; }
 .studio-intro-actions button { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:46px; padding:0; border:0; background:transparent; color:#202020; font-size:12px; font-weight:700; white-space:nowrap; }
 .studio-intro-actions button:last-child { padding:0 17px; border-radius:999px; background:#1b1b1b; color:#fff; }
-.home-story, .home-value, .home-process, .home-faq { margin-top:88px; }
-.home-section-label { padding-bottom:12px; border-bottom:1px solid #dedfe1; }
-.home-story h2, .home-value h2, .home-process h2, .home-faq h2 { margin:21px 0 0; font-size:clamp(22px,6.9vw,36px); line-height:1.08; font-weight:800; letter-spacing:-.055em; white-space:nowrap; }
-.home-section-intro { margin:13px 0 0; max-width:440px; color:#62666c; font-size:15px; line-height:1.55; }
-.home-journey { display:grid; gap:8px; margin-top:24px; }
-.home-journey article { display:grid; grid-template-columns:42px 1fr; gap:10px; align-items:start; min-height:108px; padding:20px; border-radius:19px; background:#f5f6f7; }
-.home-journey article:nth-child(2) { background:#f0f3f6; }
-.home-journey article:nth-child(3) { background:#e8f1f8; }
-.home-journey__number { color:#89919a; font-size:11px; font-weight:700; padding-top:4px; }
-.home-journey h3, .home-process h3 { margin:0; font-size:17px; line-height:1.2; letter-spacing:-.025em; }
-.home-journey p, .home-process p { margin:7px 0 0; color:#686d73; font-size:13px; line-height:1.48; }
-.home-journey svg { color:#83909b; }
-.home-caption { margin:13px 2px 0; color:#878b90; font-size:11px; line-height:1.4; }
-.home-value__panel { position:relative; overflow:hidden; margin-top:25px; padding:22px; min-height:235px; border-radius:22px; color:#fff; background:#202a33; }
-.home-value__panel::after { content:''; position:absolute; width:220px; height:220px; right:-54px; top:-72px; border:1px solid rgba(255,255,255,.12); border-radius:50%; box-shadow:0 0 0 32px rgba(255,255,255,.035),0 0 0 64px rgba(255,255,255,.025); pointer-events:none; }
-.home-value__kicker { position:relative; z-index:1; font-size:10px; font-weight:700; letter-spacing:.08em; color:#b9c8d3; }
-.home-value__symbol { position:absolute; right:25px; top:20px; color:#a8d8fb; font-size:52px; font-weight:300; line-height:1; }
-.home-value__panel p { position:relative; z-index:1; margin:64px 0 22px; font-size:clamp(16px,5vw,21px); font-weight:650; line-height:1.2; letter-spacing:-.035em; white-space:nowrap; }
-.home-value__tags { position:relative; z-index:1; display:flex; flex-wrap:wrap; gap:6px; }
-.home-value__tags span { padding:7px 10px; border:1px solid rgba(255,255,255,.22); border-radius:999px; color:#e2e9ee; font-size:11px; }
-.home-benefits { margin-top:16px; }
-.home-benefits div { display:flex; align-items:flex-start; gap:11px; padding:13px 0; border-bottom:1px solid #eceef0; }
-.home-benefits svg { flex:none; margin-top:1px; color:#4488b5; }
-.home-benefits p { margin:0; color:#41464a; font-size:13px; line-height:1.45; }
-.home-process__list { margin-top:25px; border-top:1px solid #e4e5e7; }
-.home-process__list article { display:grid; grid-template-columns:48px 1fr; gap:10px; padding:21px 0; border-bottom:1px solid #e4e5e7; }
-.home-process__list article > span { color:#9a9ea2; font-size:11px; font-weight:700; padding-top:3px; }
-.home-faq__list { margin-top:23px; border-top:1px solid #e4e5e7; }
-.home-faq details { border-bottom:1px solid #e4e5e7; }
-.home-faq summary { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:61px; font-size:14px; font-weight:700; cursor:pointer; list-style:none; }
-.home-faq summary::-webkit-details-marker { display:none; }
-.home-faq summary svg { flex:none; transition:transform .2s ease; }
-.home-faq details[open] summary svg { transform:rotate(180deg); }
-.home-faq details p { max-width:440px; margin:0; padding:0 25px 20px 0; color:#686d73; font-size:13px; line-height:1.55; }
-.home-final { margin-top:90px; padding:26px 22px 22px; border-radius:22px; background:#eaf3f9; }
-.home-final > span { color:#6b8292; font-size:10px; font-weight:700; letter-spacing:.08em; }
-.home-final h2 { margin:38px 0 0; font-size:clamp(25px,7.3vw,38px); line-height:1; font-weight:800; letter-spacing:-.055em; white-space:nowrap; }
-.home-final p { max-width:380px; margin:13px 0 0; color:#596c79; font-size:14px; line-height:1.5; }
-.home-final button { display:flex; justify-content:space-between; align-items:center; width:100%; min-height:55px; margin-top:24px; padding:0 18px; border:0; border-radius:14px; background:#1b1b1b; color:#fff; font-size:13px; font-weight:700; }
-.home-final a { display:inline-flex; align-items:center; gap:7px; margin-top:19px; color:#344f61; font-size:12px; font-weight:700; text-decoration:none; }
-.studio-footer { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px; padding:35px 0 0; color:#85898d; font-size:9px; font-weight:700; letter-spacing:.08em; }
-.studio-footer strong { color:#1b1b1b; font-size:13px; letter-spacing:-.04em; }
-@media(max-width:350px) { .studio-home__inner { padding-left:16px; padding-right:16px; } .studio-intro-actions button { font-size:11px; } .home-story h2, .home-value h2, .home-process h2, .home-faq h2 { font-size:21px; } .home-journey article { padding:17px; } .home-final h2 { font-size:24px; } }
+@media(max-width:350px) { .studio-home__inner { padding-left:16px; padding-right:16px; } .studio-intro-actions button { font-size:11px; } }
 @media(prefers-reduced-motion:reduce) { .studio-home *, .studio-home *::before, .studio-home *::after { animation:none !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
 nav.home-nav[role="navigation"] { background:rgba(255,255,255,.48) !important; border:1px solid rgba(255,255,255,.78); box-shadow:0 5px 18px rgba(25,25,30,.13),inset 0 1px 0 rgba(255,255,255,.7) !important; }
 .home-nav > div:first-child { background:transparent !important; backdrop-filter:blur(24px) saturate(1.1) !important; -webkit-backdrop-filter:blur(24px) saturate(1.1) !important; }

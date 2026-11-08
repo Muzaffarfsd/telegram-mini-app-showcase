@@ -1162,6 +1162,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Visual comparison against the actual white eustoma product and mobile page captures at 320/390px in Chromium/WebKit; image loading, swipe and demo navigation checked. Vite production build. Screenshots under `work/flower-eustoma-*`; artwork is a generated interpretation and awaits user evaluation.
 
 ---
+## 2026-11-08 · Rebuild the main page below the app demos
+
+**What:** Replaced all lower homepage sections with an interactive real-screen customer journey, business capabilities, a four-step process, practical FAQ and project actions. Added three optimized screenshots captured from the live demo; no real orders were sent. The top demo and controls are unchanged.
+**Why:** User explicitly requested a full analysis and redesign of everything after the existing application demonstrations on the main page.
+**Files:** `StudioHome.tsx`, `StudioHome.css`, `HomeStory.tsx`, `HomeStory.css`, `client/public/home-story/`, `home-lower-redesign-notes.md`, `CODEBASE_INDEX.md`.
+**Checkpoint:** previous local commit `d417ed1`; unrelated working-tree edits preserved.
+**Verification:** Vite build; top screenshot comparison and mobile Chromium/WebKit at 320/390/430px in RU/EN; three real-screen states, FAQ, project actions, reduced-motion and accessibility. Images and reports in workspace `work/home-lower-new-*`. No real orders/messages sent. New design awaits user evaluation.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
