@@ -3,10 +3,8 @@ button.demo-home-button.demo-home-button.demo-home-button {
   z-index: 30;
   display: flex;
   flex: 0 0 44px;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
   width: 44px;
   min-width: 44px;
   height: 44px;
@@ -18,17 +16,33 @@ button.demo-home-button.demo-home-button.demo-home-button {
   cursor: pointer;
 }
 
-button.demo-home-button.demo-home-button.demo-home-button > span {
-  display: block;
+button.demo-home-button.demo-home-button.demo-home-button > .demo-home-button__mark {
+  display: flex;
   position: static;
-  width: auto;
-  height: auto;
+  flex: 0 0 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  width: 34px;
+  height: 34px;
   max-width: none;
   opacity: 1;
   overflow: visible;
-  white-space: nowrap;
-  font: 700 7px/1 sans-serif;
-  letter-spacing: -0.02em;
+  border-radius: 50%;
+  background: rgba(127, 127, 127, 0.12);
+}
+
+button.demo-home-button.demo-home-button.demo-home-button > .demo-home-button__mark svg {
+  display: block;
+  flex: none;
+  width: 20px;
+  height: 11px;
+}
+
+button.demo-home-button.demo-home-button.demo-home-button > .demo-home-button__mark svg.demo-home-button__arrow {
+  width: 9px;
+  height: 9px;
+  stroke-width: 2;
 }
 
 .demo-home-button:focus-visible {

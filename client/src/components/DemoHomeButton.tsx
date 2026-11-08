@@ -1,6 +1,7 @@
-import { LogOut } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { navigate } from '../hooks/useRouting';
+import { BrandMark } from './BrandMark';
 import './DemoHomeButton.css';
 
 /** Returns to the WEB4TG showcase, not the current demo's home screen. */
@@ -18,8 +19,10 @@ export function DemoHomeButton({ color }: { color?: string }) {
       onClick={() => navigate('/')}
       style={color ? { color } : undefined}
     >
-      <LogOut size={19} strokeWidth={1.8} aria-hidden="true" />
-      <span aria-hidden="true">WEB4TG</span>
+      <span className="demo-home-button__mark" data-testid="demo-return-brand" aria-hidden="true">
+        <ArrowLeft className="demo-home-button__arrow" size={9} strokeWidth={2} />
+        <BrandMark compact />
+      </span>
     </button>
   );
 }

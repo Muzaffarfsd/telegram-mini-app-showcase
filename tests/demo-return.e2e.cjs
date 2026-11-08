@@ -64,8 +64,8 @@ async function test() {
     assert.ok(geometry.width > 0 && geometry.height > 0 && geometry.x >= 0 && geometry.y >= 0 && geometry.right <= geometry.viewportWidth && geometry.bottom <= geometry.viewportHeight, `${label}: button is fully on screen: ${JSON.stringify(geometry)}`);
     assert.ok(geometry.width >= 44 && geometry.height >= 44, `${label}: return target must be at least 44x44 px`);
     assert.ok(await button.getAttribute('aria-label'), `${label}: icon has an accessible label`);
-    const caption = button.getByText('WEB4TG', { exact: true });
-    assert.equal(await caption.isVisible(), true, `${label}: WEB4TG caption is visible`);
+    const brand = button.getByTestId('demo-return-brand');
+    assert.equal(await brand.isVisible(), true, `${label}: WEB4TG brand mark is visible`);
     return button;
   }
 
