@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { Check, ChevronDown, ChevronRight, Info, Plus } from 'lucide-react';
 import { appTemplatesBase, availableFeaturesBase, categoryKeys } from './orderCatalog';
-import basicArt from '../assets/order/reference-feature-basic-v2.webp';
-import paymentsArt from '../assets/order/reference-feature-payments-v2.webp';
-import deliveryArt from '../assets/order/reference-feature-delivery-v2.webp';
-import communicationsArt from '../assets/order/reference-feature-communications-v2.webp';
-import marketingArt from '../assets/order/reference-feature-marketing-v2.webp';
-import managementArt from '../assets/order/reference-feature-management-v2.webp';
-import bookingArt from '../assets/order/reference-feature-booking-v2.webp';
-import aiArt from '../assets/order/reference-feature-ai-v2.webp';
-import integrationsArt from '../assets/order/reference-feature-integrations-v2.webp';
+import basicArt from '../assets/order/glass-20261108-basic.webp';
+import paymentsArt from '../assets/order/glass-20261108-payments.webp';
+import deliveryArt from '../assets/order/glass-20261108-delivery.webp';
+import communicationsArt from '../assets/order/glass-20261108-communications.webp';
+import marketingArt from '../assets/order/glass-20261108-marketing.webp';
+import managementArt from '../assets/order/glass-20261108-management.webp';
+import bookingArt from '../assets/order/glass-20261108-booking.webp';
+import aiArt from '../assets/order/glass-20261108-ai.webp';
+import integrationsArt from '../assets/order/glass-20261108-integrations.webp';
 import './OrderFeaturesStep.css';
 
 type Feature = typeof availableFeaturesBase[number];

@@ -1001,6 +1001,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** 39 security unit/regression tests and isolated backend integration passed; strict server/shared type checking passed. The change is server configuration only. The initial security release `9aeec9a` was separately confirmed on Railway with all 26 production routes passing and GitHub Security checks successful. Read-only account audit found `main` unprotected; the available token cannot change repository administration settings. Actual Railway admin variable, runtime and webhook provisioning remain uninspected because no authenticated Railway configuration access is available.
 
 ---
+## 2026-11-08 · Regenerate all order illustrations from the supplied glass reference
+
+**What:** Generated and integrated 14 transparent cobalt/indigo glass and orange illustrations: four business directions, nine feature categories and ongoing support. The actual supplied JPG was attached to every built-in image generation call. Updated both active image import maps and fixed category artwork centering so global reduced-motion styles cannot clip the images.
+**Why:** User asked to regenerate every order-page illustration with the same style and design as the new supplied icon sheet, using the image itself as generator input.
+**Files:** `OrderExperience.tsx`, `OrderFeaturesStep.tsx`, `OrderFeaturesStep.css`, `client/src/assets/order/glass-20261108-*.webp`, `order-glass-icons-design-notes.md`, `CODEBASE_INDEX.md`.
+**Checkpoint:** `checkpoint/order-glass-icons-20261108` at `0fd475f`.
+**Verification:** Vite production build passed. All 14 WebPs are 800×800 with alpha (698,112 bytes total). Independent mobile captures passed at 320/390/430 px and with unrestricted motion at 390 px; all nine category image boxes fit inside their summaries. Existing order-flow regression passed at 320/390/430 px and with blocked storage. No page errors or horizontal overflow observed; no real orders/messages submitted. Before/after screenshots, three difference images and a light-background contact sheet saved under workspace `work/order-glass-icons/`. Exact prompts and rationale recorded in the design notes; artwork awaits the user's evaluation.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description

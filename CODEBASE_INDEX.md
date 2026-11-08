@@ -67,7 +67,10 @@ XPNotificationContext.tsx      - XP gain toaster
 ```
 ShowcasePage.tsx               - HOME (/) — main showcase of all demo mini-apps
 ProjectsPage.tsx               - /projects — case studies / portfolio
-ConstructorPage.tsx            - /constructor — interactive app builder/order form (73KB, very large)
+OrderExperience.tsx            - active /constructor — three-step order flow, direction/review/detail illustrations
+OrderFeaturesStep.tsx          - feature selection and nine illustrated category cards
+OrderFeaturesStep.css          - category layout, transform-independent illustration centering
+ConstructorPage.tsx            - legacy order builder, not the active /constructor page
 ProfilePage.tsx                - /profile — user profile, settings, stats (55KB)
 AIProcessPage.tsx              - /ai-process — AI agent workflow explainer
 AIAgentPage.tsx                - /ai-agent — AI assistant chat
@@ -385,6 +388,7 @@ This file is updated when files are added/removed. **EDIT_LOG.md** tracks per-ch
 ## Security verification
 
 - `SECURITY.md` / `SECURITY-ASSESSMENT-2026-11-07.md` — architecture, new-demo requirements, verification and remaining provider configuration.
+- `client/src/assets/order/glass-20261108-*.webp` — 14 transparent reference-generated illustrations used by the active order page; prompts and rationale in `order-glass-icons-design-notes.md`.
 - `client/src/lib/apiUrl.ts` — same-origin API credential boundary used by shared request helpers.
 - `client/public/sw.js` — public-asset caching only; no private API persistence or mutation replay.
 - `scripts/check-secrets.mjs` — tracked-file credential checks, locations only in output.
