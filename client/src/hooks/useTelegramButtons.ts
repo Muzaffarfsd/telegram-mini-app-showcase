@@ -2,6 +2,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import { useTelegram } from './useTelegram';
 import { useLanguage } from '../contexts/LanguageContext';
 import { profilePost } from '../lib/profileRequest';
+import { navigate as navigateRoute } from './useRouting';
 
 interface ButtonConfig {
   mainButton?: {
@@ -36,7 +37,7 @@ export function useTelegramButtons(
   const shareListenersRef = useRef<(() => void) | null>(null);
 
   const navigate = useCallback((path: string) => {
-    window.location.hash = path;
+    navigateRoute(path);
   }, []);
 
   const handleOrderProject = useCallback(() => {

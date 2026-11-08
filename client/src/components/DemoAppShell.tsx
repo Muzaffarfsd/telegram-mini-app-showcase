@@ -374,7 +374,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
           {/* Solid bottom backing — keeps the floating nav on the app background colour
               so content never shows through dark behind it */}
           <div
-            className="fixed left-0 right-0 z-[9990] pointer-events-none"
+            className="demo-bottom-backing fixed left-0 right-0 z-[9990] pointer-events-none"
             style={{ bottom: 0, height: 'calc(106px + env(safe-area-inset-bottom, 0px))', background: theme.background }}
           />
 

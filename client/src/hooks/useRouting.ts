@@ -1,7 +1,7 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
 import { scrollToTop } from './useScrollToTop';
 import { trackPageView } from '../utils/vitals';
-import { applyHomeTelegramChrome } from '../lib/telegramChrome';
+import { applyLightDestinationTelegramChrome, isLightDestinationHash } from '../lib/telegramChrome';
 
 export interface Route {
   path: string;
@@ -53,7 +53,8 @@ function parseHash(): Route {
 
 export function navigate(path: string): void {
   window.location.hash = path;
-  applyHomeTelegramChrome();
+  document.documentElement.classList.toggle('light-route-transition', isLightDestinationHash());
+  applyLightDestinationTelegramChrome();
 }
 
 export function useRouting() {
@@ -68,7 +69,8 @@ export function useRouting() {
   useEffect(() => {
     const handleHashChange = () => {
       const next = parseHash();
-      applyHomeTelegramChrome();
+      document.documentElement.classList.toggle('light-route-transition', isLightDestinationHash());
+      applyLightDestinationTelegramChrome();
       // Reset the old shell before React mounts and lays out the destination.
       // The root is the sole page scroller; avoid scroll writes when already
       // at the top so navigation doesn't force a layout of the new screen.

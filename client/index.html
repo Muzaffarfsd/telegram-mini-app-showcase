@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <style>html.profile-detail-theme,html.profile-detail-theme body{background:#fff!important}</style>
   <style>html.studio-home-theme,html.studio-home-theme body{background:#fff!important}</style>
+  <style>html.light-route-transition,html.light-route-transition body,html.light-route-transition #root{background:#fff!important}</style>
   <style>html.projects-route-theme,html.projects-route-theme body{background:#fff!important}</style>
   <style>html.demo-boot-theme,html.demo-boot-theme body,html.demo-loading-theme,html.demo-loading-theme body{background:#fff!important}</style>
   <script>
     var __initialPath = (location.hash.slice(1) || '/').split('?')[0];
+    if (__initialPath === '/' || __initialPath === '/constructor') document.documentElement.classList.add('light-route-transition');
     var __nonHomePaths = ['/projects','/about','/constructor','/profile','/help','/review','/checkout','/ai-agent','/ai-process','/photo-gallery','/referral','/rewards','/earning','/notifications','/analytics','/premium-apps'];
     if (__nonHomePaths.indexOf(__initialPath) === -1 && !/^\/demos\/[^/]+(?:\/app)?$/.test(__initialPath)) {
       document.documentElement.classList.add('studio-home-theme');
@@ -335,7 +337,7 @@
         }
       }catch(e){}
       try{
-        var __bootColor = (__htmlEl.classList.contains('studio-home-theme') || __htmlEl.classList.contains('demo-boot-theme')) ? '#ffffff' : '#000000';
+        var __bootColor = (__htmlEl.classList.contains('light-route-transition') || __htmlEl.classList.contains('studio-home-theme') || __htmlEl.classList.contains('demo-boot-theme')) ? '#ffffff' : '#000000';
         if(typeof tg.setBottomBarColor==='function') tg.setBottomBarColor(__bootColor);
         if(typeof tg.setBackgroundColor==='function') tg.setBackgroundColor(__bootColor);
         if(typeof tg.setHeaderColor==='function') tg.setHeaderColor(__bootColor);

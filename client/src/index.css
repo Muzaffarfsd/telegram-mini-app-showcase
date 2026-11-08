@@ -334,7 +334,11 @@ body {
 }
 
 /* Home shell styles must be ready before the lazy home page loads. */
-html.studio-home-theme #root { background-color: #fff !important; }
+html.studio-home-theme #root,
+html.light-route-transition,
+html.light-route-transition body,
+html.light-route-transition #root { background-color: #fff !important; }
+html.light-route-transition .demo-bottom-backing { background-color: #fff !important; }
 nav.home-nav[role="navigation"] { background:rgba(255,255,255,.48) !important; border:1px solid rgba(255,255,255,.78); box-shadow:0 5px 18px rgba(25,25,30,.13),inset 0 1px 0 rgba(255,255,255,.7) !important; }
 .home-nav > div:first-child { background:transparent !important; backdrop-filter:blur(24px) saturate(1.1) !important; -webkit-backdrop-filter:blur(24px) saturate(1.1) !important; }
 .home-nav button svg { color:#74757b !important; }

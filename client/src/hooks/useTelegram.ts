@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { ensureTelegramPolyfill } from '../lib/telegram';
+import { repairLightBottomBar } from '../lib/telegramChrome';
 
 // Telegram WebApp SDK types (complete as per official documentation + 2025 features)
 interface SafeAreaInset {
@@ -31,6 +32,8 @@ interface TelegramButton {
 
 interface TelegramWebApp {
   version?: string;
+  bottomBarColor?: string;
+  setBottomBarColor?: (color: string) => void;
   ready: () => void;
   expand: () => void;
   close: () => void;
@@ -305,6 +308,7 @@ export function useTelegram() {
         }
         // Update viewport height variables on viewport change
         applyViewportVariables(tg);
+        repairLightBottomBar(tg);
         console.log('[2025 API] Viewport Changed');
       };
       
