@@ -1081,6 +1081,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite build and mobile Chromium/WebKit tests at 320/390/430px, six tabs and both views load; independent touch and navigation review. Visual review of source/output and actual mobile views; generated UI details may vary from the real screens. API requests mocked. Screenshot captures under workspace `work/home-more-*`.
 
 ---
+## 2026-11-08 · Refine home typography and demo selectors
+
+**What:** Matched the first heading's weight, scale and spacing to the actual MIRA app; shortened it to preserve a single line, changed the studio voice to “we”, and rebuilt the six-example and screen selectors as numbered, tactile segmented controls.
+**Why:** User requested women's-store typography, “мы создаём”, and a more considered selector design.
+**Files:** `StudioHome.tsx`, `StudioHome.css`, `HomeDemo.tsx`, `HomeDemo.css`, `home-redesign-design-notes.md`.
+**Checkpoint:** previous local commit `cb69caa`; pre-existing unrelated working-tree edits preserved.
+**Verification:** Vite production build; Chromium/WebKit at 320/390/430px, six selectors, home and detail images and demo routes. Independent visual, locale and touch checks. Mobile captures under workspace `work/home-more-*`. No real orders/messages sent.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description

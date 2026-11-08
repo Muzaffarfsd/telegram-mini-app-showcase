@@ -29,9 +29,9 @@ export default function StudioHome({ onNavigate, onOpenDemo }: Props) {
     ['Создадим и запустим', 'Спроектируем интерфейс, разработаем приложение и проверим основные сценарии.'],
     ['Останемся на связи', 'После запуска обсудим сопровождение и дальнейшее развитие.'],
   ] : [
-    ['Discuss your needs', 'Tell me about your business, customers and what the app should do.'],
+    ['Discuss your needs', 'Tell us about your business, customers and what the app should do.'],
     ['Define the solution', 'We agree on the features, cost and timeline for your project.'],
-    ['Build and launch', 'I design, develop and check the essential customer journeys.'],
+    ['Build and launch', 'We design, develop and check the essential customer journeys.'],
     ['Stay in touch', 'After launch, we can discuss support and future improvements.'],
   ];
   const faqs = ru ? [
@@ -40,16 +40,16 @@ export default function StudioHome({ onNavigate, onOpenDemo }: Props) {
     ['Что происходит после запуска?', 'Можно отдельно согласовать сопровождение, обновления и дальнейшее развитие приложения.'],
   ] : [
     ['How much does development cost?', 'The cost depends on the features, integrations and complexity. We start by discussing your needs and scope.'],
-    ['What do I need to get started?', 'Tell me about your business and what you want to offer customers. We can work through the details together.'],
+    ['What do I need to get started?', 'Tell us about your business and what you want to offer customers. We can work through the details together.'],
     ['What happens after launch?', 'Ongoing support, updates and further development can be agreed separately.'],
   ];
 
   return <main className="studio-home" data-testid="home-page">
     <div className="studio-home__inner">
       <section className="studio-editorial" aria-labelledby="studio-home-title">
-        <div className="studio-eyebrow"><span>WEB4TG / STUDIO</span><span>TELEGRAM APPS</span></div>
-        <h1 id="studio-home-title">{ru ? 'ВАШ БИЗНЕС В TELEGRAM' : 'YOUR BUSINESS IN TELEGRAM'}</h1>
-        <p className="studio-intro-copy">{ru ? 'Создаю приложения, в которых удобно выбирать и заказывать.' : 'I create apps that make choosing and ordering easy.'}</p>
+        <div className="studio-eyebrow"><span>WEB4TG / STUDIO</span><span>{ru ? 'ПРИЛОЖЕНИЯ В TELEGRAM' : 'TELEGRAM APPS'}</span></div>
+        <h1 id="studio-home-title">{ru ? 'ВАШ БИЗНЕС' : 'YOUR BUSINESS'}</h1>
+        <p className="studio-intro-copy">{ru ? 'Мы создаём приложения в Telegram, где удобно выбирать и заказывать.' : 'We create Telegram apps that make choosing and ordering easy.'}</p>
         <HomeDemo ru={ru} onOpenDemo={openDemo}/>
         <div className="studio-intro-actions"><button type="button" onClick={() => go('projects')}>{ru ? 'Все примеры' : 'All examples'} <ArrowUpRight size={17} aria-hidden="true"/></button><button type="button" onClick={() => go('constructor')} data-testid="home-start-order">{ru ? 'Обсудить проект' : 'Discuss your project'} <ArrowUpRight size={17} aria-hidden="true"/></button></div>
       </section>
@@ -83,7 +83,7 @@ export default function StudioHome({ onNavigate, onOpenDemo }: Props) {
         <div className="home-faq__list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<ChevronDown size={19} aria-hidden="true"/></summary><p>{answer}</p></details>)}</div>
       </section>
 
-      <section className="home-final" aria-labelledby="final-title"><span>{ru ? 'ВАША ИДЕЯ / СЛЕДУЮЩИЙ ШАГ' : 'YOUR IDEA / NEXT STEP'}</span><h2 id="final-title">{ru ? 'ДАВАЙТЕ ОБСУДИМ' : 'LET’S TALK'}</h2><p>{ru ? 'Расскажите о своём бизнесе. Вместе определим, каким может быть ваше приложение.' : 'Tell me about your business. Together we can explore what your app could be.'}</p><button type="button" onClick={() => go('constructor')}>{ru ? 'Обсудить проект' : 'Discuss your project'} <ArrowRight size={19}/></button><a href="https://t.me/web4tgs" target="_blank" rel="noopener noreferrer">{ru ? 'Или написать в Telegram' : 'Or message me on Telegram'} <ArrowUpRight size={16}/></a></section>
+      <section className="home-final" aria-labelledby="final-title"><span>{ru ? 'ВАША ИДЕЯ / СЛЕДУЮЩИЙ ШАГ' : 'YOUR IDEA / NEXT STEP'}</span><h2 id="final-title">{ru ? 'ДАВАЙТЕ ОБСУДИМ' : 'LET’S TALK'}</h2><p>{ru ? 'Расскажите о своём бизнесе. Вместе определим, каким может быть ваше приложение.' : 'Tell us about your business. Together we can explore what your app could be.'}</p><button type="button" onClick={() => go('constructor')}>{ru ? 'Обсудить проект' : 'Discuss your project'} <ArrowRight size={19}/></button><a href="https://t.me/web4tgs" target="_blank" rel="noopener noreferrer">{ru ? 'Или написать в Telegram' : 'Or message us on Telegram'} <ArrowUpRight size={16}/></a></section>
       <footer className="studio-footer"><strong>WEB4TG</strong><span>{ru ? 'ПРИЛОЖЕНИЯ В TELEGRAM' : 'APPS IN TELEGRAM'}</span><span>© WEB4TG</span></footer>
     </div>
   </main>;
