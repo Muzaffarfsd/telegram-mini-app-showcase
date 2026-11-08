@@ -9,7 +9,7 @@ export default function HomeStory({ ru, onNavigate, onOpenDemo }: Props) {
   const [step, setStep] = useState(0);
   const haptic = useHaptic();
   useEffect(() => {
-    const warm = () => ['/home-story/product.webp', '/home-story/cart.webp'].forEach(src => { const image = new Image(); image.src = src; });
+    const warm = () => ['/home-story/journey-product-v2.webp', '/home-story/journey-cart-v2.webp'].forEach(src => { const image = new Image(); image.src = src; });
     if ('requestIdleCallback' in window) {
       const id = window.requestIdleCallback(warm, { timeout: 3000 });
       return () => window.cancelIdleCallback(id);
@@ -18,13 +18,13 @@ export default function HomeStory({ ru, onNavigate, onOpenDemo }: Props) {
     return () => window.clearTimeout(id);
   }, []);
   const path = ru ? [
-    { tab: 'Каталог', title: 'Сначала — выбор.', text: 'Покупатель открывает ассортимент, ищет нужное и сравнивает варианты.', image: '/home-story/catalog.webp', alt: 'Экран каталога демонстрационного магазина' },
-    { tab: 'Товар', title: 'Затем — детали.', text: 'Фотографии, описание и размеры помогают определиться с покупкой.', image: '/home-story/product.webp', alt: 'Карточка товара в демонстрационном магазине' },
-    { tab: 'Корзина', title: 'И наконец — заказ.', text: 'Выбранные товары собираются в корзину для оформления заказа.', image: '/home-story/cart.webp', alt: 'Корзина демонстрационного магазина' },
+    { tab: 'Каталог', title: 'Сначала — выбор.', text: 'Покупатель открывает ассортимент, ищет нужное и сравнивает варианты.', image: '/home-story/journey-catalog-v2.webp', alt: 'Композиция с каталогом товаров демонстрационного магазина' },
+    { tab: 'Товар', title: 'Затем — детали.', text: 'Фотографии, описание и размеры помогают определиться с покупкой.', image: '/home-story/journey-product-v2.webp', alt: 'Композиция с карточкой товара демонстрационного магазина' },
+    { tab: 'Корзина', title: 'И наконец — заказ.', text: 'Выбранные товары собираются в корзину для оформления заказа.', image: '/home-story/journey-cart-v2.webp', alt: 'Композиция с корзиной демонстрационного магазина' },
   ] : [
-    { tab: 'Catalog', title: 'First, discover.', text: 'Customers browse the collection, search and compare options.', image: '/home-story/catalog.webp', alt: 'Catalog screen from a demonstration store' },
-    { tab: 'Product', title: 'Then, the details.', text: 'Photos, descriptions and sizes help customers choose.', image: '/home-story/product.webp', alt: 'Product screen from a demonstration store' },
-    { tab: 'Cart', title: 'Finally, order.', text: 'Selected items come together in a cart, ready for checkout.', image: '/home-story/cart.webp', alt: 'Cart screen from a demonstration store' },
+    { tab: 'Catalog', title: 'First, discover.', text: 'Customers browse the collection, search and compare options.', image: '/home-story/journey-catalog-v2.webp', alt: 'Composition featuring a demonstration store catalog' },
+    { tab: 'Product', title: 'Then, the details.', text: 'Photos, descriptions and sizes help customers choose.', image: '/home-story/journey-product-v2.webp', alt: 'Composition featuring a demonstration product page' },
+    { tab: 'Cart', title: 'Finally, order.', text: 'Selected items come together in a cart, ready for checkout.', image: '/home-story/journey-cart-v2.webp', alt: 'Composition featuring a demonstration shopping cart' },
   ];
   const stages = ru ? [
     { title: 'Знакомимся', text: 'Обсуждаем бизнес, клиентов и задачу, которую должно решить приложение.' },
@@ -64,9 +64,7 @@ export default function HomeStory({ ru, onNavigate, onOpenDemo }: Props) {
           {path.map((item, index) => <button type="button" key={item.tab} aria-pressed={index === step} onClick={() => changeStep(index)}>{item.tab}</button>)}
         </div>
         <div className="hs-demo__stage">
-          <img className="hs-demo__object" src="/muraka-fashion/transparent-v2/jacket-patchwork-product.webp" alt="" loading="lazy" decoding="async"/>
-          <div className={`hs-demo__screen hs-demo__screen--${step}`}><img key={selected.image} src={selected.image} alt={selected.alt} decoding="async"/></div>
-          <span className="hs-demo__screen-note">{ru ? 'ЭКРАН ИЗ ДЕМО' : 'DEMO SCREEN'}</span>
+          <img className="hs-demo__art" key={selected.image} src={selected.image} alt={selected.alt} decoding="async"/>
         </div>
         <div className="hs-demo__copy" aria-live="polite"><div><h3>{selected.title}</h3><p>{selected.text}</p></div><span>0{step + 1}</span></div>
       </div>

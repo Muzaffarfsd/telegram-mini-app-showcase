@@ -4,6 +4,12 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-08 — Home: customer journey compositions and introductory type
+
+- Reduced the introductory paragraph weight to distinguish it from the main heading while keeping its size and wording.
+- Replaced the static jacket and cropped screen in the customer journey with three distinct generated compositions, each based on the corresponding real demo screen; the catalog source is scrolled to the product grid. Tab changes now switch the entire artwork.
+- Preserved the rest of the homepage; see `home-lower-redesign-notes.md` for image sources and generation limitations.
+
 
 ## 2026-05-25 — ShowcasePage v3: Apple-grade rebuild + elite AI media
 
