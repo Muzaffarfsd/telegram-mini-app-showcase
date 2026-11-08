@@ -1,4 +1,5 @@
 import { DemoHomeButton } from '../DemoHomeButton';
+import { restoreTelegramChrome } from '@/lib/telegramChrome';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { warmImage, warmImages } from '@/lib/warmImage';
@@ -188,7 +189,7 @@ export default function WomenFashion({ onClose }: { onClose: () => void }) {
     return () => {
       root?.classList.remove('mf-scroll-root');
       nodes.forEach((node, i) => { node.style.backgroundColor = colors[i]; });
-      try { if (old.background) telegram?.setBackgroundColor?.(old.background); if (old.header) telegram?.setHeaderColor?.(old.header); if (old.bottom) telegram?.setBottomBarColor?.(old.bottom); } catch { /* Host controls its own theme. */ }
+      restoreTelegramChrome(telegram, old);
     };
   }, []);
 

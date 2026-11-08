@@ -1,4 +1,5 @@
 import { DemoHomeButton } from '../DemoHomeButton';
+import { restoreTelegramChrome } from '@/lib/telegramChrome';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { scrollToTop } from '@/hooks/useScrollToTop';
@@ -168,7 +169,7 @@ export default function RoyalStep({ onClose }: { onClose: () => void }) {
       window.clearTimeout(timeout);
       root?.classList.remove('royal-step-scroll-root');
       nodes.forEach((node, index) => { node.style.backgroundColor = oldColors[index]; });
-      try { if (previous.background) tg?.setBackgroundColor?.(previous.background); if (previous.header) tg?.setHeaderColor?.(previous.header); if (previous.bottom) tg?.setBottomBarColor?.(previous.bottom); } catch { /* The host controls its own theme. */ }
+      restoreTelegramChrome(tg, previous);
     };
   }, []);
   useEffect(() => {

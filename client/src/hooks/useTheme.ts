@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { isHomeHash, restoreTelegramChrome } from '../lib/telegramChrome';
 
 type Theme = 'dark' | 'light';
 
@@ -54,18 +55,8 @@ function applyTheme(theme: Theme, skipTransitions = false) {
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp as any;
       const root = document.documentElement;
-      const bgColor = ['studio-home-theme', 'demo-boot-theme', 'demo-loading-theme'].some(name => root.classList.contains(name)) ? '#ffffff' : theme === 'dark' ? '#000000' : '#F2F4F6';
-      try {
-        if (typeof tg.setHeaderColor === 'function') {
-          tg.setHeaderColor(bgColor);
-        }
-        if (typeof tg.setBackgroundColor === 'function') {
-          tg.setBackgroundColor(bgColor);
-        }
-        if (typeof tg.setBottomBarColor === 'function') {
-          tg.setBottomBarColor(bgColor);
-        }
-      } catch (e) {}
+      const bgColor = isHomeHash() || ['studio-home-theme', 'demo-boot-theme', 'demo-loading-theme'].some(name => root.classList.contains(name)) ? '#ffffff' : theme === 'dark' ? '#000000' : '#F2F4F6';
+      restoreTelegramChrome(tg, { header: bgColor, background: bgColor, bottom: bgColor });
     }
   };
   if (typeof window.requestIdleCallback === 'function') {

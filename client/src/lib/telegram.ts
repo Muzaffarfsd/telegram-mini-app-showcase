@@ -1,4 +1,5 @@
 import WebApp from '@twa-dev/sdk';
+import { isHomeHash, restoreTelegramChrome } from './telegramChrome';
 
 /**
  * Ensure Telegram WebView 7.7+ polyfill is applied
@@ -76,16 +77,8 @@ export function initTelegramWebApp() {
   
   // Keep the native Telegram chrome light while the light home screen loads.
   const root = document.documentElement;
-  const bgColor = ['studio-home-theme', 'demo-boot-theme', 'demo-loading-theme'].some(name => root.classList.contains(name)) ? '#ffffff' : '#000000';
-  if (typeof (tg as any).setHeaderColor === 'function') {
-    (tg as any).setHeaderColor(bgColor);
-  }
-  if (typeof (tg as any).setBackgroundColor === 'function') {
-    (tg as any).setBackgroundColor(bgColor);
-  }
-  if (typeof (tg as any).setBottomBarColor === 'function') {
-    (tg as any).setBottomBarColor(bgColor);
-  }
+  const bgColor = isHomeHash() || ['studio-home-theme', 'demo-boot-theme', 'demo-loading-theme'].some(name => root.classList.contains(name)) ? '#ffffff' : '#000000';
+  restoreTelegramChrome(tg, { header: bgColor, background: bgColor, bottom: bgColor });
   
   // Disable vertical swipes to prevent accidental close
   if (typeof tg.disableVerticalSwipes === 'function') {

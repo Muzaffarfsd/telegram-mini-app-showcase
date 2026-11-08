@@ -1,4 +1,5 @@
 import { useLayoutEffect } from 'react';
+import { restoreTelegramChrome } from '../lib/telegramChrome';
 import './DemoLoadingSkeleton.css';
 
 let activeSkeletons = 0;
@@ -17,11 +18,7 @@ export function DemoLoadingSkeleton({ label = 'Загрузка демо-при�
     return () => {
       if (--activeSkeletons === 0) {
         root.classList.remove('demo-loading-theme');
-        try {
-          if (previousColors.background) tg?.setBackgroundColor?.(previousColors.background);
-          if (previousColors.header) tg?.setHeaderColor?.(previousColors.header);
-          if (previousColors.bottom) tg?.setBottomBarColor?.(previousColors.bottom);
-        } catch { /* Preserve the host's available theme controls. */ }
+        restoreTelegramChrome(tg, previousColors);
       }
     };
   }, []);

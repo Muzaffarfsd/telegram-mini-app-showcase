@@ -1,4 +1,5 @@
 import { DemoHomeButton } from '../DemoHomeButton';
+import { restoreTelegramChrome } from '@/lib/telegramChrome';
 import chinaPreviews from './imagePreview-china.json';
 import { previewProps } from './imagePreview';
 import { useEffect, useState } from 'react';
@@ -72,7 +73,7 @@ export default function ChinaBuyer({ onClose }: { onClose:()=>void }) {
     const root=document.getElementById('root'); root?.classList.add('china-buyer-scroll-root');
     const tg=(window as any).Telegram?.WebApp; const old={background:tg?.backgroundColor,header:tg?.headerColor,bottom:tg?.bottomBarColor};
     try {tg?.setBackgroundColor?.('#ffffff');tg?.setHeaderColor?.('#ffffff');tg?.setBottomBarColor?.('#ffffff');}catch{}
-    return ()=>{root?.classList.remove('china-buyer-scroll-root');nodes.forEach((n,i)=>n.style.backgroundColor=colors[i]);try {if(old.background)tg?.setBackgroundColor?.(old.background);if(old.header)tg?.setHeaderColor?.(old.header);if(old.bottom)tg?.setBottomBarColor?.(old.bottom);}catch{}};
+    return ()=>{root?.classList.remove('china-buyer-scroll-root');nodes.forEach((n,i)=>n.style.backgroundColor=colors[i]);restoreTelegramChrome(tg,old);};
   },[]);
   function go(next:Screen,catalogCategory=category){if(next==='catalog')warmImages(items.filter(item=>catalogCategory==='Все'||item.category===catalogCategory).slice(0,2).map(item=>item.image),'high');setScreen(next);scrollToTop();}
   function openItem(id:string){const item=byId(id);warmImage(item?.image,'high');warmImage(item?.gallery?.[0]);setPrevious(screen==='detail'?previous:screen);setSelectedId(id);go('detail');}
