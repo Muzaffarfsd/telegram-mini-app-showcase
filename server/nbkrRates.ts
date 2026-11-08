@@ -25,9 +25,9 @@ function validEffectiveDate(value: string, now: number): string {
   const date = new Date(Date.UTC(year, month - 1, day));
   if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) throw new Error('Invalid NBKR date');
   const delta = Math.floor(date.getTime() / DAY_MS) - bishkekDay(now);
-  // The bank can publish the next day's official rate in advance. Never silently
-  // serve an excessively old feed or a date unexpectedly far in the future.
-  if (delta < -7 || delta > 1) throw new Error('NBKR date outside accepted window');
+  // A rate announced in advance is not effective until its Kyrgyz calendar day.
+  // Keep the previous effective value, marked stale, if refresh yields a future rate.
+  if (delta < -7 || delta > 0) throw new Error('NBKR date outside accepted window');
   return `${yearText}-${monthText}-${dayText}`;
 }
 

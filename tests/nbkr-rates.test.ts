@@ -4,20 +4,21 @@ import express from 'express';
 import { createNbkrRateService, parseNbkrDailyXml } from '../server/nbkrRates';
 import { apiAccessPolicy } from '../server/security';
 
-const NOW = Date.parse('2026-11-08T14:00:00Z'); // evening in Bishkek
+const NOW = Date.parse('2026-11-08T20:00:00Z'); // 9 November in Bishkek
 const xml = (date = '09.11.2026', rubValue = '1,0759', rubNominal = '1') => `<?xml version="1.0" encoding="windows-1251"?>
 <CurrencyRates Name="Daily Exchange Rates" Date="${date}">
 <Currency ISOCode="USD"><Nominal>1</Nominal><Value>87,4478</Value></Currency>
 <Currency ISOCode="RUB"><Nominal>${rubNominal}</Nominal><Value>${rubValue}</Value></Currency>
 </CurrencyRates>`;
 
-test('NBKR cross rate uses each nominal and preserves an advance effective date', () => {
+test('NBKR cross rate uses each nominal and preserves the effective date', () => {
   const one = parseNbkrDailyXml(xml(), NOW);
   const hundred = parseNbkrDailyXml(xml('09.11.2026', '107,59', '100'), NOW);
   assert.ok(Math.abs(one.rubToUsd - 1.0759 / 87.4478) < 1e-12);
   assert.ok(Math.abs(one.rubToUsd - hundred.rubToUsd) < 1e-12);
   assert.equal(one.effectiveDate, '2026-11-09');
   assert.equal(one.source, 'NBKR');
+  assert.equal(parseNbkrDailyXml(xml('08.11.2026'), NOW).effectiveDate, '2026-11-08');
 });
 
 test('rejects invalid, duplicated, impossible, old and prematurely dated quotes', () => {
@@ -60,6 +61,29 @@ test('coalesces concurrent requests, caches, marks stale fallback and eventually
   assert.equal(calls, 2); // failed upstream is retried at most once per cooldown
   clock += 24 * 60 * 60 * 1000;
   await assert.rejects(get(), /unavailable/);
+});
+
+test('does not use tomorrow’s rate before midnight in Bishkek and refreshes after it becomes effective', async () => {
+  let clock = NOW;
+  let document = xml('09.11.2026');
+  let calls = 0;
+  const get = createNbkrRateService({
+    now: () => clock,
+    fetcher: async () => { calls++; return new Response(document, { status: 200 }); },
+  });
+  assert.equal((await get()).effectiveDate, '2026-11-09');
+  document = xml('10.11.2026', '1,10');
+  clock += 61 * 60 * 1000;
+  const cached = await get();
+  assert.equal(cached.effectiveDate, '2026-11-09');
+  assert.equal(cached.stale, true);
+  assert.equal(calls, 2);
+  clock = Date.parse('2026-11-09T18:00:01Z'); // 10 November in Bishkek
+  const current = await get();
+  assert.equal(current.effectiveDate, '2026-11-10');
+  assert.equal(current.stale, false);
+  assert.ok(Math.abs(current.rubToUsd - 1.10 / 87.4478) < 1e-12);
+  assert.equal(calls, 3);
 });
 
 test('an unavailable or oversized upstream never produces a fabricated rate', async () => {

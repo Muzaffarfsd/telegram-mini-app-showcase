@@ -4,6 +4,11 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-09 — Order: clarify pricing and hide rate date
+
+- Reworded the first step around an estimated app price and a clear choice of app type, without implying immediate payment.
+- Removed the exchange-rate date from the interface and prevent a future-dated rate from being presented as currently effective; cached fallback remains visibly labelled.
+
 ## 2026-11-09 — Order: approximate USD equivalents at NBKR rates
 
 - Added a dated, approximate USD equivalent beside each first-step RUB starting price. Base pricing, order totals and the prepared Telegram message remain in RUB.

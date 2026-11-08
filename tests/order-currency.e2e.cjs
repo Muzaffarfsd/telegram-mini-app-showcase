@@ -28,16 +28,18 @@ async function check(browser, width, language, state) {
   const note = page.locator('.order-rate-note');
   await page.waitForFunction(({ state, language }) => {
     const text = document.querySelector('.order-rate-note')?.textContent || '';
-    return state === 'unavailable' ? text.includes(language === 'ru' ? 'Курс недоступен' : 'Rate unavailable') : text.includes('09.11');
+    const expected = state === 'unavailable' ? (language === 'ru' ? 'Курс недоступен' : 'Rate unavailable') : state === 'stale' ? (language === 'ru' ? 'НБКР · сохранён' : 'NBKR · cached') : (language === 'ru' ? 'Курс НБКР' : 'NBKR rate');
+    return text === expected;
   }, { state, language }, { timeout: 10000 });
   const noteText = normalize(await note.innerText());
+  assert.equal(normalize(await page.locator('.order-heading h1').innerText()), language === 'ru' ? 'Стоимость приложения' : 'App pricing');
+  assert.equal(normalize(await page.locator('.order-heading p').innerText()), language === 'ru' ? 'Выберите тип приложения, чтобы узнать примерную стоимость.' : 'Choose an app type to see an estimated price.');
+  assert.doesNotMatch(noteText, /\d{1,2}\.\d{1,2}|2026/);
+  assert.equal(await note.getAttribute('title'), null, 'The rate date must not appear in a tooltip');
   if (state === 'unavailable') {
     assert.equal(noteText, language === 'ru' ? 'Курс недоступен' : 'Rate unavailable');
   } else {
-    assert.match(noteText, /09\.11/);
-    assert.equal(await note.getAttribute('title'), '2026-11-09');
-    if (state === 'fresh') assert.match(noteText, /09\.11\.2026/);
-    if (state === 'stale') assert.match(noteText, language === 'ru' ? /сохранён/ : /cached/);
+    assert.equal(noteText, state === 'fresh' ? (language === 'ru' ? 'Курс НБКР' : 'NBKR rate') : (language === 'ru' ? 'НБКР · сохранён' : 'NBKR · cached'));
   }
   for (const [id, rubles, dollars] of rows) {
     const card = page.getByTestId(`template-${id}`);
@@ -55,7 +57,7 @@ async function check(browser, width, language, state) {
     await card.tap();
     assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '2', 'Order remains usable when the rate is unavailable');
   }
-  console.log(`${width}px ${language} ${state}: prices, date, layout and interaction passed`);
+  console.log(`${width}px ${language} ${state}: prices, copy, rate label and interaction passed`);
   await context.close();
 }
 

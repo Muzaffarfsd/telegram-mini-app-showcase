@@ -28,6 +28,7 @@
 .order-progress-track i { width: 22px; height: 3px; border-radius: 3px; background: #e7e8ea; }
 .order-progress-track i.is-active { background: #27282a; }
 .order-heading h1 { max-width: 320px; margin: 0 auto; color: #17181b; font-size: clamp(25px, 7.4vw, 30px); line-height: 1.09; letter-spacing: -.045em; font-weight: 650; }
+.order-page[data-order-step="1"] .order-heading h1 { max-width: none; }
 .order-heading p { margin: 8px auto 14px; max-width: 340px; color: #65686f; font-size: 13px; line-height: 1.45; }
 .order-template-list { display: grid; gap: 10px; }
 .order-direction-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 22px 2px 3px; color: #25262a; font-size: 17px; line-height: 1.2; letter-spacing: -.025em; font-weight: 650; }

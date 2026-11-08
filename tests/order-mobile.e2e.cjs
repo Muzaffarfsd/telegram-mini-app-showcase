@@ -82,7 +82,8 @@ async function openFeature(page, id) {
         const box = await card.boundingBox(); assert.ok(box.width >= 44 && box.height >= 44);
       }
       assert.equal(await page.getByTestId('order-continue').count(), 0);
-      assert.match(await page.locator('.order-heading p').innerText(), /Нажмите на подходящее направление/);
+      assert.equal(text(await page.locator('.order-heading h1').innerText()), 'Стоимость приложения');
+      assert.equal(text(await page.locator('.order-heading p').innerText()), 'Выберите тип приложения, чтобы узнать примерную стоимость.');
       assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '1');
       for (const [id, price] of templates) {
         const image = page.getByTestId(`template-${id}`).locator('img');
