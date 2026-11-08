@@ -14,7 +14,10 @@ export function referralCodeFromStart(initData: string): string | null {
   const fromTelegram = new URLSearchParams(initData).get('start_param');
   const fromUrl = new URLSearchParams(window.location.search).get('tgWebAppStartParam');
   const candidate = (fromTelegram || fromUrl || '').trim().toUpperCase();
-  return /^(?:WEB4TG|W4T)[A-Z0-9]{1,44}$/.test(candidate) ? candidate : null;
+  // Existing bot-created users have REF + Telegram ID codes. Like the other
+  // start parameters, these are suggestions only; applying a code still
+  // requires the recipient to explicitly submit it through the profile.
+  return /^(?:(?:WEB4TG|W4T)[A-Z0-9]{1,44}|REF[0-9]{1,47})$/.test(candidate) ? candidate : null;
 }
 
 async function readResponse<T>(response: Response): Promise<T> {

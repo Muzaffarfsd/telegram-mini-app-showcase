@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useTelegram } from './useTelegram';
 import { useLanguage } from '../contexts/LanguageContext';
+import { profilePost } from '../lib/profileRequest';
 
 interface ButtonConfig {
   mainButton?: {
@@ -31,6 +32,8 @@ export function useTelegramButtons(
   const { mainButton, secondaryButton, shareApp, openTelegramLink, hapticFeedback } = useTelegram();
   const { t, language } = useLanguage();
   const cleanupRef = useRef<(() => void) | null>(null);
+  const sharingRef = useRef(false);
+  const shareListenersRef = useRef<(() => void) | null>(null);
 
   const navigate = useCallback((path: string) => {
     window.location.hash = path;
@@ -54,13 +57,73 @@ export function useTelegramButtons(
     }
   }, [options?.onConsultation, openTelegramLink, hapticFeedback]);
 
-  const handleShare = useCallback(() => {
+  const handleShare = useCallback(async () => {
+    if (sharingRef.current) return;
     hapticFeedback.medium();
-    const demoText = options?.demoName 
-      ? (language === 'en' ? `Check out "${options.demoName}" demo in Web4TG!` : `Посмотри демо "${options.demoName}" в Web4TG!`)
-      : (language === 'en' ? 'Check out cool Mini Apps for business!' : 'Посмотри крутые Mini Apps для бизнеса!');
-    shareApp(demoText);
-  }, [options?.demoName, shareApp, hapticFeedback, language]);
+    const text = language === 'en'
+      ? 'See what a store for your business can look like in Telegram.'
+      : 'Посмотри, как может выглядеть магазин для бизнеса прямо в Telegram.';
+    const tg = window.Telegram?.WebApp;
+    const version = String(tg?.version || '').split('.').map(Number);
+    const supportsPreparedShare = typeof tg?.shareMessage === 'function' && Number.isFinite(version[0]) && version[0] >= 8;
+    if (!supportsPreparedShare || !tg?.initData) {
+      shareApp(text);
+      return;
+    }
+
+    sharingRef.current = true;
+    const sourceHash = window.location.hash;
+    const isCurrentPage = () => window.location.hash === sourceHash;
+    const nativeButton = currentRoute === 'projects' || currentRoute === 'demoLanding' || currentRoute === 'demoApp'
+      ? tg.SecondaryButton : tg.MainButton;
+    try { nativeButton?.showProgress?.(true); } catch { /* Optional in older clients. */ }
+    let dialogOpened = false;
+    let referralCode: string | undefined;
+    try {
+      const result = await profilePost<{ messageId: string; deepLink?: string }>(
+        '/api/telegram/prepare-invite', tg.initData,
+        { language, referral: ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) },
+      );
+      if (!isCurrentPage()) return;
+      if (typeof result.messageId !== 'string' || !result.messageId) throw new Error('Missing prepared message');
+      if (result.deepLink) {
+        const url = new URL(result.deepLink);
+        const code = url.searchParams.get('startapp');
+        if (url.origin === 'https://t.me' && url.pathname === '/w4tg_bot/w4tg' && code && /^[A-Za-z0-9_-]{1,64}$/.test(code)) referralCode = code;
+      }
+      try { nativeButton?.hideProgress?.(); } catch { /* Optional in older clients. */ }
+
+      // The callback only returns true/false; events distinguish cancellation
+      // from errors so declining never opens a second sharing dialog.
+      let timer: number | undefined;
+      const cleanup = () => {
+        if (timer !== undefined) window.clearTimeout(timer);
+        tg.offEvent('shareMessageSent', onSent);
+        tg.offEvent('shareMessageFailed', onFailed);
+        if (shareListenersRef.current === cleanup) shareListenersRef.current = null;
+        sharingRef.current = false;
+      };
+      const onSent = () => cleanup();
+      const onFailed = (event: { error?: string }) => {
+        cleanup();
+        if (event?.error !== 'USER_DECLINED' && isCurrentPage()) shareApp(text, referralCode);
+      };
+      tg.onEvent('shareMessageSent', onSent);
+      tg.onEvent('shareMessageFailed', onFailed);
+      shareListenersRef.current = cleanup;
+      timer = window.setTimeout(cleanup, 5 * 60 * 1000);
+      tg.shareMessage(result.messageId);
+      dialogOpened = true;
+    } catch {
+      shareListenersRef.current?.();
+      if (isCurrentPage()) shareApp(text, referralCode);
+    } finally {
+      try { nativeButton?.hideProgress?.(); } catch { /* Optional in older clients. */ }
+      if (!dialogOpened) sharingRef.current = false;
+    }
+  }, [currentRoute, shareApp, hapticFeedback, language]);
+
+  useEffect(() => () => { shareListenersRef.current?.(); }, []);
 
   const handleDownloadPDF = useCallback(() => {
     hapticFeedback.light();

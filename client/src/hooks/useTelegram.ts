@@ -30,6 +30,7 @@ interface TelegramButton {
 }
 
 interface TelegramWebApp {
+  version?: string;
   ready: () => void;
   expand: () => void;
   close: () => void;
@@ -77,8 +78,8 @@ interface TelegramWebApp {
       photo_url?: string;
     };
   };
-  onEvent: (eventType: string, callback: () => void) => void;
-  offEvent: (eventType: string, callback: () => void) => void;
+  onEvent: (eventType: string, callback: (...args: any[]) => void) => void;
+  offEvent: (eventType: string, callback: (...args: any[]) => void) => void;
   
   // 2025 Full-Screen Mode API
   requestFullscreen: () => void;

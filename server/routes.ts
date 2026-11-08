@@ -14,6 +14,7 @@ import {
 } from './routes/shared';
 
 import telegramRouter from './routes/telegram';
+import inviteRouter from './routes/invite';
 import paymentsRouter from './routes/payments';
 import projectsRouter from './routes/projects';
 import photosRouter from './routes/photos';
@@ -85,6 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/referral/', sensitiveEndpointLimiter);
   app.use('/api/tasks/complete', sensitiveEndpointLimiter);
   app.use('/api/notifications/', sensitiveEndpointLimiter);
+  app.use('/api/telegram/prepare-invite', sensitiveEndpointLimiter);
   
   app.use('/api/gamification/', createSensitiveRateLimitMiddleware());
   app.use('/api/payment/', createSensitiveRateLimitMiddleware());
@@ -124,6 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.use(telegramRouter);
+  app.use(inviteRouter);
   app.use(paymentsRouter);
   app.use(projectsRouter);
   app.use(photosRouter);
