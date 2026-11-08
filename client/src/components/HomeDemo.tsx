@@ -7,7 +7,7 @@ import './HomeDemo.css';
 interface Props { ru: boolean; onOpenDemo: (id: string) => void }
 type View = 'home' | 'product';
 const projects = [
-  { id: 'muraka-fashion', title: 'Одежда', titleEn: 'Fashion', label: 'МАГАЗИН ОДЕЖДЫ', labelEn: 'FASHION STORE', home: '/home-editorial/fashion-muraka-home-v2.webp', product: '/home-editorial/fashion-muraka-product-v2.webp' },
+  { id: 'muraka-fashion', title: 'Уличная', titleEn: 'Streetwear', label: 'УЛИЧНАЯ ОДЕЖДА', labelEn: 'STREETWEAR STORE', home: '/home-editorial/fashion-muraka-home-v2.webp', product: '/home-editorial/fashion-muraka-product-v2.webp' },
   { id: 'women-fashion', title: 'Женская', titleEn: 'Women', label: 'ЖЕНСКАЯ ОДЕЖДА', labelEn: 'WOMEN’S FASHION', home: '/home-editorial/fashion-mira-no-header-home-v4.webp', product: '/home-editorial/fashion-mira-no-header-product-v4.webp' },
   { id: 'nike-sneakers', title: 'Кроссовки', titleEn: 'Sneakers', label: 'МАГАЗИН КРОССОВОК', labelEn: 'SNEAKER STORE', home: '/home-editorial/sneaker-no-header-home-v4.webp', product: '/home-editorial/sneaker-no-header-jordan-v4.webp' },
   { id: 'apple-store', title: 'Техника', titleEn: 'Tech', label: 'МАГАЗИН ТЕХНИКИ', labelEn: 'TECH STORE', home: '/home-editorial/apple-home-real-v5.webp', product: '/home-editorial/apple-burgundy-product-real-v5.webp' },

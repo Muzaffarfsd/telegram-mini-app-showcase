@@ -1135,6 +1135,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Mobile visual review in Chromium and WebKit, Russian and English; captures in workspace `work/home-readable-intro-*`. No behavior changed.
 
 ---
+## 2026-11-08 · Distinguish the two clothing examples
+
+**What:** Renamed the first homepage category from “Одежда” to “Уличная” and its caption to “Уличная одежда”; adjusted the English labels accordingly.
+**Why:** User found the adjacent “Одежда” and “Женская” labels ambiguous. The first demo shows urban casual clothing and is not explicitly restricted to men.
+**Files:** `HomeDemo.tsx`.
+**Checkpoint:** previous local commit `0592e0e`; unrelated changes preserved.
+**Verification:** Mobile visual and interaction review of both clothing choices in Russian and English; no application logic changed.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
