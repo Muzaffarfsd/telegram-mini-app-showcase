@@ -1010,6 +1010,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite production build passed. All 14 WebPs are 800×800 with alpha (698,112 bytes total). Independent mobile captures passed at 320/390/430 px and with unrestricted motion at 390 px; all nine category image boxes fit inside their summaries. Existing order-flow regression passed at 320/390/430 px and with blocked storage. No page errors or horizontal overflow observed; no real orders/messages submitted. Before/after screenshots, three difference images and a light-background contact sheet saved under workspace `work/order-glass-icons/`. Exact prompts and rationale recorded in the design notes; artwork awaits the user's evaluation.
 
 ---
+## 2026-11-08 · Correct the missing visible glass in all order illustrations
+
+**What:** Replaced all 14 illustrations with thin frosted foreground elements transmitting recognisable rear orange/white objects, visibly blurred and tinted through the glass and sharp outside its edge. Varied glass silhouettes across categories. The actual user JPG was supplied for each built-in generation; support received one additional background-haze cleanup through the same image tool. No interface logic or layout changed.
+**Why:** User explicitly asked where the glass elements were after the first set. The prior palette and glossy edges were insufficient; the replacement was judged by visible layer transmission at UI size, not merely an alpha channel.
+**Files:** All `client/src/assets/order/glass-20261108-*.webp`, `order-glass-icons-design-notes.md`, `CODEBASE_INDEX.md`.
+**Checkpoint:** `checkpoint/order-glass-transparency-20261108` at `a6c665f`.
+**Verification:** Vite production build passed. Independent material review passed on light/dark contact sheets and actual mobile UI. All 14 assets are 800×800 with alpha (901,374 bytes total). Captures at 320/390/430 px with reduced motion and 390 px with normal motion passed with no page errors or horizontal overflow; all nine category images fit inside their summaries. Baseline from the previous production release and 68 after screenshots are in workspace `work/order-glass-correction/`; APIs mocked, no real orders/messages. Artwork remains subject to the user's evaluation.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
