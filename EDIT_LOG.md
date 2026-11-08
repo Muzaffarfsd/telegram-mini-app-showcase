@@ -1028,6 +1028,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite production build passed. Independent visual comparison against the first set passed at UI size. All 14 WebPs are 800×800 with alpha and fully transparent corners (748,934 bytes total). Browser captures at 320/390/430 px with reduced motion and 390 px with normal motion passed with no page errors/overflow, all 14 images loaded and all nine categories fully inside their cards. Current-V2 baseline, first-set comparison, 68 after screenshots and four reports saved in workspace `work/order-glass-subtle/`. API writes mocked, no orders/messages submitted. The new material polish awaits user evaluation.
 
 ---
+## 2026-11-08 · Slightly smaller order icons and less space above the page
+
+**What:** Reduced illustration display sizes in direction cards, categories, selected/review previews and detail sheets by roughly 10–12%. Tightened page padding and gaps around the progress indicator and description: first content rises 19px and the heading 14px, while the 44px back control moves only 4px to preserve header clearance. Artwork files and order logic are unchanged.
+**Why:** User asked for slightly smaller icons and to raise the page because of excess space at the top.
+**Files:** `OrderExperience.css`, `OrderFeaturesStep.css`, `OrderInfoSheet.css`.
+**Checkpoint:** `checkpoint/order-compact-20261108` at `01afdaf`.
+**Verification:** Vite production build passed. Independent geometry/visual review passed 18 cases (320/390/430px × steps 1–3 × upper Telegram inset 0/32px): no page errors or overflow, all back controls clickable, minimum 5px gap beneath the fixed header. All 14 images load; category/detail illustrations fit completely. Existing order-flow regression passed all three mobile widths and blocked-storage recovery. Baseline and after screenshots, geometry and reports saved under workspace `work/order-compact/`; no real orders/messages submitted.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description

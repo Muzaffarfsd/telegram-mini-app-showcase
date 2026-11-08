@@ -35,7 +35,7 @@
 .order-group-copy > span:not(.order-group-action) { max-width: 190px; margin-top: 8px; color: #676b70; font-size: 12px; line-height: 1.3; font-weight: 400; }
 .order-group-copy .order-group-action { display: inline-flex; align-items: center; gap: 8px; margin-top: auto; padding: 8px 11px; border-radius: 999px; background: #fff; color: #25272a; font-size: 12px; line-height: 1; font-weight: 500; }
 .order-group-action svg { transition: transform .18s ease; }
-.order-group-art { position: absolute; right: 4px; top: 0; bottom: 0; margin-block: auto; width: 41%; max-width: 150px; height: 140px; object-fit: contain; pointer-events: none; }
+.order-group-art { position: absolute; right: 10px; top: 0; bottom: 0; margin-block: auto; width: 36%; max-width: 132px; height: 124px; object-fit: contain; pointer-events: none; }
 .order-feature-catalog .order-group-meta { position: absolute; z-index: 2; top: 10px; right: 10px; }
 .order-feature-catalog .order-group-meta small { background: #fff; color: #4d5055; }
 .order-feature-catalog .order-group-list { margin: 0 9px 9px; padding: 0 12px 5px; border-radius: 14px; background: #fff; }

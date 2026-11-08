@@ -5,7 +5,7 @@
   font-family: 'Google Sans App', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   --order-safe-bottom: max(12px, env(safe-area-inset-bottom, 0px), var(--sab, 0px), var(--csab, 0px));
-  padding: calc(max(env(safe-area-inset-top, 0px), var(--csat, 0px), 12px) + 82px) 20px calc(114px + var(--order-safe-bottom));
+  padding: calc(max(env(safe-area-inset-top, 0px), var(--csat, 0px), 12px) + 78px) 20px calc(114px + var(--order-safe-bottom));
 }
 .order-page[data-order-step="2"] { padding-bottom: calc(190px + var(--order-safe-bottom)); }
 .order-page *, .order-page *::before, .order-page *::after { box-sizing: border-box; }
@@ -22,11 +22,11 @@
 .order-progress-label span { color: #c8c9cc; margin: 0 3px; }
 .order-progress-spacer, .order-back { width: 44px; height: 44px; }
 .order-back { border: 0; background: #f3f4f5; border-radius: 50%; display: grid; place-items: center; color: #222327; cursor: pointer; }
-.order-progress-track { display: flex; gap: 4px; justify-content: center; margin: 4px auto 14px; }
+.order-progress-track { display: flex; gap: 4px; justify-content: center; margin: 2px auto 6px; }
 .order-progress-track i { width: 22px; height: 3px; border-radius: 3px; background: #e7e8ea; }
 .order-progress-track i.is-active { background: #27282a; }
 .order-heading h1 { max-width: 320px; margin: 0 auto; color: #17181b; font-size: clamp(25px, 7.4vw, 30px); line-height: 1.09; letter-spacing: -.045em; font-weight: 650; }
-.order-heading p { margin: 10px auto 17px; max-width: 340px; color: #65686f; font-size: 13px; line-height: 1.45; }
+.order-heading p { margin: 8px auto 14px; max-width: 340px; color: #65686f; font-size: 13px; line-height: 1.45; }
 .order-template-list { display: grid; gap: 10px; }
 .order-template-wrap { position: relative; }
 .order-template { position: relative; display: flex; align-items: flex-start; width: 100%; min-height: 220px; padding: 23px 46% 75px 22px; overflow: hidden; text-align: left; border: 1px solid transparent; border-radius: 24px; color: #191a1c; background: #f2f2f1; cursor: pointer; transition: border-color .2s ease, background-color .2s ease, transform .2s ease; }
@@ -36,7 +36,7 @@
 .order-template-copy strong { font-size: 20px; line-height: 1.08; letter-spacing: -.04em; font-weight: 600; }
 .order-template-copy > span { margin-top: 13px; color: #66686c; font-size: 13px; line-height: 1.3; }
 .order-template-copy small { color: #47494d; font-size: 12px; font-weight: 600; margin-top: 10px; white-space: nowrap; }
-.order-template-art { position: absolute; z-index: 0; width: 52%; height: 76%; object-fit: contain; right: 1%; bottom: 5%; pointer-events: none; }
+.order-template-art { position: absolute; z-index: 0; width: 46%; height: 68%; object-fit: contain; right: 3%; bottom: 8%; pointer-events: none; }
 .order-template-action { position: absolute; z-index: 1; left: 22px; bottom: 21px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 43px; padding: 0 16px; border-radius: 999px; color: #202124; background: #fff; font-size: 13px; font-weight: 500; }
 .order-template-info { position: absolute; z-index: 2; top: 9px; right: 9px; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; color: #62656a; background: transparent; cursor: pointer; }
 .order-template-info:hover { background: rgba(255,255,255,.7); }
@@ -49,7 +49,7 @@
 .order-continue:active { transform: scale(.985); background: #393a3d; }
 .order-actions > p { margin: 10px 14px 0; color: #666970; font-size: 12px; line-height: 1.45; }
 .order-selected-app { display: flex; align-items: center; gap: 12px; min-height: 83px; padding: 9px 12px; border-radius: 18px; background: #f7f8f9; }
-.order-selected-app > img { width: 64px; height: 64px; object-fit: contain; }
+.order-selected-app > img { width: 58px; height: 58px; object-fit: contain; }
 .order-selected-app > div { min-width: 0; flex: 1; display: grid; gap: 3px; }
 .order-selected-app small, .order-review-hero small { color: #676a71; font-size: 10px; font-weight: 700; letter-spacing: .09em; }
 .order-selected-app strong { font-size: 14px; line-height: 1.2; }
@@ -82,7 +82,7 @@
 .order-price-inline { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 20px 2px 0; font-size: 12px; color: #666970; }
 .order-price-inline strong { font-size: 15px; color: #242529; white-space: nowrap; }
 .order-review-hero { display: flex; align-items: center; min-height: 105px; padding: 10px; gap: 9px; border-radius: 20px; background: #f7f8f9; }
-.order-review-hero > img { width: 86px; height: 86px; object-fit: contain; }
+.order-review-hero > img { width: 76px; height: 76px; object-fit: contain; }
 .order-review-hero > div { flex: 1; min-width: 0; }
 .order-review-hero h2 { margin: 5px 0 3px; font-size: 17px; line-height: 1.15; letter-spacing: -.025em; overflow-wrap: anywhere; }
 .order-review-hero p { margin: 0; color: #666970; font-size: 12px; line-height: 1.35; }
