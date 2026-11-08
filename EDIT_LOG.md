@@ -1019,6 +1019,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite production build passed. Independent material review passed on light/dark contact sheets and actual mobile UI. All 14 assets are 800×800 with alpha (901,374 bytes total). Captures at 320/390/430 px with reduced motion and 390 px with normal motion passed with no page errors or horizontal overflow; all nine category images fit inside their summaries. Baseline from the previous production release and 68 after screenshots are in workspace `work/order-glass-correction/`; APIs mocked, no real orders/messages. Artwork remains subject to the user's evaluation.
 
 ---
+## 2026-11-08 · Restore the liked first icon designs with a light glass adjustment
+
+**What:** Returned all 14 order illustrations to the first set's filled silhouettes, volume, orange rear shapes and sharp white symbols. Each original PNG was used as the image edit target; only a restrained glass rim/translucency/reflection polish was requested. Removed the intervening separate-pane compositions by replacing their assets. Layout and order logic are unchanged.
+**Why:** User clarified that the previous variants were liked and only a little glass was needed: “мне нравились предыдущие варианты которые ты сгененировал просто чуть нужно добавить стекла сделай как было”. This supersedes the assistant's stronger glass-panel interpretation.
+**Files:** All `client/src/assets/order/glass-20261108-*.webp`, `order-glass-icons-design-notes.md`, `CODEBASE_INDEX.md`.
+**Checkpoint:** `checkpoint/order-glass-light-touch-20261108` at `af4603f`; first-set composition source `a6c665f`.
+**Verification:** Vite production build passed. Independent visual comparison against the first set passed at UI size. All 14 WebPs are 800×800 with alpha and fully transparent corners (748,934 bytes total). Browser captures at 320/390/430 px with reduced motion and 390 px with normal motion passed with no page errors/overflow, all 14 images loaded and all nine categories fully inside their cards. Current-V2 baseline, first-set comparison, 68 after screenshots and four reports saved in workspace `work/order-glass-subtle/`. API writes mocked, no orders/messages submitted. The new material polish awaits user evaluation.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
