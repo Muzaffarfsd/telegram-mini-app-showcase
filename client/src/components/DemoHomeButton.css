@@ -12,7 +12,8 @@ button.demo-home-button.demo-home-button.demo-home-button {
   padding: 0;
   border: 0;
   background: transparent;
-  color: #55565a;
+  color: #1d1d1f;
+  opacity: 1;
   cursor: pointer;
 }
 
@@ -49,4 +50,17 @@ button.demo-home-button.demo-home-button.demo-home-button > .demo-home-button__m
   outline: 2px solid currentColor;
   outline-offset: -4px;
   border-radius: 12px;
+}
+
+/* Use the home icon as the common reference throughout demo navigation. */
+:is(.mf-nav, .rs-nav, .as-nav, .fs-nav, .lumi-nav, .cb-nav, .opt-nav, .medical-navigation, .demo-shell-navigation) > button:not(.demo-home-button):not(.demo-home-button):not(.demo-home-button) svg {
+  width: 21px;
+  height: 21px;
+  flex: none;
+  stroke-width: 2;
+  opacity: 1;
+}
+
+:is(.mf-nav, .rs-nav, .as-nav, .fs-nav, .lumi-nav, .cb-nav, .opt-nav, .medical-navigation) > button:not(.demo-home-button):not(.demo-home-button):not(.demo-home-button) {
+  color: #252529;
 }

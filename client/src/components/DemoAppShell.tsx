@@ -31,7 +31,7 @@ const darkTheme: DemoTheme = {
   background: '#101114',
   isDark: true,
   activeIconColor: '#fff',
-  inactiveIconColor: 'rgba(255,255,255,0.45)',
+  inactiveIconColor: '#fff',
   navOverlay: 'rgba(20, 20, 22, 0.65)',
   accent: '#FFFFFF',
   onAccent: '#161616',
@@ -41,7 +41,7 @@ const lightTheme: DemoTheme = {
   background: '#F5F3F0',
   isDark: false,
   activeIconColor: 'rgba(0,0,0,0.85)',
-  inactiveIconColor: 'rgba(0,0,0,0.35)',
+  inactiveIconColor: 'rgba(0,0,0,0.85)',
   navOverlay: 'rgba(255, 255, 255, 0.65)',
   accent: '#1C1C1E',
   onAccent: '#FFFFFF',
@@ -405,8 +405,8 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
               paddingTop: '8px',
             }}
           >
-            <nav 
-              className="relative flex items-center rounded-[22px] gpu-layer"
+            <nav
+              className="demo-shell-navigation relative flex items-center rounded-[22px] gpu-layer"
               style={{
                 padding: '5px 6px',
                 gap: '2px',
