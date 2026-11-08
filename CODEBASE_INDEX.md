@@ -67,7 +67,7 @@ XPNotificationContext.tsx      - XP gain toaster
 ```
 ShowcasePage.tsx               - HOME (/) — re-exports StudioHome
 StudioHome.tsx / StudioHome.css - home narrative, customer journey, process, FAQ and project actions
-HomeDemo.tsx / HomeDemo.css   - four-store hero, home/product swipe and links to real demos
+HomeDemo.tsx / HomeDemo.css   - six-example hero, home/product or service swipe and links to real demos
 ProjectsPage.tsx               - /projects — pastel frosted-folder showcase, category files/stickers, instant grid/list and filters
 ProjectsShowcase.css           - showcase material/type/layout; static SVG placement survives reduced motion; compact list rows
 StoreStickers.tsx              - ten original die-cut stickers with balanced optical scales and static angle variables

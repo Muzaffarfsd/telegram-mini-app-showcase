@@ -1063,6 +1063,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite build; Chromium and WebKit mobile review at 320/390/430px, four tabs and image loading, FAQ and order route. Independent Chromium/WebKit tests at 320/390px exercised each swipe in both directions and confirmed all four demo routes; Chromium touch gestures also passed. English at 320px had no heading or tab overflow. Screenshots and actual input captures are under workspace `work/home-redesign-*` and `work/home-real-screens/`. API calls mocked; no real requests sent. Artwork awaits user evaluation.
 
 ---
+## 2026-11-08 · Add sneakers, burgundy iPhone and beauty salon previews
+
+**What:** Added the sneaker shop and LUMI salon to the home exhibit, regenerated Apple home and its burgundy iPhone card, and generated home/detail compositions for sneakers and salon. Added six example buttons in a three-column layout and a service-specific second-screen label.
+**Why:** User requested creative screens for Air Jordan 1 Mid, burgundy iPhone and a salon service, using actual app screens as generation inputs.
+**Files:** `HomeDemo.tsx`, `HomeDemo.css`, six versioned `client/public/home-editorial/` images, `home-redesign-design-notes.md`, `CODEBASE_INDEX.md`.
+**Checkpoint:** `checkpoint/home-more-demos-20261108` at `c45f3ee`.
+**Verification:** Vite production build and Chromium/WebKit at 320/390/430px; all images decode, six tabs fit, each home/detail switch works, and all demo routes open at 390px. Independent Chromium touch gestures passed in both directions for the three requested examples; Russian and English tabs fit at 320px. Visual comparison with the current screenshots and mobile captures saved in workspace `work/home-more-*`, `work/home-new-*` and `work/home-real-screens/`. Images are generated interpretations and small interface details may differ. API requests were mocked, no real orders or messages sent.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description

@@ -1,5 +1,5 @@
 .home-demo { margin-top:18px; }
-.home-demo__projects { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; padding-bottom:4px; }
+.home-demo__projects { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; padding-bottom:4px; }
 .home-demo__projects::-webkit-scrollbar { display:none; }
 .home-demo__projects button { min-width:0; min-height:36px; padding:0 4px; border:1px solid #e5e5e5; border-radius:999px; background:#fff; color:#727272; font-size:11px; font-weight:650; white-space:nowrap; }
 .home-demo__projects button[aria-pressed="true"] { border-color:#202020; color:#fff; background:#202020; }
