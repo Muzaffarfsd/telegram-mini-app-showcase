@@ -90,10 +90,11 @@
 .order-feature-name { flex: 1; min-width: 0; font-size: 13px; line-height: 1.3; }
 .order-feature-price { color: #666970; font-size: 12px; white-space: nowrap; }
 .order-row-info { display: grid; flex: 0 0 44px; width: 44px; height: 48px; place-items: center; padding: 0; border: 0; color: #858991; background: transparent; cursor: pointer; }
-.order-price-inline { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 20px 2px 0; font-size: 12px; color: #666970; }
-.order-price-inline strong { font-size: 15px; color: #242529; white-space: nowrap; }
+.order-price-inline { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 12px; margin: 20px 2px 0; font-size: 12px; color: #666970; }
+.order-price-inline strong { font-size: 15px; color: #242529; }
 .order-review-hero { display: flex; align-items: center; min-height: 105px; padding: 10px; gap: 9px; border-radius: 20px; background: #f7f8f9; }
 .order-review-hero > img { width: 76px; height: 76px; object-fit: contain; }
+.order-review-rate { margin: 12px 2px -5px; text-align: right; }
 .order-review-hero > div { flex: 1; min-width: 0; }
 .order-review-hero h2 { margin: 5px 0 3px; font-size: 17px; line-height: 1.15; letter-spacing: -.025em; overflow-wrap: anywhere; }
 .order-review-hero p { margin: 0; color: #666970; font-size: 12px; line-height: 1.35; }
@@ -101,7 +102,7 @@
 .order-summary-card > div { display: flex; justify-content: space-between; align-items: center; min-height: 46px; gap: 12px; color: #65686f; font-size: 13px; }
 .order-summary-card > div + div { border-top: 1px solid #f0f0f1; }
 .order-summary-card strong { color: #2a2b2e; font-weight: 650; font-size: 12px; white-space: nowrap; }
-.order-summary-card .order-summary-total { min-height: 66px; color: #252629; font-weight: 650; }
+.order-summary-card .order-summary-total { min-height: 66px; flex-wrap: wrap; padding: 8px 0; color: #252629; font-weight: 650; }
 .order-summary-total span { display: grid; gap: 3px; }
 .order-summary-total span small { color: #666970; font-size: 11px; font-weight: 400; }
 .order-summary-total strong { font-size: 17px; }
@@ -138,7 +139,7 @@
 .order-sticky-bar { position: fixed; z-index: 49; left: 0; right: 0; margin-inline: auto; bottom: calc(74px + var(--order-safe-bottom, 12px)); width: min(390px, calc(100vw - 32px)); display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 16px; border: 1px solid rgba(224,226,229,.95); border-radius: 21px; background: #fff; box-shadow: 0 8px 32px rgba(35,39,47,.14); }
 .order-sticky-copy { flex: 1; min-width: 0; display: grid; gap: 3px; }
 .order-sticky-copy small { color: #62656c; font-size: 11px; line-height: 1.2; }
-.order-sticky-copy strong { color: #202124; font-size: 16px; line-height: 1.15; white-space: nowrap; }
+.order-sticky-copy strong { color: #202124; font-size: 13px; line-height: 1.15; overflow-wrap: normal; }
 .order-sticky-action { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; padding: 0 20px; border: 0; border-radius: 999px; background: #1b1c1f; color: #fff; font: 650 14px/1.2 'Google Sans App', system-ui, sans-serif; font-size: 14px !important; font-weight: 650 !important; cursor: pointer; }
 .order-sticky-action:active { background: #393a3d; }
 .order-sticky-action:focus-visible { outline: 2px solid #25272a; outline-offset: 3px; }
@@ -169,7 +170,7 @@
 .order-dialog-actions button.is-primary { border-color: #1b1c1f; background: #1b1c1f; color: #fff; }
 .order-dialog-actions button:focus-visible { outline: 2px solid #25272a; outline-offset: 3px; }
 
-@media (max-width: 340px) { .order-sticky-bar { width: calc(100vw - 24px); gap: 8px; padding-left: 12px; } .order-sticky-copy strong { font-size: 15px; } .order-sticky-action { padding: 0 15px; font-size: 13px !important; } .order-dialog { padding: 20px; } }
+@media (max-width: 340px) { .order-sticky-bar { width: calc(100vw - 24px); gap: 8px; padding-left: 12px; } .order-sticky-copy strong { font-size: 12px; } .order-sticky-action { padding: 0 15px; font-size: 13px !important; } .order-summary-total strong { font-size: 14px; } .order-dialog { padding: 20px; } }
 @media (max-height: 540px) { .order-sticky-bar { position: sticky; bottom: 10px; left: auto; transform: none; margin: 16px auto 0; } }
 @media (prefers-reduced-transparency: reduce) { .order-sticky-bar { background: #fff; -webkit-backdrop-filter: none; backdrop-filter: none; } }
 @media (max-width: 340px) { .order-page { padding-left: 15px; padding-right: 15px; }.order-template { min-height: 208px; padding-left: 18px; }.order-showcase-card { min-height: 232px; }.order-template-copy strong { font-size: 18px; }.order-template-action { left: 18px; }.order-feature-price { font-size: 11px; } }

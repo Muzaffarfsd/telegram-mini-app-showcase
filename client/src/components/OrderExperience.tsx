@@ -22,6 +22,7 @@ import { OrderFeaturesStep } from './OrderFeaturesStep';
 import { OrderReviewStep } from './OrderReviewStep';
 import { OrderDecisionDialog } from './OrderDecisionDialog';
 import { useOrderDraft } from './useOrderDraft';
+import { rubWithUsd } from './orderPrice';
 import { featureInfo, supportBenefitDetails, supportBenefitsByPlan, supportInfo, templateInfo } from './orderInfo';
 import './OrderExperience.css';
 
@@ -71,6 +72,8 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   const [notice, setNotice] = useState('');
   const [exchangeRate, setExchangeRate] = useState<ExchangeRate | null>(null);
   const [rateStatus, setRateStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading');
+  const rubToUsd = exchangeRate?.rubToUsd ?? null;
+  const rateLabel = exchangeRate ? (exchangeRate.stale ? (ru ? 'НБКР · сохранён' : 'NBKR · cached') : (ru ? 'Курс НБКР' : 'NBKR rate')) : rateStatus === 'loading' ? (ru ? 'Курс загружается' : 'Loading rate') : (ru ? 'Курс недоступен' : 'Rate unavailable');
   const [info, setInfo] = useState<{ kind: 'template' | 'feature' | 'plan'; id: string; storeCategory?: StoreCategoryId } | null>(null);
   const [pendingTemplate, setPendingTemplate] = useState<{ item: Template; category: StoreCategoryId | null } | null>(null);
   const draft = useOrderDraft({ step, templateId, storeCategory, extras, projectName, planId, annual });
@@ -199,7 +202,7 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
     const testSuffix = category ? `${item.id}-${category}` : item.id;
     return <div className="order-template-wrap order-showcase-wrap" key={testSuffix}>
       <button type="button" className={`order-template order-showcase-card ${selected ? 'is-selected' : ''}`} aria-pressed={selected} onClick={() => chooseTemplate(item, category)} data-testid={`template-${testSuffix}`}>
-        <span className="order-template-copy order-showcase-copy"><strong>{options.title}</strong><span>{options.description}</span><small className="order-template-price">{ru ? 'от' : 'from'} {money(item.estimatedPrice)} / {exchangeRate ? `≈ $${priceFormatter.format(Math.round(item.estimatedPrice * exchangeRate.rubToUsd))}` : '—'}</small></span>
+        <span className="order-template-copy order-showcase-copy"><strong>{options.title}</strong><span>{options.description}</span><small className="order-template-price">{ru ? 'от' : 'from'} {rubWithUsd(item.estimatedPrice, rubToUsd)}</small></span>
         <img className="order-template-art order-showcase-art" src={options.image} alt="" draggable={false} loading={category === 'clothes' ? 'eager' : 'lazy'} decoding="async" />
         <span className="order-template-action" aria-hidden="true">{ru ? 'Выбрать' : 'Choose'} <ArrowUpRight size={17} strokeWidth={1.8} /></span><span className="order-choice" aria-hidden="true">{selected && <Check size={12} strokeWidth={3} />}</span>
       </button>
@@ -223,7 +226,7 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
 
         {step === 1 && <section className="order-template-list" aria-label={ru ? 'Направление приложения' : 'App type'}>
           {template && (template.id === 'fitness-center' || (template.id === 'ecommerce-basic' && (!storeCategory || storeCategory === 'shoes'))) && <div className="order-legacy-choice"><span>{ru ? 'Сохранённое направление' : 'Saved direction'}: {directionLabel}</span><button type="button" onClick={() => moveTo(2)} data-testid="continue-legacy-order">{ru ? 'Продолжить' : 'Continue'}</button></div>}
-          <h2 className="order-direction-heading"><span>{ru ? 'Интернет-магазин' : 'Online store'}</span><small className="order-rate-note" aria-live="polite">{exchangeRate ? (exchangeRate.stale ? (ru ? 'НБКР · сохранён' : 'NBKR · cached') : (ru ? 'Курс НБКР' : 'NBKR rate')) : rateStatus === 'loading' ? (ru ? 'Курс загружается' : 'Loading rate') : (ru ? 'Курс недоступен' : 'Rate unavailable')}</small></h2>
+          <h2 className="order-direction-heading"><span>{ru ? 'Интернет-магазин' : 'Online store'}</span><small className="order-rate-note" aria-live="polite">{rateLabel}</small></h2>
           {storeCategories.filter((category) => category.id !== 'shoes').map((category) => renderDirection(ecommerce, { title: ru ? category.ru : category.en, description: ru ? category.descriptionRu : category.descriptionEn, image: category.image, category: category.id }))}
           <h2 className="order-direction-heading">{ru ? 'Другие направления' : 'Other directions'}</h2>
           {appTemplatesBase.filter((item) => item.id === 'restaurant' || item.id === 'services').map((item) => renderDirection(item, item.id === 'restaurant'
@@ -232,12 +235,12 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
           {notice && <p className="order-notice" role="alert">{notice}</p>}
         </section>}
 
-        {step === 2 && template && <OrderFeaturesStep ru={ru} t={t} template={template} artSrc={selectedArt} directionLabel={directionLabel} projectName={projectName} onProjectNameChange={setProjectName} includedIds={includedIds} extras={extras} onToggleFeature={toggleFeature} onFeatureInfo={(id) => setInfo({ kind: 'feature', id })} onChangeTemplate={() => moveTo(1)} total={total} />}
+        {step === 2 && template && <OrderFeaturesStep ru={ru} t={t} template={template} artSrc={selectedArt} directionLabel={directionLabel} projectName={projectName} onProjectNameChange={setProjectName} includedIds={includedIds} extras={extras} onToggleFeature={toggleFeature} onFeatureInfo={(id) => setInfo({ kind: 'feature', id })} onChangeTemplate={() => moveTo(1)} total={total} rubToUsd={rubToUsd} rateLabel={rateLabel} />}
 
-        {step === 3 && template && <OrderReviewStep ru={ru} t={t} template={template} artSrc={selectedArt} directionLabel={directionLabel} projectName={projectName} includedIds={includedIds} selectedExtras={selectedExtras} extraTotal={extraTotal} total={total} planId={planId} annual={annual} yearlyPrices={yearlyPrices} onEdit={() => moveTo(2)} onPlan={setPlanId} onAnnual={setAnnual} onPlanInfo={(id) => setInfo({ kind: 'plan', id })} />}
+        {step === 3 && template && <OrderReviewStep ru={ru} t={t} template={template} artSrc={selectedArt} directionLabel={directionLabel} projectName={projectName} includedIds={includedIds} selectedExtras={selectedExtras} extraTotal={extraTotal} total={total} planId={planId} annual={annual} yearlyPrices={yearlyPrices} onEdit={() => moveTo(2)} onPlan={setPlanId} onAnnual={setAnnual} onPlanInfo={(id) => setInfo({ kind: 'plan', id })} rubToUsd={rubToUsd} rateLabel={rateLabel} />}
 
         {!draft.storageAvailable && <p className="order-notice" role="status">{ru ? 'Черновик нельзя сохранить на этом устройстве. Заказ можно продолжить.' : 'This device cannot save the draft. You can still continue.'}</p>}
-        {step === 2 && <div className="order-sticky-bar"><div className="order-sticky-copy"><small>{ru ? 'Разработка, ориентировочно' : 'Estimated development'}</small><strong aria-live="polite">{money(total)}</strong></div><button type="button" className="order-sticky-action" onClick={continueOrder} data-testid="order-continue">{ru ? 'К итогу' : 'Review'} <ArrowRight size={17} /></button></div>}
+        {step === 2 && <div className="order-sticky-bar"><div className="order-sticky-copy"><small>{ru ? 'Разработка, ориентировочно' : 'Estimated development'}</small><strong aria-live="polite">{rubWithUsd(total, rubToUsd)}</strong></div><button type="button" className="order-sticky-action" onClick={continueOrder} data-testid="order-continue">{ru ? 'К итогу' : 'Review'} <ArrowRight size={17} /></button></div>}
         {step === 3 && <div className="order-actions"><button type="button" className="order-continue" onClick={continueOrder} data-testid="order-continue"><span>{ru ? 'Обсудить в Telegram' : 'Discuss in Telegram'}</span><ArrowRight size={18} /></button><p>{ru ? 'Откроется подготовленное сообщение — проверьте и отправьте его сами.' : 'A draft will open for you to review and send.'}</p></div>}
       </div>
       {info && infoCopy && (infoTemplate || infoFeature || infoPlan) && <OrderInfoSheet
@@ -247,7 +250,8 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
         items={infoTemplate ? templateItems?.map((title) => ({ title })) : infoPlan ? supportBenefitsByPlan[infoPlan.id].map((key) => ({ title: t(`constructor.subscriptionFeatures.${key}`), description: supportBenefitDetails[key][ru ? 'ru' : 'en'] })) : undefined}
         billing={infoPlan ? { annual, monthlyPrice: money(infoPlan.price), annualPrice: money(yearlyPrices[infoPlan.id]), savings: money(infoPlan.price * 12 - yearlyPrices[infoPlan.id]), onChange: setAnnual } : undefined}
         priceLabel={infoTemplate ? (ru ? 'Разработка, ориентировочно' : 'Estimated development') : infoFeature ? (ru ? 'Стоимость разработки' : 'Development cost') : (ru ? 'Поддержка, отдельно' : 'Support, billed separately')}
-        price={infoTemplate ? `${ru ? 'от' : 'from'} ${money(infoTemplate.estimatedPrice)}` : infoFeature ? (infoIncluded ? (ru ? 'Включено' : 'Included') : `+ ${money(infoFeature.price)}`) : infoPlan ? `${money(annual ? yearlyPrices[infoPlan.id] : infoPlan.price)}${annual ? (ru ? '/год' : '/year') : (ru ? '/мес' : '/month')}` : ''}
+        priceHint={infoTemplate || (infoFeature && !infoIncluded) ? rateLabel : undefined}
+        price={infoTemplate ? `${ru ? 'от' : 'from'} ${rubWithUsd(infoTemplate.estimatedPrice, rubToUsd)}` : infoFeature ? (infoIncluded ? (ru ? 'Включено' : 'Included') : `+ ${rubWithUsd(infoFeature.price, rubToUsd)}`) : infoPlan ? `${money(annual ? yearlyPrices[infoPlan.id] : infoPlan.price)}${annual ? (ru ? '/год' : '/year') : (ru ? '/мес' : '/month')}` : ''}
         action={infoTemplate ? (templateId === infoTemplate.id && (infoTemplate.id !== 'ecommerce-basic' || storeCategory === (info.storeCategory ?? null)) ? (ru ? 'Выбрано' : 'Selected') : (ru ? 'Выбрать направление' : 'Choose this type')) : infoFeature ? (infoIncluded ? (ru ? 'Понятно' : 'Got it') : infoSelected ? (ru ? 'Убрать из заказа' : 'Remove from order') : (ru ? 'Добавить в заказ' : 'Add to order')) : infoPlan && planId === infoPlan.id ? (ru ? 'Выбрано' : 'Selected') : (ru ? 'Выбрать поддержку' : 'Choose support')}
         onClose={() => setInfo(null)}
         onAction={() => { if (infoTemplate) chooseTemplate(infoTemplate, info.storeCategory ?? null); if (infoFeature && !infoIncluded) toggleFeature(infoFeature.id); if (infoPlan) setPlanId(infoPlan.id); }}

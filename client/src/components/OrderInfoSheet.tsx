@@ -12,6 +12,7 @@ type Props = {
   note?: string;
   image: string;
   priceLabel: string;
+  priceHint?: string;
   price: string;
   items?: { title: string; description?: string }[];
   billing?: { annual: boolean; monthlyPrice: string; annualPrice: string; savings: string; onChange: (annual: boolean) => void };
@@ -20,7 +21,7 @@ type Props = {
   onClose: () => void;
 };
 
-export function OrderInfoSheet({ ru, kind, title, description, example, note, image, priceLabel, price, items, billing, action, onAction, onClose }: Props) {
+export function OrderInfoSheet({ ru, kind, title, description, example, note, image, priceLabel, priceHint, price, items, billing, action, onAction, onClose }: Props) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -188,7 +189,7 @@ export function OrderInfoSheet({ ru, kind, title, description, example, note, im
           {kind === 'feature' && <p className="order-info-note">{ru ? 'Функция относится к разработке приложения. Поддержка после запуска выбирается и оплачивается отдельно.' : 'This feature is part of app development. Support after launch is chosen and billed separately.'}</p>}
           {billing && <p className="order-info-note">{ru ? 'Поддержка оплачивается отдельно от разработки. Условия оплаты и продления согласуем при обсуждении заявки.' : 'Support is billed separately from development. Payment and renewal terms are agreed when discussing your request.'}</p>}
         </div>
-        <div className="order-info-footer"><div className="order-info-price order-info-footer-price"><span>{priceLabel}</span><strong>{price}</strong></div><button className="order-info-action" type="button" onClick={() => { if (closingRef.current) return; dismiss(() => onCloseRef.current()); onActionRef.current(); }} data-testid="order-info-action">{action}</button></div>
+        <div className="order-info-footer"><div className="order-info-price order-info-footer-price"><span>{priceLabel}{priceHint && <small className="order-info-rate">{priceHint}</small>}</span><strong>{price}</strong></div><button className="order-info-action" type="button" onClick={() => { if (closingRef.current) return; dismiss(() => onCloseRef.current()); onActionRef.current(); }} data-testid="order-info-action">{action}</button></div>
       </div>
     </div>, document.body,
   );

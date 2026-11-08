@@ -4,6 +4,11 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-09 — Order: USD for additional functions
+
+- Extended the NBKR-derived USD estimates to optional feature rows, feature details, selected extras and development totals while keeping included items and order calculations unchanged.
+- Display the rate state on subsequent steps, keep the prepared Telegram message in RUB, and adapt narrow-screen rows for longer dual-currency prices.
+
 ## 2026-11-09 — Order: clarify pricing and hide rate date
 
 - Reworded the first step around an estimated app price and a clear choice of app type, without implying immediate payment.

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Check, ChevronDown, ChevronRight, Info, Plus } from 'lucide-react';
 import { appTemplatesBase, availableFeaturesBase, categoryKeys } from './orderCatalog';
+import { rubWithUsd } from './orderPrice';
 import basicArt from '../assets/order/glass-20261108-basic.webp';
 import paymentsArt from '../assets/order/glass-20261108-payments.webp';
 import deliveryArt from '../assets/order/glass-20261108-delivery.webp';
@@ -27,6 +28,8 @@ type Props = {
   onFeatureInfo: (id: string) => void;
   onChangeTemplate: () => void;
   total: number;
+  rubToUsd: number | null;
+  rateLabel: string;
 };
 
 // Recommendations are suggestions only: nothing is preselected and the full catalog remains available.
@@ -37,8 +40,6 @@ const suggestions: Record<string, string[]> = {
   services: ['calendar-sync', 'push-notifications', 'reviews', 'basic-analytics'],
 };
 
-const numberFormat = new Intl.NumberFormat('ru-RU');
-const money = (amount: number) => `${numberFormat.format(amount)} ₽`;
 const categoryVisuals: Record<string, { image: string; ru: string; en: string }> = {
   'constructor.basicFeatures': { image: basicArt, ru: 'Всё для удобного старта', en: 'Everything for a smooth start' },
   'constructor.paymentsCategory': { image: paymentsArt, ru: 'Оплата и подписки', en: 'Payments and subscriptions' },
@@ -51,7 +52,7 @@ const categoryVisuals: Record<string, { image: string; ru: string; en: string }>
   'constructor.integrationsCategory': { image: integrationsArt, ru: 'Связь с нужными сервисами', en: 'Connect the services you need' },
 };
 
-export function OrderFeaturesStep({ ru, t, template, artSrc, directionLabel, projectName, onProjectNameChange, includedIds, extras, onToggleFeature, onFeatureInfo, onChangeTemplate, total }: Props) {
+export function OrderFeaturesStep({ ru, t, template, artSrc, directionLabel, projectName, onProjectNameChange, includedIds, extras, onToggleFeature, onFeatureInfo, onChangeTemplate, total, rubToUsd, rateLabel }: Props) {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const included = availableFeaturesBase.filter((feature) => includedIds.has(feature.id));
@@ -74,18 +75,18 @@ export function OrderFeaturesStep({ ru, t, template, artSrc, directionLabel, pro
       >
         <span className={`order-feature-check ${selected ? 'is-active' : ''}`} aria-hidden="true">{selected ? <Check size={12} strokeWidth={2.8} /> : <Plus size={13} />}</span>
         <span className="order-feature-name">{t(feature.nameKey)}</span>
-        <span className="order-feature-meta"><span className="order-feature-status">{status}</span>{!isIncluded && <span className="order-feature-cost">+ {money(feature.price)}</span>}</span>
+        <span className="order-feature-meta"><span className="order-feature-status">{status}</span>{!isIncluded && <span className="order-feature-cost">+ {rubWithUsd(feature.price, rubToUsd)}</span>}</span>
       </button>
       <button className="order-row-info" type="button" onClick={() => onFeatureInfo(feature.id)} aria-label={`${ru ? 'Подробнее' : 'Details'}: ${t(feature.nameKey)}`} data-testid={`${variant === 'recommended' ? 'recommended-info' : 'feature-info'}-${feature.id}`}><Info size={17} strokeWidth={1.7} /></button>
     </div>;
   };
 
   return <section className="order-features" aria-label={ru ? 'Настройка приложения' : 'Configure your app'}>
-    <div className="order-selected-app"><img src={artSrc} alt="" /><div><small>{ru ? 'ВАШ ВЫБОР' : 'YOUR CHOICE'}</small><strong>{directionLabel}</strong><span>{ru ? 'от' : 'from'} {money(template.estimatedPrice)}</span></div><button type="button" onClick={onChangeTemplate} aria-label={ru ? 'Изменить тип приложения' : 'Change app type'}><ChevronRight size={18} /></button></div>
+    <div className="order-selected-app"><img src={artSrc} alt="" /><div><small>{ru ? 'ВАШ ВЫБОР' : 'YOUR CHOICE'}</small><strong>{directionLabel}</strong><span>{ru ? 'от' : 'from'} {rubWithUsd(template.estimatedPrice, rubToUsd)}</span></div><button type="button" onClick={onChangeTemplate} aria-label={ru ? 'Изменить тип приложения' : 'Change app type'}><ChevronRight size={18} /></button></div>
     <label className="order-name-label" htmlFor="order-project-name">{ru ? 'Название проекта' : 'Project name'} <span>{ru ? 'необязательно' : 'optional'}</span></label>
     <input id="order-project-name" className="order-name-input" value={projectName} maxLength={80} onChange={(event) => onProjectNameChange(event.target.value)} placeholder={ru ? 'Например, название бизнеса' : 'For example, your business'} />
 
-    <div className="order-feature-intro"><h2>{ru ? 'Возможности' : 'Features'}</h2></div>
+    <div className="order-feature-intro"><h2>{ru ? 'Возможности' : 'Features'}</h2><small className="order-rate-note" aria-live="polite">{rateLabel}</small></div>
     <div className="order-included-panel" aria-label={ru ? 'Включено в основу' : 'Included in the package'}>
       <div className="order-included-heading"><span className="order-included-symbol" aria-hidden="true"><Check size={14} strokeWidth={2.6} /></span><strong>{ru ? 'Уже включено' : 'Already included'}</strong><span>{included.length}</span></div>
       <ul className="order-included-chips">{included.map((feature) => <li key={feature.id}>{t(feature.nameKey)}</li>)}</ul>
@@ -117,6 +118,6 @@ export function OrderFeaturesStep({ ru, t, template, artSrc, directionLabel, pro
         })}
       </div>}
     </details>
-    <div className="order-price-inline"><span>{ru ? 'Ориентировочно за разработку' : 'Estimated development'}</span><strong data-testid="order-running-total">{money(total)}</strong></div>
+    <div className="order-price-inline"><span>{ru ? 'Ориентировочно за разработку' : 'Estimated development'}</span><strong data-testid="order-running-total">{rubWithUsd(total, rubToUsd)}</strong></div>
   </section>;
 }
