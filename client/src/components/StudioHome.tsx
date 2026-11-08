@@ -49,6 +49,7 @@ export default function StudioHome({ onNavigate, onOpenDemo }: Props) {
       <section className="studio-editorial" aria-labelledby="studio-home-title">
         <div className="studio-eyebrow"><span>{ru ? 'WEB4TG / МЫ СОЗДАЁМ' : 'WEB4TG / WE CREATE'}</span><span>{ru ? 'ПРИЛОЖЕНИЯ' : 'APPS'}</span></div>
         <h1 id="studio-home-title" aria-label={ru ? 'Ваш бизнес в Telegram' : 'Your business in Telegram'}><span>{ru ? 'ВАШ БИЗНЕС' : 'YOUR BUSINESS'}</span><span>{ru ? 'В TELEGRAM.' : 'IN TELEGRAM.'}</span></h1>
+        <p className="studio-intro-copy">{ru ? 'Мы создаём приложение в Telegram, где удобно выбирать и заказывать.' : 'We create a Telegram app where customers can easily choose and order.'}</p>
         <HomeDemo ru={ru} onOpenDemo={openDemo}/>
         <div className="studio-intro-actions"><button type="button" onClick={() => go('projects')}>{ru ? 'Все примеры' : 'All examples'} <ArrowUpRight size={17} aria-hidden="true"/></button><button type="button" onClick={() => go('constructor')} data-testid="home-start-order">{ru ? 'Обсудить проект' : 'Discuss your project'} <ArrowUpRight size={17} aria-hidden="true"/></button></div>
       </section>

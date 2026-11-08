@@ -1108,6 +1108,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite build and visual mobile review against the provided screenshot; Chromium and WebKit at 320/390/430px, RU/EN, selector states, touch gestures and demo navigation. Screenshots under workspace `work/home-reference-*`. The design awaits user evaluation.
 
 ---
+## 2026-11-08 · Restore the requested home introduction
+
+**What:** Added the user's preferred sentence below the two-line headline, with a readable muted treatment and an English equivalent.
+**Why:** User explicitly liked the wording and asked to put it under the heading.
+**Files:** `StudioHome.tsx`, `StudioHome.css`.
+**Checkpoint:** previous local commit `b90142f`; unrelated working-tree changes preserved.
+**Verification:** Vite build and mobile visual review at 320/390/430px in Russian and English. Screenshot under workspace `work/home-intro-chromium-390-ru.png`.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
