@@ -58,8 +58,9 @@ export default function HomeDemo({ ru, onOpenDemo }: Props) {
   }, [project]);
 
   return <div className="home-demo" data-testid="home-exhibit">
+    <div className="home-demo__label" aria-hidden="true"><span>{ru ? 'ВЫБЕРИТЕ НАПРАВЛЕНИЕ' : 'CHOOSE A CATEGORY'}</span><span>{ru ? 'ДЕМО' : 'DEMO'}</span></div>
     <div className="home-demo__projects" role="group" aria-label={ru ? 'Выберите пример' : 'Choose an example'}>
-      {projects.map((item, index) => <button key={item.id} type="button" aria-label={ru ? item.title : item.titleEn} aria-pressed={projectIndex === index} onClick={() => chooseProject(index)}><span className="home-demo__index" aria-hidden="true">0{index + 1}</span><span>{ru ? item.title : item.titleEn}</span></button>)}
+      {projects.map((item, index) => <button key={item.id} type="button" aria-pressed={projectIndex === index} onClick={() => chooseProject(index)}>{ru ? item.title : item.titleEn}</button>)}
     </div>
     <button type="button" className="home-demo__image" data-testid="home-open-demo" onPointerDown={startSwipe} onPointerUp={finishSwipe} onPointerCancel={() => { gesture.current = null; }} onClick={(event) => { if (suppressClick.current && event.detail !== 0) { suppressClick.current = false; return; } onOpenDemo(project.id); }} onTouchStart={() => preloadDemo(project.id)} aria-label={ru ? `Открыть демо: ${project.label.toLowerCase()}` : `Open demo: ${project.labelEn.toLowerCase()}`}>
       <img key={`${project.id}-${view}`} data-view={view} src={project[view]} alt="" draggable={false} fetchPriority={projectIndex === 0 && view === 'home' ? 'high' : 'auto'} decoding="async" />

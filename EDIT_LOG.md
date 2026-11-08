@@ -1099,6 +1099,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite build, Chromium/WebKit review at 320/390/430px in RU/EN, all category captions and demo switches checked for fit and interaction. Mobile captures under workspace `work/home-type-*`. Artwork and real demo screens remain unchanged.
 
 ---
+## 2026-11-08 · Match the black and grey MIRA heading
+
+**What:** Shortened the first screen into two large, tight black/grey headline lines with the actual MIRA type scale, preserving the studio “we” voice in the kicker. Replaced the six tiled selectors and home/detail segments with a lighter text index and selection underlines.
+**Why:** User repeated the screenshot and clarified that the small text should become a shortened grey line below the black line, and rejected the previous switches.
+**Files:** `StudioHome.tsx`, `StudioHome.css`, `HomeDemo.tsx`, `HomeDemo.css`, `home-redesign-design-notes.md`.
+**Checkpoint:** previous local commit `f1633eb`; unrelated work preserved.
+**Verification:** Vite build and visual mobile review against the provided screenshot; Chromium and WebKit at 320/390/430px, RU/EN, selector states, touch gestures and demo navigation. Screenshots under workspace `work/home-reference-*`. The design awaits user evaluation.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
