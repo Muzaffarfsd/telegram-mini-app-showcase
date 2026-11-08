@@ -38,3 +38,6 @@
 .lumi-v4-home button:focus-visible,.lumi-v4-catalog button:focus-visible,.lumi-v4-detail button:focus-visible{outline:2px solid #111;outline-offset:2px}
 
 .lumi-v4-detail h1{margin-bottom:12px}.lumi-v4-detail .lumi-v4-gallery{margin-top:24px}
+
+/* Keep all five navigation actions inside the panel on narrow phones. */
+@media(max-width:350px){.lumi-portal .lumi-nav{gap:1px;padding-inline:4px}.lumi-portal .lumi-nav>button{padding-inline:10px}.lumi-portal .lumi-nav>button.active{padding-inline:9px}}

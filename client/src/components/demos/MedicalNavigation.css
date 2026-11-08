@@ -12,3 +12,5 @@ body:has(.medical-booking input:focus) .medical-navigation{visibility:hidden}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.medical-navigation{background:rgba(255,255,255,.96)}}
 @media(prefers-reduced-transparency:reduce){.medical-navigation{background:#fff;backdrop-filter:none;-webkit-backdrop-filter:none}}
 @media(prefers-reduced-motion:reduce){.medical-navigation *{transition:none!important}}
+
+@media(max-width:350px){.medical-navigation{gap:1px;padding-inline:4px}.medical-navigation>button.is-active{padding-inline:10px}}

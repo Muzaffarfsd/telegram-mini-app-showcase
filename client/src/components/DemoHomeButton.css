@@ -1,0 +1,38 @@
+button.demo-home-button.demo-home-button.demo-home-button {
+  position: relative;
+  z-index: 30;
+  display: flex;
+  flex: 0 0 44px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #55565a;
+  cursor: pointer;
+}
+
+button.demo-home-button.demo-home-button.demo-home-button > span {
+  display: block;
+  position: static;
+  width: auto;
+  height: auto;
+  max-width: none;
+  opacity: 1;
+  overflow: visible;
+  white-space: nowrap;
+  font: 700 7px/1 sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.demo-home-button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -4px;
+  border-radius: 12px;
+}

@@ -1,3 +1,4 @@
+import { DemoHomeButton } from '../DemoHomeButton';
 import React from 'react';
 import { CalendarDays, Grid3X3, Home, Users } from 'lucide-react';
 import './MedicalNavigation.css';
@@ -21,6 +22,6 @@ export default function MedicalNavigation({ active, onNavigate }: Props) {
         className={active === id ? 'is-active' : undefined}
         onClick={event => { event.currentTarget.focus({ preventScroll: true }); onNavigate(id); }}
       ><Icon size={21}/><span>{title}</span></button>)}
-    </nav>
+    <DemoHomeButton /></nav>
   </div>;
 }

@@ -219,3 +219,5 @@
 
 .mf-gallery.is-zoomed{touch-action:pan-x pan-y}
 .mf-gallery-image-viewport .mf-gallery-main{transition:none!important}
+
+.mf-nav > .demo-home-button { color:#666; }

@@ -324,3 +324,7 @@
 #root.royal-step-scroll-root { scroll-padding-top:96px; scroll-padding-bottom:160px; }
 body:has(.royal-step :is(input,textarea):focus) .rs-nav { visibility:hidden; }
 @media (max-width:350px) { .rs-gallery { padding:0 12px; gap:4px; grid-template-columns:minmax(0,1fr) 72px; } .rs-gallery .rs-photo-thumbs { gap:4px; } .rs-photo-main span { font-size:9px; } }
+
+.rs-nav > .demo-home-button { flex:0 0 44px; flex-direction:column; gap:2px; width:44px; padding:0; }
+.rs-nav > .demo-home-button span { font:700 7px/1 sans-serif; letter-spacing:-.02em; }
+@media (max-width:350px) { .rs-nav > button.is-active { padding-inline:8px; } }

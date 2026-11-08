@@ -196,3 +196,7 @@
 
 .as-product-gallery.is-zoomed{touch-action:pan-x pan-y}
 .as-inline-photo>img{transition:none!important}
+
+.as-portal .as-nav > .demo-home-button { flex:0 0 44px; flex-direction:column; gap:2px; width:44px; padding:0; }
+.as-portal .as-nav > .demo-home-button span:not(.as-bag) { display:block; font:700 7px/1 sans-serif; letter-spacing:-.02em; }
+@media (max-width:350px) { .as-portal .as-nav > button.is-active { padding-inline:8px; } }

@@ -8,6 +8,7 @@ import { LiquidHomeButton } from "./ui/liquid-home-button";
 import { scrollToTop } from "@/hooks/useScrollToTop";
 import { useLanguage } from "../contexts/LanguageContext";
 import { DemoLoadingSkeleton } from './DemoLoadingSkeleton';
+import { DemoHomeButton } from './DemoHomeButton';
 
 interface DemoAppShellProps {
   demoId: string;
@@ -508,6 +509,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
                   strokeWidth={activeTab === 'profile' ? 2 : 1.5}
                 />
               </DemoNavTab>
+              <DemoHomeButton color={theme.activeIconColor} />
             </nav>
           </div>
         </>,

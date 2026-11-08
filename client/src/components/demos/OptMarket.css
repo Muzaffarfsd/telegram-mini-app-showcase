@@ -264,3 +264,6 @@ body:has(.opt-form input:focus) .opt-nav, body:has(.opt-search input:focus) .opt
 @media(prefers-reduced-motion:reduce){.opt-portal .opt-nav,.opt-portal .opt-nav *{transition:none!important}}
 
 body:has(.partiya-save-form input:focus) .opt-portal .opt-nav{visibility:hidden}
+
+/* Six controls need their full touch targets on narrow phones. */
+@media(max-width:380px){.opt-portal .opt-nav>button.active{gap:0;padding-inline:0}.opt-portal .opt-nav>button.active small{display:none}}
