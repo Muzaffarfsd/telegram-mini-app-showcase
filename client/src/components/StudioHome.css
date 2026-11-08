@@ -10,7 +10,7 @@
 html.lang-ru .studio-editorial h1, html.lang-en .studio-editorial h1, .studio-editorial h1 { margin:22px 0 0; font-family:'Arial Black','Google Sans App',system-ui,sans-serif; font-size:clamp(28px,8.3vw,39px); font-weight:900; line-height:.91; letter-spacing:-.07em; }
 .studio-editorial h1 span { display:block; white-space:nowrap; }
 .studio-editorial h1 span + span { color:#737373; }
-.studio-intro-copy { max-width:390px; margin:14px 0 0; color:#666; font-size:14px; line-height:1.45; }
+.studio-intro-copy { max-width:400px; margin:14px 0 0; color:#383838; font-size:clamp(16px,4.1vw,17px); font-weight:600; line-height:1.45; }
 .studio-intro-actions { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:12px; }
 .studio-intro-actions button { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:46px; padding:0; border:0; background:transparent; color:#202020; font-size:12px; font-weight:700; white-space:nowrap; }
 .studio-intro-actions button:last-child { padding:0 17px; border-radius:999px; background:#1b1b1b; color:#fff; }

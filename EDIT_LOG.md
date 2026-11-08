@@ -1126,6 +1126,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite build and visual mobile comparison; Chromium/WebKit at 320/390/430px in RU/EN, selected states, touch swipe and demo navigation. Screenshots in workspace `work/home-reference-final-*`. No real orders or messages sent.
 
 ---
+## 2026-11-08 · Improve the home introduction's readability
+
+**What:** Increased the introduction's font size, weight and contrast while keeping its wording and place below the headline.
+**Why:** User said the sentence was hard to read and asked for a more expressive treatment.
+**Files:** `StudioHome.css`.
+**Checkpoint:** previous commit `f281c06`; unrelated working-tree changes preserved.
+**Verification:** Mobile visual review in Chromium and WebKit, Russian and English; captures in workspace `work/home-readable-intro-*`. No behavior changed.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
