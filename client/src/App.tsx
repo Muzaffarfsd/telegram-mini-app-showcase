@@ -374,7 +374,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
               firstName={user?.first_name}
               size="sm"
               className={`w-6 h-6 ${
-                isProfile ? 'ring-[1.5px] ring-white/40' : 'opacity-45'
+                isProfile ? 'ring-[1.5px] ring-white/40' : ''
               }`}
             />
           </NavTab>

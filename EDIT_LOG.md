@@ -4,6 +4,10 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-09 — Bottom navigation avatar visibility
+
+- Removed the inactive avatar's 45% opacity so the user's photo, initials or fallback icon retain their natural visibility. The active profile ring and other navigation states are unchanged.
+
 ## 2026-11-09 — Home demo: swipe between categories
 
 - Extended the existing image swipe across the full sequence of demo screens: home, product or service, and the next category; reverse swipes return to the previous screen, with wraparound at both ends.
