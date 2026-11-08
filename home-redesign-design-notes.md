@@ -35,3 +35,7 @@ The user repeated the MIRA screenshot and explicitly requested the black main te
 ### Restore the shown controls
 
 The user supplied a screenshot of the earlier segmented controls and asked to restore those buttons. Restored the exact prior six-cell tray and home/product segment from commit `f1633eb`; the subsequent two-line headline, requested introduction and generic category labels remain. The screenshot was treated as a reference for controls only. Active states, labels, 44px touch targets and gestures are checked in the live page.
+
+### Pill controls and a new Apple product creative
+
+The next user-supplied screenshot specifies six separate white outlined pills and a black active pill, plus matching home/product pills. This supersedes the earlier tray request for this page only. The user also asked for “WEB4TG | STUDIO” alone under the header and rejected the previous burgundy Apple product creative without giving a specific reason. Generated `client/public/home-editorial/apple-burgundy-product-real-v6.webp` using built-in ImageGen with the actual burgundy product screenshot and MURAKA creative as inputs. Prompt: retain the real product screen and demo price, omit the outer WEB4TG header, and make a fresh dimensional transparent composition around the phone. The screen content remains a generative interpretation, not a pixel-exact screenshot. The new art awaits user evaluation.

@@ -1144,6 +1144,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Mobile visual and interaction review of both clothing choices in Russian and English; no application logic changed.
 
 ---
+## 2026-11-08 · Restore pill controls and regenerate Apple product creative
+
+**What:** Replaced both segmented controls with outlined pill buttons and black active states as shown in the user's screenshot. Set the top label to “WEB4TG | STUDIO” and generated a fresh burgundy iPhone product creative from the real demo screen.
+**Why:** User disliked the previous Apple product artwork, supplied the desired button reference and requested the revised top label.
+**Files:** `StudioHome.tsx`, `HomeDemo.tsx`, `HomeDemo.css`, `client/public/home-editorial/apple-burgundy-product-real-v6.webp`, `home-redesign-design-notes.md`.
+**Checkpoint:** previous local commit `036695e`; unrelated work preserved.
+**Verification:** Vite build and Chromium/WebKit at 320/390/430px in RU/EN; all six controls, screen selection, touch swipe and demo navigation passed. New Apple image checked in the mobile page. Screenshots `work/home-pill-*` and `work/home-apple-v6-*`; generated screen details may differ slightly from the source.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
