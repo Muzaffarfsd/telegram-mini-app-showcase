@@ -8,11 +8,11 @@ interface Props { ru: boolean; onOpenDemo: (id: string) => void }
 type View = 'home' | 'product';
 const projects = [
   { id: 'muraka-fashion', title: 'Одежда', titleEn: 'Fashion', name: 'MURAKA', home: '/home-editorial/fashion-muraka-home-v2.webp', product: '/home-editorial/fashion-muraka-product-v2.webp' },
-  { id: 'women-fashion', title: 'Женская', titleEn: 'Women', name: 'MIRA', home: '/home-editorial/fashion-mira-real-home-v3.webp', product: '/home-editorial/fashion-mira-real-product-v3.webp' },
-  { id: 'nike-sneakers', title: 'Кроссовки', titleEn: 'Sneakers', name: 'NIKE', home: '/home-editorial/sneaker-real-home-v3.webp', product: '/home-editorial/sneaker-real-jordan-v3.webp' },
-  { id: 'apple-store', title: 'Apple', titleEn: 'Apple', name: 'APPLE', home: '/home-editorial/apple-home-real-v4.webp', product: '/home-editorial/apple-burgundy-product-real-v4.webp' },
-  { id: 'flower-store', title: 'Цветы', titleEn: 'Flowers', name: 'FLORA', home: '/home-editorial/florist-home-real-v2.webp', product: '/home-editorial/florist-product-real-v2.webp' },
-  { id: 'lumi-studio', title: 'Салон', titleEn: 'Salon', name: 'LUMI', home: '/home-editorial/lumi-real-home-v1.webp', product: '/home-editorial/lumi-real-service-v1.webp' },
+  { id: 'women-fashion', title: 'Женская', titleEn: 'Women', name: 'MIRA', home: '/home-editorial/fashion-mira-no-header-home-v4.webp', product: '/home-editorial/fashion-mira-no-header-product-v4.webp' },
+  { id: 'nike-sneakers', title: 'Кроссовки', titleEn: 'Sneakers', name: 'NIKE', home: '/home-editorial/sneaker-no-header-home-v4.webp', product: '/home-editorial/sneaker-no-header-jordan-v4.webp' },
+  { id: 'apple-store', title: 'Apple', titleEn: 'Apple', name: 'APPLE', home: '/home-editorial/apple-home-real-v5.webp', product: '/home-editorial/apple-burgundy-product-real-v5.webp' },
+  { id: 'flower-store', title: 'Цветы', titleEn: 'Flowers', name: 'FLORA', home: '/home-editorial/florist-home-no-header-v3.webp', product: '/home-editorial/florist-product-no-header-v3.webp' },
+  { id: 'lumi-studio', title: 'Салон', titleEn: 'Salon', name: 'LUMI', home: '/home-editorial/lumi-home-no-header-v2.webp', product: '/home-editorial/lumi-service-no-header-v2.webp' },
 ] as const;
 
 /** An interactive preview of real demo apps; clicking the artwork opens the selected app. */

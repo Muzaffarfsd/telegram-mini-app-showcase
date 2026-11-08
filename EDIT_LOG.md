@@ -1072,6 +1072,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite production build and Chromium/WebKit at 320/390/430px; all images decode, six tabs fit, each home/detail switch works, and all demo routes open at 390px. Independent Chromium touch gestures passed in both directions for the three requested examples; Russian and English tabs fit at 320px. Visual comparison with the current screenshots and mobile captures saved in workspace `work/home-more-*`, `work/home-new-*` and `work/home-real-screens/`. Images are generated interpretations and small interface details may differ. API requests were mocked, no real orders or messages sent.
 
 ---
+## 2026-11-08 · Remove WEB4TG header from preview artwork
+
+**What:** Removed the outer WEB4TG header from MIRA, Apple, FLORA and LUMI image pairs; regenerated sneaker home and Jordan product compositions using current screens, requesting undistorted shoe proportions and no outer header. The original MURAKA pair already excluded it. The actual application header remains in place.
+**Why:** User requested no header in the home and product images and said the sneakers appeared flattened in both images.
+**Files:** `HomeDemo.tsx`, ten versioned `client/public/home-editorial/` WebPs, `home-redesign-design-notes.md`.
+**Checkpoint:** `checkpoint/home-preview-header-20261108` at `101811a`.
+**Verification:** Vite build and mobile Chromium/WebKit tests at 320/390/430px, six tabs and both views load; independent touch and navigation review. Visual review of source/output and actual mobile views; generated UI details may vary from the real screens. API requests mocked. Screenshot captures under workspace `work/home-more-*`.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
