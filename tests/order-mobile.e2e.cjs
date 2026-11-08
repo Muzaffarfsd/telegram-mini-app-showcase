@@ -49,7 +49,7 @@ async function openFeature(page, id) {
     let imageRequested;
     const imageHeld = new Promise(resolve => { releaseImage = resolve; });
     const requestObserved = new Promise(resolve => { imageRequested = resolve; });
-    await loadingContext.route('**/*fashion-mira-no-header-home-v4*.webp*', async route => {
+    await loadingContext.route('**/*fashion-muraka-home-v2*.webp*', async route => {
       // Vite serves an image URL as a JS module ending in ?import; delay the actual image, not its module.
       if (new URL(route.request().url()).searchParams.has('import')) { await route.continue(); return; }
       imageRequested(); await imageHeld; await route.continue().catch(() => {});

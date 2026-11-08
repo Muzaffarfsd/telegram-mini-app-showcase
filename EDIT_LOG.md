@@ -4,6 +4,11 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-08 — Order: men's clothing preview and reduced top spacing
+
+- Replaced the women's clothing preview with the streetwear homepage artwork, as requested.
+- Reduced the empty progress-row height on the first order step while keeping the header clearance and back-button area on later steps.
+
 ## 2026-11-08 — Order: sneakers instead of the shoes card
 
 - Hid the buyer-based “Обувь” card in the new-order choices and retained “Кроссовки” with the exact creative homepage image; preserved old shoes drafts and their original meaning.

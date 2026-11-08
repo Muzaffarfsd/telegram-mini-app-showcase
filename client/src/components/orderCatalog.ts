@@ -1,7 +1,7 @@
 // Existing offerings and prices, separated from the order interface.
 // These are presentation choices for the same ecommerce package, not new tariffs.
 export const storeCategories = [
-  { id: 'clothes', ru: 'Одежда', en: 'Clothing', fullRu: 'Магазин одежды', fullEn: 'Clothing store', descriptionRu: 'Каталог одежды и заказ', descriptionEn: 'Fashion catalog and ordering', image: '/home-editorial/fashion-mira-no-header-home-v4.webp' },
+  { id: 'clothes', ru: 'Одежда', en: 'Clothing', fullRu: 'Магазин одежды', fullEn: 'Clothing store', descriptionRu: 'Каталог одежды и заказ', descriptionEn: 'Fashion catalog and ordering', image: '/home-editorial/fashion-muraka-home-v2.webp' },
   { id: 'shoes', ru: 'Обувь', en: 'Shoes', fullRu: 'Магазин обуви', fullEn: 'Shoe store', descriptionRu: 'Пример: подборка обуви байера', descriptionEn: 'Example: a buyer’s shoe selection', image: '/order-editorial/footwear-v2.webp' },
   { id: 'sneakers', ru: 'Кроссовки', en: 'Sneakers', fullRu: 'Магазин кроссовок', fullEn: 'Sneaker store', descriptionRu: 'Каталог кроссовок и заказ', descriptionEn: 'Sneaker catalog and ordering', image: '/home-editorial/sneaker-no-header-home-v4.webp' },
   { id: 'tech', ru: 'Смартфоны', en: 'Smartphones', fullRu: 'Магазин смартфонов и аксессуаров', fullEn: 'Smartphones and accessories store', descriptionRu: 'Apple, техника и аксессуары', descriptionEn: 'Apple, devices and accessories', image: '/home-editorial/apple-home-real-v5.webp' },

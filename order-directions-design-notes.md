@@ -1,5 +1,9 @@
 # Order page: directions and creative previews — 8 November 2026
 
+## Clothing and top spacing correction
+
+The user asked for the men's store home screen instead of the women's preview on the “Одежда” card, and for slightly less empty space at the top of the order page. The card now reuses `/home-editorial/fashion-muraka-home-v2.webp`, the streetwear home-screen composition from the homepage. The first step's progress row was shortened, keeping its position below the fixed header and the 44 px back button on later steps unchanged. The user has not yet assessed the adjustment.
+
 ## Follow-up correction
 
 The user rejected the separate buyer-based “Обувь” card and asked for “Кроссовки” with the existing creative homepage screen. The current new-order list therefore hides “Обувь”; “Кроссовки” uses exactly `/home-editorial/sneaker-no-header-home-v4.webp`, the homepage demo image, and follows clothing in the list. The `shoes` identifier remains only to preserve older saved drafts without silently changing their meaning. The sections below document the preceding implementation before this correction.
