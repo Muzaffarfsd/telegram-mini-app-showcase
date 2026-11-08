@@ -7,12 +7,12 @@ import './HomeDemo.css';
 interface Props { ru: boolean; onOpenDemo: (id: string) => void }
 type View = 'home' | 'product';
 const projects = [
-  { id: 'muraka-fashion', title: 'Одежда', titleEn: 'Fashion', name: 'MURAKA', home: '/home-editorial/fashion-muraka-home-v2.webp', product: '/home-editorial/fashion-muraka-product-v2.webp' },
-  { id: 'women-fashion', title: 'Женская', titleEn: 'Women', name: 'MIRA', home: '/home-editorial/fashion-mira-no-header-home-v4.webp', product: '/home-editorial/fashion-mira-no-header-product-v4.webp' },
-  { id: 'nike-sneakers', title: 'Кроссовки', titleEn: 'Sneakers', name: 'NIKE', home: '/home-editorial/sneaker-no-header-home-v4.webp', product: '/home-editorial/sneaker-no-header-jordan-v4.webp' },
-  { id: 'apple-store', title: 'Apple', titleEn: 'Apple', name: 'APPLE', home: '/home-editorial/apple-home-real-v5.webp', product: '/home-editorial/apple-burgundy-product-real-v5.webp' },
-  { id: 'flower-store', title: 'Цветы', titleEn: 'Flowers', name: 'FLORA', home: '/home-editorial/florist-home-no-header-v3.webp', product: '/home-editorial/florist-product-no-header-v3.webp' },
-  { id: 'lumi-studio', title: 'Салон', titleEn: 'Salon', name: 'LUMI', home: '/home-editorial/lumi-home-no-header-v2.webp', product: '/home-editorial/lumi-service-no-header-v2.webp' },
+  { id: 'muraka-fashion', title: 'Одежда', titleEn: 'Fashion', label: 'МАГАЗИН ОДЕЖДЫ', labelEn: 'FASHION STORE', home: '/home-editorial/fashion-muraka-home-v2.webp', product: '/home-editorial/fashion-muraka-product-v2.webp' },
+  { id: 'women-fashion', title: 'Женская', titleEn: 'Women', label: 'ЖЕНСКАЯ ОДЕЖДА', labelEn: 'WOMEN’S FASHION', home: '/home-editorial/fashion-mira-no-header-home-v4.webp', product: '/home-editorial/fashion-mira-no-header-product-v4.webp' },
+  { id: 'nike-sneakers', title: 'Кроссовки', titleEn: 'Sneakers', label: 'МАГАЗИН КРОССОВОК', labelEn: 'SNEAKER STORE', home: '/home-editorial/sneaker-no-header-home-v4.webp', product: '/home-editorial/sneaker-no-header-jordan-v4.webp' },
+  { id: 'apple-store', title: 'Техника', titleEn: 'Tech', label: 'МАГАЗИН ТЕХНИКИ', labelEn: 'TECH STORE', home: '/home-editorial/apple-home-real-v5.webp', product: '/home-editorial/apple-burgundy-product-real-v5.webp' },
+  { id: 'flower-store', title: 'Цветы', titleEn: 'Flowers', label: 'МАГАЗИН ЦВЕТОВ', labelEn: 'FLOWER STORE', home: '/home-editorial/florist-home-no-header-v3.webp', product: '/home-editorial/florist-product-no-header-v3.webp' },
+  { id: 'lumi-studio', title: 'Салон', titleEn: 'Salon', label: 'САЛОН КРАСОТЫ', labelEn: 'BEAUTY SALON', home: '/home-editorial/lumi-home-no-header-v2.webp', product: '/home-editorial/lumi-service-no-header-v2.webp' },
 ] as const;
 
 /** An interactive preview of real demo apps; clicking the artwork opens the selected app. */
@@ -61,11 +61,11 @@ export default function HomeDemo({ ru, onOpenDemo }: Props) {
     <div className="home-demo__projects" role="group" aria-label={ru ? 'Выберите пример' : 'Choose an example'}>
       {projects.map((item, index) => <button key={item.id} type="button" aria-label={ru ? item.title : item.titleEn} aria-pressed={projectIndex === index} onClick={() => chooseProject(index)}><span className="home-demo__index" aria-hidden="true">0{index + 1}</span><span>{ru ? item.title : item.titleEn}</span></button>)}
     </div>
-    <button type="button" className="home-demo__image" data-testid="home-open-demo" onPointerDown={startSwipe} onPointerUp={finishSwipe} onPointerCancel={() => { gesture.current = null; }} onClick={(event) => { if (suppressClick.current && event.detail !== 0) { suppressClick.current = false; return; } onOpenDemo(project.id); }} onTouchStart={() => preloadDemo(project.id)} aria-label={ru ? `Открыть демо ${project.name}` : `Open ${project.name} demo`}>
+    <button type="button" className="home-demo__image" data-testid="home-open-demo" onPointerDown={startSwipe} onPointerUp={finishSwipe} onPointerCancel={() => { gesture.current = null; }} onClick={(event) => { if (suppressClick.current && event.detail !== 0) { suppressClick.current = false; return; } onOpenDemo(project.id); }} onTouchStart={() => preloadDemo(project.id)} aria-label={ru ? `Открыть демо: ${project.label.toLowerCase()}` : `Open demo: ${project.labelEn.toLowerCase()}`}>
       <img key={`${project.id}-${view}`} data-view={view} src={project[view]} alt="" draggable={false} fetchPriority={projectIndex === 0 && view === 'home' ? 'high' : 'auto'} decoding="async" />
     </button>
     <div className="home-demo__switch" role="group" aria-label={ru ? 'Экран приложения' : 'App screen'}>
-      <span>{project.name} <small> / {ru ? 'ДЕМО' : 'DEMO'}</small></span>
+      <span>{ru ? project.label : project.labelEn}</span>
       <div><button type="button" aria-pressed={view === 'home'} onClick={() => chooseView('home')}>{ru ? 'Главная' : 'Home'}</button><button type="button" aria-pressed={view === 'product'} onClick={() => chooseView('product')}>{project.id === 'lumi-studio' ? (ru ? 'Услуга' : 'Service') : (ru ? 'Товар' : 'Product')}</button></div>
     </div>
     <button type="button" className="home-demo__open" onClick={() => onOpenDemo(project.id)}>{ru ? 'Открыть приложение' : 'Open app'} <ArrowUpRight size={17} aria-hidden="true" /></button>

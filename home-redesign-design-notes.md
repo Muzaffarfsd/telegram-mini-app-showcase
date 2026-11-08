@@ -23,3 +23,7 @@ Current assets: `fashion-mira-no-header-home-v4.webp`, `fashion-mira-no-header-p
 ## Typography and selectors — 8 November 2026
 
 The user asked for the upper typography and size from the women's store, the studio voice “we”, and more considered switching controls. The actual MIRA screen and CSS were reviewed: Arial Black, weight 900, `clamp(28px,8.3vw,39px)`, line-height .91 and tracking −.07em. The home now uses these metrics with a short single-line heading in accordance with F-20261105-011. The six demos sit in a calm numbered segmented collection with a raised selected cell; home/product/service uses a matching control. The aim is clear selection at a glance with comfortable touch targets, without changing the demo imagery or gestures. The new design has not yet been evaluated by the user.
+
+### Size correction and generic labels
+
+The user supplied a MIRA screenshot and said the typography should be large, and the demo captions should name business categories rather than MURAKA and other project names. Matching MIRA's numeric font size had not achieved the desired visual presence in the shorter one-line heading. Increased it to `clamp(36px,11.5vw,52px)`; the short English version also fits the same scale. Visible demo captions and image button accessibility names now use the business category. Internal names present in the actual demo screen artwork remain part of those real screens. Review at 320/390/430px verifies scale and fit; the correction has not yet been evaluated by the user.

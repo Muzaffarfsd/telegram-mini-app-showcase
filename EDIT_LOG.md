@@ -1090,6 +1090,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite production build; Chromium/WebKit at 320/390/430px, six selectors, home and detail images and demo routes. Independent visual, locale and touch checks. Mobile captures under workspace `work/home-more-*`. No real orders/messages sent.
 
 ---
+## 2026-11-08 · Enlarge home headline and use category captions
+
+**What:** Enlarged the main single-line headline and replaced external demo names and image-button accessible names with business categories. Renamed the Apple selector to “Техника”.
+**Why:** User supplied a screenshot and explicitly requested visibly large typography and category labels such as clothing and flowers instead of project names.
+**Files:** `StudioHome.tsx`, `StudioHome.css`, `HomeDemo.tsx`, `HomeDemo.css`, `home-redesign-design-notes.md`.
+**Checkpoint:** previous commit `c18bb34`; unrelated working-tree edits preserved.
+**Verification:** Vite build, Chromium/WebKit review at 320/390/430px in RU/EN, all category captions and demo switches checked for fit and interaction. Mobile captures under workspace `work/home-type-*`. Artwork and real demo screens remain unchanged.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
