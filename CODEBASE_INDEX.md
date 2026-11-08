@@ -66,7 +66,9 @@ XPNotificationContext.tsx      - XP gain toaster
 **Main routed pages:**
 ```
 ShowcasePage.tsx               - HOME (/) — main showcase of all demo mini-apps
-ProjectsPage.tsx               - /projects — case studies / portfolio
+ProjectsPage.tsx               - /projects — pastel frosted-folder showcase, category files/stickers, instant grid/list and filters
+ProjectsShowcase.css           - showcase material/type/layout; static SVG placement survives reduced motion; compact list rows
+StoreStickers.tsx              - ten original die-cut stickers with balanced optical scales and static angle variables
 OrderExperience.tsx            - active /constructor — three-step order flow, direction/review/detail illustrations
 OrderFeaturesStep.tsx          - feature selection and nine illustrated category cards
 OrderFeaturesStep.css          - category layout, transform-independent illustration centering

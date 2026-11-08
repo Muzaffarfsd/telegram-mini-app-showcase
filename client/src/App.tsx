@@ -624,7 +624,7 @@ function AppContent() {
                   </ErrorBoundary>
                 )}
                 
-                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={route.component.includes('demo') ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'projects', 'constructor', 'aiProcess', 'aiAgent', 'about', 'analytics'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
+                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={route.component.includes('demo') || route.component === 'projects' ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'constructor', 'aiProcess', 'aiAgent', 'about', 'analytics'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
                   {(visitedTabs.has('showcase') || route.component === 'showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
                       <Suspense fallback={<StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} />}>

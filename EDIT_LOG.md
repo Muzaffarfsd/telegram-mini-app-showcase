@@ -1037,6 +1037,19 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite production build passed. Independent geometry/visual review passed 18 cases (320/390/430px × steps 1–3 × upper Telegram inset 0/32px): no page errors or overflow, all back controls clickable, minimum 5px gap beneath the fixed header. All 14 images load; category/detail illustrations fit completely. Existing order-flow regression passed all three mobile widths and blocked-storage recovery. Baseline and after screenshots, geometry and reports saved under workspace `work/order-compact/`; no real orders/messages submitted.
 
 ---
+## 2026-11-08 · Refine the frosted-folder showcase
+
+**What:** Refined all ten pastel folders with a light rim, contact shadow and softly transmitted files; added category-specific vector graphics and varied file poses. Balanced the original die-cut stickers, unified page UI in Google Sans, lightened labels/controls and replaced large list capsules with compact rows and chevrons. Added header clearance and removed the duplicate shell bottom padding only on the projects route. Static SVG transforms remain intact under reduced motion; layout/filter changes still update directly.
+
+**Why:** User approved the six proposed visual improvements and explicitly asked to implement them and send Git. Folder/category concepts and the existing sticker silhouettes are preserved.
+
+**Files:** `client/src/App.tsx`, `client/src/components/ProjectsPage.tsx`, `ProjectsShowcase.css`, `StoreStickers.tsx`, `showcase-refinement-design-notes.md`, `CODEBASE_INDEX.md`.
+
+**Checkpoint:** `checkpoint/showcase-refine-20261108` at `dc6461e`; isolated implementation branch `codex/showcase-refine-20261108`. The MCP reattach attempted to pull the earlier local branch, which has no remote ref; the verified local repository and Git checkpoint were used directly.
+
+**Verification:** Final Vite production build passed (45.28s), secret check and diff whitespace check passed. Actual Chromium mobile captures at 320/390/430px in RU/EN plus normal-motion 390px: no page errors, overflow or clipped labels; filters/list/grid update in the first animation frame. Header clearance is 15–20.25px including a simulated 32px Telegram inset; bottom gap is about 32px instead of 195–222px. Before/after screenshots and reports are saved under workspace `work/showcase-refine-20261108/`; API writes intercepted, no orders or messages sent. Artwork remains subject to the user's evaluation.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
