@@ -26,6 +26,7 @@ import { featureInfo, supportBenefitDetails, supportBenefitsByPlan, supportInfo,
 import './OrderExperience.css';
 
 type Template = typeof appTemplatesBase[number];
+type ExchangeRate = { rubToUsd: number; effectiveDate: string; source: 'NBKR'; stale: boolean };
 const art: Record<string, string> = {
   'ecommerce-basic': shopArt,
   restaurant: restaurantArt,
@@ -68,11 +69,32 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   const [planId, setPlanId] = useState<string | null>(null);
   const [annual, setAnnual] = useState(false);
   const [notice, setNotice] = useState('');
+  const [exchangeRate, setExchangeRate] = useState<ExchangeRate | null>(null);
+  const [rateStatus, setRateStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading');
   const [info, setInfo] = useState<{ kind: 'template' | 'feature' | 'plan'; id: string; storeCategory?: StoreCategoryId } | null>(null);
   const [pendingTemplate, setPendingTemplate] = useState<{ item: Template; category: StoreCategoryId | null } | null>(null);
   const draft = useOrderDraft({ step, templateId, storeCategory, extras, projectName, planId, annual });
   const headingRef = useRef<HTMLHeadingElement>(null);
   const previousStep = useRef(step);
+  useEffect(() => {
+    const controller = new AbortController();
+    const refresh = async () => {
+      try {
+        const response = await fetch('/api/exchange-rates/nbkr', { signal: controller.signal });
+        if (!response.ok) throw new Error('Exchange rate unavailable');
+        const data: unknown = await response.json();
+        if (!data || typeof data !== 'object') throw new Error('Invalid exchange rate');
+        const candidate = data as Partial<ExchangeRate>;
+        if (candidate.source !== 'NBKR' || typeof candidate.stale !== 'boolean' || typeof candidate.rubToUsd !== 'number' || !Number.isFinite(candidate.rubToUsd) || candidate.rubToUsd <= 0 || typeof candidate.effectiveDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(candidate.effectiveDate)) throw new Error('Invalid exchange rate');
+        if (!controller.signal.aborted) { setExchangeRate(candidate as ExchangeRate); setRateStatus('ready'); }
+      } catch {
+        if (!controller.signal.aborted) { setExchangeRate(null); setRateStatus('unavailable'); }
+      }
+    };
+    void refresh();
+    const interval = window.setInterval(refresh, 5 * 60 * 1000);
+    return () => { controller.abort(); window.clearInterval(interval); };
+  }, []);
   const template = appTemplatesBase.find((item) => item.id === templateId);
   const selectedCategory = templateId === 'ecommerce-basic' ? storeCategories.find((item) => item.id === storeCategory) : undefined;
   const directionLabel = selectedCategory ? (ru ? selectedCategory.fullRu : selectedCategory.fullEn) : templateId === 'restaurant' ? (ru ? 'Ресторан и доставка' : 'Restaurant and delivery') : template ? t(template.nameKey) : '';
@@ -177,7 +199,7 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
     const testSuffix = category ? `${item.id}-${category}` : item.id;
     return <div className="order-template-wrap order-showcase-wrap" key={testSuffix}>
       <button type="button" className={`order-template order-showcase-card ${selected ? 'is-selected' : ''}`} aria-pressed={selected} onClick={() => chooseTemplate(item, category)} data-testid={`template-${testSuffix}`}>
-        <span className="order-template-copy order-showcase-copy"><strong>{options.title}</strong><span>{options.description}</span><small>{ru ? 'от' : 'from'} {money(item.estimatedPrice)}</small></span>
+        <span className="order-template-copy order-showcase-copy"><strong>{options.title}</strong><span>{options.description}</span><small className="order-template-price">{ru ? 'от' : 'from'} {money(item.estimatedPrice)} / {exchangeRate ? `≈ $${priceFormatter.format(Math.round(item.estimatedPrice * exchangeRate.rubToUsd))}` : '—'}</small></span>
         <img className="order-template-art order-showcase-art" src={options.image} alt="" draggable={false} loading={category === 'clothes' ? 'eager' : 'lazy'} decoding="async" />
         <span className="order-template-action" aria-hidden="true">{ru ? 'Выбрать' : 'Choose'} <ArrowUpRight size={17} strokeWidth={1.8} /></span><span className="order-choice" aria-hidden="true">{selected && <Check size={12} strokeWidth={3} />}</span>
       </button>
@@ -201,7 +223,7 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
 
         {step === 1 && <section className="order-template-list" aria-label={ru ? 'Направление приложения' : 'App type'}>
           {template && (template.id === 'fitness-center' || (template.id === 'ecommerce-basic' && (!storeCategory || storeCategory === 'shoes'))) && <div className="order-legacy-choice"><span>{ru ? 'Сохранённое направление' : 'Saved direction'}: {directionLabel}</span><button type="button" onClick={() => moveTo(2)} data-testid="continue-legacy-order">{ru ? 'Продолжить' : 'Continue'}</button></div>}
-          <h2 className="order-direction-heading">{ru ? 'Интернет-магазин' : 'Online store'}</h2>
+          <h2 className="order-direction-heading"><span>{ru ? 'Интернет-магазин' : 'Online store'}</span><small className="order-rate-note" aria-live="polite" title={exchangeRate?.effectiveDate}>{exchangeRate ? (exchangeRate.stale ? `${ru ? 'НБКР' : 'NBKR'} ${exchangeRate.effectiveDate.slice(5).split('-').reverse().join('.')} · ${ru ? 'сохранён' : 'cached'}` : `${ru ? 'НБКР с' : 'NBKR from'} ${exchangeRate.effectiveDate.split('-').reverse().join('.')}`) : rateStatus === 'loading' ? (ru ? 'Курс загружается' : 'Loading rate') : (ru ? 'Курс недоступен' : 'Rate unavailable')}</small></h2>
           {storeCategories.filter((category) => category.id !== 'shoes').map((category) => renderDirection(ecommerce, { title: ru ? category.ru : category.en, description: ru ? category.descriptionRu : category.descriptionEn, image: category.image, category: category.id }))}
           <h2 className="order-direction-heading">{ru ? 'Другие направления' : 'Other directions'}</h2>
           {appTemplatesBase.filter((item) => item.id === 'restaurant' || item.id === 'services').map((item) => renderDirection(item, item.id === 'restaurant'

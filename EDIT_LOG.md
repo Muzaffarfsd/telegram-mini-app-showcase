@@ -4,6 +4,12 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-09 — Order: approximate USD equivalents at NBKR rates
+
+- Added a dated, approximate USD equivalent beside each first-step RUB starting price. Base pricing, order totals and the prepared Telegram message remain in RUB.
+- Added a read-only cached server endpoint using the official National Bank of the Kyrgyz Republic daily XML. Unavailable rates do not produce fabricated prices; cached fallback is visibly labelled.
+- See `order-currency-notes.md` for calculation, source and validation.
+
 ## 2026-11-08 — Order: men's clothing preview and reduced top spacing
 
 - Replaced the women's clothing preview with the streetwear homepage artwork, as requested.

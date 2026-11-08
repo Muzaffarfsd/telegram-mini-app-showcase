@@ -26,6 +26,9 @@ import notificationsRouter from './routes/notifications';
 import analyticsRouter from './routes/analytics';
 import coinshopRouter from './routes/coinshop';
 import aiRouter from './routes/ai';
+import { createNbkrRateService } from './nbkrRates';
+
+const getNbkrRate = createNbkrRateService();
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -107,6 +110,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       timestamp: new Date().toISOString(),
       env: process.env.NODE_ENV || 'development'
     });
+  });
+
+  app.get('/api/exchange-rates/nbkr', async (_req, res) => {
+    try {
+      const rate = await getNbkrRate();
+      res.setHeader('Cache-Control', 'no-store');
+      res.json(rate);
+    } catch {
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(503).json({ error: 'Official exchange rate temporarily unavailable' });
+    }
   });
 
   app.use(telegramRouter);

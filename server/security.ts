@@ -50,7 +50,7 @@ export function apiOriginPolicy(req: Request, res: Response, next: NextFunction)
 
 // Every newly registered API is private by default, including new demo APIs.
 // Public exceptions require a deliberate, reviewed entry here AND route-level validation.
-const publicReads = new Set(['/health', '/csrf-token', '/payment-status', '/coinshop/tiers', '/reviews', '/photos', '/user-stories', '/gamification/leaderboard', '/commercial-proposal.pdf', '/ai/personas']);
+const publicReads = new Set(['/health', '/csrf-token', '/payment-status', '/coinshop/tiers', '/reviews', '/photos', '/user-stories', '/gamification/leaderboard', '/commercial-proposal.pdf', '/ai/personas', '/exchange-rates/nbkr']);
 const publicTelemetry = new Set(['/vitals', '/error', '/user-action', '/analytics/ab-event', '/analytics/events', '/analytics/track']);
 const disabledAi = new Set(['/ai/chat', '/ai/tts', '/ai/voices', '/ai/followup', '/ai/followup/cancel']);
 export function apiAccessPolicy(req: Request, res: Response, next: NextFunction) {
