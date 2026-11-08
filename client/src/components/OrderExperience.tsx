@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Info } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { appTemplatesBase, availableFeaturesBase, subscriptionPlansBase } from './orderCatalog';
+import { appTemplatesBase, availableFeaturesBase, storeCategories, subscriptionPlansBase, type StoreCategoryId } from './orderCatalog';
 import shopArt from '../assets/order/glass-20261108-shop.webp';
 import restaurantArt from '../assets/order/glass-20261108-restaurant.webp';
 import fitnessArt from '../assets/order/glass-20261108-fitness.webp';
@@ -32,6 +32,10 @@ const art: Record<string, string> = {
   'fitness-center': fitnessArt,
   services: servicesArt,
 };
+const templateShowcaseArt: Record<string, string> = {
+  restaurant: '/order-editorial/restaurant-starbucks-v1.webp',
+  services: '/home-editorial/lumi-home-no-header-v2.webp',
+};
 const featureArt: Record<string, string> = {
   'constructor.basicFeatures': basicArt,
   'constructor.paymentsCategory': paymentsArt,
@@ -58,17 +62,21 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   const ru = language === 'ru';
   const [step, setStep] = useState(1);
   const [templateId, setTemplateId] = useState<string | null>(null);
+  const [storeCategory, setStoreCategory] = useState<StoreCategoryId | null>(null);
   const [extras, setExtras] = useState<string[]>([]);
   const [projectName, setProjectName] = useState('');
   const [planId, setPlanId] = useState<string | null>(null);
   const [annual, setAnnual] = useState(false);
   const [notice, setNotice] = useState('');
-  const [info, setInfo] = useState<{ kind: 'template' | 'feature' | 'plan'; id: string } | null>(null);
-  const [pendingTemplate, setPendingTemplate] = useState<Template | null>(null);
-  const draft = useOrderDraft({ step, templateId, extras, projectName, planId, annual });
+  const [info, setInfo] = useState<{ kind: 'template' | 'feature' | 'plan'; id: string; storeCategory?: StoreCategoryId } | null>(null);
+  const [pendingTemplate, setPendingTemplate] = useState<{ item: Template; category: StoreCategoryId | null } | null>(null);
+  const draft = useOrderDraft({ step, templateId, storeCategory, extras, projectName, planId, annual });
   const headingRef = useRef<HTMLHeadingElement>(null);
   const previousStep = useRef(step);
   const template = appTemplatesBase.find((item) => item.id === templateId);
+  const selectedCategory = templateId === 'ecommerce-basic' ? storeCategories.find((item) => item.id === storeCategory) : undefined;
+  const directionLabel = selectedCategory ? (ru ? selectedCategory.fullRu : selectedCategory.fullEn) : templateId === 'restaurant' ? (ru ? 'Ресторан и доставка' : 'Restaurant and delivery') : template ? t(template.nameKey) : '';
+  const selectedArt = selectedCategory?.image || (template ? templateShowcaseArt[template.id] || art[template.id] : '');
   const plan = subscriptionPlansBase.find((item) => item.id === planId);
   const includedIds = useMemo(() => new Set([
     ...availableFeaturesBase.filter((feature) => feature.included).map((feature) => feature.id),
@@ -84,17 +92,18 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
     document.getElementById('root')?.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
 
-  const applyTemplate = (item: Template) => {
+  const applyTemplate = (item: Template, category: StoreCategoryId | null = null) => {
     if (templateId !== item.id) setExtras([]);
     setTemplateId(item.id);
+    setStoreCategory(item.id === 'ecommerce-basic' ? category : null);
     moveTo(2);
   };
-  const chooseTemplate = (item: Template) => {
+  const chooseTemplate = (item: Template, category: StoreCategoryId | null = null) => {
     if (templateId && templateId !== item.id && selectedExtras.length > 0) {
-      setPendingTemplate(item);
+      setPendingTemplate({ item, category });
       return;
     }
-    applyTemplate(item);
+    applyTemplate(item, category);
   };
   const toggleFeature = (id: string) => {
     if (includedIds.has(id)) return;
@@ -111,8 +120,8 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
       ? `${t(plan.nameKey)} — ${money(annual ? yearlyPrices[plan.id] : plan.price)}${annual ? (ru ? '/год' : '/year') : (ru ? '/мес' : '/month')}`
       : (ru ? 'Выбрать после запуска' : 'Choose after launch');
     const message = ru
-      ? `Здравствуйте! Хочу обсудить разработку приложения.\n\n📱 ПРОЕКТ\nНаправление: ${t(template.nameKey)}\nНазвание: ${projectName.trim() || 'Обсудим позже'}\nОриентировочный срок: ${t(template.developmentTimeKey)}\n\n✓ ВКЛЮЧЕНО В ОСНОВУ\n${includedNames}\n\n＋ ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ\n${extraLines}\n\n💰 СТОИМОСТЬ РАЗРАБОТКИ\nОснова: ${money(template.estimatedPrice)}\nДополнительные функции: ${money(extraTotal)}\nИтого ориентировочно: ${money(total)}\n\n🛠 ПОДДЕРЖКА ПОСЛЕ ЗАПУСКА\n${planLine}\n\nБуду рад(а) обсудить детали проекта.`
-      : `Hello! I would like to discuss app development.\n\n📱 PROJECT\nCategory: ${t(template.nameKey)}\nProject name: ${projectName.trim() || 'To be discussed'}\nEstimated time: ${t(template.developmentTimeKey)}\n\n✓ INCLUDED IN THE PACKAGE\n${includedNames}\n\n＋ ADDITIONAL FEATURES\n${extraLines}\n\n💰 DEVELOPMENT ESTIMATE\nBase: ${money(template.estimatedPrice)}\nAdditional features: ${money(extraTotal)}\nEstimated total: ${money(total)}\n\n🛠 SUPPORT AFTER LAUNCH\n${planLine}\n\nI would be happy to discuss the details.`;
+      ? `Здравствуйте! Хочу обсудить разработку приложения.\n\n📱 ПРОЕКТ\nНаправление: ${directionLabel}\nНазвание: ${projectName.trim() || 'Обсудим позже'}\nОриентировочный срок: ${t(template.developmentTimeKey)}\n\n✓ ВКЛЮЧЕНО В ОСНОВУ\n${includedNames}\n\n＋ ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ\n${extraLines}\n\n💰 СТОИМОСТЬ РАЗРАБОТКИ\nОснова: ${money(template.estimatedPrice)}\nДополнительные функции: ${money(extraTotal)}\nИтого ориентировочно: ${money(total)}\n\n🛠 ПОДДЕРЖКА ПОСЛЕ ЗАПУСКА\n${planLine}\n\nБуду рад(а) обсудить детали проекта.`
+      : `Hello! I would like to discuss app development.\n\n📱 PROJECT\nCategory: ${directionLabel}\nProject name: ${projectName.trim() || 'To be discussed'}\nEstimated time: ${t(template.developmentTimeKey)}\n\n✓ INCLUDED IN THE PACKAGE\n${includedNames}\n\n＋ ADDITIONAL FEATURES\n${extraLines}\n\n💰 DEVELOPMENT ESTIMATE\nBase: ${money(template.estimatedPrice)}\nAdditional features: ${money(extraTotal)}\nEstimated total: ${money(total)}\n\n🛠 SUPPORT AFTER LAUNCH\n${planLine}\n\nI would be happy to discuss the details.`;
     const url = `https://t.me/web4tgs?text=${encodeURIComponent(message)}`;
     try {
       if (window.Telegram?.WebApp?.openTelegramLink) window.Telegram.WebApp.openTelegramLink(url);
@@ -120,7 +129,7 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
     } catch {
       window.open(url, '_blank', 'noopener,noreferrer');
     }
-  }, [annual, extraTotal, includedIds, plan, projectName, ru, selectedExtras, t, template, total]);
+  }, [annual, directionLabel, extraTotal, includedIds, plan, projectName, ru, selectedExtras, t, template, total]);
 
   const continueOrder = useCallback(() => {
     if (info || pendingTemplate || draft.pendingDraft) return;
@@ -160,6 +169,21 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   const infoIncluded = infoFeature ? includedIds.has(infoFeature.id) : false;
   const infoSelected = infoFeature ? extras.includes(infoFeature.id) : false;
   const templateItems = infoTemplate ? availableFeaturesBase.filter((feature) => feature.included || infoTemplate.features.includes(feature.id)).map((feature) => t(feature.nameKey)) : undefined;
+  const ecommerce = appTemplatesBase.find((item) => item.id === 'ecommerce-basic')!;
+  const infoCategory = info?.storeCategory ? storeCategories.find((item) => item.id === info.storeCategory) : undefined;
+  const renderDirection = (item: Template, options: { title: string; description: string; image: string; category?: StoreCategoryId }) => {
+    const category = options.category ?? null;
+    const selected = templateId === item.id && (item.id !== 'ecommerce-basic' || storeCategory === category);
+    const testSuffix = category ? `${item.id}-${category}` : item.id;
+    return <div className="order-template-wrap order-showcase-wrap" key={testSuffix}>
+      <button type="button" className={`order-template order-showcase-card ${selected ? 'is-selected' : ''}`} aria-pressed={selected} onClick={() => chooseTemplate(item, category)} data-testid={`template-${testSuffix}`}>
+        <span className="order-template-copy order-showcase-copy"><strong>{options.title}</strong><span>{options.description}</span><small>{ru ? 'от' : 'from'} {money(item.estimatedPrice)}</small></span>
+        <img className="order-template-art order-showcase-art" src={options.image} alt="" draggable={false} loading={category === 'clothes' ? 'eager' : 'lazy'} decoding="async" />
+        <span className="order-template-action" aria-hidden="true">{ru ? 'Выбрать' : 'Choose'} <ArrowUpRight size={17} strokeWidth={1.8} /></span><span className="order-choice" aria-hidden="true">{selected && <Check size={12} strokeWidth={3} />}</span>
+      </button>
+      <button className="order-template-info" type="button" onClick={() => setInfo({ kind: 'template', id: item.id, storeCategory: category ?? undefined })} aria-label={`${ru ? 'Подробнее' : 'Details'}: ${options.title}`} data-testid={`template-info-${testSuffix}`}><Info size={18} strokeWidth={1.7} /></button>
+    </div>;
+  };
 
   return (
     <main className="order-page" data-order-step={step} data-testid="order-page">
@@ -176,39 +200,38 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
         </header>
 
         {step === 1 && <section className="order-template-list" aria-label={ru ? 'Направление приложения' : 'App type'}>
-          {appTemplatesBase.map((item) => <div className="order-template-wrap" key={item.id}>
-            <button type="button" className={`order-template ${templateId === item.id ? 'is-selected' : ''}`} aria-pressed={templateId === item.id} onClick={() => chooseTemplate(item)} data-testid={`template-${item.id}`}>
-              <span className="order-template-copy"><strong>{t(item.nameKey)}</strong><span>{directionDescriptions[item.id]?.[ru ? 'ru' : 'en'] || t(item.descriptionKey)}</span><small>{ru ? 'от' : 'from'} {money(item.estimatedPrice)}</small></span>
-              <img className="order-template-art" src={art[item.id]} alt="" draggable={false} />
-              <span className="order-template-action" aria-hidden="true">{ru ? 'Выбрать' : 'Choose'} <ArrowUpRight size={17} strokeWidth={1.8} /></span><span className="order-choice" aria-hidden="true">{templateId === item.id && <Check size={12} strokeWidth={3} />}</span>
-            </button>
-            <button className="order-template-info" type="button" onClick={() => setInfo({ kind: 'template', id: item.id })} aria-label={`${ru ? 'Подробнее' : 'Details'}: ${t(item.nameKey)}`} data-testid={`template-info-${item.id}`}><Info size={18} strokeWidth={1.7} /></button>
-          </div>)}
+          {template && (template.id === 'fitness-center' || (template.id === 'ecommerce-basic' && !storeCategory)) && <div className="order-legacy-choice"><span>{ru ? 'Сохранённое направление' : 'Saved direction'}: {t(template.nameKey)}</span><button type="button" onClick={() => moveTo(2)} data-testid="continue-legacy-order">{ru ? 'Продолжить' : 'Continue'}</button></div>}
+          <h2 className="order-direction-heading">{ru ? 'Интернет-магазин' : 'Online store'}</h2>
+          {storeCategories.map((category) => renderDirection(ecommerce, { title: ru ? category.ru : category.en, description: ru ? category.descriptionRu : category.descriptionEn, image: category.image, category: category.id }))}
+          <h2 className="order-direction-heading">{ru ? 'Другие направления' : 'Other directions'}</h2>
+          {appTemplatesBase.filter((item) => item.id === 'restaurant' || item.id === 'services').map((item) => renderDirection(item, item.id === 'restaurant'
+            ? { title: ru ? 'Ресторан и доставка' : 'Restaurant and delivery', description: ru ? 'Пример: Starbucks. Доставка — опция.' : 'Example: Starbucks. Delivery optional.', image: templateShowcaseArt.restaurant }
+            : { title: t(item.nameKey), description: directionDescriptions.services[ru ? 'ru' : 'en'], image: '/home-editorial/lumi-home-no-header-v2.webp' }))}
           {notice && <p className="order-notice" role="alert">{notice}</p>}
         </section>}
 
-        {step === 2 && template && <OrderFeaturesStep ru={ru} t={t} template={template} artSrc={art[template.id]} projectName={projectName} onProjectNameChange={setProjectName} includedIds={includedIds} extras={extras} onToggleFeature={toggleFeature} onFeatureInfo={(id) => setInfo({ kind: 'feature', id })} onChangeTemplate={() => moveTo(1)} total={total} />}
+        {step === 2 && template && <OrderFeaturesStep ru={ru} t={t} template={template} artSrc={selectedArt} directionLabel={directionLabel} projectName={projectName} onProjectNameChange={setProjectName} includedIds={includedIds} extras={extras} onToggleFeature={toggleFeature} onFeatureInfo={(id) => setInfo({ kind: 'feature', id })} onChangeTemplate={() => moveTo(1)} total={total} />}
 
-        {step === 3 && template && <OrderReviewStep ru={ru} t={t} template={template} artSrc={art[template.id]} projectName={projectName} includedIds={includedIds} selectedExtras={selectedExtras} extraTotal={extraTotal} total={total} planId={planId} annual={annual} yearlyPrices={yearlyPrices} onEdit={() => moveTo(2)} onPlan={setPlanId} onAnnual={setAnnual} onPlanInfo={(id) => setInfo({ kind: 'plan', id })} />}
+        {step === 3 && template && <OrderReviewStep ru={ru} t={t} template={template} artSrc={selectedArt} directionLabel={directionLabel} projectName={projectName} includedIds={includedIds} selectedExtras={selectedExtras} extraTotal={extraTotal} total={total} planId={planId} annual={annual} yearlyPrices={yearlyPrices} onEdit={() => moveTo(2)} onPlan={setPlanId} onAnnual={setAnnual} onPlanInfo={(id) => setInfo({ kind: 'plan', id })} />}
 
         {!draft.storageAvailable && <p className="order-notice" role="status">{ru ? 'Черновик нельзя сохранить на этом устройстве. Заказ можно продолжить.' : 'This device cannot save the draft. You can still continue.'}</p>}
         {step === 2 && <div className="order-sticky-bar"><div className="order-sticky-copy"><small>{ru ? 'Разработка, ориентировочно' : 'Estimated development'}</small><strong aria-live="polite">{money(total)}</strong></div><button type="button" className="order-sticky-action" onClick={continueOrder} data-testid="order-continue">{ru ? 'К итогу' : 'Review'} <ArrowRight size={17} /></button></div>}
         {step === 3 && <div className="order-actions"><button type="button" className="order-continue" onClick={continueOrder} data-testid="order-continue"><span>{ru ? 'Обсудить в Telegram' : 'Discuss in Telegram'}</span><ArrowRight size={18} /></button><p>{ru ? 'Откроется подготовленное сообщение — проверьте и отправьте его сами.' : 'A draft will open for you to review and send.'}</p></div>}
       </div>
       {info && infoCopy && (infoTemplate || infoFeature || infoPlan) && <OrderInfoSheet
-        ru={ru} kind={info.kind} title={t((infoTemplate || infoFeature || infoPlan)!.nameKey)}
+        ru={ru} kind={info.kind} title={infoCategory ? (ru ? infoCategory.fullRu : infoCategory.fullEn) : infoTemplate?.id === 'restaurant' ? (ru ? 'Ресторан и доставка' : 'Restaurant and delivery') : t((infoTemplate || infoFeature || infoPlan)!.nameKey)}
         description={infoCopy.description} example={infoCopy.example} note={infoTemplate ? (ru ? `Ориентировочный срок: ${t(infoTemplate.developmentTimeKey)}. Подробности обсудим индивидуально.` : `Estimated timeline: ${t(infoTemplate.developmentTimeKey)}. We will discuss the details with you.`) : infoCopy.note}
-        image={infoTemplate ? art[infoTemplate.id] : infoFeature ? featureArt[infoFeature.categoryKey] : subscriptionArt}
+        image={infoTemplate ? infoCategory?.image || templateShowcaseArt[infoTemplate.id] || art[infoTemplate.id] : infoFeature ? featureArt[infoFeature.categoryKey] : subscriptionArt}
         items={infoTemplate ? templateItems?.map((title) => ({ title })) : infoPlan ? supportBenefitsByPlan[infoPlan.id].map((key) => ({ title: t(`constructor.subscriptionFeatures.${key}`), description: supportBenefitDetails[key][ru ? 'ru' : 'en'] })) : undefined}
         billing={infoPlan ? { annual, monthlyPrice: money(infoPlan.price), annualPrice: money(yearlyPrices[infoPlan.id]), savings: money(infoPlan.price * 12 - yearlyPrices[infoPlan.id]), onChange: setAnnual } : undefined}
         priceLabel={infoTemplate ? (ru ? 'Разработка, ориентировочно' : 'Estimated development') : infoFeature ? (ru ? 'Стоимость разработки' : 'Development cost') : (ru ? 'Поддержка, отдельно' : 'Support, billed separately')}
         price={infoTemplate ? `${ru ? 'от' : 'from'} ${money(infoTemplate.estimatedPrice)}` : infoFeature ? (infoIncluded ? (ru ? 'Включено' : 'Included') : `+ ${money(infoFeature.price)}`) : infoPlan ? `${money(annual ? yearlyPrices[infoPlan.id] : infoPlan.price)}${annual ? (ru ? '/год' : '/year') : (ru ? '/мес' : '/month')}` : ''}
-        action={infoTemplate ? (templateId === infoTemplate.id ? (ru ? 'Выбрано' : 'Selected') : (ru ? 'Выбрать направление' : 'Choose this type')) : infoFeature ? (infoIncluded ? (ru ? 'Понятно' : 'Got it') : infoSelected ? (ru ? 'Убрать из заказа' : 'Remove from order') : (ru ? 'Добавить в заказ' : 'Add to order')) : infoPlan && planId === infoPlan.id ? (ru ? 'Выбрано' : 'Selected') : (ru ? 'Выбрать поддержку' : 'Choose support')}
+        action={infoTemplate ? (templateId === infoTemplate.id && (infoTemplate.id !== 'ecommerce-basic' || storeCategory === (info.storeCategory ?? null)) ? (ru ? 'Выбрано' : 'Selected') : (ru ? 'Выбрать направление' : 'Choose this type')) : infoFeature ? (infoIncluded ? (ru ? 'Понятно' : 'Got it') : infoSelected ? (ru ? 'Убрать из заказа' : 'Remove from order') : (ru ? 'Добавить в заказ' : 'Add to order')) : infoPlan && planId === infoPlan.id ? (ru ? 'Выбрано' : 'Selected') : (ru ? 'Выбрать поддержку' : 'Choose support')}
         onClose={() => setInfo(null)}
-        onAction={() => { if (infoTemplate) chooseTemplate(infoTemplate); if (infoFeature && !infoIncluded) toggleFeature(infoFeature.id); if (infoPlan) setPlanId(infoPlan.id); }}
+        onAction={() => { if (infoTemplate) chooseTemplate(infoTemplate, info.storeCategory ?? null); if (infoFeature && !infoIncluded) toggleFeature(infoFeature.id); if (infoPlan) setPlanId(infoPlan.id); }}
       />}
-      {draft.pendingDraft && <OrderDecisionDialog testId="order-draft-dialog" title={ru ? 'Продолжить заказ?' : 'Continue your order?'} description={ru ? 'На этом устройстве сохранён черновик. Он хранится здесь до 30 дней и не отправляется автоматически.' : 'A draft is saved on this device for up to 30 days. It is not sent automatically.'} primary={ru ? 'Восстановить' : 'Restore'} secondary={ru ? 'Начать заново' : 'Start over'} onPrimary={() => draft.restoreDraft((saved) => { setTemplateId(saved.templateId); setExtras(saved.extras); setProjectName(saved.projectName); setPlanId(saved.planId); setAnnual(saved.annual); moveTo(saved.step); })} onSecondary={() => draft.startNew(() => { setTemplateId(null); setExtras([]); setProjectName(''); setPlanId(null); setAnnual(false); moveTo(1); })} />}
-      {pendingTemplate && !draft.pendingDraft && <OrderDecisionDialog testId="order-switch-dialog" title={ru ? 'Сменить направление?' : 'Change direction?'} description={ru ? 'Дополнительные функции будут сброшены. Название и выбранная поддержка сохранятся.' : 'Additional features will be reset. Your project name and selected support will stay.'} primary={ru ? 'Сменить направление' : 'Change direction'} secondary={ru ? 'Оставить прежнее' : 'Keep current'} onPrimary={() => { const next = pendingTemplate; setPendingTemplate(null); applyTemplate(next); }} onSecondary={() => setPendingTemplate(null)} onCancel={() => setPendingTemplate(null)} />}
+      {draft.pendingDraft && <OrderDecisionDialog testId="order-draft-dialog" title={ru ? 'Продолжить заказ?' : 'Continue your order?'} description={ru ? 'На этом устройстве сохранён черновик. Он хранится здесь до 30 дней и не отправляется автоматически.' : 'A draft is saved on this device for up to 30 days. It is not sent automatically.'} primary={ru ? 'Восстановить' : 'Restore'} secondary={ru ? 'Начать заново' : 'Start over'} onPrimary={() => draft.restoreDraft((saved) => { setTemplateId(saved.templateId); setStoreCategory(saved.storeCategory); setExtras(saved.extras); setProjectName(saved.projectName); setPlanId(saved.planId); setAnnual(saved.annual); moveTo(saved.step); })} onSecondary={() => draft.startNew(() => { setTemplateId(null); setStoreCategory(null); setExtras([]); setProjectName(''); setPlanId(null); setAnnual(false); moveTo(1); })} />}
+      {pendingTemplate && !draft.pendingDraft && <OrderDecisionDialog testId="order-switch-dialog" title={ru ? 'Сменить направление?' : 'Change direction?'} description={ru ? 'Дополнительные функции будут сброшены. Название и выбранная поддержка сохранятся.' : 'Additional features will be reset. Your project name and selected support will stay.'} primary={ru ? 'Сменить направление' : 'Change direction'} secondary={ru ? 'Оставить прежнее' : 'Keep current'} onPrimary={() => { const next = pendingTemplate; setPendingTemplate(null); applyTemplate(next.item, next.category); }} onSecondary={() => setPendingTemplate(null)} onCancel={() => setPendingTemplate(null)} />}
     </main>
   );
 }

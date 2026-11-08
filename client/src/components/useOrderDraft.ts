@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { appTemplatesBase, availableFeaturesBase, subscriptionPlansBase } from './orderCatalog';
+import { appTemplatesBase, availableFeaturesBase, storeCategories, subscriptionPlansBase, type StoreCategoryId } from './orderCatalog';
 
 /** Drafts remain on this device until replaced, removed, or expired. */
 export type OrderDraft = {
   step: number;
   templateId: string | null;
+  storeCategory: StoreCategoryId | null;
   extras: string[];
   projectName: string;
   planId: string | null;
@@ -14,6 +15,7 @@ export type OrderDraft = {
 const STORAGE_KEY = 'web4tg:order-draft:v1';
 const MAX_AGE = 30 * 24 * 60 * 60 * 1000;
 const templateIds = new Set(appTemplatesBase.map((item) => item.id));
+const storeCategoryIds = new Set<string>(storeCategories.map((item) => item.id));
 const featureIds = new Set(availableFeaturesBase.filter((item) => !item.included).map((item) => item.id));
 const planIds = new Set(subscriptionPlansBase.map((item) => item.id));
 
@@ -28,6 +30,8 @@ function normalizeDraft(value: unknown): OrderDraft | null {
   return {
     step: raw.step,
     templateId: raw.templateId,
+    // Older v1 drafts have no subcategory. Preserve them without inventing one.
+    storeCategory: raw.templateId === 'ecommerce-basic' && typeof raw.storeCategory === 'string' && storeCategoryIds.has(raw.storeCategory) ? raw.storeCategory as StoreCategoryId : null,
     extras,
     projectName: raw.projectName.slice(0, 80),
     planId: raw.planId as string | null,
@@ -91,7 +95,7 @@ export function useOrderDraft(current: OrderDraft) {
       // The current order still works even if local storage is blocked or full.
       setStorageAvailable(false);
     }
-  }, [ready, pendingDraft, saveGeneration, current.step, current.templateId, current.extras, current.projectName, current.planId, current.annual]);
+  }, [ready, pendingDraft, saveGeneration, current.step, current.templateId, current.storeCategory, current.extras, current.projectName, current.planId, current.annual]);
 
   const restoreDraft = useCallback((apply: (draft: OrderDraft) => void) => {
     if (!pendingDraft) return;

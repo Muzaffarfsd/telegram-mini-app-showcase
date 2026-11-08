@@ -32,7 +32,7 @@ async function step(page, expected) {
     for (const width of [320, 390, 430]) {
       const { context, page, errors } = await open(browser, width);
       assert.equal(await page.getByTestId('order-continue').count(), 0, 'no redundant first-step CTA');
-      await tap(page.getByTestId('template-ecommerce-basic'));
+      await tap(page.getByTestId('template-ecommerce-basic-clothes'));
       await step(page, 2);
       await page.waitForFunction(() => document.activeElement === document.querySelector('.order-heading h1'));
       const sticky = await page.locator('.order-sticky-bar').boundingBox();
@@ -60,7 +60,7 @@ async function step(page, expected) {
       await switchDialog.waitFor({ state: 'visible' });
       await switchDialog.getByRole('button', { name: 'Оставить прежнее' }).tap();
       await step(page, 1);
-      await tap(page.getByTestId('template-ecommerce-basic'));
+      await tap(page.getByTestId('template-ecommerce-basic-clothes'));
       await step(page, 2);
       assert.equal(await page.getByTestId('recommended-feature-search').getAttribute('aria-pressed'), 'true', 'cancel preserves extras');
       assert.match(normalize(await page.getByTestId('order-running-total').innerText()), /170 000 ₽/);

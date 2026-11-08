@@ -20,7 +20,7 @@ async function open(browser, width, native = false) {
   page.on('pageerror', error => errors.push(error.message));
   await page.goto(new URL('/#/constructor', site).href, { waitUntil: 'domcontentloaded' });
   await page.getByTestId('order-page').waitFor({ timeout: 30000 });
-  await page.waitForFunction(() => [...document.querySelectorAll('.order-template-art')].length === 4 && [...document.querySelectorAll('.order-template-art')].every(image => image.complete && image.naturalWidth > 0));
+  assert.equal(await page.locator('.order-template-art').count(), 7);
   return { context, page, errors };
 }
 async function tap(locator) {
@@ -49,7 +49,7 @@ async function openFeature(page, id) {
     let imageRequested;
     const imageHeld = new Promise(resolve => { releaseImage = resolve; });
     const requestObserved = new Promise(resolve => { imageRequested = resolve; });
-    await loadingContext.route('**/*shop-v6*.webp*', async route => {
+    await loadingContext.route('**/*fashion-mira-no-header-home-v4*.webp*', async route => {
       // Vite serves an image URL as a JS module ending in ?import; delay the actual image, not its module.
       if (new URL(route.request().url()).searchParams.has('import')) { await route.continue(); return; }
       imageRequested(); await imageHeld; await route.continue().catch(() => {});
@@ -59,7 +59,7 @@ async function openFeature(page, id) {
       await loadingPage.goto(new URL('/#/constructor', site).href, { waitUntil: 'domcontentloaded' });
       await loadingPage.getByTestId('order-page').waitFor({ state: 'visible', timeout: 20000 });
       await Promise.race([requestObserved, new Promise((_, reject) => setTimeout(() => reject(new Error('Expected held image request')), 5000))]);
-      assert.equal(await loadingPage.getByTestId('template-ecommerce-basic').locator('img').evaluate(img => img.complete), false, 'One direction image is still loading');
+      assert.equal(await loadingPage.getByTestId('template-ecommerce-basic-clothes').locator('img').evaluate(img => img.complete), false, 'One direction image is still loading');
       await tap(loadingPage.getByTestId('template-services'));
       assert.equal(await loadingPage.getByTestId('order-page').getAttribute('data-order-step'), '2', 'Order remains interactive while an image is loading');
     } finally {
@@ -75,7 +75,7 @@ async function openFeature(page, id) {
       assert.match(await page.locator('.order-page').evaluate(el => getComputedStyle(el).fontFamily), /Google Sans App/);
       await page.evaluate(() => document.fonts.ready);
       assert.equal(await page.evaluate(() => document.fonts.check('16px "Google Sans App"')), true);
-      const templates = [ ['ecommerce-basic','150 000'], ['restaurant','180 000'], ['fitness-center','200 000'], ['services','170 000'] ];
+      const templates = [ ['ecommerce-basic-clothes','150 000'], ['ecommerce-basic-shoes','150 000'], ['ecommerce-basic-sneakers','150 000'], ['ecommerce-basic-tech','150 000'], ['ecommerce-basic-flowers','150 000'], ['restaurant','180 000'], ['services','170 000'] ];
       for (const [id, price] of templates) {
         const card = page.getByTestId(`template-${id}`);
         assert.match(text(await card.innerText()), new RegExp(price));
@@ -87,6 +87,10 @@ async function openFeature(page, id) {
       for (const [id, price] of templates) {
         const image = page.getByTestId(`template-${id}`).locator('img');
         await image.evaluate(el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
+        await page.waitForFunction((id) => {
+          const img = document.querySelector(`[data-testid="template-${id}"] img`);
+          return img && img.complete && img.naturalWidth > 0;
+        }, id);
         const box = await image.boundingBox();
         await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
         assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '2', `${id}: tapping the image opens step 2`);
@@ -94,7 +98,7 @@ async function openFeature(page, id) {
         await tap(page.getByTestId('order-back'));
         assert.equal(await page.getByTestId(`template-${id}`).getAttribute('aria-pressed'), 'true');
       }
-      await tap(page.getByTestId('template-ecommerce-basic'));
+      await tap(page.getByTestId('template-ecommerce-basic-clothes'));
       assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '2');
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /150 000/);
       assert.equal(await page.locator('#order-project-name').evaluate(el => getComputedStyle(el).fontSize), '16px');
@@ -165,7 +169,7 @@ async function openFeature(page, id) {
       assert.equal(await page.locator('#order-project-name').inputValue(), 'Магазин №1 & Ко');
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /219 000/);
       await tap(page.getByTestId('order-back'));
-      await tap(page.getByTestId('template-ecommerce-basic'));
+      await tap(page.getByTestId('template-ecommerce-basic-clothes'));
       assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '2');
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /219 000/);
       await tap(page.getByTestId('order-continue'));
@@ -195,7 +199,7 @@ async function openFeature(page, id) {
       await page.getByTestId('order-switch-dialog').waitFor();
       await page.getByRole('button', { name: 'Оставить прежнее', exact: true }).tap();
       assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '1');
-      assert.equal(await page.getByTestId('template-ecommerce-basic').getAttribute('aria-pressed'), 'true');
+      assert.equal(await page.getByTestId('template-ecommerce-basic-clothes').getAttribute('aria-pressed'), 'true');
       await tap(page.getByTestId('template-restaurant'));
       await page.getByRole('button', { name: 'Сменить направление', exact: true }).tap();
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /180 000/);

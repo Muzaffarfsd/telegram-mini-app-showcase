@@ -18,6 +18,7 @@ type Props = {
   t: (key: string) => string;
   template: typeof appTemplatesBase[number];
   artSrc: string;
+  directionLabel: string;
   projectName: string;
   onProjectNameChange: (value: string) => void;
   includedIds: Set<string>;
@@ -50,7 +51,7 @@ const categoryVisuals: Record<string, { image: string; ru: string; en: string }>
   'constructor.integrationsCategory': { image: integrationsArt, ru: 'Связь с нужными сервисами', en: 'Connect the services you need' },
 };
 
-export function OrderFeaturesStep({ ru, t, template, artSrc, projectName, onProjectNameChange, includedIds, extras, onToggleFeature, onFeatureInfo, onChangeTemplate, total }: Props) {
+export function OrderFeaturesStep({ ru, t, template, artSrc, directionLabel, projectName, onProjectNameChange, includedIds, extras, onToggleFeature, onFeatureInfo, onChangeTemplate, total }: Props) {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const included = availableFeaturesBase.filter((feature) => includedIds.has(feature.id));
@@ -80,7 +81,7 @@ export function OrderFeaturesStep({ ru, t, template, artSrc, projectName, onProj
   };
 
   return <section className="order-features" aria-label={ru ? 'Настройка приложения' : 'Configure your app'}>
-    <div className="order-selected-app"><img src={artSrc} alt="" /><div><small>{ru ? 'ВАШ ВЫБОР' : 'YOUR CHOICE'}</small><strong>{t(template.nameKey)}</strong><span>{ru ? 'от' : 'from'} {money(template.estimatedPrice)}</span></div><button type="button" onClick={onChangeTemplate} aria-label={ru ? 'Изменить тип приложения' : 'Change app type'}><ChevronRight size={18} /></button></div>
+    <div className="order-selected-app"><img src={artSrc} alt="" /><div><small>{ru ? 'ВАШ ВЫБОР' : 'YOUR CHOICE'}</small><strong>{directionLabel}</strong><span>{ru ? 'от' : 'from'} {money(template.estimatedPrice)}</span></div><button type="button" onClick={onChangeTemplate} aria-label={ru ? 'Изменить тип приложения' : 'Change app type'}><ChevronRight size={18} /></button></div>
     <label className="order-name-label" htmlFor="order-project-name">{ru ? 'Название проекта' : 'Project name'} <span>{ru ? 'необязательно' : 'optional'}</span></label>
     <input id="order-project-name" className="order-name-input" value={projectName} maxLength={80} onChange={(event) => onProjectNameChange(event.target.value)} placeholder={ru ? 'Например, название бизнеса' : 'For example, your business'} />
 

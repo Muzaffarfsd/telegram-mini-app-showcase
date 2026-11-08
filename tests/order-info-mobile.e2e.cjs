@@ -68,7 +68,7 @@ async function swipeHandle(page, distance) {
     for (const [width, height] of [[320, 568], [390, 844], [430, 932]]) {
       const { context, page, errors } = await open(browser, { width, height });
       if (width === 320) await page.evaluate(() => document.documentElement.style.setProperty('--csab', '24px'));
-      for (const id of ['ecommerce-basic', 'restaurant', 'fitness-center', 'services']) {
+      for (const id of ['ecommerce-basic-clothes', 'ecommerce-basic-shoes', 'ecommerce-basic-sneakers', 'ecommerce-basic-tech', 'ecommerce-basic-flowers', 'restaurant', 'services']) {
         const selection = page.getByTestId(`template-${id}`);
         assert.equal(await selection.getAttribute('aria-pressed'), 'false');
         const infoButton = page.getByTestId(`template-info-${id}`);
@@ -91,7 +91,7 @@ async function swipeHandle(page, distance) {
         assert.equal(await page.locator('#root').evaluate(el => el.inert), false);
         assert.equal(await selection.getAttribute('aria-pressed'), 'false');
       }
-      await tap(page.getByTestId('template-info-ecommerce-basic'));
+      await tap(page.getByTestId('template-info-ecommerce-basic-clothes'));
       await acceptSheet(page);
       assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '2');
       assert.match(text(await page.getByTestId('order-running-total').innerText()), /150 000/);
@@ -182,7 +182,7 @@ async function swipeHandle(page, distance) {
         await tap(page.getByRole('button', { name: 'В месяц', exact: true }));
         await tap(page.getByTestId(`plan-info-${id}`));
         const planArt = page.locator('.order-info-art img');
-        assert.match(await planArt.getAttribute('src'), /support-v2/);
+        assert.match(await planArt.getAttribute('src'), /glass-20261108-support/);
         assert.equal(await planArt.evaluate(async img => { try { await img.decode(); return img.naturalWidth > 0; } catch { return false; } }), true);
         assert.equal(await page.locator('.order-info-includes li').count(), benefitCount);
         assert.equal(await page.locator('.order-info-includes li small').count(), benefitCount);
@@ -214,8 +214,8 @@ async function swipeHandle(page, distance) {
 
     {
       const { context, page, errors } = await open(browser, { language: 'en' });
-      await tap(page.getByTestId('template-info-ecommerce-basic'));
-      assert.equal(await page.locator('#order-info-title').innerText(), 'Online Store');
+      await tap(page.getByTestId('template-info-ecommerce-basic-clothes'));
+      assert.equal(await page.locator('#order-info-title').innerText(), 'Clothing store');
       assert.match(await page.locator('.order-info-description').innerText(), /Telegram app/);
       await acceptSheet(page);
       assert.equal(await page.getByTestId('order-page').getAttribute('data-order-step'), '2');

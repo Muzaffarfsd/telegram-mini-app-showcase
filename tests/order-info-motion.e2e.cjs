@@ -24,7 +24,7 @@ async function open(browser, options = {}) {
 }
 
 async function openTemplate(page) {
-  const target = page.getByTestId('template-info-ecommerce-basic');
+  const target = page.getByTestId('template-info-ecommerce-basic-clothes');
   await target.evaluate(el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
   await target.tap();
   await page.getByTestId('order-info-sheet').waitFor({ state: 'visible' });
@@ -130,7 +130,7 @@ async function startTouch(page) {
       assert.equal(await page.getByTestId('order-info-sheet').count(), 1, 'Dismissal should animate before removing the sheet');
       await page.getByTestId('order-info-sheet').waitFor({ state: 'detached' });
       assert.equal(await page.locator('#root').evaluate(el => el.inert), false);
-      assert.equal(await page.getByTestId('template-ecommerce-basic').getAttribute('aria-pressed'), 'false');
+      assert.equal(await page.getByTestId('template-ecommerce-basic-clothes').getAttribute('aria-pressed'), 'false');
       assert.deepEqual(errors, []);
       await context.close();
       console.log(`Touch motion: ${trace.length} opening frames sampled, finger tracking, snap-back and animated swipe dismissal passed`);
@@ -224,7 +224,7 @@ async function startTouch(page) {
 
     {
       const { context, page, errors } = await open(browser);
-      await page.getByTestId('template-ecommerce-basic').tap();
+      await page.getByTestId('template-ecommerce-basic-clothes').tap();
       const next = page.getByTestId('order-continue');
       await next.evaluate(el => el.scrollIntoView({ block: 'center', behavior: 'instant' }));
       await next.tap();

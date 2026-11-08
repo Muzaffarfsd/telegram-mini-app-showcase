@@ -5,7 +5,7 @@ type Template = typeof appTemplatesBase[number];
 type Feature = typeof availableFeaturesBase[number];
 type Plan = typeof subscriptionPlansBase[number];
 type Props = {
-  ru: boolean; t: (key: string) => string; template: Template; artSrc: string; projectName: string;
+  ru: boolean; t: (key: string) => string; template: Template; artSrc: string; directionLabel: string; projectName: string;
   includedIds: Set<string>; selectedExtras: Feature[]; extraTotal: number; total: number;
   planId: string | null; annual: boolean; yearlyPrices: Record<string, number>;
   onEdit: () => void; onPlan: (id: string | null) => void; onAnnual: (annual: boolean) => void; onPlanInfo: (id: string) => void;
@@ -18,11 +18,11 @@ const comparison: Record<string, string[]> = {
   premium: ['dailyBackups', 'personalManager', 'businessConsulting'],
 };
 
-export function OrderReviewStep({ ru, t, template, artSrc, projectName, includedIds, selectedExtras, extraTotal, total, planId, annual, yearlyPrices, onEdit, onPlan, onAnnual, onPlanInfo }: Props) {
+export function OrderReviewStep({ ru, t, template, artSrc, directionLabel, projectName, includedIds, selectedExtras, extraTotal, total, planId, annual, yearlyPrices, onEdit, onPlan, onAnnual, onPlanInfo }: Props) {
   const plan = subscriptionPlansBase.find((item) => item.id === planId);
   const supportPrice = plan ? `${money(annual ? yearlyPrices[plan.id] : plan.price)}${annual ? (ru ? ' / год' : ' / year') : (ru ? ' / мес' : ' / month')}` : (ru ? 'Выбрать позже' : 'Choose later');
   return <section className="order-review" aria-label={ru ? 'Параметры заказа' : 'Order details'}>
-    <div className="order-review-hero"><img src={artSrc} alt="" /><div><small>{ru ? 'ВАШЕ ПРИЛОЖЕНИЕ' : 'YOUR APP'}</small><h2>{projectName.trim() || t(template.nameKey)}</h2><p>{t(template.nameKey)} · {t(template.developmentTimeKey)}</p></div><button type="button" onClick={onEdit} aria-label={ru ? 'Изменить параметры' : 'Edit details'}><ChevronRight size={19} /></button></div>
+    <div className="order-review-hero"><img src={artSrc} alt="" /><div><small>{ru ? 'ВАШЕ ПРИЛОЖЕНИЕ' : 'YOUR APP'}</small><h2>{projectName.trim() || directionLabel}</h2><p>{directionLabel} · {t(template.developmentTimeKey)}</p></div><button type="button" onClick={onEdit} aria-label={ru ? 'Изменить параметры' : 'Edit details'}><ChevronRight size={19} /></button></div>
     <div className="order-summary-card">
       <div><span>{ru ? 'Основа приложения' : 'App package'}</span><strong>{money(template.estimatedPrice)}</strong></div>
       <div><span>{ru ? 'Дополнительные функции' : 'Additional features'}</span><strong>{extraTotal ? `+ ${money(extraTotal)}` : (ru ? 'Нет' : 'None')}</strong></div>

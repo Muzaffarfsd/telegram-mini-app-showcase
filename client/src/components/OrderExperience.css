@@ -28,6 +28,9 @@
 .order-heading h1 { max-width: 320px; margin: 0 auto; color: #17181b; font-size: clamp(25px, 7.4vw, 30px); line-height: 1.09; letter-spacing: -.045em; font-weight: 650; }
 .order-heading p { margin: 8px auto 14px; max-width: 340px; color: #65686f; font-size: 13px; line-height: 1.45; }
 .order-template-list { display: grid; gap: 10px; }
+.order-direction-heading { margin: 22px 2px 3px; color: #25262a; font-size: 17px; line-height: 1.2; letter-spacing: -.025em; font-weight: 650; }
+.order-legacy-choice { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 14px; border: 1px solid #e6e7e8; border-radius: 16px; color: #414349; background: #f7f8f9; font-size: 13px; }
+.order-legacy-choice button { flex: none; min-height: 44px; padding: 0 15px; border: 0; border-radius: 999px; color: #fff; background: #1b1c1f; font-size: 12px; cursor: pointer; }
 .order-template-wrap { position: relative; }
 .order-template { position: relative; display: flex; align-items: flex-start; width: 100%; min-height: 220px; padding: 23px 46% 75px 22px; overflow: hidden; text-align: left; border: 1px solid transparent; border-radius: 24px; color: #191a1c; background: #f2f2f1; cursor: pointer; transition: border-color .2s ease, background-color .2s ease, transform .2s ease; }
 .order-template.is-selected { border-color: #8c8e90; }
@@ -37,8 +40,11 @@
 .order-template-copy > span { margin-top: 13px; color: #66686c; font-size: 13px; line-height: 1.3; }
 .order-template-copy small { color: #47494d; font-size: 12px; font-weight: 600; margin-top: 10px; white-space: nowrap; }
 .order-template-art { position: absolute; z-index: 0; width: 46%; height: 68%; object-fit: contain; right: 3%; bottom: 8%; pointer-events: none; }
+.order-showcase-card { min-height: 246px; }
+.order-showcase-art { width: 49%; height: 86%; right: 1%; bottom: 4%; }
 .order-template-action { position: absolute; z-index: 1; left: 22px; bottom: 21px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 43px; padding: 0 16px; border-radius: 999px; color: #202124; background: #fff; font-size: 13px; font-weight: 500; }
 .order-template-info { position: absolute; z-index: 2; top: 9px; right: 9px; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; color: #62656a; background: transparent; cursor: pointer; }
+.order-showcase-wrap .order-template-info { background: rgba(255,255,255,.92); }
 .order-template-info:hover { background: rgba(255,255,255,.7); }
 .order-choice { position: absolute; top: 14px; right: 54px; z-index: 2; width: 19px; height: 19px; border-radius: 50%; display: grid; place-items: center; color: white; background: transparent; }
 .order-template.is-selected .order-choice { background: #222327; }
@@ -161,7 +167,7 @@
 @media (max-width: 340px) { .order-sticky-bar { width: calc(100vw - 24px); gap: 8px; padding-left: 12px; } .order-sticky-copy strong { font-size: 15px; } .order-sticky-action { padding: 0 15px; font-size: 13px !important; } .order-dialog { padding: 20px; } }
 @media (max-height: 540px) { .order-sticky-bar { position: sticky; bottom: 10px; left: auto; transform: none; margin: 16px auto 0; } }
 @media (prefers-reduced-transparency: reduce) { .order-sticky-bar { background: #fff; -webkit-backdrop-filter: none; backdrop-filter: none; } }
-@media (max-width: 340px) { .order-page { padding-left: 15px; padding-right: 15px; }.order-template { min-height: 208px; padding-left: 18px; }.order-template-copy strong { font-size: 18px; }.order-template-action { left: 18px; }.order-feature-price { font-size: 11px; } }
+@media (max-width: 340px) { .order-page { padding-left: 15px; padding-right: 15px; }.order-template { min-height: 208px; padding-left: 18px; }.order-showcase-card { min-height: 232px; }.order-template-copy strong { font-size: 18px; }.order-template-action { left: 18px; }.order-feature-price { font-size: 11px; } }
 @media (prefers-reduced-motion: reduce) { .order-page *, .order-page *::before, .order-page *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 
 .w4-topbar.order-topbar { background: rgba(255,255,255,.88) !important; border-bottom-color: transparent !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important; }

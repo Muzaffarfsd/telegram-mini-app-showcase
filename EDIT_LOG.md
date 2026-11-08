@@ -4,6 +4,12 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-08 — Order: store categories and creative phone previews
+
+- Grouped five store subcategories on the first step and retained restaurant/delivery and services; fitness remains available to old drafts but is hidden from new choices.
+- Connected the selected subcategory to draft persistence, order review and the prepared Telegram message, using existing package pricing and optional delivery.
+- Reused homepage demo compositions and generated shoe and restaurant previews from actual source imagery; see `order-directions-design-notes.md` for source and attribution details.
+
 ## 2026-11-08 — Home: customer journey compositions and introductory type
 
 - Reduced the introductory paragraph weight to distinguish it from the main heading while keeping its size and wording.
