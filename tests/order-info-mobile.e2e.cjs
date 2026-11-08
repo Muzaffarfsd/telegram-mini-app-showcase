@@ -68,7 +68,7 @@ async function swipeHandle(page, distance) {
     for (const [width, height] of [[320, 568], [390, 844], [430, 932]]) {
       const { context, page, errors } = await open(browser, { width, height });
       if (width === 320) await page.evaluate(() => document.documentElement.style.setProperty('--csab', '24px'));
-      for (const id of ['ecommerce-basic-clothes', 'ecommerce-basic-shoes', 'ecommerce-basic-sneakers', 'ecommerce-basic-tech', 'ecommerce-basic-flowers', 'restaurant', 'services']) {
+      for (const id of ['ecommerce-basic-clothes', 'ecommerce-basic-sneakers', 'ecommerce-basic-tech', 'ecommerce-basic-flowers', 'restaurant', 'services']) {
         const selection = page.getByTestId(`template-${id}`);
         assert.equal(await selection.getAttribute('aria-pressed'), 'false');
         const infoButton = page.getByTestId(`template-info-${id}`);

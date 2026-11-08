@@ -200,9 +200,9 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
         </header>
 
         {step === 1 && <section className="order-template-list" aria-label={ru ? 'Направление приложения' : 'App type'}>
-          {template && (template.id === 'fitness-center' || (template.id === 'ecommerce-basic' && !storeCategory)) && <div className="order-legacy-choice"><span>{ru ? 'Сохранённое направление' : 'Saved direction'}: {t(template.nameKey)}</span><button type="button" onClick={() => moveTo(2)} data-testid="continue-legacy-order">{ru ? 'Продолжить' : 'Continue'}</button></div>}
+          {template && (template.id === 'fitness-center' || (template.id === 'ecommerce-basic' && (!storeCategory || storeCategory === 'shoes'))) && <div className="order-legacy-choice"><span>{ru ? 'Сохранённое направление' : 'Saved direction'}: {directionLabel}</span><button type="button" onClick={() => moveTo(2)} data-testid="continue-legacy-order">{ru ? 'Продолжить' : 'Continue'}</button></div>}
           <h2 className="order-direction-heading">{ru ? 'Интернет-магазин' : 'Online store'}</h2>
-          {storeCategories.map((category) => renderDirection(ecommerce, { title: ru ? category.ru : category.en, description: ru ? category.descriptionRu : category.descriptionEn, image: category.image, category: category.id }))}
+          {storeCategories.filter((category) => category.id !== 'shoes').map((category) => renderDirection(ecommerce, { title: ru ? category.ru : category.en, description: ru ? category.descriptionRu : category.descriptionEn, image: category.image, category: category.id }))}
           <h2 className="order-direction-heading">{ru ? 'Другие направления' : 'Other directions'}</h2>
           {appTemplatesBase.filter((item) => item.id === 'restaurant' || item.id === 'services').map((item) => renderDirection(item, item.id === 'restaurant'
             ? { title: ru ? 'Ресторан и доставка' : 'Restaurant and delivery', description: ru ? 'Пример: Starbucks. Доставка — опция.' : 'Example: Starbucks. Delivery optional.', image: templateShowcaseArt.restaurant }

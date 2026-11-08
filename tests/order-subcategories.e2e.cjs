@@ -5,7 +5,7 @@ const site = process.env.ORDER_TEST_URL || 'http://127.0.0.1:5000/';
 const key = 'web4tg:order-draft:v1';
 const normalize = (value) => value.replace(/\s+/g, ' ').trim();
 const categories = [
-  ['clothes', 'Магазин одежды'], ['shoes', 'Магазин обуви'],
+  ['clothes', 'Магазин одежды'],
   ['sneakers', 'Магазин кроссовок'], ['tech', 'Магазин смартфонов и аксессуаров'],
   ['flowers', 'Магазин цветов'],
 ];
@@ -46,8 +46,10 @@ async function checkStep(page, step) {
   try {
     for (const [category, label] of categories) {
       const { context, page, errors } = await open(browser);
-      assert.equal(await page.locator('.order-showcase-card').count(), 7);
+      assert.equal(await page.locator('.order-showcase-card').count(), 6);
       assert.equal(await page.getByTestId('template-fitness-center').count(), 0, 'fitness is not offered for new orders');
+      assert.equal(await page.getByTestId('template-ecommerce-basic-shoes').count(), 0, 'legacy shoes is not offered for new orders');
+      assert.equal(await page.getByTestId('template-ecommerce-basic-sneakers').locator('img').getAttribute('src'), '/home-editorial/sneaker-no-header-home-v4.webp', 'sneakers use the creative home screen from the homepage');
       await tap(page.getByTestId(`template-ecommerce-basic-${category}`));
       await checkStep(page, 2);
       assert.equal(await page.locator('.order-selected-app strong').innerText(), label);
@@ -120,6 +122,23 @@ async function checkStep(page, step) {
       assert.deepEqual(errors, []);
       await context.close();
       console.log(`legacy ${templateId}: v1 draft and original price passed`);
+    }
+
+    {
+      const saved = { step: 1, templateId: 'ecommerce-basic', storeCategory: 'shoes', extras: [], projectName: 'Обувной проект', planId: null, annual: false };
+      const { context, page, errors } = await open(browser, saved);
+      await restore(page);
+      await checkStep(page, 1);
+      assert.equal(await page.getByTestId('template-ecommerce-basic-shoes').count(), 0);
+      await tap(page.getByTestId('continue-legacy-order'));
+      await checkStep(page, 2);
+      assert.equal(await page.locator('.order-selected-app strong').innerText(), 'Магазин обуви');
+      assert.equal(await page.locator('#order-project-name').inputValue(), 'Обувной проект');
+      assert.match(normalize(await page.getByTestId('order-running-total').innerText()), /150 000 ₽/);
+      await page.waitForFunction((key) => JSON.parse(localStorage.getItem(key) || '{}').draft?.storeCategory === 'shoes', key);
+      assert.deepEqual(errors, []);
+      await context.close();
+      console.log('legacy shoes: existing draft remains intact without offering it for new orders');
     }
   } finally {
     await browser.close();

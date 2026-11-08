@@ -20,7 +20,7 @@ async function open(browser, width, native = false) {
   page.on('pageerror', error => errors.push(error.message));
   await page.goto(new URL('/#/constructor', site).href, { waitUntil: 'domcontentloaded' });
   await page.getByTestId('order-page').waitFor({ timeout: 30000 });
-  assert.equal(await page.locator('.order-template-art').count(), 7);
+  assert.equal(await page.locator('.order-template-art').count(), 6);
   return { context, page, errors };
 }
 async function tap(locator) {
@@ -75,7 +75,7 @@ async function openFeature(page, id) {
       assert.match(await page.locator('.order-page').evaluate(el => getComputedStyle(el).fontFamily), /Google Sans App/);
       await page.evaluate(() => document.fonts.ready);
       assert.equal(await page.evaluate(() => document.fonts.check('16px "Google Sans App"')), true);
-      const templates = [ ['ecommerce-basic-clothes','150 000'], ['ecommerce-basic-shoes','150 000'], ['ecommerce-basic-sneakers','150 000'], ['ecommerce-basic-tech','150 000'], ['ecommerce-basic-flowers','150 000'], ['restaurant','180 000'], ['services','170 000'] ];
+      const templates = [ ['ecommerce-basic-clothes','150 000'], ['ecommerce-basic-sneakers','150 000'], ['ecommerce-basic-tech','150 000'], ['ecommerce-basic-flowers','150 000'], ['restaurant','180 000'], ['services','170 000'] ];
       for (const [id, price] of templates) {
         const card = page.getByTestId(`template-${id}`);
         assert.match(text(await card.innerText()), new RegExp(price));
