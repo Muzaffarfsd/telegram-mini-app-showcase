@@ -4,8 +4,8 @@
 .home-demo__projects button[aria-pressed="true"] { border-color:#202020; color:#fff; background:#202020; }
 .home-demo__image { display:block; width:100%; height:clamp(280px,95vw,450px); padding:0; border:0; background:#fff; overflow:hidden; touch-action:pan-y; }
 .home-demo__image img { display:block; width:100%; height:100%; object-fit:contain; animation:home-demo-in .3s ease both; }
-.home-demo__image img[data-view="product"] { animation-name:home-demo-right; }
-.home-demo__image img[data-view="home"] { animation-name:home-demo-left; }
+.home-demo__image img[data-direction="next"] { animation-name:home-demo-right; }
+.home-demo__image img[data-direction="previous"] { animation-name:home-demo-left; }
 .home-demo__switch { display:flex; align-items:center; justify-content:space-between; gap:6px; padding:0 0 10px; border-bottom:1px solid #e9e9e9; }
 .home-demo__switch > span { color:#686a6e; font-size:10px; font-weight:750; letter-spacing:.025em; white-space:nowrap; }
 .home-demo__switch > div { display:flex; flex:none; gap:4px; }

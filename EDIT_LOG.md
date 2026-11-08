@@ -4,6 +4,11 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-09 — Home demo: swipe between categories
+
+- Extended the existing image swipe across the full sequence of demo screens: home, product or service, and the next category; reverse swipes return to the previous screen, with wraparound at both ends.
+- Preserved direct category and screen controls, tap-to-open and vertical scrolling; image transitions now follow swipe direction and adjacent screens preload.
+
 ## 2026-11-09 — Order: USD for additional functions
 
 - Extended the NBKR-derived USD estimates to optional feature rows, feature details, selected extras and development totals while keeping included items and order calculations unchanged.

@@ -6,6 +6,7 @@ import './HomeDemo.css';
 
 interface Props { ru: boolean; onOpenDemo: (id: string) => void }
 type View = 'home' | 'product';
+type Direction = 'next' | 'previous';
 const projects = [
   { id: 'muraka-fashion', title: 'Уличная', titleEn: 'Streetwear', label: 'УЛИЧНАЯ ОДЕЖДА', labelEn: 'STREETWEAR STORE', home: '/home-editorial/fashion-muraka-home-v2.webp', product: '/home-editorial/fashion-muraka-product-v2.webp' },
   { id: 'women-fashion', title: 'Женская', titleEn: 'Women', label: 'ЖЕНСКАЯ ОДЕЖДА', labelEn: 'WOMEN’S FASHION', home: '/home-editorial/fashion-mira-no-header-home-v4.webp', product: '/home-editorial/fashion-mira-no-header-product-v4.webp' },
@@ -19,20 +20,23 @@ const projects = [
 export default function HomeDemo({ ru, onOpenDemo }: Props) {
   const [projectIndex, setProjectIndex] = useState(0);
   const [view, setView] = useState<View>('home');
+  const [direction, setDirection] = useState<Direction>('next');
   const gesture = useRef<{ id: number; x: number; y: number } | null>(null);
   const suppressClick = useRef(false);
   const haptic = useHaptic();
   const project = projects[projectIndex];
   const chooseView = (next: View) => {
     if (next === view) return;
+    setDirection(next === 'product' ? 'next' : 'previous');
     setView(next);
     preloadDemo(project.id);
     haptic.light();
   };
-  const chooseProject = (index: number) => {
+  const chooseProject = (index: number, nextView: View = 'home', movement?: Direction) => {
     if (index === projectIndex) return;
+    setDirection(movement ?? (index > projectIndex ? 'next' : 'previous'));
     setProjectIndex(index);
-    setView('home');
+    setView(nextView);
     preloadDemo(projects[index].id);
     haptic.light();
   };
@@ -50,19 +54,35 @@ export default function HomeDemo({ ru, onOpenDemo }: Props) {
     const dy = event.clientY - start.y;
     if (Math.abs(dx) < 40 || Math.abs(dx) <= Math.abs(dy) * 1.2) return;
     suppressClick.current = true;
-    chooseView(dx < 0 ? 'product' : 'home');
+    if (dx < 0) {
+      if (view === 'home') chooseView('product');
+      else chooseProject((projectIndex + 1) % projects.length, 'home', 'next');
+    } else {
+      if (view === 'product') chooseView('home');
+      else chooseProject((projectIndex - 1 + projects.length) % projects.length, 'product', 'previous');
+    }
   };
   useEffect(() => {
     const image = new Image();
     image.src = project.product;
-  }, [project]);
+    const adjacentSource = view === 'product'
+      ? projects[(projectIndex + 1) % projects.length].home
+      : projects[(projectIndex - 1 + projects.length) % projects.length].product;
+    const preloadAdjacent = () => { const adjacent = new Image(); adjacent.src = adjacentSource; };
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(preloadAdjacent, { timeout: 2000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = window.setTimeout(preloadAdjacent, 500);
+    return () => window.clearTimeout(id);
+  }, [project, projectIndex, view]);
 
   return <div className="home-demo" data-testid="home-exhibit">
     <div className="home-demo__projects" role="group" aria-label={ru ? 'Выберите пример' : 'Choose an example'}>
       {projects.map((item, index) => <button key={item.id} type="button" aria-pressed={projectIndex === index} onClick={() => chooseProject(index)}>{ru ? item.title : item.titleEn}</button>)}
     </div>
     <button type="button" className="home-demo__image" data-testid="home-open-demo" onPointerDown={startSwipe} onPointerUp={finishSwipe} onPointerCancel={() => { gesture.current = null; }} onClick={(event) => { if (suppressClick.current && event.detail !== 0) { suppressClick.current = false; return; } onOpenDemo(project.id); }} onTouchStart={() => preloadDemo(project.id)} aria-label={ru ? `Открыть демо: ${project.label.toLowerCase()}` : `Open demo: ${project.labelEn.toLowerCase()}`}>
-      <img key={`${project.id}-${view}`} data-view={view} src={project[view]} alt="" draggable={false} fetchPriority={projectIndex === 0 && view === 'home' ? 'high' : 'auto'} decoding="async" />
+      <img key={`${project.id}-${view}`} data-view={view} data-direction={direction} src={project[view]} alt="" draggable={false} fetchPriority={projectIndex === 0 && view === 'home' ? 'high' : 'auto'} decoding="async" />
     </button>
     <div className="home-demo__switch" role="group" aria-label={ru ? 'Экран приложения' : 'App screen'}>
       <span>{ru ? project.label : project.labelEn}</span>
