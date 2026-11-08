@@ -1,0 +1,9 @@
+# WEB4TG home redesign — 8 November 2026
+
+The page introduces the value of a Telegram business app through a real demo, the customer journey, the project process, common questions and a direct next step. The visual direction combines the established light LUMI editorial hierarchy (F-20261104-021), short single-line display headings (F-20261105-011), and the existing large phone/product creative (2026-11-06-web4tg-phone-hero). The existing MURAKA hero is retained.
+
+The user's correction explicitly requires actual home and product screens to be passed into image generation for each new store. Screens were captured from the running MIRA, Apple and FLORA demos under `../work/home-real-screens/`. Each was passed directly to the built-in ImageGen, alongside the corresponding MURAKA composition as a style reference. The Apple home was edited once to remove unrelated clothing. Images are generated interpretations of the supplied screens: the content, products and demo prices were compared visually, but small typography and geometry are not pixel-exact. Clicking the artwork opens the interactive demo itself.
+
+Final image prompts asked for a front-facing premium phone, the supplied actual screen faithfully reproduced, relevant dimensional products around it, and a transparent background. Result paths: `client/public/home-editorial/fashion-mira-real-home-v3.webp`, `fashion-mira-real-product-v3.webp`, `apple-real-home-v3.webp`, `apple-real-product-v3.webp`, `florist-home-real-v2.webp`, `florist-product-real-v2.webp`. MURAKA uses its existing images.
+
+The page intentionally makes no invented client claims, testimonials, prices for development or guarantees. The project scope, cost and timing are discussed individually; support is agreed separately. Browser review should cover 320–430px, both languages, each screen pair, swipe versus tap, the selected demo, FAQ and ordering.

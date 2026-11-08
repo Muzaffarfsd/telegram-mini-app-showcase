@@ -1050,6 +1050,19 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Final Vite production build passed (45.28s), secret check and diff whitespace check passed. Actual Chromium mobile captures at 320/390/430px in RU/EN plus normal-motion 390px: no page errors, overflow or clipped labels; filters/list/grid update in the first animation frame. Header clearance is 15–20.25px including a simulated 32px Telegram inset; bottom gap is about 32px instead of 195–222px. Before/after screenshots and reports are saved under workspace `work/showcase-refine-20261108/`; API writes intercepted, no orders or messages sent. Artwork remains subject to the user's evaluation.
 
 ---
+## 2026-11-08 · Rebuild the home page around four store demos
+
+**What:** Retained the MURAKA swipe exhibit and added MIRA, Apple and FLORA with paired home/product compositions. Rebuilt the remaining home page around the customer journey, business value, project process, FAQ and project contact actions. The three new pairs were generated from current captured demo screens and the MURAKA visual reference; generated screen details are not pixel-exact.
+
+**Why:** User asked for a complete marketing-focused home redesign and specifically corrected the demo artwork: use the real home and product screen for every store directly in image generation, with the same creative treatment as the clothing example.
+
+**Files:** `StudioHome.tsx`, `StudioHome.css`, `HomeDemo.tsx`, `HomeDemo.css`, six versioned assets in `client/public/home-editorial/`, `home-redesign-design-notes.md`, `CODEBASE_INDEX.md`.
+
+**Checkpoint:** `checkpoint/home-redesign-20261108` at `1d65183` (the separate pre-existing uncommitted showcase changes were preserved).
+
+**Verification:** Vite build; Chromium and WebKit mobile review at 320/390/430px, four tabs and image loading, FAQ and order route. Independent Chromium/WebKit tests at 320/390px exercised each swipe in both directions and confirmed all four demo routes; Chromium touch gestures also passed. English at 320px had no heading or tab overflow. Screenshots and actual input captures are under workspace `work/home-redesign-*` and `work/home-real-screens/`. API calls mocked; no real requests sent. Artwork awaits user evaluation.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
