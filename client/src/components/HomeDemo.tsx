@@ -11,7 +11,7 @@ const projects = [
   { id: 'women-fashion', title: 'Женская', titleEn: 'Women', label: 'ЖЕНСКАЯ ОДЕЖДА', labelEn: 'WOMEN’S FASHION', home: '/home-editorial/fashion-mira-no-header-home-v4.webp', product: '/home-editorial/fashion-mira-no-header-product-v4.webp' },
   { id: 'nike-sneakers', title: 'Кроссовки', titleEn: 'Sneakers', label: 'МАГАЗИН КРОССОВОК', labelEn: 'SNEAKER STORE', home: '/home-editorial/sneaker-no-header-home-v4.webp', product: '/home-editorial/sneaker-no-header-jordan-v4.webp' },
   { id: 'apple-store', title: 'Техника', titleEn: 'Tech', label: 'МАГАЗИН ТЕХНИКИ', labelEn: 'TECH STORE', home: '/home-editorial/apple-home-real-v5.webp', product: '/home-editorial/apple-burgundy-product-real-v6.webp' },
-  { id: 'flower-store', title: 'Цветы', titleEn: 'Flowers', label: 'МАГАЗИН ЦВЕТОВ', labelEn: 'FLOWER STORE', home: '/home-editorial/florist-home-no-header-v3.webp', product: '/home-editorial/florist-product-no-header-v3.webp' },
+  { id: 'flower-store', title: 'Цветы', titleEn: 'Flowers', label: 'МАГАЗИН ЦВЕТОВ', labelEn: 'FLOWER STORE', home: '/home-editorial/florist-home-no-header-v3.webp', product: '/home-editorial/florist-eustoma-product-v1.webp' },
   { id: 'lumi-studio', title: 'Салон', titleEn: 'Salon', label: 'САЛОН КРАСОТЫ', labelEn: 'BEAUTY SALON', home: '/home-editorial/lumi-home-no-header-v2.webp', product: '/home-editorial/lumi-service-no-header-v2.webp' },
 ] as const;
 

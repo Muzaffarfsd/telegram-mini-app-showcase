@@ -1153,6 +1153,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite build and Chromium/WebKit at 320/390/430px in RU/EN; all six controls, screen selection, touch swipe and demo navigation passed. New Apple image checked in the mobile page. Screenshots `work/home-pill-*` and `work/home-apple-v6-*`; generated screen details may differ slightly from the source.
 
 ---
+## 2026-11-08 · Regenerate the white eustoma product creative
+
+**What:** Generated and connected a new white eustoma product composition using its actual demo screen as a direct ImageGen input.
+**Why:** User requested the flower product preview be regenerated and then specified white eustoma instead of sunflowers.
+**Files:** `HomeDemo.tsx`, `client/public/home-editorial/florist-eustoma-product-v1.webp`, `home-redesign-design-notes.md`.
+**Checkpoint:** previous local commit `42d8464`; unrelated work preserved.
+**Verification:** Visual comparison against the actual white eustoma product and mobile page captures at 320/390px in Chromium/WebKit; image loading, swipe and demo navigation checked. Vite production build. Screenshots under `work/flower-eustoma-*`; artwork is a generated interpretation and awaits user evaluation.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
