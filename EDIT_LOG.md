@@ -1117,6 +1117,15 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite build and mobile visual review at 320/390/430px in Russian and English. Screenshot under workspace `work/home-intro-chromium-390-ru.png`.
 
 ---
+## 2026-11-08 · Restore the requested segmented controls
+
+**What:** Restored the earlier six-direction tray and home/product segmented control from `f1633eb`, including numbered labels and the selected white tile. Kept the later heading, requested introduction and generic category captions.
+**Why:** User supplied a screenshot and explicitly requested those controls back and a Git push.
+**Files:** `HomeDemo.tsx`, `HomeDemo.css`, `home-redesign-design-notes.md`.
+**Checkpoint:** previous local commit `2ea8e21`; unrelated working-tree changes preserved.
+**Verification:** Vite build and visual mobile comparison; Chromium/WebKit at 320/390/430px in RU/EN, selected states, touch swipe and demo navigation. Screenshots in workspace `work/home-reference-final-*`. No real orders or messages sent.
+
+---
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description

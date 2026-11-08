@@ -31,3 +31,7 @@ The user supplied a MIRA screenshot and said the typography should be large, and
 ### Direct correction: black and grey lines
 
 The user repeated the MIRA screenshot and explicitly requested the black main text above a shortened grey line of the same visual character, and rejected the previous selector design. This is a local exception to the earlier single-line instruction, not a global change. The first screen now uses two compact headline lines, the actual MIRA size, weight, line-height and grey; “we create” remains in the kicker. The grey segmented tray and white tiles have been replaced by a light typographic index with six visible directions, a black underline for the selection and text-style screen controls. Touch targets and accessible pressed states are retained. Reference and implementation were visually compared; the new variant awaits user evaluation.
+
+### Restore the shown controls
+
+The user supplied a screenshot of the earlier segmented controls and asked to restore those buttons. Restored the exact prior six-cell tray and home/product segment from commit `f1633eb`; the subsequent two-line headline, requested introduction and generic category labels remain. The screenshot was treated as a reference for controls only. Active states, labels, 44px touch targets and gestures are checked in the live page.
