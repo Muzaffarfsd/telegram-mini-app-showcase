@@ -1,7 +1,6 @@
 import { ArrowLeft, Star, Play, ExternalLink, Share2 } from "lucide-react";
 import { demoApps } from "@/data/demoApps";
 import { useTelegram } from "@/hooks/useTelegram";
-import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "../contexts/LanguageContext";
 
 interface DemoAppLandingProps {
@@ -9,8 +8,7 @@ interface DemoAppLandingProps {
 }
 
 export default function DemoAppLanding({ demoId }: DemoAppLandingProps) {
-  const { hapticFeedback, shareApp } = useTelegram();
-  const { toast } = useToast();
+  const { hapticFeedback } = useTelegram();
   const { t } = useLanguage();
   
   // Find the demo app
@@ -47,12 +45,7 @@ export default function DemoAppLanding({ demoId }: DemoAppLandingProps) {
 
   const handleShare = () => {
     console.log('[DemoApp] Share clicked:', demoApp.title);
-    hapticFeedback?.medium();
-    shareApp(t('demo.shareMessage').replace('{title}', demoApp.title));
-    toast({
-      title: t('demo.share'),
-      description: t('demo.shareOpenWindow'),
-    });
+    window.dispatchEvent(new Event('web4tg:share-current-demo'));
   };
 
   const { home } = demoApp;

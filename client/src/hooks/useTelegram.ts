@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { ensureTelegramPolyfill } from '../lib/telegram';
+import { canonicalDemoShareId, demoShareStartParam } from '@shared/demoShare';
 import { repairLightBottomBar } from '../lib/telegramChrome';
 
 // Telegram WebApp SDK types (complete as per official documentation + 2025 features)
@@ -484,19 +485,20 @@ export function useTelegram() {
   // referralCode: user's referral code to include in the deep link (e.g., "W4T123")
   // text: optional custom message text
   // Returns: { success: boolean, method: string } for toast notifications
-  const shareApp = (text?: string, referralCode?: string): { success: boolean; method: string } => {
+  const shareApp = (text?: string, referralCode?: string, sharedDemoId?: string): { success: boolean; method: string } => {
     // Build the deep link URL with referral code
     // Format: https://t.me/w4tg_bot/w4tg?startapp=REFCODE
     const baseUrl = 'https://t.me/w4tg_bot/w4tg';
-    const deepLink = referralCode ? `${baseUrl}?startapp=${referralCode}` : baseUrl;
+    const demoId = sharedDemoId ? canonicalDemoShareId(sharedDemoId) : null;
+    const deepLink = demoId ? `${baseUrl}?startapp=${demoShareStartParam(demoId)}` : referralCode ? `${baseUrl}?startapp=${referralCode}` : baseUrl;
     
     const shareText = text || 'Создай своё Telegram приложение для бизнеса!';
-    const fullMessage = referralCode 
+    const fullMessage = referralCode && !demoId
       ? `${shareText}\n\nМой реферальный код: ${referralCode}\n${deepLink}`
       : `${shareText}\n${deepLink}`;
     
     // For t.me/share/url we need to encode the full message
-    const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(deepLink)}&text=${encodeURIComponent(shareText + (referralCode ? `\n\nМой реферальный код: ${referralCode}` : ''))}`;
+    const telegramShareUrl = `https://t.me/share/url?url=${encodeURIComponent(deepLink)}&text=${encodeURIComponent(shareText + (referralCode && !demoId ? `\n\nМой реферальный код: ${referralCode}` : ''))}`;
     
     console.log('[TG API] Sharing:', { deepLink, referralCode, webAppAvailable: !!webApp });
     

@@ -3,11 +3,13 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../db';
 import { users } from '../../shared/schema';
+import { canonicalDemoShareId, demoShareEntries, demoShareStartParam } from '../../shared/demoShare';
 import { verifyTelegramUser } from './shared';
 
 const schema = z.object({
   language: z.enum(['ru', 'en']).default('ru'),
   referral: z.boolean().default(false),
+  demoId: z.string().min(1).max(50).optional(),
 }).strict();
 
 const miniAppUrl = 'https://t.me/w4tg_bot/w4tg';
@@ -35,6 +37,10 @@ export function createInviteRouter(dependencies: InviteDependencies = defaults) 
     res.setHeader('Cache-Control', 'no-store');
     const parsed = schema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: 'Invalid invitation request' });
+    const demoId = parsed.data.demoId ? canonicalDemoShareId(parsed.data.demoId) : null;
+    if ((parsed.data.demoId && !demoId) || (demoId && parsed.data.referral)) {
+      return res.status(400).json({ error: 'Invalid invitation request' });
+    }
 
     const telegramId = req.telegramUser?.id;
     const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -45,7 +51,9 @@ export function createInviteRouter(dependencies: InviteDependencies = defaults) 
 
     try {
       let deepLink = miniAppUrl;
-      if (parsed.data.referral) {
+      if (demoId) {
+        deepLink += `?startapp=${demoShareStartParam(demoId)}`;
+      } else if (parsed.data.referral) {
         const code = await dependencies.findReferralCode(telegramId);
         // startapp supports only these URL-safe characters, with a maximum of 64 bytes.
         if (code && /^[A-Za-z0-9_-]{1,64}$/.test(code)) {
@@ -54,6 +62,14 @@ export function createInviteRouter(dependencies: InviteDependencies = defaults) 
       }
 
       const ru = parsed.data.language === 'ru';
+      const photoUrl = demoId ? `https://w4tg.up.railway.app/share/demos/${demoId}.jpg` : inviteImageUrl;
+      const caption = demoId
+        ? ru
+          ? `<b>${demoShareEntries[demoId].ru}</b>\n\nПосмотри демо приложения для бизнеса в Telegram.`
+          : `<b>${demoShareEntries[demoId].en}</b>\n\nExplore this business app demo in Telegram.`
+        : ru
+          ? '<b>WEB4TG</b>\n\nПосмотри, как может выглядеть твой магазин в Telegram.'
+          : '<b>WEB4TG</b>\n\nSee what your store could look like in Telegram.';
       const response = await dependencies.telegramFetch(`https://api.telegram.org/bot${token}/savePreparedInlineMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -62,13 +78,11 @@ export function createInviteRouter(dependencies: InviteDependencies = defaults) 
           user_id: telegramId,
           result: {
             type: 'photo',
-            id: 'web4tg-invite',
-            photo_url: inviteImageUrl,
-            thumbnail_url: inviteImageUrl,
+            id: demoId ? `web4tg-demo-${demoId}` : 'web4tg-invite',
+            photo_url: photoUrl,
+            thumbnail_url: photoUrl,
             parse_mode: 'HTML',
-            caption: ru
-              ? '<b>WEB4TG</b>\n\nПосмотри, как может выглядеть твой магазин в Telegram.'
-              : '<b>WEB4TG</b>\n\nSee what your store could look like in Telegram.',
+            caption,
             reply_markup: { inline_keyboard: [[{ text: ru ? 'Открыть приложение' : 'Open app', url: deepLink, style: 'primary' }]] },
           },
           allow_user_chats: true,

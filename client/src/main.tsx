@@ -1,8 +1,10 @@
 import { createRoot } from "react-dom/client";
 import { importWithRecovery } from "./utils/lazyWithRecovery";
+import { initializeDemoShareStart } from './lib/demoShareStart';
 
 import "./index.css";
 
+initializeDemoShareStart();
 const root = createRoot(document.getElementById("root")!);
 void import("./lib/cleanupRetiredDemos")
   .then(({ cleanupRetiredDemos }) => cleanupRetiredDemos())

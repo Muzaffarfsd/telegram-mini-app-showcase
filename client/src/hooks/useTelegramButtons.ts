@@ -3,6 +3,7 @@ import { useTelegram } from './useTelegram';
 import { useLanguage } from '../contexts/LanguageContext';
 import { profilePost } from '../lib/profileRequest';
 import { navigate as navigateRoute } from './useRouting';
+import { canonicalDemoShareId, demoShareEntries } from '@shared/demoShare';
 
 interface ButtonConfig {
   mainButton?: {
@@ -61,14 +62,18 @@ export function useTelegramButtons(
   const handleShare = useCallback(async () => {
     if (sharingRef.current) return;
     hapticFeedback.medium();
-    const text = language === 'en'
-      ? 'See what a store for your business can look like in Telegram.'
-      : 'Посмотри, как может выглядеть магазин для бизнеса прямо в Telegram.';
+    const routeDemoId = (currentRoute === 'demoApp' || currentRoute === 'demoLanding')
+      ? window.location.hash.match(/^#\/demos\/([^/?#]+)(?:\/app)?(?:\?|$)/)?.[1]
+      : undefined;
+    const demoId = routeDemoId ? canonicalDemoShareId(routeDemoId) : null;
+    const text = demoId
+      ? language === 'en' ? `Explore the ${demoShareEntries[demoId].en} demo in Telegram.` : `Посмотри демо: ${demoShareEntries[demoId].ru}.`
+      : language === 'en' ? 'See what a store for your business can look like in Telegram.' : 'Посмотри, как может выглядеть магазин для бизнеса прямо в Telegram.';
     const tg = window.Telegram?.WebApp;
     const version = String(tg?.version || '').split('.').map(Number);
     const supportsPreparedShare = typeof tg?.shareMessage === 'function' && Number.isFinite(version[0]) && version[0] >= 8;
     if (!supportsPreparedShare || !tg?.initData) {
-      shareApp(text);
+      shareApp(text, undefined, demoId || undefined);
       return;
     }
 
@@ -83,7 +88,7 @@ export function useTelegramButtons(
     try {
       const result = await profilePost<{ messageId: string; deepLink?: string }>(
         '/api/telegram/prepare-invite', tg.initData,
-        { language, referral: ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute) },
+        { language, referral: ['profile', 'referral', 'rewards', 'earning'].includes(currentRoute), ...(demoId ? { demoId } : {}) },
       );
       if (!isCurrentPage()) return;
       if (typeof result.messageId !== 'string' || !result.messageId) throw new Error('Missing prepared message');
@@ -107,7 +112,7 @@ export function useTelegramButtons(
       const onSent = () => cleanup();
       const onFailed = (event: { error?: string }) => {
         cleanup();
-        if (event?.error !== 'USER_DECLINED' && isCurrentPage()) shareApp(text, referralCode);
+        if (event?.error !== 'USER_DECLINED' && isCurrentPage()) shareApp(text, referralCode, demoId || undefined);
       };
       tg.onEvent('shareMessageSent', onSent);
       tg.onEvent('shareMessageFailed', onFailed);
@@ -117,7 +122,7 @@ export function useTelegramButtons(
       dialogOpened = true;
     } catch {
       shareListenersRef.current?.();
-      if (isCurrentPage()) shareApp(text, referralCode);
+      if (isCurrentPage()) shareApp(text, referralCode, demoId || undefined);
     } finally {
       try { nativeButton?.hideProgress?.(); } catch { /* Optional in older clients. */ }
       if (!dialogOpened) sharingRef.current = false;
@@ -254,6 +259,10 @@ export function useTelegramButtons(
         if (config.secondaryButton) secondaryButton.show(config.secondaryButton.text, config.secondaryButton.onClick, NATIVE_BUTTON_COLOR, NATIVE_BUTTON_TEXT_COLOR);
       }
     };
+    // The demo landing page has its own share control in addition to Telegram's
+    // native button. Both must prepare the same demo-specific invitation.
+    const shareCurrentDemo = () => { if (currentRoute === 'demoLanding') void handleShare(); };
+    window.addEventListener('web4tg:share-current-demo', shareCurrentDemo);
     window.addEventListener('web4tg:ai-chat-open', updateAiChat);
     if (currentRoute === 'constructor') {
       window.addEventListener('web4tg:order-label', updateOrderLabel);
@@ -279,6 +288,7 @@ export function useTelegramButtons(
     }
 
     cleanupRef.current = () => {
+      window.removeEventListener('web4tg:share-current-demo', shareCurrentDemo);
       window.removeEventListener('web4tg:order-label', updateOrderLabel);
       window.removeEventListener('web4tg:order-info', updateOrderInfo);
       window.removeEventListener('web4tg:ai-chat-open', updateAiChat);

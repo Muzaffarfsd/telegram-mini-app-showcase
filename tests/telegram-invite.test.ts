@@ -1,6 +1,7 @@
 import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
+import { demoShareEntries, demoShareIdFromStartParam } from '../shared/demoShare';
 import express from 'express';
 import type { Server } from 'node:http';
 
@@ -97,6 +98,43 @@ test('missing or unusable referral codes yield a general invitation, and databas
   calls = [];
   lookup = async () => { throw new Error('Database unavailable'); };
   assert.equal((await send({ referral: true })).status, 503);
+  assert.equal(calls.length, 0);
+});
+
+test('each published demo gets its own server-chosen picture and Mini App deep link', async () => {
+  for (const demoId of Object.keys(demoShareEntries)) {
+    calls = [];
+    lookup = async () => { throw new Error('Demo sharing must not query referral data'); };
+    const response = await send({ language: 'ru', referral: false, demoId });
+    assert.equal(response.status, 200, demoId);
+    const result = await response.json() as { messageId: string; deepLink: string };
+    const expected = `https://t.me/w4tg_bot/w4tg?startapp=demo_${demoId}`;
+    assert.equal(result.deepLink, expected, demoId);
+    assert.equal(demoShareIdFromStartParam(new URL(expected).searchParams.get('startapp')!), demoId);
+    const message = calls[0].body.result;
+    assert.equal(message.photo_url, `https://w4tg.up.railway.app/share/demos/${demoId}.jpg`);
+    assert.equal(message.thumbnail_url, message.photo_url);
+    assert.equal(message.reply_markup.inline_keyboard[0][0].url, expected);
+    assert.equal(message.reply_markup.inline_keyboard[0][0].style, 'primary');
+    assert.match(message.caption, /<b>.+<\/b>/);
+  }
+});
+
+test('legacy sneaker alias is canonicalized and arbitrary demos or URLs are rejected', async () => {
+  calls = [];
+  const alias = await send({ demoId: 'royal-step' });
+  assert.equal(alias.status, 200);
+  assert.equal((await alias.json() as { deepLink: string }).deepLink, 'https://t.me/w4tg_bot/w4tg?startapp=demo_nike-sneakers');
+  assert.equal(calls[0].body.result.photo_url, 'https://w4tg.up.railway.app/share/demos/nike-sneakers.jpg');
+  assert.equal(demoShareIdFromStartParam('demo_royal-step'), 'nike-sneakers');
+  for (const invalid of ['../../apple-store', 'fitness', 'unknown', 'constructor', '__proto__']) {
+    calls = [];
+    assert.equal((await send({ demoId: invalid })).status, 400, invalid);
+    assert.equal(demoShareIdFromStartParam(`demo_${invalid}`), null);
+    assert.equal(calls.length, 0);
+  }
+  calls = [];
+  assert.equal((await send({ demoId: 'apple-store', referral: true })).status, 400);
   assert.equal(calls.length, 0);
 });
 
