@@ -4,6 +4,11 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-12 — Simplify the MIRA and jewelry home headers
+
+- Removed the local collection/demo labels and top exit buttons from the MIRA and jewelry home screens; raised both hero sections by 30 CSS pixels while retaining their existing navigation.
+- Verified at 320 and 390 px, including hero layout and jewelry store flows; before/after captures are in `../work/mira-hero-20261112/` and `../work/jewelry-head-adjust/`. The result has not yet been assessed by the user.
+
 ## 2026-11-12 — Complete Tiffany jewelry demo imagery and MIRA details
 
 - Filled the four gallery views and two editorial story positions for each of the 20 Tiffany products with distinct locally stored generated illustrations, checked against the product references and on light and dark backgrounds. The images are not official Tiffany photographs; the user has not yet evaluated the result.

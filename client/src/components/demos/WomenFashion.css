@@ -1,5 +1,6 @@
 /* MIRA is a separate store; its first screen is an editorial variation of the fashion demo. */
 .mira-store .mira-hero{padding-top:22px}
+.mira-store[data-testid="women-fashion"] .mira-hero{padding-top:44px}
 .mira-store .mira-hero-kicker{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;color:#777;font-size:10px;font-weight:750;letter-spacing:.12em}
 .mira-store .mira-hero-kicker button{display:inline-flex;align-items:center;gap:4px;min-height:40px;padding:0;border:0;background:transparent;color:#555;font:inherit;letter-spacing:0}
 .mira-store .mira-hero .mf-hero-headline{font-size:clamp(28px,8.3vw,39px)}
