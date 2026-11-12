@@ -320,6 +320,16 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
     </div>;
   }
 
+  // The independent jewelry demo uses its own navigation.
+  if (demoId === 'jewelry-store') {
+    const JewelryStore = getDemoComponent(demoId);
+    return <div style={{ background: '#fff', minHeight: '100vh' }}>
+      <Suspense fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
+        {JewelryStore && <JewelryStore onClose={onClose} />}
+      </Suspense>
+    </div>;
+  }
+
   // MIRA is an independent women's store with its own state and navigation.
   if (demoId === 'women-fashion') {
     const WomenFashion = getDemoComponent(demoId);

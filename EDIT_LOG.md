@@ -4,6 +4,18 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-12 — Complete Tiffany jewelry demo imagery and MIRA details
+
+- Filled the four gallery views and two editorial story positions for each of the 20 Tiffany products with distinct locally stored generated illustrations, checked against the product references and on light and dark backgrounds. The images are not official Tiffany photographs; the user has not yet evaluated the result.
+- Reconnected product-story styling to the MIRA-based store and corrected the cart-limit message. Made the asset-copy step of the production build work on Windows.
+- Verification: production build on Windows; asset completeness, size and alpha tests; MIRA store flows and all 20 product stories at 320 and 390 px. UI screenshots are in `../work/jewelry-review/final-ui/`; model-gallery contact sheet is in `../work/tiffany-gallery-audit/ui-models.png`. Real Telegram/device behavior and artistic approval remain unverified. Existing uncommitted changes were preserved; no push or commit was made.
+
+## 2026-11-11 — ÉLIA jewelry demo store
+
+- Added a separate jewelry-store demo based on the customer flows of the women's clothing store: home, 20 products in four categories, search and sorting, detailed product pages, favorites, cart and a clearly identified demo checkout.
+- Generated original editorial and product photography informed by the supplied jewelry references. Three flagship products have a product view, close-up and worn view; the remaining items have one product view. Generated views can differ in small details.
+- Added an entry in the demo registry and showcase, without replacing the clothing demo. See `docs/jewelry-store-design-2026-11-11.md` for the design rationale and verification scope.
+
 ## 2026-11-09 — Bottom navigation avatar visibility
 
 - Removed the inactive avatar's 45% opacity so the user's photo, initials or fallback icon retain their natural visibility. The active profile ring and other navigation states are unchanged.

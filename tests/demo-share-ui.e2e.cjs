@@ -3,7 +3,7 @@ const { chromium } = require('playwright');
 
 // Start Vite first, or set INVITE_TEST_URL.
 const site = process.env.INVITE_TEST_URL || 'http://127.0.0.1:5194/';
-const demos = ['flower-store', 'china-buyer', 'medical-center', 'lumi-studio', 'opt-market', 'apple-store', 'muraka-fashion', 'women-fashion', 'nike-sneakers', 'skincare-aura'];
+const demos = ['flower-store', 'china-buyer', 'medical-center', 'lumi-studio', 'opt-market', 'apple-store', 'muraka-fashion', 'women-fashion', 'jewelry-store', 'nike-sneakers', 'skincare-aura'];
 
 async function scenario(browser, id, kind = 'prepared') {
   const context = await browser.newContext({ viewport: { width: 390, height: 740 }, isMobile: true, hasTouch: true, locale: 'ru-RU', serviceWorkers: 'block' });

@@ -117,6 +117,17 @@ export const demoApps: DemoApp[] = [
     badgeColor: 'bg-black',
   },
   {
+    id: 'jewelry-store',
+    title: 'Магазин украшений',
+    description: 'Демо магазина украшений: коллекция и оформление заказа',
+    category: 'Электронная коммерция',
+    image: '/jewelry/tiffany-creative/t1-worn.png',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
     id: 'women-fashion',
     title: 'MIRA — женская одежда',
     description: 'Женская одежда: коллекция, образы, избранное и демо-заказ',

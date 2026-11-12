@@ -593,7 +593,7 @@ function AppContent() {
   }, [route.component]);
 
   const isRoyalStep = route.component === 'demoApp' && ['nike-sneakers', 'royal-step'].includes(route.params?.id || '');
-  const isFashionDemo = route.component === 'demoApp' && (route.params?.id === 'muraka-fashion' || route.params?.id === 'women-fashion');
+  const isFashionDemo = route.component === 'demoApp' && ['muraka-fashion', 'women-fashion', 'jewelry-store'].includes(route.params?.id || '');
   const isAppleStore = route.component === 'demoApp' && route.params?.id === 'apple-store';
   const isOptMarket = route.component === 'demoApp' && route.params?.id === 'opt-market';
   const isLumiStudio = route.component === 'demoApp' && route.params?.id === 'lumi-studio';

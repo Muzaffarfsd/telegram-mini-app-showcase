@@ -48,6 +48,12 @@ const artwork: Record<string, ReactNode> = {
       <text x="60" y="52" textAnchor="middle" fontFamily="Arial Black, Arial, sans-serif" fontSize="25" fontWeight="900" letterSpacing="-1" fill="#181818">ОПТ</text>
     </g>
   ),
+  'jewelry-store': (
+    <g className="folder__sticker-art" style={{ '--sticker-angle': '-8deg' } as CSSProperties}>
+      <path d="M18 27L37 25L44 17L59 22L74 16L82 23L102 26L99 37L108 45L100 54L101 65L82 64L72 72L59 66L45 72L36 65L18 65L20 54L12 45L19 37Z" fill="#733946" stroke="#fff" strokeWidth="3" strokeLinejoin="round" />
+      <text x="60" y="52" textAnchor="middle" fontFamily="Arial, sans-serif" fontSize="18" fontWeight="800" fill="#fff">БЛЕСК</text>
+    </g>
+  ),
   'women-fashion': (
     <g className="folder__sticker-art" style={{ '--sticker-angle': '7deg' } as CSSProperties}>
       <text x="60" y="57" textAnchor="middle" fontFamily="Arial Black, Arial, sans-serif" fontSize="29" fontWeight="900" letterSpacing="-2" fill="#171717" stroke="#fff" strokeWidth="7.5" strokeLinejoin="round" paintOrder="stroke fill">look!</text>

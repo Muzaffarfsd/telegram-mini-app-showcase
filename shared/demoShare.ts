@@ -8,6 +8,7 @@ export const demoShareEntries = {
   'apple-store': { ru: 'Магазин техники Apple', en: 'Apple technology store' },
   'muraka-fashion': { ru: 'Магазин одежды', en: 'Clothing store' },
   'women-fashion': { ru: 'Магазин женской одежды', en: "Women's clothing store" },
+  'jewelry-store': { ru: 'Магазин украшений', en: 'Jewelry store' },
   'nike-sneakers': { ru: 'Магазин кроссовок', en: 'Sneaker store' },
   'skincare-aura': { ru: 'Магазин косметики', en: 'Skincare store' },
 } as const;

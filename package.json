@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "npx -y cross-env NODE_ENV=development tsx --env-file=.env server/index.ts",
-    "build": "vite build && cp -r attached_assets dist/",
+    "build": "vite build && node -e \"require('node:fs').cpSync('attached_assets', 'dist/attached_assets', { recursive: true })\"",
     "build:analyze": "ANALYZE=true vite build",
     "start": "NODE_ENV=production tsx server/index.ts",
     "check": "tsc",

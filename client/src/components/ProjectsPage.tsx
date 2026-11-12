@@ -17,6 +17,7 @@ const stores = [
   { id: 'medical-center', ru: 'Медицинский центр', en: 'Medical center', category: 'services', paper: 'blue' },
   { id: 'opt-market', ru: 'Оптовый магазин', en: 'Wholesale store', category: 'shops', paper: 'sand' },
   { id: 'women-fashion', ru: 'Женская одежда', en: 'Women’s clothing', category: 'shops', paper: 'rose' },
+  { id: 'jewelry-store', ru: 'Магазин украшений', en: 'Jewelry store', category: 'shops', paper: 'rose' },
   { id: 'skincare-aura', ru: 'Магазин косметики', en: 'Skincare store', category: 'shops', paper: 'lime' },
 ] as const;
 
@@ -52,7 +53,7 @@ const filePoses: Record<string, [number, number, number]> = {
   'muraka-fashion': [-11, 4, 1], 'nike-sneakers': [-6, 9, -1],
   'lumi-studio': [-9, 5, -2], 'china-buyer': [-12, 7, 1],
   'medical-center': [-6, 6, 0], 'opt-market': [-9, 9, -1],
-  'women-fashion': [-11, 5, 1], 'skincare-aura': [-7, 7, -2],
+  'women-fashion': [-11, 5, 1], 'jewelry-store': [-9, 6, 0], 'skincare-aura': [-7, 7, -2],
 };
 const folderOutline = 'M1 42C1 30 9 23 21 23H60C69 23 75 25 83 30L96 37H159C171 37 179 45 179 57V142C179 154 171 161 159 161H21C9 161 1 154 1 142Z';
 
@@ -66,12 +67,12 @@ function FileArtwork({ id }: { id: string }) {
     </g>
     <g className="folder__file-front">
       <rect x="55" y="23" width="99" height="88" rx="9" fill="#fdfdfb" stroke="#d4dad5" strokeOpacity=".8"/>
-      <g className="folder__file-graphics" color="var(--file-ink)">
+      {id === 'jewelry-store' ? <image x="55" y="23" width="99" height="88" href="/jewelry/tiffany-creative/t1-worn.png" preserveAspectRatio="xMidYMin slice" clipPath="url(#poster-window-jewelry-store)"/> : <g className="folder__file-graphics" color="var(--file-ink)">
         <rect width="22" height="22" rx="7" fill="var(--paper)" opacity=".6"/>
         <g className="folder__file-symbol" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">{fileMarks[id]}</g>
         <g className="folder__file-pattern" fill="none" stroke="currentColor" strokeOpacity=".55" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">{filePatterns[id]}</g>
         <path d="M1 35h32M1 41h21" stroke="currentColor" strokeOpacity=".18" strokeWidth="2" strokeLinecap="round"/>
-      </g>
+      </g>}
     </g>
   </g>;
 }
@@ -81,6 +82,7 @@ const Folder = memo(function Folder({ id, paper }: { id: string; paper: string }
     <span className="folder__contact" />
     <svg className="folder__files" viewBox="0 0 180 187" aria-hidden="true">
       <defs>
+        {id === 'jewelry-store' && <clipPath id="poster-window-jewelry-store"><rect x="55" y="23" width="99" height="88" rx="9"/></clipPath>}
         <mask id={`file-exposed-${id}`} maskUnits="userSpaceOnUse" x="0" y="0" width="180" height="187"><rect width="180" height="187" fill="#fff"/><path className="folder__file-mask" d={folderOutline} fill="#000"/></mask>
         <clipPath id={`file-transmitted-${id}`}><path className="folder__file-mask" d={folderOutline}/></clipPath>
         <filter id={`file-frost-${id}`} x="-8%" y="-8%" width="116%" height="116%"><feGaussianBlur stdDeviation="1.15"/></filter>

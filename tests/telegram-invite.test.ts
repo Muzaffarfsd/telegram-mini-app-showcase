@@ -1,6 +1,8 @@
 import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { demoShareEntries, demoShareIdFromStartParam } from '../shared/demoShare';
 import express from 'express';
 import type { Server } from 'node:http';
@@ -103,6 +105,9 @@ test('missing or unusable referral codes yield a general invitation, and databas
 
 test('each published demo gets its own server-chosen picture and Mini App deep link', async () => {
   for (const demoId of Object.keys(demoShareEntries)) {
+    // Telegram needs an actual public image at the URL, not the SPA fallback.
+    const photo = readFileSync(resolve('client/public/share/demos', `${demoId}.jpg`));
+    assert.equal(photo.readUInt16BE(0), 0xffd8, `${demoId} share image must be a JPEG`);
     calls = [];
     lookup = async () => { throw new Error('Demo sharing must not query referral data'); };
     const response = await send({ language: 'ru', referral: false, demoId });

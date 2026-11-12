@@ -20,7 +20,7 @@ const demoRoots = {
   'flower-store': 'flower-store', 'china-buyer': 'china-buyer',
   'medical-center': 'medical-center', 'lumi-studio': 'lumi-studio',
   'opt-market': 'opt-market', 'apple-store': 'apple-store',
-  'muraka-fashion': 'muraka-fashion', 'women-fashion': 'women-fashion',
+  'muraka-fashion': 'muraka-fashion', 'women-fashion': 'women-fashion', 'jewelry-store': 'jewelry-store',
   'nike-sneakers': 'royal-step', 'royal-step': 'royal-step',
 };
 const routes = [
