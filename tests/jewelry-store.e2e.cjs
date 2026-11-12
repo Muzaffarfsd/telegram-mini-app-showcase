@@ -34,6 +34,8 @@ async function assertGallery(page, productId) {
       await page.goto(`${base}#/demos/jewelry-store/app`, { waitUntil: 'domcontentloaded' });
       await page.getByTestId('jewelry-store').waitFor();
       assert.match(await page.locator('.mf-hero-headline').innerText(), /УКРАШЕНИЯ ДЛЯ\s+ТВОЕЙ ЖИЗНИ/);
+      const heroHeading = await page.locator('.mf-hero-headline').boundingBox();
+      assert.ok(heroHeading && heroHeading.y >= 125 && heroHeading.y <= 131, `${width}px: hero is not at the intended height`);
       const nav = page.locator('.mf-nav');
       const bar = await nav.boundingBox();
       assert.ok(bar && bar.x >= 0 && bar.x + bar.width <= width, `${width}px: navigation overflow`);

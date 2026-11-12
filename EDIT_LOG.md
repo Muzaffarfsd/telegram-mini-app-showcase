@@ -8,6 +8,7 @@
 
 - Removed the local collection/demo labels and top exit buttons from the MIRA and jewelry home screens; raised both hero sections by 30 CSS pixels while retaining their existing navigation.
 - Verified at 320 and 390 px, including hero layout and jewelry store flows; before/after captures are in `../work/mira-hero-20261112/` and `../work/jewelry-head-adjust/`. The result has not yet been assessed by the user.
+- Production CSS loaded the shared MIRA styles after jewelry styles; increased the jewelry rule's specificity so both home headings retain the intended offset regardless of load order, and added a browser check for the hero position.
 
 ## 2026-11-12 — Complete Tiffany jewelry demo imagery and MIRA details
 
