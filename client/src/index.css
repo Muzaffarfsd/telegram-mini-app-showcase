@@ -6250,82 +6250,12 @@ html.light [aria-modal="true"] {
   --dialog-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 16px 48px rgba(0, 0, 0, 0.12);
 }
 
-html.light [role="dialog"] > div,
-html.light [aria-modal="true"] > div {
+/* The navigation drawer paints one continuous white surface, including its footer. */
+html.light :is([role="dialog"], [aria-modal="true"]):where(:not(.w4m-panel)) > div {
   background: var(--dialog-bg) !important;
   box-shadow: var(--dialog-shadow) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
-}
-
-/* ═══════════════════════════════════════════════════════
-   ANALYTICS PAGE - Light Theme (iOS 26)
-   ═══════════════════════════════════════════════════════ */
-
-/* CSS Variables for analytics */
-:root {
-  --tooltip-bg: rgba(0, 0, 0, 0.85);
-  --tooltip-border: rgba(255, 255, 255, 0.1);
-}
-
-html.light {
-  --tooltip-bg: rgba(255, 255, 255, 0.98);
-  --tooltip-border: rgba(0, 0, 0, 0.08);
-}
-
-html.light .analytics-page {
-  background: var(--background) !important;
-}
-
-/* Chart grid lines - light theme */
-html.light .analytics-page .recharts-cartesian-grid line {
-  stroke: rgba(0, 0, 0, 0.06) !important;
-}
-
-/* Chart axis text - light theme */
-html.light .analytics-page .recharts-text,
-html.light .analytics-page .recharts-xAxis text,
-html.light .analytics-page .recharts-yAxis text {
-  fill: #636366 !important;
-}
-
-/* Legend text */
-html.light .analytics-page .recharts-legend-item-text {
-  color: #1C1C1E !important;
-}
-
-/* Pie chart labels */
-html.light .analytics-page .recharts-pie-label-text {
-  fill: #1C1C1E !important;
-}
-
-/* Active date range button */
-html.light .analytics-page button[class*="bg-emerald"] {
-  background: rgba(52, 199, 89, 0.15) !important;
-  color: #34C759 !important;
-  border-color: rgba(52, 199, 89, 0.3) !important;
-}
-
-/* Positive trend */
-html.light .analytics-page .text-emerald-400 {
-  color: #34C759 !important;
-}
-
-/* Negative trend */
-html.light .analytics-page .text-red-400 {
-  color: #FF3B30 !important;
-}
-
-/* Analytics insight cards */
-html.light .analytics-page .analytics-insight {
-  background: rgba(52, 199, 89, 0.08) !important;
-}
-
-/* Analytics tooltip */
-html.light .analytics-tooltip {
-  background: rgba(255, 255, 255, 0.98) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -7283,19 +7213,6 @@ html:not(.light) button[class*="bg-primary"]:active {
     0 8px 30px rgba(16, 185, 129, 0.5),
     0 0 50px rgba(16, 185, 129, 0.3);
   transform: translateY(-2px);
-}
-
-/* === Premium Analytics Cards === */
-html:not(.light) .analytics-page .card {
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(255, 255, 255, 0.03) 100%
-  );
-  border: 1px solid rgba(16, 185, 129, 0.15);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(16, 185, 129, 0.05);
 }
 
 /* === Premium Bottom Navigation === */

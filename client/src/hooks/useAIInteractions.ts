@@ -301,7 +301,6 @@ const VOICE_NAV_COMMANDS: Array<{
   { patterns: [/демо\s*магаз/i, /shop\s*demo/i, /покажи.*магаз/i, /show.*shop/i], path: "/demos/shop/app" },
   { patterns: [/проект/i, /project/i, /портфолио/i, /portfolio/i], path: "/projects" },
   { patterns: [/конструктор/i, /constructor/i, /builder/i], path: "/constructor" },
-  { patterns: [/аналитик/i, /analytics/i], path: "/analytics" },
   { patterns: [/главн/i, /home/i, /на\s*главную/i, /go\s*home/i], path: "/" },
   { patterns: [/демо/i, /demo/i, /все\s*демо/i, /all\s*demo/i], path: "/projects" },
 ];

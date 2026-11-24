@@ -43,12 +43,10 @@ const PAGE_ACTIONS: Record<string, { ru: QuickAction[]; en: QuickAction[] }> = {
     ru: [
       { icon: "⭐", label: "Топ решения", action: () => {}, color: "#f59e0b" },
       { icon: "🔍", label: "Сравнить", action: () => {}, color: "#a78bfa" },
-      { icon: "📊", label: "Аналитика", action: () => navigate("/analytics"), color: "#60a5fa" },
     ],
     en: [
       { icon: "⭐", label: "Top picks", action: () => {}, color: "#f59e0b" },
       { icon: "🔍", label: "Compare", action: () => {}, color: "#a78bfa" },
-      { icon: "📊", label: "Analytics", action: () => navigate("/analytics"), color: "#60a5fa" },
     ],
   },
   demoApp: {

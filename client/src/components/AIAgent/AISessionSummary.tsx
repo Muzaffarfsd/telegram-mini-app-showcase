@@ -13,7 +13,6 @@ const PAGE_LABELS: Record<string, { ru: string; en: string }> = {
   "/": { ru: "Главная", en: "Home" },
   "/projects": { ru: "Проекты", en: "Projects" },
   "/constructor": { ru: "Конструктор", en: "Constructor" },
-  "/analytics": { ru: "Аналитика", en: "Analytics" },
 };
 
 function formatPageName(path: string, lang: string): string {

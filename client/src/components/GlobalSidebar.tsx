@@ -79,7 +79,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
     { label: t('sidebar.aiForBusiness'), section: 'ai-process', routes: ['aiProcess', 'aiAgent'] },
     { label: t('sidebar.aboutStudio'), section: 'about', routes: ['about'] },
     { label: t('sidebar.orderProject'), section: 'constructor', routes: ['constructor', 'checkout'] },
-    { label: t('sidebar.analytics'), section: 'analytics', routes: ['analytics'] },
   ];
 
   const stages = [t('sidebar.brief'), t('sidebar.design'), t('sidebar.code'), t('sidebar.launch')];

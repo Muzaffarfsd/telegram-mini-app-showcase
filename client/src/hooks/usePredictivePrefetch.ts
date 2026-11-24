@@ -196,7 +196,6 @@ export function usePredictivePrefetch(config: PredictivePrefetchConfig = {}) {
       '/rewards': () => import('@/components/GamificationHub'),
       '/earning': () => import('@/components/EarningPage'),
       '/notifications': () => import('@/pages/notifications'),
-      '/analytics': () => import('@/pages/analytics'),
       '/coinshop': () => import('@/components/CoinShopPage'),
       '/photo-gallery': () => import('@/pages/PhotoGallery'),
     };

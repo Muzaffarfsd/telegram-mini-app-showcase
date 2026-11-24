@@ -19,7 +19,6 @@ export const ReferralProgram = loadablePage(() => import('../components/Referral
 export const GamificationHub = loadablePage(() => import('../components/GamificationHub').then(m => ({ default: m.GamificationHub })));
 export const EarningPage = loadablePage(() => import('../components/EarningPage').then(m => ({ default: m.EarningPage })));
 export const NotificationsPage = loadablePage(() => import('../pages/notifications'));
-export const AnalyticsPage = loadablePage(() => import('../pages/analytics'));
 export const CoinShopPage = loadablePage(() => import('../components/CoinShopPage'));
 
 const routes: Record<string, { preload(): Promise<unknown> }> = {
@@ -28,7 +27,7 @@ const routes: Record<string, { preload(): Promise<unknown> }> = {
   '/about': AboutPage, '/help': HelpPage, '/review': ReviewPage,
   '/checkout': CheckoutPage, '/photo-gallery': PhotoGallery,
   '/referral': ReferralProgram, '/rewards': GamificationHub, '/earning': EarningPage,
-  '/notifications': NotificationsPage, '/analytics': AnalyticsPage, '/premium-apps': PremiumAppsPage,
+  '/notifications': NotificationsPage, '/premium-apps': PremiumAppsPage,
 };
 
 export function warmRoute(rawPath: string, priority: 'high' | 'low' = 'low') {

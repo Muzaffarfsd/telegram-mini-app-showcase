@@ -15,7 +15,7 @@ import { afterScrollLayout } from "./lib/afterScrollLayout";
 import {
   ShowcasePage, PremiumAppsPage, ProjectsPage, AboutPage, DemoAppLanding, ConstructorPage,
   ProfilePage, CheckoutPage, DemoAppShell, HelpPage, ReviewPage, AIAgentPage, PhotoGallery,
-  ReferralProgram, GamificationHub, EarningPage, NotificationsPage, AnalyticsPage, CoinShopPage,
+  ReferralProgram, GamificationHub, EarningPage, NotificationsPage, CoinShopPage,
   hintRoute,
 } from "./lib/routeModules";
 import { RewardsProvider } from "./contexts/RewardsContext";
@@ -350,8 +350,6 @@ const NonCachedRoute = memo(({
       return <EarningPage onNavigate={handleNavigate} />;
     case 'notifications':
       return <NotificationsPage />;
-    case 'analytics':
-      return <AnalyticsPage />;
     case 'coinshop':
       return <CoinShopPage onNavigate={handleNavigate} />;
     case 'premiumApps':
@@ -558,7 +556,7 @@ function AppContent() {
                   </ErrorBoundary>
                 )}
                 
-                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={route.component.includes('demo') || route.component === 'projects' ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'constructor', 'aiProcess', 'aiAgent', 'about', 'analytics'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
+                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={route.component.includes('demo') || route.component === 'projects' ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'constructor', 'aiProcess', 'aiAgent', 'about'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
                   {(visitedTabs.has('showcase') || route.component === 'showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
                       <PageBoundary fallback={<StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} />}>
