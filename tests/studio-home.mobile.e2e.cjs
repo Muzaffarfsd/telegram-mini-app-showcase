@@ -56,7 +56,12 @@ async function run(browserType, name, width, height, language = 'ru') {
     assert.equal(await home.locator('a.studio-contact img[alt=""]').count(), 2);
     const [header, headline] = await Promise.all([page.locator('.w4-topbar'), home.locator('h1')].map(el => el.boundingBox()));
     const headerGap = headline.y - header.y - header.height;
-    assert.ok(headerGap >= 8 && headerGap <= 16, 'headline sits just below the header');
+    assert.ok(Math.abs(headerGap - 4) <= 1, 'home content begins 4px below the original header');
+    const rowInsets = await page.locator('.w4-topbar > div').evaluate(row => {
+      const css = getComputedStyle(row), rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+      return [parseFloat(css.paddingTop) / rem, parseFloat(css.paddingBottom) / rem];
+    });
+    assert.ok(Math.abs(rowInsets[0] - 1.5) < .002 && Math.abs(rowInsets[1] - .25) < .002, 'home preserves the shared header padding');
     await page.getByTestId('button-hamburger').tap();
     const drawer = page.getByRole('dialog').filter({ has: page.getByTestId('button-menu-close') });
     await drawer.waitFor();

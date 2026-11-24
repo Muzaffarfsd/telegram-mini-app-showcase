@@ -23,7 +23,6 @@ html .studio-editorial h1 { margin:0; color:var(--ink); font-family:inherit; fon
 }
 @media(prefers-reduced-motion:reduce) { .studio-home *, .studio-home *::before, .studio-home *::after { animation:none !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
 .home-ai-surface .alex-fab-breathing { width:44px !important; height:44px !important; top:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 24px) !important; bottom:auto !important; right:max(20px,calc((100vw - 430px) / 2)) !important; background:rgba(255,255,255,.84) !important; border:1px solid rgba(255,255,255,.9) !important; box-shadow:0 4px 16px rgba(0,0,0,.1) !important; animation:none !important; }
-html.studio-home-theme .home-ai-surface .alex-fab-breathing { top:calc(var(--studio-safe-top) + (var(--studio-bar-height) - 44px) / 2) !important; }
 @media(min-width:800px) {
   html.studio-home-theme .w4-topbar > div { max-width:1060px; padding-inline:40px; }
   html.studio-home-theme .home-ai-surface .alex-fab-breathing { right:max(40px,calc((100vw - 980px) / 2)) !important; }

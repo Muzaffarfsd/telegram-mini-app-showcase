@@ -10,12 +10,9 @@
     :where(html:is(.studio-home-theme,.projects-route-theme) .w4m-overlay) { position:fixed; inset:0; opacity:0; pointer-events:none; }
     :where(html:is(.studio-home-theme,.projects-route-theme) .w4-topbar) { position:fixed; inset:0 0 auto; }
     :root {
-      --studio-safe-top:max(env(safe-area-inset-top,0px),var(--sat,0px),var(--csat,0px),4px);
-      --studio-bar-height:52px;
-      --studio-content-top:calc(var(--studio-safe-top) + var(--studio-bar-height) + 13px);
+      /* Clear the shared header's 44px control, row padding and divider, then leave 4px before the headline. */
+      --studio-content-top:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 44px + 1.75rem + 1px + 4px);
     }
-    html.studio-home-theme .w4-topbar { padding-top:var(--studio-safe-top); }
-    html.studio-home-theme .w4-topbar > div { box-sizing:border-box; height:var(--studio-bar-height); padding-block:4px; display:flex; align-items:center; }
   </style>
   <style>html.light-route-transition,html.light-route-transition body,html.light-route-transition #root{background:#fff!important}</style>
   <style>html.projects-route-theme,html.projects-route-theme body{background:#fff!important;border:0!important}</style>
