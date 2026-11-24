@@ -216,17 +216,14 @@
     .projects-load-header { height:80px; padding:0 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #f3f3f3; }
     .projects-load-header .projects-load-shape { width:42px; height:42px; border-radius:50%; }
     .projects-load-header .projects-load-shape:nth-child(2) { width:54px; height:24px; border-radius:6px; }
-    .projects-load-content { max-width:1100px; margin:auto; padding:24px clamp(20px,5vw,48px) 100px; }
-    .projects-load-content.route-fallback { padding-top:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 75px); }
-    .projects-load-line { width:65%; height:25px; border-radius:7px; margin-bottom:7px; }
-    .projects-load-line.short { width:48%; }
-    .projects-load-art { width:min(70%,280px); height:260px; border-radius:24px; margin:18px auto 22px; }
-    .projects-load-caption { display:flex; align-items:center; justify-content:flex-end; gap:12px; }
-    .projects-load-caption .projects-load-shape:first-child { width:95px; height:15px; border-radius:6px; }
-    .projects-load-caption .projects-load-shape:last-child { width:54px; height:54px; border-radius:50%; }
-    .projects-load-section { width:150px; height:28px; border-radius:7px; margin:45px 0 16px; }
-    .projects-load-cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; }
-    .projects-load-card { height:125px; border-radius:8px; }
+    .projects-load-content { box-sizing:border-box; max-width:430px; margin:auto; padding:14px 20px 100px; }
+    .projects-load-content.route-fallback { padding-top:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 82px); }
+    .projects-load-line { width:45%; height:44px; border-radius:12px; }
+    .projects-load-filters { display:flex; gap:6px; margin:20px 0; }
+    .projects-load-filters i { width:18%; height:44px; border-radius:24px; }
+    .projects-load-cards { display:grid; gap:12px; }
+    .projects-load-card { height:226px; border-radius:24px; }
+    .projects-load-card:first-child { height:248px; }
     .projects-load-nav { position:fixed; left:50%; bottom:16px; transform:translateX(-50%); width:min(calc(100% - 36px),320px); height:56px; border-radius:24px; background:#f5f6f7; box-shadow:0 4px 18px rgba(30,33,35,.10); display:flex; justify-content:space-around; align-items:center; }
     .projects-load-nav .projects-load-shape { width:30px; height:30px; border-radius:10px; }
     @keyframes projects-load-shimmer { from { background-position:100% 0; } to { background-position:-100% 0; } }
@@ -386,9 +383,9 @@
     <div id="projects-static-shell" class="projects-load-skeleton" role="status" aria-label="Загрузка витрины приложений" aria-busy="true">
       <div class="projects-load-header" aria-hidden="true"><div class="projects-load-shape"></div><div class="projects-load-shape"></div><div class="projects-load-shape"></div></div>
       <div class="projects-load-content" aria-hidden="true">
-        <div class="projects-load-shape projects-load-line"></div><div class="projects-load-shape projects-load-line short"></div><div class="projects-load-shape projects-load-art"></div>
-        <div class="projects-load-caption"><div class="projects-load-shape"></div><div class="projects-load-shape"></div></div>
-        <div class="projects-load-shape projects-load-section"></div><div class="projects-load-cards"><div class="projects-load-shape projects-load-card"></div><div class="projects-load-shape projects-load-card"></div><div class="projects-load-shape projects-load-card"></div></div>
+        <div class="projects-load-shape projects-load-line"></div>
+        <div class="projects-load-filters"><i class="projects-load-shape"></i><i class="projects-load-shape"></i><i class="projects-load-shape"></i><i class="projects-load-shape"></i></div>
+        <div class="projects-load-cards"><div class="projects-load-shape projects-load-card"></div><div class="projects-load-shape projects-load-card"></div><div class="projects-load-shape projects-load-card"></div></div>
       </div>
       <div class="projects-load-nav" aria-hidden="true"><div class="projects-load-shape"></div><div class="projects-load-shape"></div><div class="projects-load-shape"></div><div class="projects-load-shape"></div></div>
     </div>

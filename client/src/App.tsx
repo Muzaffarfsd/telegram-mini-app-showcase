@@ -10,6 +10,7 @@ import { trackDemoView } from "./hooks/useGamification";
 import UserAvatar from "./components/UserAvatar";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useRouting, navigate } from "./hooks/useRouting";
+import { afterScrollLayout } from "./lib/afterScrollLayout";
 import { warmDemoImage } from "./lib/demoImagePreload";
 import { backgroundPrefetchWait, pauseBackgroundPrefetch } from "./lib/interactionBudget";
 import { isProfileRoute } from "./lib/profileRoutes";
@@ -473,6 +474,7 @@ function AppContent() {
   }, [route.component, route.params?.id]);
   const prefetchStarted = useRef(false);
   const demoReturnPath = useRef<'/' | '/projects'>('/');
+  const projectsReturnScroll = useRef<number | null>(null);
   const pendingDemoHash = useRef<string | null>(null);
   const isProfile = isProfileRoute(route.component);
   const { trackNavigation } = useNavigationTracking();
@@ -547,12 +549,22 @@ function AppContent() {
 
   const handleOpenDemo = useCallback((demoId: string) => {
     warmDemoImage(demoId, 'high');
+    projectsReturnScroll.current = route.component === 'projects' ? document.getElementById('root')?.scrollTop ?? 0 : null;
     demoReturnPath.current = route.component === 'projects' ? '/projects' : '/';
     pendingDemoHash.current = `#/demos/${demoId}/app`;
     navigate(`/demos/${demoId}/app`);
     queueMicrotask(() => hapticFeedback.medium());
     trackDemoView(demoId);
   }, [hapticFeedback, route.component]);
+
+  useLayoutEffect(() => {
+    if (route.component === 'demoApp') return;
+    const top = projectsReturnScroll.current;
+    projectsReturnScroll.current = null;
+    if (route.component === 'projects' && top !== null) {
+      return afterScrollLayout(() => document.getElementById('root')?.scrollTo({ top, behavior: 'instant' }));
+    }
+  }, [route.component]);
 
   const handleCloseDemo = useCallback(() => {
     const returnPath = demoReturnPath.current;
