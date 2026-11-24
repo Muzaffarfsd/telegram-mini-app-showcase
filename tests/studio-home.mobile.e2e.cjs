@@ -15,6 +15,16 @@ async function run(browserType, name, width, height, language = 'ru') {
     await page.goto(new URL('/#/', site).href, { waitUntil: 'domcontentloaded' });
     const home = page.getByTestId('home-page');
     await home.waitFor();
+    const stableBeforeMenuStyles = await home.evaluate(el => {
+      const sheet = Array.from(document.querySelectorAll('style')).find(style => style.textContent.includes('.w4m-panel.open') && style.textContent.includes('.hb-btn'))?.sheet;
+      if (!sheet) return false;
+      sheet.disabled = true;
+      try {
+        return ['.w4m-panel', '.w4m-overlay', '.w4-topbar'].every(selector => getComputedStyle(document.querySelector(selector)).position === 'fixed')
+          && el.querySelector('[data-testid="home-start-order"]').getBoundingClientRect().bottom < innerHeight;
+      } finally { sheet.disabled = false; }
+    });
+    assert.equal(stableBeforeMenuStyles, true, 'the sidebar must not push primary actions below the first viewport');
     await page.getByRole('button', { name: 'Chat with Alex' }).waitFor({ state: 'visible' });
     await page.evaluate(() => document.fonts.ready);
     assert.equal(await home.locator('h1').evaluate(el => getComputedStyle(el).fontFamily.includes('Google Sans App')), true, 'the home must use the agreed font');

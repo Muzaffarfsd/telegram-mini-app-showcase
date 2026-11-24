@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <style>html.profile-detail-theme,html.profile-detail-theme body{background:#fff!important}</style>
   <style>html.studio-home-theme,html.studio-home-theme body{background:#fff!important}</style>
+  <style>
+    /* Keep app chrome out of the first layout while WebKit attaches the sidebar stylesheet. */
+    :where(html.studio-home-theme .w4m-panel) { position:fixed; inset:0 auto 0 0; transform:translateX(-100%); }
+    :where(html.studio-home-theme .w4m-overlay) { position:fixed; inset:0; opacity:0; pointer-events:none; }
+    :where(html.studio-home-theme .w4-topbar) { position:fixed; inset:0 0 auto; }
+  </style>
   <style>html.light-route-transition,html.light-route-transition body,html.light-route-transition #root{background:#fff!important}</style>
   <style>html.projects-route-theme,html.projects-route-theme body{background:#fff!important}</style>
   <style>html.demo-boot-theme,html.demo-boot-theme body,html.demo-loading-theme,html.demo-loading-theme body{background:#fff!important}</style>
