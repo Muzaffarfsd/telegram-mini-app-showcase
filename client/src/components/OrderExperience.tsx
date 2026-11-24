@@ -73,7 +73,13 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   const [exchangeRate, setExchangeRate] = useState<ExchangeRate | null>(null);
   const [rateStatus, setRateStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading');
   const rubToUsd = exchangeRate?.rubToUsd ?? null;
-  const rateLabel = exchangeRate ? (exchangeRate.stale ? (ru ? 'НБКР · сохранён' : 'NBKR · cached') : (ru ? 'Курс НБКР' : 'NBKR rate')) : rateStatus === 'loading' ? (ru ? 'Курс загружается' : 'Loading rate') : (ru ? 'Курс недоступен' : 'Rate unavailable');
+  const rateLabel = useMemo(() => {
+    if (!exchangeRate) return rateStatus === 'loading' ? (ru ? 'Курс загружается' : 'Loading rate') : (ru ? 'Курс недоступен' : 'Rate unavailable');
+    const price = (1 / exchangeRate.rubToUsd).toLocaleString(ru ? 'ru-RU' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const source = ru ? 'НБКР' : 'NBKR';
+    const cached = exchangeRate.stale ? (ru ? ' · сохранён' : ' · cached') : '';
+    return `1 USD ≈ ${price} ₽ · ${source}${cached}`;
+  }, [exchangeRate, rateStatus, ru]);
   const [info, setInfo] = useState<{ kind: 'template' | 'feature' | 'plan'; id: string; storeCategory?: StoreCategoryId } | null>(null);
   const [pendingTemplate, setPendingTemplate] = useState<{ item: Template; category: StoreCategoryId | null } | null>(null);
   const draft = useOrderDraft({ step, templateId, storeCategory, extras, projectName, planId, annual });

@@ -26,21 +26,15 @@ async function check(browser, width, language, state) {
   await page.goto(new URL('/#/constructor', base).href, { waitUntil: 'domcontentloaded' });
   await page.getByTestId('order-page').waitFor({ timeout: 30000 });
   const note = page.locator('.order-rate-note');
-  await page.waitForFunction(({ state, language }) => {
-    const text = document.querySelector('.order-rate-note')?.textContent || '';
-    const expected = state === 'unavailable' ? (language === 'ru' ? 'Курс недоступен' : 'Rate unavailable') : state === 'stale' ? (language === 'ru' ? 'НБКР · сохранён' : 'NBKR · cached') : (language === 'ru' ? 'Курс НБКР' : 'NBKR rate');
-    return text === expected;
-  }, { state, language }, { timeout: 10000 });
+  const quote = language === 'ru' ? '1 USD ≈ 81,28 ₽ · НБКР' : '1 USD ≈ 81.28 ₽ · NBKR';
+  const expected = state === 'unavailable' ? (language === 'ru' ? 'Курс недоступен' : 'Rate unavailable') : quote + (state === 'stale' ? (language === 'ru' ? ' · сохранён' : ' · cached') : '');
+  await page.waitForFunction(text => document.querySelector('.order-rate-note')?.textContent === text, expected, { timeout: 10000 });
   const noteText = normalize(await note.innerText());
   assert.equal(normalize(await page.locator('.order-heading h1').innerText()), language === 'ru' ? 'Стоимость приложения' : 'App pricing');
   assert.equal(normalize(await page.locator('.order-heading p').innerText()), language === 'ru' ? 'Выберите тип приложения, чтобы узнать примерную стоимость.' : 'Choose an app type to see an estimated price.');
-  assert.doesNotMatch(noteText, /\d{1,2}\.\d{1,2}|2026/);
+  assert.doesNotMatch(noteText, /\d{2}[./-]\d{2}[./-]\d{4}|\d{4}-\d{2}-\d{2}/);
   assert.equal(await note.getAttribute('title'), null, 'The rate date must not appear in a tooltip');
-  if (state === 'unavailable') {
-    assert.equal(noteText, language === 'ru' ? 'Курс недоступен' : 'Rate unavailable');
-  } else {
-    assert.equal(noteText, state === 'fresh' ? (language === 'ru' ? 'Курс НБКР' : 'NBKR rate') : (language === 'ru' ? 'НБКР · сохранён' : 'NBKR · cached'));
-  }
+  assert.equal(noteText, expected);
   for (const [id, rubles, dollars] of rows) {
     const card = page.getByTestId(`template-${id}`);
     const price = normalize(await card.locator('.order-template-price').innerText());

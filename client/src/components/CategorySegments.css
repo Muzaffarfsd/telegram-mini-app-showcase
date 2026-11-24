@@ -1,0 +1,25 @@
+.category-segments {
+  box-sizing: border-box;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 17px;
+  background: #f2f2f2;
+}
+.category-segments > button[aria-pressed] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 44px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: #484848;
+  font-size: 13px;
+  font-weight: 550;
+  white-space: nowrap;
+}
+.category-segments > button[aria-pressed="true"] { color: #fff; background: #202020; }
+.category-segments > button:focus-visible { outline-offset: -3px; }

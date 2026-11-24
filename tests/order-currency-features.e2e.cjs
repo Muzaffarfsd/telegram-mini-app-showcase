@@ -24,7 +24,7 @@ async function check(browser, width, available) {
   try {
     await page.goto(new URL('/#/constructor', base).href, { waitUntil: 'domcontentloaded' });
     await page.getByTestId('order-page').waitFor({ timeout: 30000 });
-    await page.getByText(available ? 'Курс НБКР' : 'Курс недоступен', { exact: true }).waitFor();
+    await page.getByText(available ? '1 USD ≈ 81,28 ₽ · НБКР' : 'Курс недоступен', { exact: true }).waitFor();
     await tap(page.getByTestId('template-ecommerce-basic-clothes'));
     await page.waitForFunction(() => document.querySelector('[data-testid="order-page"]')?.dataset.orderStep === '2');
 

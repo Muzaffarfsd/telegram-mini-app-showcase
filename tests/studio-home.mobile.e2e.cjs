@@ -47,15 +47,49 @@ async function run(browserType, name, width, height, language = 'ru') {
 
     const primary = home.getByRole('button', { name: language === 'ru' ? 'Смотреть витрину' : 'Explore apps', exact: true });
     const order = home.getByTestId('home-start-order');
-    for (const action of [primary, order]) {
+    const contact = home.locator('.studio-intro-actions').getByRole('link', { name: language === 'ru' ? 'Написать в Telegram' : 'Message us on Telegram' });
+    assert.equal(await contact.getAttribute('href'), 'https://t.me/web4tgs');
+    for (const action of [contact, primary, order]) {
       const box = await action.boundingBox();
       assert.ok(box && box.y >= 0 && box.y + box.height <= height - 70, 'primary actions are visible on entry');
     }
+    const contactStyle = await contact.evaluate(el => [getComputedStyle(el).color, getComputedStyle(el).backgroundColor]);
+    assert.deepEqual(contactStyle, ['rgb(255, 255, 255)', 'rgb(23, 23, 23)']);
+    const contactEvents = await contact.evaluate(el => {
+      const previous = window.Telegram;
+      const events = [];
+      function record(event) { events.push(event.defaultPrevented); event.preventDefault(); }
+      window.addEventListener('click', record);
+      try {
+        window.Telegram = { WebApp: { openTelegramLink(url) { events.push(url); } } };
+        el.click();
+        window.Telegram.WebApp.openTelegramLink = () => { throw new Error('Unsupported'); };
+        el.click();
+        delete window.Telegram;
+        el.click();
+      } finally { window.Telegram = previous; window.removeEventListener('click', record); }
+      return events;
+    });
+    assert.deepEqual(contactEvents, ['https://t.me/web4tgs', true, false, false]);
     const gallery = home.getByTestId('home-exhibit');
+    await gallery.getByRole('heading', { name: language === 'ru' ? 'Что увидит ваш клиент?' : 'What will your customers see?' }).waitFor();
+    assert.equal((await gallery.locator('.home-demo__open').innerText()).trim(), language === 'ru' ? 'Смотреть коллекцию' : 'Browse the collection');
+    const preview = await gallery.locator('.home-demo__art').boundingBox();
+    const card = await gallery.locator('.home-demo__card').boundingBox();
+    assert.ok(Math.abs(preview.width - card.width) < 1, 'the app preview uses the full card width');
+    const originalHeight = width <= 350 ? 270 : Math.max(280, Math.min(width * .95, 450));
+    assert.ok(Math.abs(preview.height - originalHeight) < 1, 'app preview keeps the original home gallery scale');
     const topics = gallery.locator('.home-demo__projects button');
+    const selectedStyle = el => {
+      const button = getComputedStyle(el);
+      const track = getComputedStyle(el.parentElement);
+      return [button.color, button.backgroundColor, button.borderRadius, track.backgroundColor, track.borderRadius];
+    };
+    const homeSegment = await topics.first().evaluate(selectedStyle);
     const screens = gallery.locator('.home-demo__switch button');
     assert.equal(await topics.count(), 6);
     await topics.last().tap();
+    assert.equal((await gallery.locator('.home-demo__open').innerText()).trim(), language === 'ru' ? 'Выбрать мастера' : 'Find a stylist');
     await screens.last().tap();
     assert.equal(await topics.last().getAttribute('aria-pressed'), 'true');
     assert.equal(await screens.last().getAttribute('aria-pressed'), 'true');
@@ -68,11 +102,31 @@ async function run(browserType, name, width, height, language = 'ru') {
     assert.equal(await home.locator('.hs-demo__tabs button').last().getAttribute('aria-pressed'), 'true');
     await home.locator('.hs-faq summary').first().tap();
     await home.locator('.hs-faq details[open] p').waitFor();
-    await order.tap();
+    const finalEstimate = home.locator('.hs-final button');
+    const tinted = await home.evaluate(root => {
+      const selectors = 'h1 span,h2,h3,p,button,summary,.hs-final,.hs-final a,.hs-demo,.home-demo__card,.home-demo__open,.category-segments';
+      return [...root.querySelectorAll(selectors)].flatMap(el => {
+        const style = getComputedStyle(el);
+        return [style.color, style.backgroundColor, style.webkitTextFillColor].filter(value => {
+          const channels = value.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+          return channels && (channels[1] !== channels[2] || channels[2] !== channels[3]);
+        }).map(value => [el.className, value]);
+      });
+    });
+    assert.deepEqual(tinted, [], 'home typography, surfaces and controls have neutral colours');
+    assert.ok(await finalEstimate.evaluate(el => {
+      const style = getComputedStyle(el);
+      return style.color !== style.backgroundColor && style.webkitTextFillColor !== style.backgroundColor;
+    }), 'the estimate label must be visible on its white button');
+    await finalEstimate.tap();
     await page.getByTestId('order-page').waitFor();
     await page.getByTestId('nav-showcase').tap();
     await primary.tap();
     await page.getByTestId('projects-showcase').waitFor();
+    const cardActions = await page.locator('.ps-open').allInnerTexts();
+    assert.equal(cardActions.length, 11);
+    assert.equal(new Set(cardActions).size, 11, 'each business shows its own customer action');
+    assert.deepEqual(await page.locator('.ps-filters button[aria-pressed=true]').evaluate(selectedStyle), homeSegment);
     assert.deepEqual(errors, []);
     await context.close();
     console.log(`${name} ${width}×${height} ${language}: first screen, gallery, demo, FAQ, estimate and showcase passed`);

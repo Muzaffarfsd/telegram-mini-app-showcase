@@ -7,7 +7,9 @@ export type NbkrRate = {
 };
 
 const NBKR_URL = 'https://www.nbkr.kg/XML/daily.xml';
+const NBKR_TABLE_URL = 'https://www.nbkr.kg/index.jsp?lang=ENG';
 const MAX_BYTES = 64 * 1024;
+const MAX_HTML_BYTES = 256 * 1024;
 const FRESH_MS = 60 * 60 * 1000;
 const MAX_STALE_MS = 24 * 60 * 60 * 1000;
 const RETRY_MS = 30 * 1000;
@@ -26,9 +28,21 @@ function validEffectiveDate(value: string, now: number): string {
   if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) throw new Error('Invalid NBKR date');
   const delta = Math.floor(date.getTime() / DAY_MS) - bishkekDay(now);
   // A rate announced in advance is not effective until its Kyrgyz calendar day.
-  // Keep the previous effective value, marked stale, if refresh yields a future rate.
   if (delta < -7 || delta > 0) throw new Error('NBKR date outside accepted window');
   return `${yearText}-${monthText}-${dayText}`;
+}
+
+function perNominal(nominalText: string, valueText: string): number {
+  if (!/^\d+$/.test(nominalText) || !/^\d+(?:[,.]\d+)?$/.test(valueText)) throw new Error('Invalid NBKR quote');
+  const nominal = Number(nominalText), value = Number(valueText.replace(',', '.'));
+  if (!Number.isSafeInteger(nominal) || nominal < 1 || nominal > 1_000_000 || !Number.isFinite(value) || value <= 0 || value > 1_000_000) throw new Error('Invalid NBKR quote');
+  return value / nominal;
+}
+
+function crossRate(rub: number, usd: number, effectiveDate: string): Omit<NbkrRate, 'stale'> {
+  const rubToUsd = rub / usd;
+  if (!Number.isFinite(rubToUsd) || rubToUsd <= 0) throw new Error('Invalid cross rate');
+  return { rubToUsd, effectiveDate, source: 'NBKR' };
 }
 
 export function parseNbkrDailyXml(xml: string, now = Date.now()): Omit<NbkrRate, 'stale'> {
@@ -44,18 +58,45 @@ export function parseNbkrDailyXml(xml: string, now = Date.now()): Omit<NbkrRate,
     const nominalText = /<Nominal>\s*(\d+)\s*<\/Nominal>/i.exec(matches[0][1])?.[1];
     const valueText = /<Value>\s*(\d+(?:[,.]\d+)?)\s*<\/Value>/i.exec(matches[0][1])?.[1];
     if (!nominalText || !valueText) throw new Error(`Invalid ${code} quote`);
-    const nominal = Number(nominalText), value = Number(valueText.replace(',', '.'));
-    if (!Number.isSafeInteger(nominal) || nominal < 1 || nominal > 1_000_000 || !Number.isFinite(value) || value <= 0 || value > 1_000_000) throw new Error(`Invalid ${code} quote`);
-    return value / nominal;
+    return perNominal(nominalText, valueText);
   }
-  const rubToUsd = perUnit('RUB') / perUnit('USD');
-  if (!Number.isFinite(rubToUsd) || rubToUsd <= 0) throw new Error('Invalid cross rate');
-  return { rubToUsd, effectiveDate, source: 'NBKR' };
+  return crossRate(perUnit('RUB'), perUnit('USD'), effectiveDate);
 }
 
-async function boundedText(response: Response): Promise<string> {
+// The bank publishes the column dates and currency rows in two adjacent tables.
+export function parseNbkrPublishedTable(html: string, now = Date.now()): Omit<NbkrRate, 'stale'> {
+  if (html.length > MAX_HTML_BYTES) throw new Error('NBKR response too large');
+  const marker = html.indexOf('id="sticker-exrates"');
+  if (marker < 0) throw new Error('Missing NBKR exchange table');
+  const widget = html.slice(marker, marker + 16000);
+  const body = widget.indexOf('class="exchange-rates-body"');
+  const end = widget.indexOf('</table>', body);
+  if (body < 0 || end < 0) throw new Error('Incomplete NBKR exchange table');
+  const dates = Array.from(widget.slice(0, body).matchAll(/<td\b[^>]*\bclass="exchange-rates-head-date"[^>]*>\s*([^<]*?)\s*<\/td>/gi), m => m[1].trim());
+  if (dates[dates.length - 1] === '') dates.pop(); // trailing trend indicator
+  if (!dates.length || dates.some(d => !/^\d{2}\.\d{2}\.\d{4}$/.test(d)) || new Set(dates).size !== dates.length) throw new Error('Invalid NBKR table dates');
+  let column = -1, effectiveDate = '';
+  for (const [index, date] of dates.entries()) {
+    let iso: string;
+    try { iso = validEffectiveDate(date, now); } catch { continue; }
+    if (iso > effectiveDate) { effectiveDate = iso; column = index; }
+  }
+  if (column < 0) throw new Error('No effective NBKR table column');
+  const rates = new Map<string, number>();
+  for (const row of widget.slice(body, end).matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/gi)) {
+    const currency = /<td\b[^>]*\bclass="excurr"[^>]*>\s*(?:<img\b[^>]*>\s*)?(\d+)\s*(USD|RUB)\s*<\/td>/i.exec(row[1]);
+    if (!currency) continue;
+    const values = Array.from(row[1].matchAll(/<td\b[^>]*\bclass="exrate"[^>]*>([^<]*)<\/td>/gi), m => m[1].trim());
+    if (rates.has(currency[2]) || values.length !== dates.length) throw new Error('Ambiguous NBKR exchange row');
+    rates.set(currency[2], perNominal(currency[1], values[column]));
+  }
+  if (!rates.has('RUB') || !rates.has('USD')) throw new Error('Incomplete NBKR table quotes');
+  return crossRate(rates.get('RUB')!, rates.get('USD')!, effectiveDate);
+}
+
+async function boundedText(response: Response, limit: number, encoding: string): Promise<string> {
   const advertised = Number(response.headers.get('content-length'));
-  if (Number.isFinite(advertised) && advertised > MAX_BYTES) throw new Error('NBKR response too large');
+  if (Number.isFinite(advertised) && advertised > limit) throw new Error('NBKR response too large');
   if (!response.body) throw new Error('Empty NBKR response');
   const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];
@@ -65,14 +106,14 @@ async function boundedText(response: Response): Promise<string> {
       const { done, value } = await reader.read();
       if (done) break;
       length += value.byteLength;
-      if (length > MAX_BYTES) { await reader.cancel(); throw new Error('NBKR response too large'); }
+      if (length > limit) { await reader.cancel(); throw new Error('NBKR response too large'); }
       chunks.push(value);
     }
   } finally { reader.releaseLock(); }
   const bytes = new Uint8Array(length);
   let offset = 0;
   for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
-  return new TextDecoder('windows-1251').decode(bytes);
+  return new TextDecoder(encoding).decode(bytes);
 }
 
 type Options = { fetcher?: typeof fetch; now?: () => number };
@@ -80,6 +121,11 @@ export function createNbkrRateService({ fetcher = fetch, now = Date.now }: Optio
   let cached: { value: Omit<NbkrRate, 'stale'>; fetchedAt: number } | null = null;
   let inFlight: Promise<NbkrRate> | null = null;
   let retryAfter = 0;
+  async function readSource(url: string, accept: string, limit: number, encoding: string) {
+    const response = await fetcher(url, { signal: AbortSignal.timeout(8000), redirect: 'error', headers: { accept } });
+    if (!response.ok) throw new Error('NBKR request failed');
+    return boundedText(response, limit, encoding);
+  }
 
   const staleOrThrow = (): NbkrRate => {
     if (cached && now() - cached.fetchedAt <= MAX_STALE_MS) {
@@ -91,7 +137,7 @@ export function createNbkrRateService({ fetcher = fetch, now = Date.now }: Optio
   };
 
   return async function getRate(): Promise<NbkrRate> {
-    if (cached && now() - cached.fetchedAt < FRESH_MS) {
+    if (cached && bishkekDay(cached.fetchedAt) === bishkekDay(now()) && now() - cached.fetchedAt < FRESH_MS) {
       validEffectiveDate(cached.value.effectiveDate.split('-').reverse().join('.'), now());
       return { ...cached.value, stale: false };
     }
@@ -99,9 +145,12 @@ export function createNbkrRateService({ fetcher = fetch, now = Date.now }: Optio
     if (now() < retryAfter) return staleOrThrow();
     inFlight = (async () => {
       try {
-        const response = await fetcher(NBKR_URL, { signal: AbortSignal.timeout(5000), redirect: 'error', headers: { accept: 'application/xml,text/xml' } });
-        if (!response.ok) throw new Error('NBKR request failed');
-        const value = parseNbkrDailyXml(await boundedText(response), now());
+        let value: Omit<NbkrRate, 'stale'>;
+        try {
+          value = parseNbkrDailyXml(await readSource(NBKR_URL, 'application/xml,text/xml', MAX_BYTES, 'windows-1251'), now());
+        } catch {
+          value = parseNbkrPublishedTable(await readSource(NBKR_TABLE_URL, 'text/html', MAX_HTML_BYTES, 'utf-8'), now());
+        }
         cached = { value, fetchedAt: now() };
         retryAfter = 0;
         return { ...value, stale: false };

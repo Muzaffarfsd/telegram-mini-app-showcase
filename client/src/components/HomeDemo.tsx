@@ -1,10 +1,12 @@
 import { firstHomePreview, homePreviewSizes, homePreviewSrcSet } from '../data/homePreview';
+import { showcaseActions } from '../data/showcaseActions';
 import { backgroundPrefetchWait, canSpeculate } from '../lib/interactionBudget';
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { useHaptic } from '../hooks/useHaptic';
 import { hintRoute } from '../lib/routeModules';
 import './HomeDemo.css';
+import './CategorySegments.css';
 
 interface Props { ru: boolean; onOpenDemo: (id: string) => void }
 type View = 'home' | 'product';
@@ -63,6 +65,7 @@ export default function HomeDemo({ ru, onOpenDemo }: Props) {
   const preview = useRef<HTMLButtonElement>(null);
   const haptic = useHaptic();
   const project = projects[projectIndex];
+  const action = showcaseActions[project.id][ru ? 0 : 1];
   const chooseView = (next: View) => {
     if (next === view) return;
     setView(next);
@@ -127,8 +130,8 @@ export default function HomeDemo({ ru, onOpenDemo }: Props) {
       }
       done = true;
       observer.disconnect();
-      hintRoute(`/demos/${project.id}/app`);
       const adjacent = new Image();
+      adjacent.fetchPriority = 'low';
       const src = view === 'home' ? project.product : projects[(projectIndex + 1) % projects.length].home;
       adjacent.sizes = homePreviewSizes;
       adjacent.srcset = homePreviewSrcSet(src);
@@ -157,16 +160,16 @@ export default function HomeDemo({ ru, onOpenDemo }: Props) {
   }, [project, projectIndex, view]);
 
   return <div className="home-demo" data-testid="home-exhibit" data-project={project.id}>
-    <h2>{ru ? 'Попробуйте демо' : 'Try a demo'}</h2>
-    <div className="home-demo__projects" ref={categories} role="group" aria-label={ru ? 'Выберите пример' : 'Choose an example'}>
+    <h2>{ru ? 'Что увидит ваш клиент?' : 'What will your customers see?'}</h2>
+    <div className="home-demo__projects category-segments" ref={categories} role="group" aria-label={ru ? 'Выберите пример' : 'Choose an example'}>
       {projects.map((item, index) => <PreviewChoice key={item.id} active={projectIndex === index} choose={() => chooseProject(index)}>{ru ? item.title : item.titleEn}</PreviewChoice>)}
     </div>
     <div className="home-demo__card">
-    <button type="button" ref={preview} className="home-demo__image" data-testid="home-open-demo" onPointerDown={startSwipe} onPointerUp={finishSwipe} onPointerCancel={() => { gesture.current = null; }} onClick={(event) => { if (suppressClick.current && event.detail !== 0) { suppressClick.current = false; return; } onOpenDemo(project.id); }} aria-label={ru ? `Открыть демо: ${project.label.toLowerCase()}` : `Open demo: ${project.labelEn.toLowerCase()}`}>
-      <span className="home-demo__copy"><strong>{ru ? project.label : project.labelEn}</strong><span>{ru ? project.detail : project.detailEn}</span>
-        <span className="home-demo__open">{ru ? 'Открыть демо' : 'Open demo'} <ArrowUpRight size={15} aria-hidden="true"/></span>
-      </span>
+    <button type="button" ref={preview} className="home-demo__image" data-testid="home-open-demo" onPointerEnter={event => { if (event.pointerType === 'mouse') hintRoute(`/demos/${project.id}/app`); }} onFocus={event => { if (event.currentTarget.matches(':focus-visible')) hintRoute(`/demos/${project.id}/app`); }} onPointerDown={startSwipe} onPointerUp={finishSwipe} onPointerCancel={() => { gesture.current = null; }} onClick={(event) => { if (suppressClick.current && event.detail !== 0) { suppressClick.current = false; return; } onOpenDemo(project.id); }} aria-label={`${action} · ${ru ? project.label : project.labelEn}`}>
       <DemoArtwork key={project[view]} src={project[view]} view={view} first={projectIndex === 0 && view === 'home'} />
+      <span className="home-demo__copy"><strong>{ru ? project.label : project.labelEn}</strong><span>{ru ? project.detail : project.detailEn}</span>
+        <span className="home-demo__open">{action} <ArrowUpRight size={15} aria-hidden="true"/></span>
+      </span>
     </button>
     <div className="home-demo__switch" role="group" aria-label={ru ? 'Экран приложения' : 'App screen'}>
       <span>{ru ? 'Экран приложения' : 'App screen'}</span>

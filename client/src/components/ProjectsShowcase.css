@@ -8,23 +8,19 @@
 .projects-showcase *, .projects-showcase *::before, .projects-showcase *::after { box-sizing: border-box; }
 .projects-showcase button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .projects-showcase button:focus-visible { outline: 2px solid #222; outline-offset: 3px; }
-.ps-inner {
-  width: min(100%, 430px);
-  margin-inline: auto;
-  padding: calc(max(env(safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), var(--csat, 0px), 12px) + 82px) 20px calc(var(--projects-dock-space) + 20px);
-}
 .ps-header, .ps-header h1, .ps-filters, .ps-open, .ps-order { display: flex; align-items: center; }
 .ps-header { justify-content: space-between; gap: 10px; }
-.ps-intro, .ps-brief p { margin: 7px 0 0; color: #60615f; font-size: 14px; line-height: 1.45; }
+.ps-intro { color:#60615f; }
+.ps-brief p { margin: 7px 0 0; color: #60615f; font-size: 14px; line-height: 1.45; }
 .ps-library { display: inline-flex; gap: 6px; align-items: center; min-height: 44px; border: 0; padding: 0 10px; border-radius: 14px; background: #f2f2f0; color: #242523; }
 .projects-showcase .ps-library { font-size: 13px; font-weight: 600; }
 .ps-library span, .ps-filters button span { font-variant-numeric: tabular-nums; opacity: .75; }
 .ps-library[aria-pressed="true"] { background: #202121; color: #fff; }
 .ps-header h1 { align-items: baseline; gap: 7px; margin: 0; font-size: clamp(33px, 9vw, 40px); line-height: 1.08; letter-spacing: -.055em; font-weight: 680; }
-.ps-filters { display: grid; grid-template-columns: auto 1.25fr 1fr .8fr; gap: 2px; margin: 18px 0 16px; padding: 3px; background: #f2f2f0; border-radius: 17px; }
-.ps-filters button { display:flex; align-items:center; justify-content:center; gap:5px; min-width: 0; min-height: 44px; padding: 0 11px; border: 0; border-radius: 14px; color: #47494b; background: transparent; font-size: 13px; font-weight: 550; }
-.ps-filters button[aria-pressed="true"], .ps-order { color: white; background: #202124; }
-.ps-collection { display: grid; gap: 14px; list-style: none; margin: 0; padding: 0; }
+.ps-filters { display: grid; grid-template-columns: auto 1.25fr 1fr .8fr; margin: 18px 0 16px; }
+.ps-filters button { min-width:0; }
+.ps-order { color:white; background:#202124; }
+.ps-collection { display: grid; gap: var(--projects-list-gap); list-style: none; margin: 0; padding: 0; }
 .ps-item { position: relative; min-width: 0; }
 .ps-card {
   position: relative;
@@ -33,7 +29,7 @@
   grid-template-rows: 1fr auto;
   isolation: isolate;
   width: 100%;
-  min-height: 278px;
+  min-height: var(--projects-card-height);
   padding: 0;
   gap: 0;
   overflow: clip;
@@ -52,7 +48,8 @@
 .ps-save { display:grid; place-items:center; position:absolute; bottom:8px; right:12px; width:44px; height:44px; background:transparent; color:#545652; border:0; border-radius:50%; }
 .ps-save[aria-pressed="true"] { color:#171816; background:#e4e5e1; }
 .ps-artwork-layer { position: absolute; inset: 0 0 60px; pointer-events: none; overflow: clip; }
-.ps-art { position: absolute; width: min(63.31%, 204px); aspect-ratio: 3 / 4; right: 0; top: 50%; transform: translateY(-50%); background-size: 100% 100%; background-repeat: no-repeat; }
+.ps-art { position: absolute; width: min(63.31%, 204px); aspect-ratio: 3 / 4; right: 0; top: 50%; transform: translateY(-50%); background-image:url('../assets/showcase-preview-sheet.webp?inline'); background-repeat:no-repeat; }
+.ps-art-ready { background-image:none; }
 .ps-art img { display: block; width: 100%; height: 100%; opacity: 0; }
 .ps-art-ready img { opacity: 1; }
 .ps-card:active, .ps-order:active { transform: none; transition: none; }
@@ -68,9 +65,6 @@
 .ps-empty { display:grid; gap:12px; justify-items:start; padding:22px; border-radius:22px; background:#f2f2f1; font-size:14px; color:#343633; }
 .ps-empty button { display:flex; align-items:center; gap:7px; min-height:44px; border:0; padding:0; background:transparent; color:#191a1c; font-weight:600; }
 @media (max-width: 350px) {
-  .ps-inner { padding-inline: 15px; }
-  .ps-filters { gap: 4px; }
-  .ps-filters button { padding-inline: 12px; }
   .ps-copy { padding-left: 16px; }
   .ps-open { padding-inline: 13px; }
 }

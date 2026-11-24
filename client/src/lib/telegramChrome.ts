@@ -7,14 +7,14 @@ type TelegramChrome = {
 
 export type TelegramChromeColors = { background?: string; header?: string; bottom?: string };
 
-/** React's route can lag behind the hash; home and order always use light surfaces. */
+/** Use the destination background even before React mounts the new screen. */
 export function isLightDestinationHash(): boolean {
   if (typeof window === 'undefined') return false;
   const path = window.location.hash.slice(1).split('?')[0] || '/';
-  return path === '/' || path === '/constructor';
+  return path === '/' || path === '/constructor' || path === '/projects';
 }
 
-/** Restore captured host colours, except on the light home and order screens. */
+/** Restore the host colours appropriate to the destination. */
 export function restoreTelegramChrome(tg: TelegramChrome | undefined, previous: TelegramChromeColors): void {
   const colors = isLightDestinationHash()
     ? { background: '#ffffff', header: '#ffffff', bottom: '#ffffff' }

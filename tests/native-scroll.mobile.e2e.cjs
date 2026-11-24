@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const path = require('node:path');
-const { chromium } = require('playwright');
+const { chromium, webkit } = require('playwright');
 require('tsx/cjs');
 const { demoApps } = require('../client/src/data/demoApps.ts');
 
@@ -232,6 +232,14 @@ async function checkShowcaseArtwork(browser) {
     const cards = page.locator('.ps-card');
     await cards.first().waitFor();
     assert.equal(await cards.count(), demoApps.length);
+    const state = await cards.locator('.ps-art').evaluateAll(nodes => ({
+      requested: nodes.filter(node => node.firstElementChild.hasAttribute('src')).length,
+      sheets: new Set(nodes.map(node => getComputedStyle(node).backgroundImage)).size,
+      positions: new Set(nodes.map(node => getComputedStyle(node).backgroundPosition)).size,
+    }));
+    assert.ok(state.requested <= 4, 'only nearby detail images should be requested on entry');
+    assert.equal(state.sheets, 1, 'previews share one decoded sheet');
+    assert.equal(state.positions, demoApps.length, 'each gallery item needs a different thumbnail');
     const previews = await cards.locator('.ps-art').evaluateAll(nodes => Promise.all(nodes.map(async node => {
       const background = getComputedStyle(node).backgroundImage;
       if (!background.startsWith('url("data:image/webp;base64,')) return false;
@@ -254,11 +262,48 @@ async function checkShowcaseArtwork(browser) {
   } finally { releaseImages(); await ctx.close(); }
 }
 
+async function checkShowcaseGeometry(browser, width) {
+  const ctx = await browser.newContext({ viewport: { width, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: 'block' });
+  let releaseSdk, releaseRoute;
+  const sdk = new Promise(resolve => { releaseSdk = resolve; });
+  const chunk = new Promise(resolve => { releaseRoute = resolve; });
+  try {
+    await ctx.route('https://telegram.org/js/telegram-web-app.js', async route => {
+      await sdk;
+      await route.fulfill({ contentType:'text/javascript', body:'' });
+    });
+    await ctx.route(/\/assets\/ProjectsPage-[^/]+\.js$/, async route => { await chunk; await route.fallback(); });
+    const page = await ctx.newPage();
+    await page.goto(new URL('#/projects', site).href, { waitUntil:'commit' });
+    const boxes = async selector => {
+      const items = page.locator(selector);
+      await items.first().waitFor();
+      return items.evaluateAll(nodes => nodes.slice(0,2).map(node => {
+        const { x,y,width,height } = node.getBoundingClientRect();
+        return [x,y,width,height].map(Math.round);
+      }));
+    };
+    const initial = await boxes('#projects-static-shell .projects-load-card');
+    releaseSdk();
+    assert.deepEqual(await boxes('[data-testid=projects-skeleton] .projects-load-card'), initial);
+    releaseRoute();
+    assert.deepEqual(await boxes('.ps-card'), initial, 'first two cards must match both loading layouts');
+    console.log('PASS stable showcase geometry', width, JSON.stringify(initial));
+  } finally { releaseSdk(); releaseRoute(); await ctx.close(); }
+}
+
 async function run() {
   const coveredDemos = cases.filter(([hash]) => hash.startsWith('#/demos/')).map(([hash]) => hash.split('/')[2]);
   assert.deepEqual(coveredDemos.sort(), demoApps.map(demo => demo.id).sort(), 'every published demo needs a swipe case');
+  const safari = await webkit.launch({ headless: true });
+  try {
+    await checkShowcaseGeometry(safari, 320);
+    await checkShowcaseGeometry(safari, 390);
+  } finally { await safari.close(); }
   const browser = await chromium.launch({ headless: true });
   try {
+    await checkShowcaseGeometry(browser, 320);
+    await checkShowcaseGeometry(browser, 390);
     await checkShowcaseArtwork(browser);
     await checkShowcaseButtonOverlay(browser, 320, 700);
     await checkShowcaseButtonOverlay(browser, 390, 844);

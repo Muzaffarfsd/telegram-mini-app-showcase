@@ -6,16 +6,16 @@
   <style>html.studio-home-theme,html.studio-home-theme body{background:#fff!important}</style>
   <style>
     /* Keep app chrome out of the first layout while WebKit attaches the sidebar stylesheet. */
-    :where(html.studio-home-theme .w4m-panel) { position:fixed; inset:0 auto 0 0; transform:translateX(-100%); }
-    :where(html.studio-home-theme .w4m-overlay) { position:fixed; inset:0; opacity:0; pointer-events:none; }
-    :where(html.studio-home-theme .w4-topbar) { position:fixed; inset:0 0 auto; }
+    :where(html:is(.studio-home-theme,.projects-route-theme) .w4m-panel) { position:fixed; inset:0 auto 0 0; transform:translateX(-100%); }
+    :where(html:is(.studio-home-theme,.projects-route-theme) .w4m-overlay) { position:fixed; inset:0; opacity:0; pointer-events:none; }
+    :where(html:is(.studio-home-theme,.projects-route-theme) .w4-topbar) { position:fixed; inset:0 0 auto; }
   </style>
   <style>html.light-route-transition,html.light-route-transition body,html.light-route-transition #root{background:#fff!important}</style>
-  <style>html.projects-route-theme,html.projects-route-theme body{background:#fff!important}</style>
+  <style>html.projects-route-theme,html.projects-route-theme body{background:#fff!important;border:0!important}</style>
   <style>html.demo-boot-theme,html.demo-boot-theme body,html.demo-loading-theme,html.demo-loading-theme body{background:#fff!important}</style>
   <script>
     var __initialPath = (location.hash.slice(1) || '/').split('?')[0];
-    if (__initialPath === '/' || __initialPath === '/constructor') document.documentElement.classList.add('light-route-transition');
+    if (__initialPath === '/' || __initialPath === '/constructor' || __initialPath === '/projects') document.documentElement.classList.add('light-route-transition');
     var __nonHomePaths = ['/projects','/about','/constructor','/profile','/help','/review','/checkout','/ai-agent','/ai-process','/photo-gallery','/referral','/rewards','/earning','/notifications','/analytics','/premium-apps'];
     if (__nonHomePaths.indexOf(__initialPath) === -1 && !/^\/demos\/[^/]+(?:\/app)?$/.test(__initialPath)) {
       document.documentElement.classList.add('studio-home-theme');
@@ -236,19 +236,24 @@
     html.studio-home-theme #home-static-shell { display:block; }
     html[data-shared-demo-shell] #home-static-shell { display:none; }
     .home-load-content { max-width:514px; margin:0 auto; }
-    .home-load-shape { display:block; border-radius:8px; background:linear-gradient(100deg,#e9ede8 30%,#f5f7f4 48%,#e9ede8 66%); background-size:220% 100%; animation:projects-load-shimmer 1.6s ease-in-out infinite; }
+    .home-load-shape { display:block; border-radius:8px; background:linear-gradient(100deg,#ebebeb 30%,#f6f6f6 48%,#ebebeb 66%); background-size:220% 100%; animation:projects-load-shimmer 1.6s ease-in-out infinite; }
     .home-load-title { width:65%; height:clamp(37px,10.5vw,60px); margin-bottom:5px; }
     .home-load-title + .home-load-title { width:69%; }
     .home-load-copy { margin-top:16px; width:90%; height:14px; }
     .home-load-copy+.home-load-copy { margin-top:7px; width:73%; }
     .home-load-actions,.home-load-options { display:flex; gap:10px; margin-top:20px; }
     .home-load-actions i,.home-load-options i { width:38%; height:46px; border-radius:99px; }
+    .home-load-actions { display:grid; grid-template-columns:1fr 1fr; max-width:390px; gap:8px; }
+    .home-load-actions::before { content:''; grid-column:1/-1; height:50px; background:#ebebeb; border-radius:99px; }
+    .home-load-actions i { width:auto; }
     .home-load-demo { margin-top:35px; }
     .home-load-label { width:45%; height:22px; }
     .home-load-options { margin:12px 0 10px; gap:5px; }
     .home-load-options i { width:25%; height:44px; }
-    .home-load-card { height:calc(clamp(238px,66vw,340px) + 58px); background:#f0eee7; border-radius:24px; }
-    @media(min-width:800px) { .home-load-page { padding:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 102px) 40px 80px; } .home-load-content { display:grid; max-width:980px; grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr); gap:clamp(28px,5vw,68px); align-items:center; } .home-load-demo { margin:0; } .home-load-card {height:calc(clamp(270px,29vw,330px) + 58px);} }
+    :root { --home-preview-height:clamp(280px,95vw,450px); }
+    @media(max-width:350px) { :root { --home-preview-height:270px; } }
+    .home-load-card { height:calc(var(--home-preview-height) + 158px); background:#f1f1f1; border-radius:24px; }
+    @media(min-width:800px) { .home-load-page { padding:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 102px) 40px 80px; } .home-load-content { display:grid; max-width:980px; grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr); gap:clamp(28px,5vw,68px); align-items:center; } .home-load-demo { margin:0; } }
     @media(prefers-reduced-motion:reduce) { .home-load-shape { animation:none; } }
 
     #demo-static-shell { display:none; min-height:100dvh; background:#fff; padding:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 76px) 20px 80px; }
@@ -271,17 +276,25 @@
     html.projects-route-theme #projects-static-shell { display: block; }
     .projects-load-skeleton { min-height:100dvh; background:#fff; color:#171717; }
     .projects-load-shape { background:linear-gradient(100deg,#e9edf1 30%,#f6f8fa 48%,#e9edf1 66%); background-size:220% 100%; animation:projects-load-shimmer 1.6s ease-in-out infinite; }
-    .projects-load-header { height:80px; padding:0 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #f3f3f3; }
+    .projects-load-header { position:absolute; inset:0 0 auto; height:80px; padding:0 20px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #f3f3f3; }
     .projects-load-header .projects-load-shape { width:42px; height:42px; border-radius:50%; }
     .projects-load-header .projects-load-shape:nth-child(2) { width:54px; height:24px; border-radius:6px; }
-    .projects-load-content { box-sizing:border-box; max-width:430px; margin:auto; padding:14px 20px 100px; }
-    .projects-load-content.route-fallback { padding-top:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 82px); }
+    /* One geometry for the static shell, route fallback and hydrated list. */
+    .projects-page-frame { --projects-card-height:278px; --projects-list-gap:14px; box-sizing:border-box; width:min(100%,430px); margin-inline:auto; padding:calc(max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px),var(--csat,0px),12px) + 82px) 20px calc(var(--projects-dock-space,80px) + 20px); font-family:'Google Sans App',system-ui,-apple-system,sans-serif; }
+    @media(max-width:350px) { .projects-page-frame { padding-inline:15px; } }
+    .projects-intro-slot { position:relative; margin:7px 0 0; font-size:14px; line-height:1.45; }
+    .projects-load-content .projects-intro-slot { color:transparent; }
+    .projects-intro-en, html:is([lang="en"],.lang-en) .projects-intro-ru { display:none; }
+    html:is([lang="en"],.lang-en) .projects-intro-en { display:inline; }
     .projects-load-line { width:45%; height:44px; border-radius:12px; }
-    .projects-load-intro { width:75%; height:14px; margin-top:10px; border-radius:7px; }
+    .projects-load-intro { position:absolute; top:3px; left:0; width:75%; height:14px; border-radius:7px; }
     .projects-load-filters { display:flex; gap:3px; margin:18px 0 16px; padding:3px; background:#f2f2f0; border-radius:17px; }
     .projects-load-filters i { flex:1; height:44px; border-radius:14px; }
-    .projects-load-cards { display:grid; gap:12px; }
-    .projects-load-card { height:278px; border-radius:24px; }
+    .projects-load-cards { display:grid; gap:var(--projects-list-gap); }
+    .projects-load-card { position:relative; height:var(--projects-card-height); border-radius:24px; background:#f2f2f1; animation:none; }
+    .projects-load-card::before,.projects-load-card::after { content:''; position:absolute; left:20px; background:#e4e5e2; }
+    .projects-load-card::before { top:32%; width:28%; height:18px; border-radius:6px; }
+    .projects-load-card::after { bottom:8px; left:15px; width:116px; height:44px; border-radius:99px; }
     /* The static placeholder and the live dock use the same settled geometry. */
     html.projects-route-theme {
       --projects-viewport: var(--projects-visual-bottom, var(--tg-viewport-stable-height, 100dvh));
@@ -410,9 +423,9 @@
   <div id="root">
     <div id="projects-static-shell" class="projects-load-skeleton" role="status" aria-label="Загрузка витрины приложений" aria-busy="true">
       <div class="projects-load-header" aria-hidden="true"><div class="projects-load-shape"></div><div class="projects-load-shape"></div><div class="projects-load-shape"></div></div>
-      <div class="projects-load-content" aria-hidden="true">
+      <div class="projects-load-content projects-page-frame" aria-hidden="true">
         <div class="projects-load-shape projects-load-line"></div>
-        <div class="projects-load-shape projects-load-intro"></div>
+        <div class="projects-intro-slot"><span class="projects-intro-ru">Выберите демо и пройдите путь своего клиента.</span><span class="projects-intro-en">Choose a demo and try it as a customer.</span><i class="projects-load-shape projects-load-intro"></i></div>
         <div class="projects-load-filters"><i class="projects-load-shape"></i><i class="projects-load-shape"></i><i class="projects-load-shape"></i><i class="projects-load-shape"></i></div>
         <div class="projects-load-cards"><div class="projects-load-shape projects-load-card"></div><div class="projects-load-shape projects-load-card"></div><div class="projects-load-shape projects-load-card"></div></div>
       </div>

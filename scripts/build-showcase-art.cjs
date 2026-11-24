@@ -43,6 +43,21 @@ async function composition(id, scene) {
     <img style="${placement};clip-path:polygon(${outline})" src="${cover}"></div>`;
 }
 
+async function buildPreviewSheet() {
+  const ids = Object.keys(scenes).sort();
+  const columns = 4;
+  const width = 144;
+  const height = 192;
+  const tiles = ids.map((id, index) => ({
+    input: path.join(output, id + '.preview.webp'),
+    left: (index % columns) * width, top: Math.floor(index / columns) * height,
+  }));
+  await sharp({ create: { width: width * columns, height: height * Math.ceil(ids.length / columns),
+    channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } }).composite(tiles)
+    .webp({ quality: 66, alphaQuality: 55, effort: 6 })
+    .toFile(path.join(output, '../showcase-preview-sheet.webp'));
+}
+
 async function main() {
   await fs.mkdir(output, { recursive: true });
   const browser = await chromium.launch();
@@ -67,5 +82,7 @@ async function main() {
   } finally {
     await browser.close();
   }
+  await buildPreviewSheet();
 }
-main().catch(error => { console.error(error); process.exitCode = 1; });
+(process.argv.includes('--sheet-only') ? buildPreviewSheet() : main())
+  .catch(error => { console.error(error); process.exitCode = 1; });

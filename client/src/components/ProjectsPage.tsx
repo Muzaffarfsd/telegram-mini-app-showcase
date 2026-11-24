@@ -3,8 +3,10 @@ import { ArrowRight, ArrowUpRight, Bookmark } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { hintRoute } from '../lib/routeModules';
 import { ShowcaseArtwork } from './ShowcaseArtwork';
+import { showcaseActions } from '../data/showcaseActions';
 import { useFavoritesStore } from '../stores/favoritesStore';
 import './ProjectsShowcase.css';
+import './CategorySegments.css';
 
 interface ProjectsPageProps {
   onNavigate: (section: string) => void;
@@ -20,7 +22,7 @@ const filters = [
 
 type Category = typeof filters[number]['id'];
 interface Project {
-  id: string;
+  id: keyof typeof showcaseActions;
   category: Exclude<Category, 'all'>;
   title: [string, string];
   description: [string, string];
@@ -58,7 +60,7 @@ const ProjectCard = memo(function ProjectCard({ project, ru, index, saved, onSav
   const languageIndex = ru ? 0 : 1;
   const title = project.title[languageIndex];
   const hint = () => hintRoute(`/demos/${project.id}/app`);
-  const action = ru ? 'Открыть демо' : 'Open demo';
+  const action = showcaseActions[project.id][languageIndex];
   return <li className="ps-item"><button type="button" className="ps-card" data-project={project.id}
     data-testid={`card-app-${project.id}`} aria-label={`${action}: ${title}`}
     onClick={() => onOpenDemo(project.id)}
@@ -94,15 +96,15 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
   const pendingTap = useRef(0);
   useEffect(() => () => cancelAnimationFrame(pendingTap.current), []);
   return <main className="projects-showcase" data-testid="projects-showcase">
-    <div className="ps-inner">
+    <div className="ps-inner projects-page-frame">
       <header className="ps-header">
         <h1>{ru ? 'Витрина' : 'Showcase'}</h1>
         <button type="button" className="ps-library" data-testid="showcase-saved" aria-pressed={savedOnly} onClick={() => setSavedOnly(value => !value)}>
           <Bookmark size={16} fill={savedOnly ? 'currentColor' : 'none'}/>{ru ? 'Подборка' : 'Saved'}<span>{savedProjects.length}</span>
         </button>
       </header>
-      <p className="ps-intro">{ru ? 'Выберите демо и пройдите путь своего клиента.' : 'Choose a demo and try it as a customer.'}</p>
-      <div className="ps-filters" role="group" aria-label={ru ? 'Направления' : 'Categories'}>
+      <p className="ps-intro projects-intro-slot">{ru ? 'Выберите демо и пройдите путь своего клиента.' : 'Choose a demo and try it as a customer.'}</p>
+      <div className="ps-filters category-segments" role="group" aria-label={ru ? 'Направления' : 'Categories'}>
         {filters.map(filter => <button key={filter.id} type="button" aria-pressed={!savedOnly && category === filter.id} onClick={() => { setSavedOnly(false); setCategory(filter.id); }}>{ru ? filter.ru : filter.en}{filter.id === 'all' && <span>{projects.length}</span>}</button>)}
       </div>
       {savedOnly && <h2 className="ps-section-title">{ru ? 'Ваша подборка' : 'Your shortlist'}</h2>}
