@@ -21,8 +21,8 @@ async function run(browserType, name, width, height, language = 'ru') {
     assert.equal(await page.evaluate(() => document.fonts.check('16px "Google Sans App"', 'Бизнес')), true, 'the Cyrillic font must actually load');
     assert.equal(await home.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 255, 255)', 'home should be white in a dark Telegram theme');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'home must fit the screen width');
-    assert.equal(await home.locator('.studio-exhibit__object img').evaluate(el => getComputedStyle(el).animationName), 'none', 'reduced motion should be respected');
-    await page.waitForFunction(() => Array.from(document.querySelectorAll('.studio-exhibit img')).every(el => el.complete && el.naturalWidth > 0));
+    assert.equal(await home.locator('.home-demo__art img').evaluate(el => getComputedStyle(el).animationName), 'none', 'reduced motion should be respected');
+    await page.waitForFunction(() => Array.from(document.querySelectorAll('.home-demo__art img')).every(el => el.complete && el.naturalWidth > 0));
 
     if (width === 390 && language === 'ru' && name === 'Chromium') {
       await page.addScriptTag({ path: require.resolve('axe-core/axe.min.js') });
@@ -35,78 +35,37 @@ async function run(browserType, name, width, height, language = 'ru') {
       await chat.waitFor({ state: 'hidden' });
     }
 
-    const store = home.getByRole('button', { name: language === 'ru' ? 'Магазин' : 'Store', exact: true });
-    const services = home.getByRole('button', { name: language === 'ru' ? 'Услуги' : 'Services', exact: true });
-    const brand = home.getByRole('button', { name: language === 'ru' ? 'Бренд' : 'Brand', exact: true });
-    const assertCaptionFits = async () => {
-      const overflow = await home.locator('.studio-exhibit__copy').evaluate(el => Array.from(el.children).some(child => child.getBoundingClientRect().right > el.getBoundingClientRect().right - 8));
-      assert.equal(overflow, false, 'preview text must fit without clipping on a narrow phone');
-    };
-    assert.equal(await store.getAttribute('aria-pressed'), 'true');
-    await assertCaptionFits();
-    await services.tap();
-    assert.equal(await services.getAttribute('aria-pressed'), 'true');
-    await assertCaptionFits();
-    await home.getByText(language === 'ru' ? 'Запись онлайн.' : 'Online booking.').waitFor();
-    await home.getByRole('button', { name: language === 'ru' ? 'Следующий пример' : 'Next example' }).tap();
-    assert.equal(await brand.getAttribute('aria-pressed'), 'true');
-    await assertCaptionFits();
-    await home.getByRole('button', { name: language === 'ru' ? 'Предыдущий пример' : 'Previous example' }).tap();
-    assert.equal(await services.getAttribute('aria-pressed'), 'true');
-    await home.getByTestId('home-open-demo').tap();
-    await page.waitForURL('**/#/demos/beauty/app');
-    await page.getByText('GLOW — салон красоты и SPA').waitFor({ state: 'attached' });
+    const primary = home.getByRole('button', { name: language === 'ru' ? 'Смотреть витрину' : 'Explore apps', exact: true });
+    const order = home.getByTestId('home-start-order');
+    for (const action of [primary, order]) {
+      const box = await action.boundingBox();
+      assert.ok(box && box.y >= 0 && box.y + box.height <= height - 70, 'primary actions are visible on entry');
+    }
+    const gallery = home.getByTestId('home-exhibit');
+    const topics = gallery.locator('.home-demo__projects button');
+    const screens = gallery.locator('.home-demo__switch button');
+    assert.equal(await topics.count(), 6);
+    await topics.last().tap();
+    await screens.last().tap();
+    assert.equal(await topics.last().getAttribute('aria-pressed'), 'true');
+    assert.equal(await screens.last().getAttribute('aria-pressed'), 'true');
+    await gallery.locator('img[data-view="product"][data-ready="true"]').waitFor();
+    await gallery.getByTestId('home-open-demo').tap();
+    await page.getByTestId('lumi-studio').waitFor();
     await page.goBack();
-    await home.waitFor({ state: 'visible' });
-    await store.tap();
-    await home.getByTestId('home-open-demo').tap();
-    await page.waitForURL('**/#/demos/skincare-aura/app');
-    await page.getByText('Сервисы Aura').waitFor({ state: 'visible' });
-    await page.goBack();
-    await home.waitFor({ state: 'visible' });
-    await page.getByTestId('home-start-order').tap();
-    await page.waitForURL('**/#/constructor');
-    await page.getByTestId('order-page').waitFor({ state: 'visible' });
+    await home.waitFor({ state:'visible' });
+    await home.locator('.hs-demo__tabs button').last().tap();
+    assert.equal(await home.locator('.hs-demo__tabs button').last().getAttribute('aria-pressed'), 'true');
+    await home.locator('.hs-faq summary').first().tap();
+    await home.locator('.hs-faq details[open] p').waitFor();
+    await order.tap();
+    await page.getByTestId('order-page').waitFor();
     await page.getByTestId('nav-showcase').tap();
-    await home.waitFor({ state: 'visible' });
-    await home.getByRole('button', { name: language === 'ru' ? /Узнать о консультанте/ : /Explore the consultant/ }).tap();
-    await page.waitForURL('**/#/ai-process');
-    await page.getByTestId('consultant-page').waitFor({ state: 'visible' });
+    await primary.tap();
+    await page.getByTestId('projects-showcase').waitFor();
     assert.deepEqual(errors, []);
     await context.close();
-    console.log(`${name} ${width}×${height} ${language}: previews, real demos, order and consultant passed`);
-  } finally { await browser.close(); }
-}
-
-async function swipeAndMotion() {
-  const browser = await chromium.launch({ headless: true });
-  try {
-    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, locale: 'ru-RU', reducedMotion: 'no-preference', serviceWorkers: 'block' });
-    await context.addInitScript(() => localStorage.setItem('app-language', 'ru'));
-    await context.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
-    await context.route('**/api/**', route => route.fulfill({ contentType: 'application/json', body: '{"data":[]}' }));
-    const page = await context.newPage();
-    await page.goto(new URL('/#/', site).href, { waitUntil: 'domcontentloaded' });
-    const exhibit = page.getByTestId('home-exhibit');
-    await exhibit.waitFor();
-    await exhibit.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(800);
-    const image = exhibit.locator('.studio-exhibit__object img');
-    const firstTransform = await image.evaluate(el => getComputedStyle(el).transform);
-    await page.waitForTimeout(1100);
-    const secondTransform = await image.evaluate(el => getComputedStyle(el).transform);
-    assert.notEqual(firstTransform, secondTransform, 'the 3D object should move when visible');
-    const cdp = await context.newCDPSession(page);
-    const box = await exhibit.boundingBox();
-    const x = Math.round(box.x + box.width * .65), y = Math.max(100, Math.min(700, Math.round(box.y + box.height * .45)));
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x - 110, y }] });
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-    await page.getByRole('button', { name: 'Услуги', exact: true }).waitFor();
-    assert.equal(await page.getByRole('button', { name: 'Услуги', exact: true }).getAttribute('aria-pressed'), 'true', 'swipe should switch the example');
-    await cdp.detach();
-    await context.close();
-    console.log('Normal motion and a touch swipe through real examples passed');
+    console.log(`${name} ${width}×${height} ${language}: first screen, gallery, demo, FAQ, estimate and showcase passed`);
   } finally { await browser.close(); }
 }
 
@@ -115,5 +74,5 @@ async function swipeAndMotion() {
   await run(chromium, 'Chromium', 390, 844);
   await run(chromium, 'Chromium', 430, 932, 'en');
   await run(webkit, 'WebKit', 390, 844);
-  await swipeAndMotion();
+  await run(chromium, 'Chromium', 1024, 800, 'en');
 })().catch(error => { console.error(error); process.exitCode = 1; });

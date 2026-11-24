@@ -16,14 +16,14 @@ const site = process.env.HOME_TEST_URL || 'http://127.0.0.1:53735/';
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.getByTestId('home-page').waitFor();
-    await page.waitForFunction(() => Array.from(document.querySelectorAll('.studio-exhibit img')).every(img => img.complete && img.naturalWidth > 0));
+    await page.waitForFunction(() => Boolean(document.querySelector('.home-demo__art img[data-ready=true]')?.naturalWidth));
     await page.waitForTimeout(500);
     await context.setOffline(true);
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.getByTestId('home-page').waitFor({ state: 'visible', timeout: 15000 });
     const title = await page.locator('.studio-intro h1').innerText();
     assert.match(title, /Ваш бизнес/);
-    await page.waitForFunction(() => Array.from(document.querySelectorAll('.studio-exhibit img')).every(img => img.complete && img.naturalWidth > 0));
+    await page.waitForFunction(() => Boolean(document.querySelector('.home-demo__art img[data-ready=true]')?.naturalWidth));
     await context.close();
     console.log('Current home shell and its primary visual remain available after an online load and offline reload.');
   } finally { await browser.close(); }

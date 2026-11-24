@@ -74,7 +74,11 @@
         link.rel = asset.rel;
         link.href = asset.href;
         if (asset.as) link.as = asset.as;
-        if (asset.as === 'image') link.fetchPriority = 'high';
+        if (asset.as === 'image') {
+          link.imageSizes = asset.sizes;
+          link.imageSrcset = asset.srcset;
+          link.fetchPriority = 'high';
+        }
         else link.crossOrigin = '';
         document.head.appendChild(link);
       });
@@ -219,15 +223,28 @@
       animation: shimmer 1.5s infinite;
     }
 
-    /* Keep the home placeholder consistent before and after React starts. */
-    #home-static-shell { display:none; min-height:100dvh; background:#fff; padding:calc(max(env(safe-area-inset-top, 0px), var(--csat, 0px), 12px) + 82px) 20px 80px; }
+    /* Shared by the initial HTML and the React route fallback. */
+    .home-load-page { min-height:100dvh; background:#fff; padding:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 92px) clamp(16px,5vw,28px) 80px; }
+    #home-static-shell { display:none; }
     html.studio-home-theme #static-shell { display:none !important; }
     html.studio-home-theme #home-static-shell { display:block; }
     html[data-shared-demo-shell] #home-static-shell { display:none; }
-    .home-load-content { max-width:500px; margin:0 auto; display:grid; gap:12px; }
-    .home-load-shape { border-radius:8px; background:linear-gradient(100deg,#e9edf1 30%,#f6f8fa 48%,#e9edf1 66%); background-size:220% 100%; animation:projects-load-shimmer 1.6s ease-in-out infinite; }
-    @media (prefers-reduced-motion:reduce) { .home-load-shape { animation:none; background:#e9edf1; } }
-    
+    .home-load-content { max-width:514px; margin:0 auto; }
+    .home-load-shape { display:block; border-radius:8px; background:linear-gradient(100deg,#e9ede8 30%,#f5f7f4 48%,#e9ede8 66%); background-size:220% 100%; animation:projects-load-shimmer 1.6s ease-in-out infinite; }
+    .home-load-title { width:65%; height:clamp(37px,10.5vw,60px); margin-bottom:5px; }
+    .home-load-title + .home-load-title { width:69%; }
+    .home-load-copy { margin-top:16px; width:90%; height:14px; }
+    .home-load-copy+.home-load-copy { margin-top:7px; width:73%; }
+    .home-load-actions,.home-load-options { display:flex; gap:10px; margin-top:20px; }
+    .home-load-actions i,.home-load-options i { width:38%; height:46px; border-radius:99px; }
+    .home-load-demo { margin-top:35px; }
+    .home-load-label { width:45%; height:22px; }
+    .home-load-options { margin:12px 0 10px; gap:5px; }
+    .home-load-options i { width:25%; height:44px; }
+    .home-load-card { height:calc(clamp(238px,66vw,340px) + 58px); background:#f0eee7; border-radius:24px; }
+    @media(min-width:800px) { .home-load-page { padding:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 102px) 40px 80px; } .home-load-content { display:grid; max-width:980px; grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr); gap:clamp(28px,5vw,68px); align-items:center; } .home-load-demo { margin:0; } .home-load-card {height:calc(clamp(270px,29vw,330px) + 58px);} }
+    @media(prefers-reduced-motion:reduce) { .home-load-shape { animation:none; } }
+
     #demo-static-shell { display:none; min-height:100dvh; background:#fff; padding:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 76px) 20px 80px; }
     html.demo-boot-theme #static-shell { display:none !important; }
     html.demo-boot-theme #demo-static-shell,
@@ -405,14 +422,18 @@
         <div style="display:flex;gap:10px"><div class="demo-load-shape" style="width:50%;height:120px;border-radius:18px"></div><div class="demo-load-shape" style="width:50%;height:120px;border-radius:18px"></div></div>
       </div>
     </main>
-    <main id="home-static-shell" role="status" aria-label="Загрузка главной страницы" aria-busy="true">
+    <main id="home-static-shell" class="home-load-page" role="status" aria-label="Загрузка главной страницы" aria-busy="true">
       <div class="home-load-content" aria-hidden="true">
-        <div class="home-load-shape" style="width:45%;height:11px"></div><div style="height:7px"></div>
-        <div class="home-load-shape" style="width:74%;height:31px"></div><div class="home-load-shape" style="width:86%;height:31px"></div><div style="height:1px"></div>
-        <div class="home-load-shape" style="width:90%;height:14px"></div><div class="home-load-shape" style="width:68%;height:14px"></div><div style="height:18px"></div>
-        <div class="home-load-shape" style="width:38%;height:11px"></div><div class="home-load-shape" style="width:58%;height:20px"></div>
-        <div style="display:flex;gap:6px;margin-top:1px"><div class="home-load-shape" style="width:26%;height:40px"></div><div class="home-load-shape" style="width:24%;height:40px"></div><div class="home-load-shape" style="width:22%;height:40px"></div></div>
-        <div style="width:100%;height:min(88vw, 380px);min-height:280px;border-radius:25px;background:#f5f5f4"></div>
+        <div class="home-load-intro">
+          <i class="home-load-shape home-load-title"></i><i class="home-load-shape home-load-title"></i>
+          <i class="home-load-shape home-load-copy"></i><i class="home-load-shape home-load-copy"></i>
+          <div class="home-load-actions"><i class="home-load-shape"></i><i class="home-load-shape"></i></div>
+        </div>
+        <div class="home-load-demo">
+          <i class="home-load-shape home-load-label"></i>
+          <div class="home-load-options"><i class="home-load-shape"></i><i class="home-load-shape"></i><i class="home-load-shape"></i></div>
+          <div class="home-load-card"></div>
+        </div>
       </div>
     </main>
     <!-- STATIC SHELL: Показывается мгновенно пока React загружается -->

@@ -18,6 +18,7 @@ function sameOriginUrl(value) {
 function isPublicAsset(url) {
   if (!url || url.search || url.hash) return false;
   if (STATIC_ASSETS.includes(url.pathname)) return true;
+  if (/^\/home-editorial\/mobile\/[\w-]+\.webp$/.test(url.pathname)) return true;
   return /^\/(?:assets|icons|showcase|about-studio|attached_assets)\//.test(url.pathname) &&
     /\.(?:js|css|woff2?|ttf|png|jpe?g|webp|gif|ico|svg|avif)$/i.test(url.pathname);
 }

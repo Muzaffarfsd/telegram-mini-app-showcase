@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
 import { compression } from "vite-plugin-compression2";
-import { firstHomePreview } from './client/src/data/homePreview';
+import { firstHomePreview, homePreviewSizes, homePreviewSrcSet } from './client/src/data/homePreview';
 
 export default defineConfig({
   base: '/',
@@ -39,7 +39,7 @@ export default defineConfig({
             ...[home.fileName, ...home.imports.filter(file => requiredImport(file) && !scripts.has(file))]
               .map(file => ({ rel: 'modulepreload', href: '/' + file })),
             ...Array.from(home.viteMetadata?.importedCss ?? [], file => ({ rel: 'preload', as: 'style', href: '/' + file })),
-            { rel: 'preload', as: 'image', href: firstHomePreview },
+            { rel: 'preload', as: 'image', href: firstHomePreview, srcset: homePreviewSrcSet(firstHomePreview), sizes: homePreviewSizes },
           ];
           const tags = [
             ...Array.from(scripts, file => ({ tag: 'link', attrs: { rel: 'modulepreload', crossorigin: '', href: '/' + file } })),

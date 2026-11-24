@@ -1,4 +1,4 @@
-import { firstHomePreview } from '../data/homePreview';
+import { firstHomePreview, homePreviewSizes, homePreviewSrcSet } from '../data/homePreview';
 import { backgroundPrefetchWait, canSpeculate } from '../lib/interactionBudget';
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { ArrowUpRight } from 'lucide-react';
@@ -8,15 +8,25 @@ import './HomeDemo.css';
 
 interface Props { ru: boolean; onOpenDemo: (id: string) => void }
 type View = 'home' | 'product';
-type Direction = 'next' | 'previous';
 const projects = [
-  { id: 'muraka-fashion', title: 'Уличная', titleEn: 'Streetwear', label: 'УЛИЧНАЯ ОДЕЖДА', labelEn: 'STREETWEAR STORE', home: firstHomePreview, product: '/home-editorial/fashion-muraka-product-v2.webp' },
-  { id: 'women-fashion', title: 'Женская', titleEn: 'Women', label: 'ЖЕНСКАЯ ОДЕЖДА', labelEn: 'WOMEN’S FASHION', home: '/home-editorial/fashion-mira-no-header-home-v4.webp', product: '/home-editorial/fashion-mira-no-header-product-v4.webp' },
-  { id: 'nike-sneakers', title: 'Кроссовки', titleEn: 'Sneakers', label: 'МАГАЗИН КРОССОВОК', labelEn: 'SNEAKER STORE', home: '/home-editorial/sneaker-no-header-home-v4.webp', product: '/home-editorial/sneaker-no-header-jordan-v4.webp' },
-  { id: 'apple-store', title: 'Техника', titleEn: 'Tech', label: 'МАГАЗИН ТЕХНИКИ', labelEn: 'TECH STORE', home: '/home-editorial/apple-home-real-v5.webp', product: '/home-editorial/apple-burgundy-product-real-v6.webp' },
-  { id: 'flower-store', title: 'Цветы', titleEn: 'Flowers', label: 'МАГАЗИН ЦВЕТОВ', labelEn: 'FLOWER STORE', home: '/home-editorial/florist-home-no-header-v3.webp', product: '/home-editorial/florist-eustoma-product-v1.webp' },
-  { id: 'lumi-studio', title: 'Салон', titleEn: 'Salon', label: 'САЛОН КРАСОТЫ', labelEn: 'BEAUTY SALON', home: '/home-editorial/lumi-home-no-header-v2.webp', product: '/home-editorial/lumi-service-no-header-v2.webp' },
+  { id: 'muraka-fashion', title: 'Одежда', titleEn: 'Clothing', label: 'Магазин одежды', labelEn: 'Clothing store', detail: 'От новой коллекции до выбора размера.', detailEn: 'From the latest collection to the right size.', home: firstHomePreview, product: '/home-editorial/fashion-muraka-product-v2.webp' },
+  { id: 'women-fashion', title: 'Женская одежда', titleEn: 'Womenswear', label: 'Женская одежда', labelEn: 'Womenswear', detail: 'Готовый образ и вещи, из которых он собран.', detailEn: 'Explore a look and shop each piece.', home: '/home-editorial/fashion-mira-no-header-home-v4.webp', product: '/home-editorial/fashion-mira-no-header-product-v4.webp' },
+  { id: 'nike-sneakers', title: 'Кроссовки', titleEn: 'Sneakers', label: 'Магазин кроссовок', labelEn: 'Sneaker store', detail: 'Пара, расцветка и нужный размер.', detailEn: 'Find a pair, a colour and your size.', home: '/home-editorial/sneaker-no-header-home-v4.webp', product: '/home-editorial/sneaker-no-header-jordan-v4.webp' },
+  { id: 'apple-store', title: 'Техника', titleEn: 'Tech', label: 'Магазин техники', labelEn: 'Tech store', detail: 'Модель, цвет и объём памяти в одном заказе.', detailEn: 'Pick a model, finish and storage size.', home: '/home-editorial/apple-home-real-v5.webp', product: '/home-editorial/apple-burgundy-product-real-v6.webp' },
+  { id: 'flower-store', title: 'Цветы', titleEn: 'Flowers', label: 'Магазин цветов', labelEn: 'Flower shop', detail: 'Выбор букета, размера и оформления.', detailEn: 'Choose a bouquet, size and arrangement.', home: '/home-editorial/florist-home-no-header-v3.webp', product: '/home-editorial/florist-eustoma-product-v1.webp' },
+  { id: 'lumi-studio', title: 'Салон', titleEn: 'Salon', label: 'Салон красоты', labelEn: 'Beauty salon', detail: 'От выбора услуги до записи к мастеру.', detailEn: 'From a treatment to a booking with a stylist.', home: '/home-editorial/lumi-home-no-header-v2.webp', product: '/home-editorial/lumi-service-no-header-v2.webp' },
 ] as const;
+
+const miniatures = import.meta.glob<string>('../assets/home-preview/*.webp', { eager: true, import: 'default', query: '?inline' });
+function DemoArtwork({ src, view, first }: { src: string; view: View; first: boolean }) {
+  const [ready, setReady] = useState(false);
+  const miniature = miniatures[src.replace('/home-editorial/', '../assets/home-preview/')];
+  return <span className="home-demo__art" style={ready ? undefined : { backgroundImage: `url("${miniature}")` }}>
+    <img src={src} srcSet={homePreviewSrcSet(src)} sizes={homePreviewSizes} data-view={view} data-ready={ready}
+      width={1024} height={1536} alt="" draggable={false} fetchPriority={first ? 'high' : 'auto'} decoding="async"
+      onLoad={event => { void event.currentTarget.decode().then(() => setReady(true), () => {}); }} />
+  </span>;
+}
 
 /** A stationary touch following a preview swipe can end without a compatibility click. */
 function PreviewChoice({ active, choose, children }: { active: boolean; choose: () => void; children: string }) {
@@ -47,7 +57,7 @@ function PreviewChoice({ active, choose, children }: { active: boolean; choose: 
 export default function HomeDemo({ ru, onOpenDemo }: Props) {
   const [projectIndex, setProjectIndex] = useState(0);
   const [view, setView] = useState<View>('home');
-  const [direction, setDirection] = useState<Direction>('next');
+  const categories = useRef<HTMLDivElement>(null);
   const gesture = useRef<{ id: number; x: number; y: number } | null>(null);
   const suppressClick = useRef(false);
   const preview = useRef<HTMLButtonElement>(null);
@@ -55,13 +65,11 @@ export default function HomeDemo({ ru, onOpenDemo }: Props) {
   const project = projects[projectIndex];
   const chooseView = (next: View) => {
     if (next === view) return;
-    setDirection(next === 'product' ? 'next' : 'previous');
     setView(next);
     haptic.light();
   };
-  const chooseProject = (index: number, nextView: View = 'home', movement?: Direction) => {
+  const chooseProject = (index: number, nextView: View = 'home') => {
     if (index === projectIndex) return;
-    setDirection(movement ?? (index > projectIndex ? 'next' : 'previous'));
     setProjectIndex(index);
     setView(nextView);
     haptic.light();
@@ -82,12 +90,21 @@ export default function HomeDemo({ ru, onOpenDemo }: Props) {
     suppressClick.current = true;
     if (dx < 0) {
       if (view === 'home') chooseView('product');
-      else chooseProject((projectIndex + 1) % projects.length, 'home', 'next');
+      else chooseProject((projectIndex + 1) % projects.length, 'home');
     } else {
       if (view === 'product') chooseView('home');
-      else chooseProject((projectIndex - 1 + projects.length) % projects.length, 'product', 'previous');
+      else chooseProject((projectIndex - 1 + projects.length) % projects.length, 'product');
     }
   };
+  useEffect(() => {
+    const row = categories.current;
+    const active = row?.children[projectIndex];
+    if (!row || !active) return;
+    const bounds = row.getBoundingClientRect();
+    const tab = active.getBoundingClientRect();
+    if (tab.left < bounds.left) row.scrollLeft += tab.left - bounds.left;
+    else if (tab.right > bounds.right) row.scrollLeft += tab.right - bounds.right;
+  }, [projectIndex]);
   useEffect(() => {
     const target = preview.current;
     const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
@@ -112,7 +129,10 @@ export default function HomeDemo({ ru, onOpenDemo }: Props) {
       observer.disconnect();
       hintRoute(`/demos/${project.id}/app`);
       const adjacent = new Image();
-      adjacent.src = view === 'home' ? project.product : projects[(projectIndex + 1) % projects.length].home;
+      const src = view === 'home' ? project.product : projects[(projectIndex + 1) % projects.length].home;
+      adjacent.sizes = homePreviewSizes;
+      adjacent.srcset = homePreviewSrcSet(src);
+      adjacent.src = src;
     };
     const schedule = (delay: number) => {
       cancel();
@@ -136,17 +156,22 @@ export default function HomeDemo({ ru, onOpenDemo }: Props) {
     };
   }, [project, projectIndex, view]);
 
-  return <div className="home-demo" data-testid="home-exhibit">
-    <div className="home-demo__projects" role="group" aria-label={ru ? 'Выберите пример' : 'Choose an example'}>
+  return <div className="home-demo" data-testid="home-exhibit" data-project={project.id}>
+    <h2>{ru ? 'Попробуйте демо' : 'Try a demo'}</h2>
+    <div className="home-demo__projects" ref={categories} role="group" aria-label={ru ? 'Выберите пример' : 'Choose an example'}>
       {projects.map((item, index) => <PreviewChoice key={item.id} active={projectIndex === index} choose={() => chooseProject(index)}>{ru ? item.title : item.titleEn}</PreviewChoice>)}
     </div>
+    <div className="home-demo__card">
     <button type="button" ref={preview} className="home-demo__image" data-testid="home-open-demo" onPointerDown={startSwipe} onPointerUp={finishSwipe} onPointerCancel={() => { gesture.current = null; }} onClick={(event) => { if (suppressClick.current && event.detail !== 0) { suppressClick.current = false; return; } onOpenDemo(project.id); }} aria-label={ru ? `Открыть демо: ${project.label.toLowerCase()}` : `Open demo: ${project.labelEn.toLowerCase()}`}>
-      <img key={`${project.id}-${view}`} data-view={view} data-direction={direction} src={project[view]} alt="" draggable={false} fetchPriority={projectIndex === 0 && view === 'home' ? 'high' : 'auto'} decoding="async" />
+      <span className="home-demo__copy"><strong>{ru ? project.label : project.labelEn}</strong><span>{ru ? project.detail : project.detailEn}</span>
+        <span className="home-demo__open">{ru ? 'Открыть демо' : 'Open demo'} <ArrowUpRight size={15} aria-hidden="true"/></span>
+      </span>
+      <DemoArtwork key={project[view]} src={project[view]} view={view} first={projectIndex === 0 && view === 'home'} />
     </button>
     <div className="home-demo__switch" role="group" aria-label={ru ? 'Экран приложения' : 'App screen'}>
-      <span>{ru ? project.label : project.labelEn}</span>
-      <div><PreviewChoice active={view === 'home'} choose={() => chooseView('home')}>{ru ? 'Главная' : 'Home'}</PreviewChoice><PreviewChoice active={view === 'product'} choose={() => chooseView('product')}>{project.id === 'lumi-studio' ? (ru ? 'Услуга' : 'Service') : (ru ? 'Товар' : 'Product')}</PreviewChoice></div>
+      <span>{ru ? 'Экран приложения' : 'App screen'}</span>
+      <div data-screen={view}><PreviewChoice active={view === 'home'} choose={() => chooseView('home')}>{ru ? 'Главная' : 'Home'}</PreviewChoice><PreviewChoice active={view === 'product'} choose={() => chooseView('product')}>{project.id === 'lumi-studio' ? (ru ? 'Услуга' : 'Service') : (ru ? 'Товар' : 'Product')}</PreviewChoice></div>
     </div>
-    <button type="button" className="home-demo__open" onClick={() => onOpenDemo(project.id)}>{ru ? 'Открыть приложение' : 'Open app'} <ArrowUpRight size={17} aria-hidden="true" /></button>
+    </div>
   </div>;
 }
