@@ -127,8 +127,22 @@ async function run(browserType, name, width, height, language = 'ru') {
     await page.getByTestId('lumi-studio').waitFor();
     await page.goBack();
     await home.waitFor({ state:'visible' });
-    await home.locator('.hs-demo__tabs button').last().tap();
-    assert.equal(await home.locator('.hs-demo__tabs button').last().getAttribute('aria-pressed'), 'true');
+    const journey = home.locator('.hs-demo');
+    const journeyHeights = [];
+    for (const tab of await journey.getByRole('button').all()) {
+      await tab.tap();
+      assert.equal(await tab.getAttribute('aria-pressed'), 'true');
+      const picture = journey.locator('img');
+      await picture.scrollIntoViewIfNeeded();
+      const paintedHeight = await picture.evaluate(async img => {
+        await img.decode();
+        const box = img.getBoundingClientRect();
+        return Math.min(box.height, box.width * img.naturalHeight / img.naturalWidth);
+      });
+      assert.ok(paintedHeight >= 300, 'each shopping step has a large, uncropped illustration');
+      journeyHeights.push((await journey.boundingBox()).height);
+    }
+    assert.ok(Math.max(...journeyHeights) - Math.min(...journeyHeights) <= 1, 'shopping steps keep the same card height');
     await home.locator('.hs-faq summary').first().tap();
     await home.locator('.hs-faq details[open] p').waitFor();
     const finalEstimate = home.locator('.hs-final button');
