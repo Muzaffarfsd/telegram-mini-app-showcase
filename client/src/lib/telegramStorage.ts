@@ -247,7 +247,8 @@ export async function addViewedDemo(demoId: string): Promise<void> {
 }
 
 export async function getFavorites(): Promise<string[]> {
-  return (await deviceStorage.get<string[]>('favorites')) ?? [];
+  const saved = await deviceStorage.get<unknown>('favorites');
+  return Array.isArray(saved) ? Array.from(new Set(saved.filter((id): id is string => typeof id === 'string'))) : [];
 }
 
 export async function toggleFavorite(demoId: string): Promise<boolean> {
@@ -258,7 +259,7 @@ export async function toggleFavorite(demoId: string): Promise<boolean> {
   } else {
     favorites.splice(index, 1);
   }
-  await deviceStorage.set('favorites', favorites);
+  if (!await deviceStorage.set('favorites', favorites)) throw new Error('Could not save favorites');
   return index === -1;
 }
 

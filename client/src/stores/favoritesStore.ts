@@ -11,6 +11,9 @@ interface FavoritesState {
   isFavorite: (demoId: string) => boolean;
 }
 
+let initialization: Promise<void> | undefined;
+let pendingWrite: Promise<unknown> = Promise.resolve();
+
 export const useFavoritesStore = create<FavoritesState>((set, get) => ({
   favorites: [],
   isLoading: true,
@@ -19,33 +22,29 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
   initialize: async () => {
     if (get().isInitialized) return;
     
-    try {
-      const favs = await getFavorites();
-      set({ favorites: favs, isLoading: false, isInitialized: true });
-    } catch (error) {
-      console.error('[FavoritesStore] Failed to load favorites:', error);
-      set({ isLoading: false, isInitialized: true });
-    }
+    initialization ??= getFavorites().then(favorites => {
+      set({ favorites, isLoading: false, isInitialized: true });
+    }).catch(() => set({ isLoading: false, isInitialized: true }));
+    return initialization;
   },
 
-  toggle: async (demoId: string) => {
-    const { favorites } = get();
-    const wasInFavorites = favorites.includes(demoId);
-    
-    set({
-      favorites: wasInFavorites
-        ? favorites.filter(id => id !== demoId)
-        : [...favorites, demoId]
+  toggle: (demoId: string) => {
+    const result = pendingWrite.then(async () => {
+      await get().initialize();
+      const previous = get().favorites;
+      const saved = previous.includes(demoId);
+      set({ favorites: saved ? previous.filter(id => id !== demoId) : [...previous, demoId] });
+      try {
+        const persisted = await toggleFavorite(demoId);
+        if (persisted === saved) set({ favorites: await getFavorites() });
+        return persisted;
+      } catch {
+        set({ favorites: previous });
+        return saved;
+      }
     });
-
-    try {
-      const isNowFavorite = await toggleFavorite(demoId);
-      return isNowFavorite;
-    } catch (error) {
-      set({ favorites });
-      console.error('[FavoritesStore] Failed to toggle favorite:', error);
-      return wasInFavorites;
-    }
+    pendingWrite = result.catch(() => {});
+    return result;
   },
 
   isFavorite: (demoId: string) => {

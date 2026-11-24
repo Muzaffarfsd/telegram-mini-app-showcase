@@ -28,10 +28,11 @@ export interface TelegramButton {
   hideProgress: () => void;
   onClick: (callback: () => void) => void;
   offClick: (callback: () => void) => void;
-  setParams: (params: { text?: string; color?: string; text_color?: string; is_active?: boolean; is_visible?: boolean }) => void;
+  setParams: (params: { text?: string; color?: string; text_color?: string; is_active?: boolean; is_visible?: boolean; position?: 'left' | 'right' | 'top' | 'bottom' }) => void;
 }
 
 interface TelegramWebApp {
+  viewportStableHeight?: number;
   platform?: string;
   version?: string;
   bottomBarColor?: string;

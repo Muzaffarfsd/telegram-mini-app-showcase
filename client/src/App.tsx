@@ -230,9 +230,9 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
             path="/projects"
             onClick={() => navAction('/projects')}
             isActive={route.component === 'projects'}
-            ariaLabel={language === 'ru' ? 'Проекты' : 'Projects'}
+            ariaLabel={language === 'ru' ? 'Витрина' : 'Showcase'}
             testId="nav-projects"
-            label={language === 'ru' ? 'Кейсы' : 'Cases'}
+            label={language === 'ru' ? 'Витрина' : 'Showcase'}
           >
             <Briefcase
               className="w-[21px] h-[21px]"
@@ -396,22 +396,7 @@ function AppContent() {
     if (route.component !== 'projects') return;
     const html = document.documentElement;
     html.classList.add('projects-route-theme');
-    // The native sheet publishes its own settled height. Its visual viewport
-    // may resize several times while Telegram animates the action buttons.
-    const platform = window.Telegram?.WebApp?.platform;
-    const viewport = !platform || platform === 'unknown' ? window.visualViewport : null;
-    const updateVisibleBottom = () => {
-      if (viewport && viewport.scale === 1 && viewport.height > 0) {
-        html.style.setProperty('--projects-visual-bottom', `${viewport.offsetTop + viewport.height}px`);
-      }
-    };
-    updateVisibleBottom();
-    viewport?.addEventListener('resize', updateVisibleBottom);
-    viewport?.addEventListener('scroll', updateVisibleBottom);
     return () => {
-      viewport?.removeEventListener('resize', updateVisibleBottom);
-      viewport?.removeEventListener('scroll', updateVisibleBottom);
-      html.style.removeProperty('--projects-visual-bottom');
       html.classList.remove('projects-route-theme');
     };
   }, [route.component]);

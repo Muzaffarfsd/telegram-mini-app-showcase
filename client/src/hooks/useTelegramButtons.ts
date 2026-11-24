@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent, useCallback, useRef, useState } from 'react';
 import { useTelegram, type TelegramButton } from './useTelegram';
+import { useShowcaseViewport } from './useShowcaseViewport';
 import { useLanguage } from '../contexts/LanguageContext';
 import { profilePost } from '../lib/profileRequest';
 import { navigate as navigateRoute } from './useRouting';
@@ -8,6 +9,8 @@ import { canonicalDemoShareId, demoShareEntries } from '@shared/demoShare';
 interface ButtonAction {
   text: string;
   onClick: () => void;
+  primary?: boolean;
+  position?: 'left';
 }
 
 interface ButtonConfig {
@@ -25,6 +28,8 @@ const NATIVE_BUTTON_TEXT_COLOR = '#1C1C1E';
 function useNativeButton(button: TelegramButton | undefined, action: ButtonAction | undefined) {
   const press = useEffectEvent(() => action?.onClick());
   const label = action?.text;
+  const primary = !!action?.primary;
+  const position = action?.position;
 
   useEffect(() => {
     if (!button) return;
@@ -39,11 +44,13 @@ function useNativeButton(button: TelegramButton | undefined, action: ButtonActio
   useEffect(() => {
     if (!button) return;
     if (label) {
-      button.setParams({ text: label, color: NATIVE_BUTTON_COLOR, text_color: NATIVE_BUTTON_TEXT_COLOR, is_visible: true });
+      button.setParams({ text: label, color: primary ? NATIVE_BUTTON_TEXT_COLOR : NATIVE_BUTTON_COLOR,
+        text_color: primary ? NATIVE_BUTTON_COLOR : NATIVE_BUTTON_TEXT_COLOR, is_visible: true,
+        ...(position ? { position } : {}) });
     } else if (button.isVisible) {
       button.hide();
     }
-  }, [button, label]);
+  }, [button, label, primary, position]);
 }
 
 export function useTelegramButtons(
@@ -173,10 +180,12 @@ export function useTelegramButtons(
         mainButton: {
           text: t('telegramButtons.orderProject'),
           onClick: handleOrderProject,
+          primary: true,
         },
         secondaryButton: {
           text: t('telegramButtons.share'),
           onClick: handleShare,
+          position: 'left',
         },
       };
       break;
@@ -254,6 +263,7 @@ export function useTelegramButtons(
       break;
   }
 
+  useShowcaseViewport(currentRoute === 'projects', !chatOpen);
   useNativeButton(webApp?.MainButton, chatOpen ? undefined : config.mainButton);
   useNativeButton(webApp?.SecondaryButton, chatOpen ? undefined : config.secondaryButton);
 

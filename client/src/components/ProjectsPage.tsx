@@ -1,8 +1,9 @@
 import { memo, useEffect, useRef, useState } from 'react';
-import { ArrowRight, ArrowUpRight } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Bookmark } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { hintRoute } from '../lib/routeModules';
 import { ShowcaseArtwork } from './ShowcaseArtwork';
+import { useFavoritesStore } from '../stores/favoritesStore';
 import './ProjectsShowcase.css';
 
 interface ProjectsPageProps {
@@ -27,37 +28,38 @@ interface Project {
 
 const projects: Project[] = [
   { id: 'muraka-fashion', category: 'shops', title: ['Магазин одежды', 'Clothing store'],
-    description: ['Каталог ваших коллекций с выбором размера и заказом в Telegram.', 'A catalog for your collections with size selection and ordering in Telegram.'] },
+    description: ['Покупатель выбирает вещь и размер. Вы получаете готовый заказ.', 'Customers choose a piece and size. You receive the order.'] },
   { id: 'women-fashion', category: 'shops', title: ['Женская одежда', 'Womenswear'],
-    description: ['Показывайте готовые образы и продавайте вещи из одной коллекции вместе.', 'Show complete looks and sell matching pieces from the same collection.'] },
+    description: ['От готового образа — к вещам из одной коллекции.', 'Shop a complete look, then explore matching pieces.'] },
   { id: 'nike-sneakers', category: 'shops', title: ['Магазин кроссовок', 'Sneaker store'],
-    description: ['Принимайте заказы на конкретную пару и размер без уточнений в чате.', 'Get the exact model and size in each order, without a follow-up message.'] },
+    description: ['Модель и размер пары сразу попадают в заказ.', 'Every order includes the exact pair and size.'] },
   { id: 'apple-store', category: 'shops', title: ['Магазин техники Apple', 'Apple device store'],
-    description: ['Заказы на iPhone сразу с нужным цветом и объёмом памяти.', 'Take iPhone orders with the customer’s choice of color and storage.'] },
+    description: ['Покупатель подбирает iPhone по цвету и объёму памяти.', 'Choose an iPhone, then pick a finish and storage size.'] },
   { id: 'flower-store', category: 'shops', title: ['Магазин цветов', 'Flower shop'],
-    description: ['В заказе для флориста уже указаны композиция и размер букета.', 'Each order tells your florist which arrangement and bouquet size to prepare.'] },
+    description: ['Клиент выбирает букет. Флорист видит композицию и размер.', 'Choose a bouquet and size. The florist sees both.'] },
   { id: 'lumi-studio', category: 'services', title: ['Студия красоты', 'Beauty studio'],
-    description: ['Онлайн-запись в студию. Клиенты сами выбирают услугу, мастера и время.', 'Let clients book a treatment, pick their stylist and choose a time.'] },
+    description: ['Услуга, мастер и свободное время в одной записи.', 'Choose a treatment, stylist and time in one booking.'] },
   { id: 'opt-market', category: 'b2b', title: ['Оптовый магазин', 'Wholesale store'],
-    description: ['Партнёры заказывают товар коробками и сразу видят сумму закупки.', 'Wholesale buyers order by the case and see the purchase total.'] },
+    description: ['Партнёр заказывает коробками и видит сумму закупки.', 'Order by the case and see the wholesale total.'] },
   { id: 'jewelry-store', category: 'shops', title: ['Магазин украшений', 'Jewelry store'],
-    description: ['Показывайте украшения крупным планом и принимайте заказы из каталога.', 'Show each piece in detail and take orders directly from your catalog.'] },
+    description: ['Рассмотреть детали украшения и заказать его из каталога.', 'Explore the details of a piece and order it from the catalog.'] },
   { id: 'medical-center', category: 'services', title: ['Медицинский центр', 'Medical center'],
-    description: ['Запись в клинику через Telegram. Пациент выбирает специалиста и время.', 'Let patients find a specialist and book a visit through Telegram.'] },
+    description: ['Пациент выбирает врача и время приёма.', 'Find a specialist and choose an appointment time.'] },
   { id: 'china-buyer', category: 'b2b', title: ['Байер из Китая', 'China sourcing'],
-    description: ['Собирайте заявки на поиск и выкуп товара в одном приложении.', 'Collect product sourcing and purchasing requests in one app.'] },
+    description: ['Клиент оставляет заявку на поиск и выкуп товара.', 'Request help sourcing and purchasing a product.'] },
   { id: 'skincare-aura', category: 'shops', title: ['Магазин косметики', 'Skincare store'],
-    description: ['Помогите клиентам подобрать уход. Из теста они переходят к средствам в каталоге.', 'Guide customers from a skincare quiz to relevant products in your catalog.'] },
+    description: ['Короткий тест ведёт к подходящим средствам ухода.', 'A short quiz leads shoppers to suitable skincare.'] },
 ];
 
-const ProjectCard = memo(function ProjectCard({ project, ru, first, onOpenDemo }: {
+const ProjectCard = memo(function ProjectCard({ project, ru, first, saved, onSave, onOpenDemo }: {
   project: Project; ru: boolean; first: boolean; onOpenDemo: ProjectsPageProps['onOpenDemo'];
+  saved: boolean; onSave: (id: string) => void;
 }) {
   const index = ru ? 0 : 1;
   const title = project.title[index];
   const hint = () => hintRoute(`/demos/${project.id}/app`);
   const action = ru ? 'Открыть демо' : 'Open demo';
-  return <button type="button" className="ps-card" data-project={project.id}
+  return <li className="ps-item"><button type="button" className="ps-card" data-project={project.id}
     data-testid={`card-app-${project.id}`} aria-label={`${action}: ${title}`}
     onClick={() => onOpenDemo(project.id)}
     onPointerEnter={event => { if (event.pointerType === 'mouse') hint(); }}
@@ -69,29 +71,52 @@ const ProjectCard = memo(function ProjectCard({ project, ru, first, onOpenDemo }
     <span className="ps-artwork-layer" aria-hidden="true">
       <ShowcaseArtwork id={project.id} first={first} />
     </span>
-    <span className="ps-open" aria-hidden="true"><span>{action}</span><ArrowUpRight size={16} /></span>
-  </button>;
+    <span className="ps-card-footer" aria-hidden="true"><span className="ps-open">{action}<ArrowUpRight size={16}/></span></span>
+  </button>
+    <button type="button" className="ps-save" data-testid={`save-${project.id}`}
+      aria-label={`${ru ? 'Сохранить' : 'Save'} · ${title}`} aria-pressed={saved}
+      onClick={() => onSave(project.id)}><Bookmark size={19} fill={saved ? 'currentColor' : 'none'}/></button>
+  </li>;
 });
 
 export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPageProps) {
   const { language } = useLanguage();
   const ru = language === 'ru';
   const [category, setCategory] = useState<Category>('all');
-  const visible = category === 'all' ? projects : projects.filter(project => project.category === category);
+  const [savedOnly, setSavedOnly] = useState(false);
+  const favorites = useFavoritesStore(state => state.favorites);
+  const initialize = useFavoritesStore(state => state.initialize);
+  const toggle = useFavoritesStore(state => state.toggle);
+  useEffect(() => { void initialize(); }, [initialize]);
+  const savedProjects = projects.filter(project => favorites.includes(project.id));
+  const visible = savedOnly ? savedProjects : category === 'all' ? projects : projects.filter(project => project.category === category);
   const touch = useRef<{ id: number; x: number; y: number } | null>(null);
   const pendingTap = useRef(0);
   useEffect(() => () => cancelAnimationFrame(pendingTap.current), []);
   return <main className="projects-showcase" data-testid="projects-showcase">
     <div className="ps-inner">
       <header className="ps-header">
-        <h1>{ru ? 'Витрина' : 'Showcase'} <span className="ps-count" aria-live="polite">{visible.length}</span></h1>
+        <h1>{ru ? 'Витрина' : 'Showcase'}</h1>
+        <button type="button" className="ps-library" data-testid="showcase-saved" aria-pressed={savedOnly} onClick={() => setSavedOnly(value => !value)}>
+          <Bookmark size={16} fill={savedOnly ? 'currentColor' : 'none'}/>{ru ? 'Подборка' : 'Saved'}<span>{savedProjects.length}</span>
+        </button>
       </header>
+      <p className="ps-intro">{ru ? 'Выберите демо и пройдите путь своего клиента.' : 'Choose a demo and try it as a customer.'}</p>
       <div className="ps-filters" role="group" aria-label={ru ? 'Направления' : 'Categories'}>
-        {filters.map(filter => <button key={filter.id} type="button" aria-pressed={category === filter.id} onClick={() => setCategory(filter.id)}>{ru ? filter.ru : filter.en}</button>)}
+        {filters.map(filter => <button key={filter.id} type="button" aria-pressed={!savedOnly && category === filter.id} onClick={() => { setSavedOnly(false); setCategory(filter.id); }}>{ru ? filter.ru : filter.en}{filter.id === 'all' && <span>{projects.length}</span>}</button>)}
       </div>
-      <div className="ps-collection" role="group" aria-label={ru ? 'Примеры приложений' : 'Demo apps'}>
-        {visible.map((project, index) => <ProjectCard key={project.id} project={project} ru={ru} first={index === 0} onOpenDemo={onOpenDemo} />)}
-      </div>
+      {savedOnly && <h2 className="ps-section-title">{ru ? 'Ваша подборка' : 'Your shortlist'}</h2>}
+      <ul className="ps-collection" aria-label={ru ? 'Примеры приложений' : 'Demo apps'}>
+        {visible.map((project, index) => <ProjectCard key={project.id} project={project} ru={ru} first={index === 0}
+          saved={favorites.includes(project.id)} onSave={toggle} onOpenDemo={onOpenDemo} />)}
+      </ul>
+      {savedOnly && !visible.length && <div className="ps-empty">
+        <Bookmark size={24}/><p>{ru ? 'Нажмите на закладку у понравившегося демо. Здесь можно будет вернуться к нему позже.' : 'Tap the bookmark on a demo to keep it here for later.'}</p>
+        <button type="button" onClick={() => { setSavedOnly(false); setCategory('all'); }}>{ru ? 'Ко всем демо' : 'Browse all demos'} <ArrowRight size={16}/></button>
+      </div>}
+      <div className="ps-brief">
+      <h2>{ru ? 'Соберите своё приложение' : 'Build your own app'}</h2>
+      <p>{ru ? 'Выберите направление и функции, чтобы узнать стоимость проекта.' : 'Choose your business type and features to get a project estimate.'}</p>
       <button type="button" className="ps-order"
         onPointerDown={event => {
           touch.current = event.pointerType === 'touch' && event.isPrimary
@@ -113,6 +138,7 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
           onNavigate('constructor');
         }}
       >{ru ? 'Заказать приложение' : 'Order an app'} <ArrowRight size={18}/></button>
+      </div>
     </div>
   </main>;
 });

@@ -59,21 +59,79 @@ async function checkChatScroll(page, cdp) {
   await panel.waitFor({ state: 'hidden' });
 }
 
-async function installShowcaseTelegramHost(ctx) {
+async function installShowcaseTelegramHost(ctx, initialHeight = 710, reportInsets = true) {
   const sdk = path.join(path.dirname(require.resolve('@twa-dev/sdk')), 'telegram-web-apps.js');
   await ctx.route('https://telegram.org/js/telegram-web-app.js', route =>
     route.fulfill({ contentType: 'text/javascript', path: sdk }));
-  await ctx.addInitScript(() => {
+  await ctx.addInitScript(({ height, reportInsets }) => {
     sessionStorage.setItem('__telegram__initParams', JSON.stringify({ tgWebAppPlatform: 'ios', tgWebAppVersion: '8.0' }));
     const replies = {
-      web_app_request_viewport: ['viewport_changed', { height: 710, is_expanded: true, is_state_stable: true }],
+      web_app_request_viewport: ['viewport_changed', { height, is_expanded: true, is_state_stable: true }],
       web_app_request_safe_area: ['safe_area_changed', { top: 59, bottom: 34, left: 0, right: 0 }],
       web_app_request_content_safe_area: ['content_safe_area_changed', { top: 48, bottom: 44, left: 0, right: 0 }],
     };
-    window.TelegramWebviewProxy = { postEvent(name) {
+    window.TelegramWebviewProxy = { postEvent(name, data) {
+      if (!reportInsets && (name === 'web_app_request_safe_area' || name === 'web_app_request_content_safe_area')) return;
+      if (name === 'web_app_open_tg_link') window.showcaseShareLink = JSON.parse(data).path_full;
       if (replies[name]) setTimeout(() => window.Telegram.WebView.receiveEvent(...replies[name]), 0);
     } };
-  });
+  }, { height: initialHeight, reportInsets });
+}
+
+async function checkShowcaseButtonOverlay(browser, width, height, reportInsets = true) {
+  const ctx = await browser.newContext({ viewport: { width, height }, hasTouch: true, isMobile: true, serviceWorkers: 'block' });
+  try {
+    await installShowcaseTelegramHost(ctx, height, reportInsets);
+    const page = await ctx.newPage();
+    await page.goto(new URL('#/projects', site).href);
+    await page.getByTestId('projects-showcase').waitFor();
+    await page.waitForFunction(() => window.Telegram.WebApp.MainButton.isVisible && window.Telegram.WebApp.SecondaryButton.isVisible);
+    // A host-owned row can cover the web content without changing either
+    // viewport height. Give it a real hit surface, independent of app CSS.
+    await page.evaluate(() => {
+      const overlay = document.createElement('div');
+      overlay.id = 'host-actions';
+      overlay.style.cssText = 'position:fixed;inset:auto 0 0;height:98px;z-index:2147483647;background:white';
+      document.body.append(overlay);
+    });
+    const geometry = () => page.evaluate(() => {
+      const nav = document.querySelector('nav.projects-nav');
+      const host = document.querySelector('#host-actions').getBoundingClientRect();
+      return { gap: host.top - nav.getBoundingClientRect().bottom,
+        reachable: [...nav.querySelectorAll('button')].every(button => {
+          const box = button.getBoundingClientRect();
+          return button.contains(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2));
+        }) };
+    });
+    const overlay = await geometry();
+    assert.ok(overlay.gap >= 6 && overlay.reachable, 'native buttons cover app navigation: ' + JSON.stringify(overlay));
+    // Same physical row, but now the WebView reports the space it consumes.
+    await page.evaluate(h => window.Telegram.WebView.receiveEvent('viewport_changed',
+      { height: h - 64, is_expanded: true, is_state_stable: true }), height);
+    const resized = await geometry();
+    assert.ok(resized.reachable && resized.gap >= 6 && resized.gap < 34, 'native row was deducted twice: ' + JSON.stringify(resized));
+    await page.evaluate(h => {
+      window.Telegram.WebView.receiveEvent('viewport_changed', { height: h, is_expanded: true, is_state_stable: true });
+      Object.defineProperty(window.visualViewport, 'height', { configurable: true, value: h - 64 });
+      window.visualViewport.dispatchEvent(new Event('resize'));
+    }, height);
+    await page.waitForFunction(h => document.documentElement.style.getPropertyValue('--projects-visual-bottom') === (h - 64) + 'px', height);
+    const visualOnly = await geometry();
+    assert.ok(visualOnly.reachable && visualOnly.gap >= 6 && visualOnly.gap < 34);
+    await page.evaluate(() => window.Telegram.WebView.receiveEvent('secondary_button_pressed'));
+    await page.waitForFunction(() => window.showcaseShareLink?.startsWith('/share/url?'));
+    await page.locator('#root').evaluate(root => { root.scrollTop = root.scrollHeight; });
+    await page.waitForFunction(() => {
+      const button = document.querySelector('.ps-order');
+      const rect = button.getBoundingClientRect();
+      return rect.bottom <= document.querySelector('nav.projects-nav').getBoundingClientRect().top
+        && button.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2));
+    });
+    if (reportInsets) await page.getByTestId('nav-constructor').tap();
+    else await page.evaluate(() => window.Telegram.WebView.receiveEvent('main_button_pressed'));
+    await page.getByTestId('order-page').waitFor();
+    console.log('PASS native overlay + resize + share', width, height, { reportInsets, overlay, resized, visualOnly });
+  } finally { await ctx.close(); }
 }
 
 async function checkShowcaseEnd(page, cdp) {
@@ -147,6 +205,9 @@ async function run() {
   assert.deepEqual(coveredDemos.sort(), demoApps.map(demo => demo.id).sort(), 'every published demo needs a swipe case');
   const browser = await chromium.launch({ headless: true });
   try {
+    await checkShowcaseButtonOverlay(browser, 320, 700);
+    await checkShowcaseButtonOverlay(browser, 390, 844);
+    await checkShowcaseButtonOverlay(browser, 390, 844, false);
     for (const [hash, selector, hasHistory] of cases) {
       const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, locale: 'ru-RU', serviceWorkers: 'block' });
       try {
