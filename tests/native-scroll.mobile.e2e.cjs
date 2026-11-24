@@ -105,6 +105,18 @@ async function checkShowcaseButtonOverlay(browser, width, height, reportInsets =
     });
     const overlay = await geometry();
     assert.ok(overlay.gap >= 6 && overlay.reachable, 'native buttons cover app navigation: ' + JSON.stringify(overlay));
+    // In the gap between the tab bar and host row, the scrolled card itself
+    // must remain visible and receive the hit, even when both rows are fixed.
+    const behindDock = await page.evaluate(async () => {
+      const navBox = document.querySelector('nav.projects-nav').getBoundingClientRect();
+      const y = Math.ceil(navBox.bottom) + 3;
+      const card = document.querySelectorAll('.ps-card')[3];
+      const rect = card.getBoundingClientRect();
+      document.getElementById('root').scrollTop += rect.y + rect.height / 2 - y;
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return card.contains(document.elementFromPoint(innerWidth / 2, y));
+    });
+    assert.ok(behindDock, 'the floating nav must not leave a full-width blank block behind it');
     // Same physical row, but now the WebView reports the space it consumes.
     await page.evaluate(h => window.Telegram.WebView.receiveEvent('viewport_changed',
       { height: h - 64, is_expanded: true, is_state_stable: true }), height);
@@ -183,7 +195,7 @@ async function checkShowcaseEnd(page, cdp) {
   const order = await page.locator('.ps-order').boundingBox();
   const nav = await page.locator('nav.projects-nav').boundingBox();
   const scrollBox = await root.boundingBox();
-  assert.ok(scrollBox.y + scrollBox.height <= nav.y, 'the dock must be outside the scroll viewport');
+  assert.ok(scrollBox.y + scrollBox.height >= nav.y + nav.height, 'the list must remain visible behind the floating tab bar');
   assert.ok(nav.y + nav.height <= 684 - 48 + 1, 'navigation must fit inside the visible Telegram viewport');
   assert.ok(order.y >= 0 && order.y + order.height + 16 <= nav.y, 'order button is obscured at the end of the showcase');
   const topAtEnd = await root.evaluate(el => el.scrollTop);
@@ -200,11 +212,54 @@ async function checkShowcaseEnd(page, cdp) {
   await page.getByTestId('order-page').waitFor();
 }
 
+async function checkShowcaseArtwork(browser) {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, serviceWorkers: 'block' });
+  let releaseImages;
+  const gate = new Promise(resolve => { releaseImages = resolve; });
+  const oldLayers = [];
+  try {
+    await ctx.route('**/*', async route => {
+      const request = route.request();
+      const url = new URL(request.url());
+      if (request.resourceType() === 'image') {
+        if (/\/showcase\/(covers|screens)\//.test(url.pathname)) oldLayers.push(url.pathname);
+        if (/\/assets\/.*\.webp$/.test(url.pathname)) await gate;
+      }
+      await route.fallback();
+    });
+    const page = await ctx.newPage();
+    await page.goto(new URL('#/projects', site).href, { waitUntil: 'domcontentloaded' });
+    const cards = page.locator('.ps-card');
+    await cards.first().waitFor();
+    assert.equal(await cards.count(), demoApps.length);
+    const previews = await cards.locator('.ps-art').evaluateAll(nodes => Promise.all(nodes.map(async node => {
+      const background = getComputedStyle(node).backgroundImage;
+      if (!background.startsWith('url("data:image/webp;base64,')) return false;
+      const preview = new Image();
+      preview.src = background.slice(5, -2);
+      await preview.decode();
+      return preview.naturalWidth > 0 && getComputedStyle(node.firstElementChild).opacity === '0';
+    })));
+    assert.ok(previews.every(Boolean), 'every card needs its complete offline preview while detail images are held');
+    await cards.last().scrollIntoViewIfNeeded();
+    const art = cards.last().locator('.ps-art');
+    const size = await art.boundingBox();
+    releaseImages();
+    await cards.last().locator('.ps-art-ready').waitFor();
+    assert.deepEqual(await art.boundingBox(), size, 'decoding the detail must not move the image');
+    await cards.first().scrollIntoViewIfNeeded();
+    await cards.first().locator('.ps-art-ready').waitFor();
+    assert.deepEqual(oldLayers, [], 'phone contents and props must not load as separate layers');
+    console.log('PASS complete previews on cold open and scroll before detail images arrive');
+  } finally { releaseImages(); await ctx.close(); }
+}
+
 async function run() {
   const coveredDemos = cases.filter(([hash]) => hash.startsWith('#/demos/')).map(([hash]) => hash.split('/')[2]);
   assert.deepEqual(coveredDemos.sort(), demoApps.map(demo => demo.id).sort(), 'every published demo needs a swipe case');
   const browser = await chromium.launch({ headless: true });
   try {
+    await checkShowcaseArtwork(browser);
     await checkShowcaseButtonOverlay(browser, 320, 700);
     await checkShowcaseButtonOverlay(browser, 390, 844);
     await checkShowcaseButtonOverlay(browser, 390, 844, false);

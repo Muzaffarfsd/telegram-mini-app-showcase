@@ -161,10 +161,10 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
         className={`fixed bottom-0 left-0 right-0 flex justify-center z-50${route.component === 'projects' ? ' projects-dock' : ''}`}
         style={{ 
           isolation: 'isolate',
-          paddingBottom: route.component === 'projects' ? 'var(--projects-safe-bottom)' : 'max(12px, env(safe-area-inset-bottom))',
+          paddingBottom: route.component === 'projects' ? 0 : 'max(12px, env(safe-area-inset-bottom))',
           paddingLeft: '12px',
           paddingRight: '12px',
-          paddingTop: '8px',
+          paddingTop: route.component === 'projects' ? 0 : '8px',
         }}
       >
         <nav 

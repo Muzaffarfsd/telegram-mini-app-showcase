@@ -51,12 +51,12 @@ const projects: Project[] = [
     description: ['Короткий тест ведёт к подходящим средствам ухода.', 'A short quiz leads shoppers to suitable skincare.'] },
 ];
 
-const ProjectCard = memo(function ProjectCard({ project, ru, first, saved, onSave, onOpenDemo }: {
-  project: Project; ru: boolean; first: boolean; onOpenDemo: ProjectsPageProps['onOpenDemo'];
+const ProjectCard = memo(function ProjectCard({ project, ru, index, saved, onSave, onOpenDemo }: {
+  project: Project; ru: boolean; index: number; onOpenDemo: ProjectsPageProps['onOpenDemo'];
   saved: boolean; onSave: (id: string) => void;
 }) {
-  const index = ru ? 0 : 1;
-  const title = project.title[index];
+  const languageIndex = ru ? 0 : 1;
+  const title = project.title[languageIndex];
   const hint = () => hintRoute(`/demos/${project.id}/app`);
   const action = ru ? 'Открыть демо' : 'Open demo';
   return <li className="ps-item"><button type="button" className="ps-card" data-project={project.id}
@@ -66,10 +66,10 @@ const ProjectCard = memo(function ProjectCard({ project, ru, first, saved, onSav
     onFocus={event => { if (event.currentTarget.matches(':focus-visible')) hint(); }}>
     <span className="ps-copy">
       <strong className="ps-title">{title}</strong>
-      <span className="ps-description">{project.description[index]}</span>
+      <span className="ps-description">{project.description[languageIndex]}</span>
     </span>
     <span className="ps-artwork-layer" aria-hidden="true">
-      <ShowcaseArtwork id={project.id} first={first} />
+      <ShowcaseArtwork id={project.id} index={index} />
     </span>
     <span className="ps-card-footer" aria-hidden="true"><span className="ps-open">{action}<ArrowUpRight size={16}/></span></span>
   </button>
@@ -107,7 +107,7 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
       </div>
       {savedOnly && <h2 className="ps-section-title">{ru ? 'Ваша подборка' : 'Your shortlist'}</h2>}
       <ul className="ps-collection" aria-label={ru ? 'Примеры приложений' : 'Demo apps'}>
-        {visible.map((project, index) => <ProjectCard key={project.id} project={project} ru={ru} first={index === 0}
+        {visible.map((project, index) => <ProjectCard key={project.id} project={project} ru={ru} index={index}
           saved={favorites.includes(project.id)} onSave={toggle} onOpenDemo={onOpenDemo} />)}
       </ul>
       {savedOnly && !visible.length && <div className="ps-empty">
