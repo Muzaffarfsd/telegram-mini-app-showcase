@@ -1,19 +1,28 @@
 /* Shared app chrome, scoped exclusively to the projects route. */
 html.projects-route-theme {
-  --projects-viewport: min(100dvh, var(--tg-viewport-height, 100dvh));
-  --projects-safe-bottom: max(12px, env(safe-area-inset-bottom, 0px), var(--sab, 0px), var(--csab, 0px));
+  --projects-viewport: min(100dvh, var(--tg-viewport-height, 100dvh), var(--projects-visual-bottom, 100dvh));
+  --projects-safe-bottom: max(12px, env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px), var(--tg-safe-area-bottom, 0px), var(--sab, 0px), var(--csab, 0px));
   --projects-tab-height: 60px;
-  --projects-end-space: calc(var(--projects-tab-height) + var(--projects-safe-bottom) + 32px);
+  --projects-dock-space: calc(8px + var(--projects-tab-height) + var(--projects-safe-bottom));
+}
+/* Telegram applies safe-area padding inline on body. The showcase header
+   and dock already handle those insets inside the visible viewport. */
+html.projects-route-theme body {
+  padding-block: 0 !important;
+  min-height: 0;
 }
 html.projects-route-theme #root {
-  height: var(--projects-viewport);
+  height: calc(var(--projects-viewport) - var(--projects-dock-space));
   min-height: 0;
-  scroll-padding-bottom: var(--projects-end-space);
+  scroll-padding-bottom: 28px;
 }
 html.projects-route-theme .projects-dock {
-  bottom: max(0px, calc(100dvh - var(--projects-viewport)));
+  top: calc(var(--projects-viewport) - var(--projects-dock-space));
+  bottom: auto;
+  height: var(--projects-dock-space);
+  pointer-events: none;
 }
-html.projects-route-theme nav.projects-nav { height: var(--projects-tab-height); }
+html.projects-route-theme nav.projects-nav { height: var(--projects-tab-height); pointer-events: auto; }
 html.projects-route-theme .w4-topbar {
   background: rgba(255, 255, 255, .91) !important;
   border-bottom-color: rgba(37, 39, 42, .06) !important;

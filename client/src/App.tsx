@@ -494,8 +494,24 @@ function AppContent() {
   }, [route.component]);
 
   useLayoutEffect(() => {
-    document.documentElement.classList.toggle('projects-route-theme', route.component === 'projects');
-    return () => document.documentElement.classList.remove('projects-route-theme');
+    if (route.component !== 'projects') return;
+    const html = document.documentElement;
+    html.classList.add('projects-route-theme');
+    const viewport = window.visualViewport;
+    const updateVisibleBottom = () => {
+      if (viewport && viewport.scale === 1 && viewport.height > 0) {
+        html.style.setProperty('--projects-visual-bottom', `${viewport.offsetTop + viewport.height}px`);
+      }
+    };
+    updateVisibleBottom();
+    viewport?.addEventListener('resize', updateVisibleBottom);
+    viewport?.addEventListener('scroll', updateVisibleBottom);
+    return () => {
+      viewport?.removeEventListener('resize', updateVisibleBottom);
+      viewport?.removeEventListener('scroll', updateVisibleBottom);
+      html.style.removeProperty('--projects-visual-bottom');
+      html.classList.remove('projects-route-theme');
+    };
   }, [route.component]);
   
   useScrollHaptic();
@@ -633,7 +649,7 @@ function AppContent() {
         <Suspense fallback={route.component === 'showcase' ? <StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} /> : route.component.includes('demo') ? <DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} /> : <div style={{minHeight:'1px'}} />}>
           <LazyRewardsProvider>
             <LazyXPNotificationProvider>
-              <div className="relative min-h-screen">
+              <div className={route.component === 'projects' ? 'relative' : 'relative min-h-screen'}>
                 <div className="floating-elements"></div>
                 
                 {shouldShowSidebar && (

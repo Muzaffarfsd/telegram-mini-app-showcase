@@ -1,5 +1,5 @@
 .projects-showcase {
-  min-height: 100dvh;
+  min-height: 100%;
   background: #fff;
   color: #191a1c;
   font-family: 'Google Sans App', system-ui, -apple-system, sans-serif;
@@ -11,8 +11,7 @@
 .ps-inner {
   width: min(100%, 430px);
   margin-inline: auto;
-  padding: calc(max(env(safe-area-inset-top, 0px), var(--csat, 0px), 12px) + 82px) 20px
-    var(--projects-end-space);
+  padding: calc(max(env(safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), var(--csat, 0px), 12px) + 82px) 20px 28px;
 }
 .ps-header, .ps-header h1, .ps-filters, .ps-open, .ps-order { display: flex; align-items: center; }
 .ps-header { justify-content: space-between; gap: 10px; }
@@ -29,30 +28,34 @@
   align-content: space-between;
   isolation: isolate;
   width: 100%;
-  min-height: 226px;
+  min-height: 248px;
   padding: 0;
   gap: 22px 0;
-  overflow: hidden;
+  overflow: clip;
+  touch-action: pan-y pinch-zoom;
   border: 0;
   border-radius: 24px;
   color: #191a1c;
   background: #f2f2f1;
   text-align: left;
 }
-.ps-card:first-child { min-height: 248px; }
 .ps-copy { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; padding: 23px 0 0 20px; }
 .ps-title { margin-top: 0; font-size: clamp(21px, 5.9vw, 26px); font-weight: 700; letter-spacing: -.055em; line-height: 1.04; overflow-wrap: anywhere; }
 .ps-description { margin-top: 10px; max-width: 20ch; font-size: 13px; color: #4b4b49; line-height: 1.4; }
-.ps-open { position: relative; z-index: 1; grid-column: 1; width: max-content; gap: 6px; justify-content: center; align-self: end; min-height: 42px; margin: 0 0 18px 18px; padding: 0 13px; background: #fff; border-radius: 99px; color: #202124; font-size: 13px; font-weight: 550; line-height: 1; }
-.ps-art { position: absolute; inset: 3% 0 3% 46%; pointer-events: none; }
-.ps-art img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; }
+.ps-open { position: relative; z-index: 1; grid-column: 1; width: max-content; gap: 6px; justify-content: center; align-self: end; min-height: 44px; margin: 0 0 18px 18px; padding: 0 13px; background: #111; border-radius: 99px; color: #fff; font-size: 13px; font-weight: 550; line-height: 1; }
+.ps-art { position: absolute; width: min(54%, 174px); aspect-ratio: 3 / 4; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.ps-scene, .ps-original { display: block; position: absolute; inset: 0; width: 100%; height: 100%; }
+.ps-scene { transform: rotate(2deg); }
+.ps-props { position: absolute; display: block; max-width: none; max-height: none; object-fit: fill; }
+.ps-device { position: absolute; left: 23.485%; top: 4.83%; width: 57.576%; aspect-ratio: 152 / 310; border-radius: 16% / 8%; background: linear-gradient(90deg, #787673, #d5d2ce 1.4%, #262626 3%, #121212 96%, #888783 98%, #c3c0ba); }
+.ps-glass { position: absolute; inset: 1.1% 2.35%; overflow: clip; border-radius: 14.5% / 7.3%; background: white; }
+.ps-glass::after { content: ''; position: absolute; top: 1.1%; left: 39.5%; width: 21%; height: 2.2%; border-radius: 99px; background: #101010; }
+.ps-screen { position: absolute; inset: 5% 0 0; display: block; width: 100%; height: 95%; object-fit: contain; object-position: center top; }
 .ps-card:active { outline: 1px solid #29252533; outline-offset: -1px; }
 @media (hover: hover) {
   .ps-open svg { transition: transform .16s ease-out; }
   .ps-card:hover .ps-open svg { transform: translate(1px, -1px); }
 }
-.ps-detail { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; color: #575a56; font-size: 11px; line-height: 1.35; font-weight: 550; }
-.ps-detail svg { flex: none; }
 .ps-order { justify-content: space-between; gap: 12px; width: 100%; min-height: 51px; padding: 0 19px; margin-top: 20px; border: 0; border-radius: 99px; }
 @media (max-width: 350px) {
   .ps-inner { padding-inline: 15px; }

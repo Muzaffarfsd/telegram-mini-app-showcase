@@ -1,10 +1,8 @@
-import { memo, useState } from 'react';
-import {
-  ArrowRight, ArrowUpRight, CalendarDays, Droplets, Flower2, Footprints, Gem, HardDrive,
-  PackageOpen, PackageSearch, Ruler, Shirt, Stethoscope, type LucideIcon,
-} from 'lucide-react';
+import { memo, useEffect, useRef, useState } from 'react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { preloadDemo } from './demos/DemoRegistry';
+import { ShowcaseArtwork } from './ShowcaseArtwork';
 import './ProjectsShowcase.css';
 
 interface ProjectsPageProps {
@@ -25,33 +23,31 @@ interface Project {
   category: Exclude<Category, 'all'>;
   title: [string, string];
   description: [string, string];
-  detail: [string, string];
-  icon: LucideIcon;
 }
 
 const projects: Project[] = [
-  { id: 'flower-store', category: 'shops', title: ['Магазин цветов', 'Flower shop'], description: ['Выберите букет для своего повода.', 'Pick a bouquet for the occasion.'],
-    detail: ['Розы и гортензии', 'Roses & hydrangeas'], icon: Flower2 },
-  { id: 'muraka-fashion', category: 'shops', title: ['Магазин одежды', 'Clothing store'], description: ['Рассмотрите куртку и подберите размер.', 'Explore the jacket and find your size.'],
-    detail: ['S · M · L · XL', 'S · M · L · XL'], icon: Ruler },
-  { id: 'lumi-studio', category: 'services', title: ['Студия красоты', 'Beauty studio'], description: ['Выберите услугу, мастера и время.', 'Choose a treatment, stylist and time.'],
-    detail: ['Запись к мастеру', 'Book a stylist'], icon: CalendarDays },
-  { id: 'opt-market', category: 'b2b', title: ['Оптовый магазин', 'Wholesale store'], description: ['Соберите заказ для своего магазина.', 'Put together an order for your shop.'],
-    detail: ['Заказ коробками', 'Order by the case'], icon: PackageOpen },
-  { id: 'nike-sneakers', category: 'shops', title: ['Магазин кроссовок', 'Sneaker store'], description: ['Найдите свою пару и размер.', 'Find your pair and size.'],
-    detail: ['EU 38–45', 'EU 38–45'], icon: Footprints },
-  { id: 'jewelry-store', category: 'shops', title: ['Магазин украшений', 'Jewelry store'], description: ['Рассмотрите детали и сохраните любимое.', 'See the details and save your favorites.'],
-    detail: ['Кольца и серьги', 'Rings & earrings'], icon: Gem },
-  { id: 'apple-store', category: 'shops', title: ['Магазин техники', 'Electronics store'], description: ['Подберите iPhone и его конфигурацию.', 'Pick an iPhone and its configuration.'],
-    detail: ['256 ГБ · 512 ГБ · 1 ТБ', '256 GB · 512 GB · 1 TB'], icon: HardDrive },
-  { id: 'medical-center', category: 'services', title: ['Медицинский центр', 'Medical center'], description: ['Найдите специалиста и время приёма.', 'Find a specialist and an appointment.'],
-    detail: ['Каталог врачей', 'Doctor directory'], icon: Stethoscope },
-  { id: 'women-fashion', category: 'shops', title: ['Женская одежда', 'Womenswear'], description: ['Соберите образ из коллекции.', 'Put together a look from the collection.'],
-    detail: ['Платья и жакеты', 'Dresses & jackets'], icon: Shirt },
-  { id: 'china-buyer', category: 'b2b', title: ['Байер из Китая', 'China sourcing'], description: ['Оставьте заявку на поиск товара.', 'Send a request to source a product.'],
-    detail: ['Поиск по заявке', 'Sourcing requests'], icon: PackageSearch },
-  { id: 'skincare-aura', category: 'shops', title: ['Магазин косметики', 'Skincare store'], description: ['Подберите средства для своего ухода.', 'Find products for your skincare routine.'],
-    detail: ['Тест по уходу', 'Skincare quiz'], icon: Droplets },
+  { id: 'muraka-fashion', category: 'shops', title: ['Магазин одежды', 'Clothing store'],
+    description: ['Каталог ваших коллекций с выбором размера и заказом в Telegram.', 'A catalog for your collections with size selection and ordering in Telegram.'] },
+  { id: 'women-fashion', category: 'shops', title: ['Женская одежда', 'Womenswear'],
+    description: ['Показывайте готовые образы и продавайте вещи из одной коллекции вместе.', 'Show complete looks and sell matching pieces from the same collection.'] },
+  { id: 'nike-sneakers', category: 'shops', title: ['Магазин кроссовок', 'Sneaker store'],
+    description: ['Принимайте заказы на конкретную пару и размер без уточнений в чате.', 'Get the exact model and size in each order, without a follow-up message.'] },
+  { id: 'apple-store', category: 'shops', title: ['Магазин техники Apple', 'Apple device store'],
+    description: ['Заказы на iPhone сразу с нужным цветом и объёмом памяти.', 'Take iPhone orders with the customer’s choice of color and storage.'] },
+  { id: 'flower-store', category: 'shops', title: ['Магазин цветов', 'Flower shop'],
+    description: ['В заказе для флориста уже указаны композиция и размер букета.', 'Each order tells your florist which arrangement and bouquet size to prepare.'] },
+  { id: 'lumi-studio', category: 'services', title: ['Студия красоты', 'Beauty studio'],
+    description: ['Онлайн-запись в студию. Клиенты сами выбирают услугу, мастера и время.', 'Let clients book a treatment, pick their stylist and choose a time.'] },
+  { id: 'opt-market', category: 'b2b', title: ['Оптовый магазин', 'Wholesale store'],
+    description: ['Партнёры заказывают товар коробками и сразу видят сумму закупки.', 'Wholesale buyers order by the case and see the purchase total.'] },
+  { id: 'jewelry-store', category: 'shops', title: ['Магазин украшений', 'Jewelry store'],
+    description: ['Показывайте украшения крупным планом и принимайте заказы из каталога.', 'Show each piece in detail and take orders directly from your catalog.'] },
+  { id: 'medical-center', category: 'services', title: ['Медицинский центр', 'Medical center'],
+    description: ['Запись в клинику через Telegram. Пациент выбирает специалиста и время.', 'Let patients find a specialist and book a visit through Telegram.'] },
+  { id: 'china-buyer', category: 'b2b', title: ['Байер из Китая', 'China sourcing'],
+    description: ['Собирайте заявки на поиск и выкуп товара в одном приложении.', 'Collect product sourcing and purchasing requests in one app.'] },
+  { id: 'skincare-aura', category: 'shops', title: ['Магазин косметики', 'Skincare store'],
+    description: ['Помогите клиентам подобрать уход. Из теста они переходят к средствам в каталоге.', 'Guide customers from a skincare quiz to relevant products in your catalog.'] },
 ];
 
 const ProjectCard = memo(function ProjectCard({ project, ru, first, onOpenDemo }: {
@@ -59,7 +55,6 @@ const ProjectCard = memo(function ProjectCard({ project, ru, first, onOpenDemo }
 }) {
   const index = ru ? 0 : 1;
   const title = project.title[index];
-  const DetailIcon = project.icon;
   const action = ru ? 'Открыть демо' : 'Open demo';
   return <button type="button" className="ps-card" data-project={project.id}
     data-testid={`card-app-${project.id}`} aria-label={`${action}: ${title}`}
@@ -69,11 +64,8 @@ const ProjectCard = memo(function ProjectCard({ project, ru, first, onOpenDemo }
     <span className="ps-copy">
       <strong className="ps-title">{title}</strong>
       <span className="ps-description">{project.description[index]}</span>
-      <span className="ps-detail"><DetailIcon size={14} strokeWidth={1.6} aria-hidden="true" />{project.detail[index]}</span>
     </span>
-    <span className="ps-art" aria-hidden="true">
-      <img alt="" src={`/showcase/covers/${project.id}.webp?v=2`} decoding="async" loading={first ? 'eager' : 'lazy'} draggable={false} />
-    </span>
+    <ShowcaseArtwork id={project.id} first={first} />
     <span className="ps-open" aria-hidden="true"><span>{action}</span><ArrowUpRight size={16} /></span>
   </button>;
 });
@@ -83,6 +75,9 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
   const ru = language === 'ru';
   const [category, setCategory] = useState<Category>('all');
   const visible = category === 'all' ? projects : projects.filter(project => project.category === category);
+  const touch = useRef<{ id: number; x: number; y: number } | null>(null);
+  const pendingTap = useRef(0);
+  useEffect(() => () => cancelAnimationFrame(pendingTap.current), []);
   return <main className="projects-showcase" data-testid="projects-showcase">
     <div className="ps-inner">
       <header className="ps-header">
@@ -94,7 +89,27 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
       <div className="ps-collection" role="group" aria-label={ru ? 'Примеры приложений' : 'Demo apps'}>
         {visible.map((project, index) => <ProjectCard key={project.id} project={project} ru={ru} first={index === 0} onOpenDemo={onOpenDemo} />)}
       </div>
-      <button type="button" className="ps-order" onClick={() => onNavigate('constructor')}>{ru ? 'Заказать приложение' : 'Order an app'} <ArrowRight size={18}/></button>
+      <button type="button" className="ps-order"
+        onPointerDown={event => {
+          touch.current = event.pointerType === 'touch' && event.isPrimary
+            ? { id: event.pointerId, x: event.clientX, y: event.clientY } : null;
+        }}
+        onPointerCancel={() => { touch.current = null; }}
+        onPointerUp={event => {
+          const start = touch.current;
+          touch.current = null;
+          if (!start || start.id !== event.pointerId || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 6) return;
+          const button = event.currentTarget;
+          if (!button.contains(document.elementFromPoint(event.clientX, event.clientY))) return;
+          // Some WebViews deliver the tap's pointerup but swallow click after a fling.
+          // Give the native click first chance. Drags send pointercancel.
+          pendingTap.current = requestAnimationFrame(() => { if (button.getClientRects().length) button.click(); });
+        }}
+        onClick={() => {
+          cancelAnimationFrame(pendingTap.current);
+          onNavigate('constructor');
+        }}
+      >{ru ? 'Заказать приложение' : 'Order an app'} <ArrowRight size={18}/></button>
     </div>
   </main>;
 });

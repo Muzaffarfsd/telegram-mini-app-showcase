@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const path = require('node:path');
 const { chromium } = require('playwright');
 require('tsx/cjs');
 const { demoApps } = require('../client/src/data/demoApps.ts');
@@ -58,24 +59,55 @@ async function checkChatScroll(page, cdp) {
   await panel.waitFor({ state: 'hidden' });
 }
 
+async function installShowcaseTelegramHost(ctx) {
+  const sdk = path.join(path.dirname(require.resolve('@twa-dev/sdk')), 'telegram-web-apps.js');
+  await ctx.route('https://telegram.org/js/telegram-web-app.js', route =>
+    route.fulfill({ contentType: 'text/javascript', path: sdk }));
+  await ctx.addInitScript(() => {
+    sessionStorage.setItem('__telegram__initParams', JSON.stringify({ tgWebAppPlatform: 'ios', tgWebAppVersion: '8.0' }));
+    const replies = {
+      web_app_request_viewport: ['viewport_changed', { height: 710, is_expanded: true, is_state_stable: true }],
+      web_app_request_safe_area: ['safe_area_changed', { top: 59, bottom: 34, left: 0, right: 0 }],
+      web_app_request_content_safe_area: ['content_safe_area_changed', { top: 48, bottom: 44, left: 0, right: 0 }],
+    };
+    window.TelegramWebviewProxy = { postEvent(name) {
+      if (replies[name]) setTimeout(() => window.Telegram.WebView.receiveEvent(...replies[name]), 0);
+    } };
+  });
+}
+
 async function checkShowcaseEnd(page, cdp) {
+  // Resize the native sheet during the trip. Exercise the SDK events and
+  // actual finger drags all the way down instead of jumping next to the CTA.
   await page.evaluate(() => {
-    const style = document.documentElement.style;
-    style.setProperty('--tg-viewport-height', '684px');
-    style.setProperty('--sab', '34px');
-    style.setProperty('--csab', '48px');
-    const root = document.getElementById('root');
-    root.scrollTop = root.scrollHeight - root.clientHeight - 150;
+    const bridge = window.Telegram.WebView;
+    bridge.receiveEvent('viewport_changed', { height: 684, is_expanded: true, is_state_stable: true });
+    bridge.receiveEvent('content_safe_area_changed', { top: 48, bottom: 48, left: 0, right: 0 });
   });
-  await swipe(cdp, [180, 485], [180, 220]);
-  await page.waitForFunction(() => {
-    const root = document.getElementById('root');
-    return root.scrollTop >= root.scrollHeight - root.clientHeight - 2;
-  });
+  await page.waitForFunction(() => window.Telegram.WebApp.viewportHeight === 684);
+  const root = page.locator('#root');
+  for (let i = 0; i < 14; i++) {
+    if (await root.evaluate(el => el.scrollHeight - el.clientHeight - el.scrollTop < 2)) break;
+    const x = i % 2 ? 95 : 280;
+    await swipe(cdp, [x, 515], [x, 175]);
+  }
+  assert.ok(await root.evaluate(el => el.scrollHeight - el.clientHeight - el.scrollTop < 2), 'swiping cards must reach the end');
   const order = await page.locator('.ps-order').boundingBox();
   const nav = await page.locator('nav.projects-nav').boundingBox();
+  const scrollBox = await root.boundingBox();
+  assert.ok(scrollBox.y + scrollBox.height <= nav.y, 'the dock must be outside the scroll viewport');
   assert.ok(nav.y + nav.height <= 684 - 48 + 1, 'navigation must fit inside the visible Telegram viewport');
   assert.ok(order.y >= 0 && order.y + order.height + 16 <= nav.y, 'order button is obscured at the end of the showcase');
+  const topAtEnd = await root.evaluate(el => el.scrollTop);
+  const centerY = order.y + order.height / 2;
+  await swipe(cdp, [180, centerY], [180, centerY + 85]);
+  assert.equal(new URL(page.url()).hash, '#/projects', 'a drag starting on the CTA must not order an app');
+  assert.ok(await root.evaluate(el => el.scrollTop) < topAtEnd - 20, 'a drag on the CTA must scroll the page');
+  await swipe(cdp, [180, 425], [180, 175]);
+  await page.waitForFunction(() => {
+    const el = document.getElementById('root');
+    return el.scrollHeight - el.clientHeight - el.scrollTop < 2;
+  });
   await page.touchscreen.tap(order.x + order.width / 2, order.y + order.height / 2);
   await page.getByTestId('order-page').waitFor();
 }
@@ -88,7 +120,8 @@ async function run() {
     for (const [hash, selector, hasHistory] of cases) {
       const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, locale: 'ru-RU', serviceWorkers: 'block' });
       try {
-        await ctx.route('https://telegram.org/js/telegram-web-app.js', r => r.fulfill({ contentType: 'text/javascript', body: '' }));
+        if (hash === '#/projects') await installShowcaseTelegramHost(ctx);
+        else await ctx.route('https://telegram.org/js/telegram-web-app.js', r => r.fulfill({ contentType: 'text/javascript', body: '' }));
         await ctx.route('**/api/**', r => r.fulfill({ json: { data: [] } }));
         if (hash === '#/profile') {
           await ctx.addInitScript(() => {
@@ -112,7 +145,8 @@ async function run() {
           history.replaceState = (...args) => { stats.writes++; return replace(...args); };
           root.addEventListener('scroll', () => { stats.events++; stats.lastEvent = performance.now(); }, { passive: true });
         });
-        await swipe(cdp, [195, 650], [195, 315]);
+        const startY = hash === '#/projects' ? 520 : 650;
+        await swipe(cdp, [195, startY], [195, startY - 335]);
         await page.waitForFunction(() => window.scrollTest.events > 0 && performance.now() - window.scrollTest.lastEvent > 220);
         if (hasHistory) await page.waitForFunction(() => window.scrollTest.writes > 0, undefined, { timeout: 3000 });
         const stats = await page.evaluate(() => ({ ...window.scrollTest, top: document.getElementById('root').scrollTop }));
