@@ -1,4 +1,19 @@
 /* Shared app chrome, scoped exclusively to the projects route. */
+html.projects-route-theme {
+  --projects-viewport: min(100dvh, var(--tg-viewport-height, 100dvh));
+  --projects-safe-bottom: max(12px, env(safe-area-inset-bottom, 0px), var(--sab, 0px), var(--csab, 0px));
+  --projects-tab-height: 60px;
+  --projects-end-space: calc(var(--projects-tab-height) + var(--projects-safe-bottom) + 32px);
+}
+html.projects-route-theme #root {
+  height: var(--projects-viewport);
+  min-height: 0;
+  scroll-padding-bottom: var(--projects-end-space);
+}
+html.projects-route-theme .projects-dock {
+  bottom: max(0px, calc(100dvh - var(--projects-viewport)));
+}
+html.projects-route-theme nav.projects-nav { height: var(--projects-tab-height); }
 html.projects-route-theme .w4-topbar {
   background: rgba(255, 255, 255, .91) !important;
   border-bottom-color: rgba(37, 39, 42, .06) !important;

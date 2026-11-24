@@ -58,6 +58,28 @@ async function checkChatScroll(page, cdp) {
   await panel.waitFor({ state: 'hidden' });
 }
 
+async function checkShowcaseEnd(page, cdp) {
+  await page.evaluate(() => {
+    const style = document.documentElement.style;
+    style.setProperty('--tg-viewport-height', '684px');
+    style.setProperty('--sab', '34px');
+    style.setProperty('--csab', '48px');
+    const root = document.getElementById('root');
+    root.scrollTop = root.scrollHeight - root.clientHeight - 150;
+  });
+  await swipe(cdp, [180, 485], [180, 220]);
+  await page.waitForFunction(() => {
+    const root = document.getElementById('root');
+    return root.scrollTop >= root.scrollHeight - root.clientHeight - 2;
+  });
+  const order = await page.locator('.ps-order').boundingBox();
+  const nav = await page.locator('nav.projects-nav').boundingBox();
+  assert.ok(nav.y + nav.height <= 684 - 48 + 1, 'navigation must fit inside the visible Telegram viewport');
+  assert.ok(order.y >= 0 && order.y + order.height + 16 <= nav.y, 'order button is obscured at the end of the showcase');
+  await page.touchscreen.tap(order.x + order.width / 2, order.y + order.height / 2);
+  await page.getByTestId('order-page').waitFor();
+}
+
 async function run() {
   const coveredDemos = cases.filter(([hash]) => hash.startsWith('#/demos/')).map(([hash]) => hash.split('/')[2]);
   assert.deepEqual(coveredDemos.sort(), demoApps.map(demo => demo.id).sort(), 'every published demo needs a swipe case');
@@ -107,6 +129,7 @@ async function run() {
           await page.locator('.w4m-panel.open').waitFor();
         }
         if (hash === '#/profile') await checkChatScroll(page, cdp);
+        if (hash === '#/projects') await checkShowcaseEnd(page, cdp);
         console.log(hash, JSON.stringify(stats));
       } finally { await ctx.close(); }
     }

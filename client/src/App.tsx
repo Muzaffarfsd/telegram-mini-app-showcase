@@ -263,10 +263,10 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
     <>
       <LiquidGlassFilter />
       <div 
-        className="fixed bottom-0 left-0 right-0 flex justify-center z-50 animate-in slide-in-from-bottom-4 duration-300"
+        className={`fixed bottom-0 left-0 right-0 flex justify-center z-50 animate-in slide-in-from-bottom-4 duration-300${route.component === 'projects' ? ' projects-dock' : ''}`}
         style={{ 
           isolation: 'isolate',
-          paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
+          paddingBottom: route.component === 'projects' ? 'var(--projects-safe-bottom)' : 'max(12px, env(safe-area-inset-bottom))',
           paddingLeft: '12px',
           paddingRight: '12px',
           paddingTop: '8px',

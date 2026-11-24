@@ -12,21 +12,17 @@
   width: min(100%, 430px);
   margin-inline: auto;
   padding: calc(max(env(safe-area-inset-top, 0px), var(--csat, 0px), 12px) + 82px) 20px
-    calc(106px + max(env(safe-area-inset-bottom, 0px), var(--csab, 0px)));
+    var(--projects-end-space);
 }
-.ps-header, .ps-header h1, .ps-layout, .ps-filters, .ps-open, .ps-order { display: flex; align-items: center; }
+.ps-header, .ps-header h1, .ps-filters, .ps-open, .ps-order { display: flex; align-items: center; }
 .ps-header { justify-content: space-between; gap: 10px; }
 .ps-header h1 { align-items: baseline; gap: 7px; margin: 0; font-size: clamp(33px, 9vw, 40px); line-height: 1.08; letter-spacing: -.055em; font-weight: 680; }
 .ps-count { color: #666b6b; font-size: 14px; font-weight: 500; letter-spacing: 0; font-variant-numeric: tabular-nums; }
-.ps-layout { padding: 2px; border-radius: 24px; background: #f1f2f1; }
-.ps-layout button { display: grid; place-items: center; border: 0; border-radius: 24px; width: 44px; height: 44px; background: transparent; color: #6a706c; }
-.ps-layout button[aria-pressed="true"] { color: #191a1c; background: #fff; box-shadow: 0 1px 5px #18241c15; }
 .ps-filters { flex-wrap: wrap; gap: 6px; margin: 17px 0 20px; }
 .ps-filters button { min-height: 44px; padding: 0 15px; border: 0; border-radius: 24px; color: #47494b; background: #f4f4f3; font-size: 13px; font-weight: 550; }
 .ps-filters button[aria-pressed="true"], .ps-order { color: white; background: #202124; }
 .ps-collection { display: grid; gap: 12px; }
 .ps-card {
-  --paper: #f2f2f1;
   position: relative;
   display: grid;
   grid-template-columns: 49% 51%;
@@ -40,7 +36,7 @@
   border: 0;
   border-radius: 24px;
   color: #191a1c;
-  background: var(--paper);
+  background: #f2f2f1;
   text-align: left;
 }
 .ps-card:first-child { min-height: 248px; }
@@ -50,35 +46,13 @@
 .ps-open { position: relative; z-index: 1; grid-column: 1; width: max-content; gap: 6px; justify-content: center; align-self: end; min-height: 42px; margin: 0 0 18px 18px; padding: 0 13px; background: #fff; border-radius: 99px; color: #202124; font-size: 13px; font-weight: 550; line-height: 1; }
 .ps-art { position: absolute; inset: 3% 0 3% 46%; pointer-events: none; }
 .ps-art img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; }
-.ps-card[data-project="flower-store"] { --paper: #f9eae8; }
-.ps-card[data-project="muraka-fashion"] { --paper: #efe9df; }
-.ps-card[data-project="lumi-studio"] { --paper: #eee8e9; }
-.ps-card[data-project="opt-market"] { --paper: #faf0db; }
-.ps-card[data-project="nike-sneakers"] { --paper: #f2e6df; }
-.ps-card[data-project="jewelry-store"] { --paper: #def1ed; }
-.ps-card[data-project="apple-store"] { --paper: #ebe9f0; }
-.ps-card[data-project="medical-center"] { --paper: #e5eeec; }
-.ps-card[data-project="women-fashion"] { --paper: #efe6e0; }
-.ps-card[data-project="china-buyer"] { --paper: #f6e6db; }
-.ps-card[data-project="skincare-aura"] { --paper: #f1e9f4; }
-.ps-card[data-project="flower-store"] .ps-open { background: #242020; color: white; }
 .ps-card:active { outline: 1px solid #29252533; outline-offset: -1px; }
 @media (hover: hover) {
   .ps-open svg { transition: transform .16s ease-out; }
   .ps-card:hover .ps-open svg { transform: translate(1px, -1px); }
 }
-.ps-collection--compact { gap: 8px; }
-.ps-collection--compact .ps-card {
-  grid-template-columns: 64px minmax(0, 1fr) 22px;
-  align-content: center; align-items: center;
-  gap: 11px; min-height: 84px; padding: 8px 14px 8px 8px; border-radius: 17px;
-}
-.ps-collection--compact .ps-card .ps-art { grid-column: 1; grid-row: 1; position: relative; inset: auto; width: 64px; height: 64px; padding: 0; border-radius: 10px; }
-.ps-collection--compact .ps-card .ps-art img { position: absolute; inset: 0; width: 100%; height: 100%; transform: none; object-fit: contain; object-position: center; }
-.ps-collection--compact .ps-copy { grid-column: 2; grid-row: 1; padding: 0; }
-.ps-collection--compact .ps-card .ps-title { order: -1; margin: 0 0 4px; font-size: 20px; }
-.ps-collection--compact .ps-description, .ps-collection--compact .ps-open span { display: none; }
-.ps-collection--compact .ps-card .ps-open { grid-column: 3; grid-row: 1; align-self: center; min-height: 0; margin: 0; padding: 0; color: #30302f; background: transparent; }
+.ps-detail { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; color: #575a56; font-size: 11px; line-height: 1.35; font-weight: 550; }
+.ps-detail svg { flex: none; }
 .ps-order { justify-content: space-between; gap: 12px; width: 100%; min-height: 51px; padding: 0 19px; margin-top: 20px; border: 0; border-radius: 99px; }
 @media (max-width: 350px) {
   .ps-inner { padding-inline: 15px; }
