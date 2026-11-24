@@ -1,18 +1,22 @@
 import { createRoot } from "react-dom/client";
 import { importWithRecovery } from "./utils/lazyWithRecovery";
 import { initializeDemoShareStart } from './lib/demoShareStart';
+import { cleanupRetiredDemos } from './lib/cleanupRetiredDemos';
+import { ensureTelegramSdk } from './lib/telegramSdk';
 
 import { warmRoute } from './lib/routeModules';
 import "./index.css";
 
-initializeDemoShareStart();
 const root = createRoot(document.getElementById("root")!);
-warmRoute(window.location.hash.slice(1), 'high');
-// Keep storage migration ahead of consumers, but overlap its I/O with code loading.
-void Promise.all([
-  importWithRecovery(() => import("./App")),
-  import("./lib/cleanupRetiredDemos").then(m => m.cleanupRetiredDemos()).catch(() => {}),
-]).then(([{ default: App }]) => root.render(<App />))
+void cleanupRetiredDemos();
+const bridgeReady = ensureTelegramSdk();
+void bridgeReady.then(() => {
+  initializeDemoShareStart();
+  delete document.documentElement.dataset.sharedDemoShell;
+  const path = window.location.hash.slice(1);
+  warmRoute(path, 'high');
+  return importWithRecovery(() => import("./App"));
+}).then(({ default: App }) => root.render(<App />))
   .catch((error) => {
     console.error('Failed to start app:', error);
     root.render(<main role="alert" style={{ minHeight: '100dvh', display: 'grid', placeContent: 'center', gap: 16, background: '#fff', color: '#171717', textAlign: 'center', padding: 24 }}>
@@ -25,9 +29,7 @@ if (typeof window !== 'undefined') {
   const deferredInit = () => {
     import('./utils/webVitals').then(m => m.initWebVitals()).catch(() => {});
     import('./utils/errorMonitoring').then(m => m.errorMonitor.init()).catch(() => {});
-    import('./lib/telegram').then(m => {
-      try { m.initTelegramWebApp(); } catch {}
-    }).catch(() => {});
+    bridgeReady.then(() => import('./lib/telegram')).then(m => m.initTelegramWebApp()).catch(() => {});
   };
 
   if ('requestIdleCallback' in window) {

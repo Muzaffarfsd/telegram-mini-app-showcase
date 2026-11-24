@@ -1,4 +1,4 @@
-import WebApp from '@twa-dev/sdk';
+import WebApp from './telegramSdk';
 import { isLightDestinationHash, restoreTelegramChrome } from './telegramChrome';
 
 /**
@@ -18,12 +18,6 @@ export function ensureTelegramPolyfill() {
   }
 
   console.log('[Telegram Polyfill] Applying WebView 7.7+ API');
-
-  // Override version check
-  const originalIsVersionAtLeast = tg.isVersionAtLeast;
-  tg.isVersionAtLeast = function(version: string) {
-    return true; // Always return true in dev
-  };
 
   // Add missing methods
   if (!tg.disableVerticalSwipes) {
@@ -71,7 +65,7 @@ export function initTelegramWebApp() {
   // Continue with other setup - use native API to avoid SDK version checks
   
   // Request fullscreen mode (hides bot name header)
-  if (typeof tg.requestFullscreen === 'function') {
+  if (document.documentElement.dataset.tgFullscreen !== '1' && tg.isVersionAtLeast?.('8.0') && typeof tg.requestFullscreen === 'function') {
     tg.requestFullscreen();
   }
   
@@ -81,12 +75,12 @@ export function initTelegramWebApp() {
   restoreTelegramChrome(tg, { header: bgColor, background: bgColor, bottom: bgColor });
   
   // Disable vertical swipes to prevent accidental close
-  if (typeof tg.disableVerticalSwipes === 'function') {
+  if (tg.isVersionAtLeast?.('7.7') && typeof tg.disableVerticalSwipes === 'function') {
     tg.disableVerticalSwipes();
   }
   
   // Lock orientation for better UX
-  if (typeof (tg as any).lockOrientation === 'function') {
+  if (tg.isVersionAtLeast?.('8.0') && typeof (tg as any).lockOrientation === 'function') {
     (tg as any).lockOrientation();
   }
   

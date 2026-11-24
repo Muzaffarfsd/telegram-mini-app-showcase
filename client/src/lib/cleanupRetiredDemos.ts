@@ -122,7 +122,13 @@ function cleanViewedDemoDatabase(): Promise<void> {
 
 // Telegram DeviceStorage has no cancellable/CAS write: a late callback could
 // overwrite newer user selections. Leave it untouched rather than risk data loss.
-export async function cleanupRetiredDemos(): Promise<void> {
+let databaseCleanup: Promise<void> | undefined;
+
+export function waitForRetiredDemoCleanup(): Promise<void> {
+  return databaseCleanup ??= cleanViewedDemoDatabase();
+}
+
+export function cleanupRetiredDemos(): Promise<void> {
   cleanLocalStorage();
-  await cleanViewedDemoDatabase();
+  return waitForRetiredDemoCleanup();
 }

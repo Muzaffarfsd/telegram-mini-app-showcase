@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import WebApp from '@twa-dev/sdk';
+import WebApp from '../lib/telegramSdk';
 
 export type PerformanceClass = 'high' | 'medium' | 'low';
 

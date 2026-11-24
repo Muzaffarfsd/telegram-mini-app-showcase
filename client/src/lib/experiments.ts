@@ -2,7 +2,7 @@
 // EXPERIMENTS — A/B/N Тестирование с взвешенным распределением
 // ============================================================================
 
-import WebApp from '@twa-dev/sdk';
+import WebApp from './telegramSdk';
 import { analytics } from './analytics';
 
 // === ТИПЫ ===

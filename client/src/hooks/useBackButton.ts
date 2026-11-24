@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import WebApp from '@twa-dev/sdk';
+import WebApp from '../lib/telegramSdk';
 import { useLocation } from 'wouter';
 
 export function useBackButton() {

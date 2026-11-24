@@ -1,3 +1,5 @@
+import { waitForRetiredDemoCleanup } from './cleanupRetiredDemos';
+
 const DB_NAME = 'web4tg-offline';
 const DB_VERSION = 1;
 
@@ -89,6 +91,9 @@ class OfflineStorage {
   }
 
   private async getStore(storeName: StoreNames, mode: IDBTransactionMode = 'readonly'): Promise<IDBObjectStore> {
+    if (storeName === 'viewedDemos' || storeName === 'gamificationStats') {
+      await waitForRetiredDemoCleanup();
+    }
     const db = await this.init();
     const tx = db.transaction(storeName, mode);
     return tx.objectStore(storeName);

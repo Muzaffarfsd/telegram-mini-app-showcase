@@ -1,4 +1,4 @@
-import WebApp from '@twa-dev/sdk';
+import WebApp from './telegramSdk';
 import { apiRequest } from './queryClient';
 
 export const EXPERIMENTS = {

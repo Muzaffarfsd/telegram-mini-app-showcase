@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
 import { compression } from "vite-plugin-compression2";
+import { firstHomePreview } from './client/src/data/homePreview';
 
 export default defineConfig({
   base: '/',
@@ -15,6 +16,41 @@ export default defineConfig({
         ],
       },
     }),
+    {
+      name: 'preload-app-shell',
+      apply: 'build',
+      transformIndexHtml: {
+        order: 'post',
+        handler(html, { bundle }) {
+          if (!bundle) return;
+          const findChunk = (source: string) => Object.values(bundle).find(chunk =>
+            chunk.type === 'chunk' && chunk.moduleIds.some(id => id.endsWith(source))
+          );
+          const app = findChunk('/src/App.tsx');
+          const home = findChunk('/src/components/ShowcasePage.tsx');
+          if (app?.type !== 'chunk' || home?.type !== 'chunk') return;
+          // Start only mandatory shell imports while Telegram establishes its bridge.
+          const requiredImport = (file: string) => {
+            const chunk = bundle[file];
+            return chunk?.type === 'chunk' && !chunk.isEntry && chunk.name !== 'react';
+          };
+          const scripts = new Set([app.fileName, ...app.imports.filter(requiredImport)]);
+          const homeAssets = [
+            ...[home.fileName, ...home.imports.filter(file => requiredImport(file) && !scripts.has(file))]
+              .map(file => ({ rel: 'modulepreload', href: '/' + file })),
+            ...Array.from(home.viteMetadata?.importedCss ?? [], file => ({ rel: 'preload', as: 'style', href: '/' + file })),
+            { rel: 'preload', as: 'image', href: firstHomePreview },
+          ];
+          const tags = [
+            ...Array.from(scripts, file => ({ tag: 'link', attrs: { rel: 'modulepreload', crossorigin: '', href: '/' + file } })),
+            ...Array.from(app.viteMetadata?.importedCss ?? [], file => ({
+              tag: 'link', attrs: { rel: 'preload', as: 'style', crossorigin: '', href: '/' + file }
+            })),
+          ];
+          return { html: html.replace('/* home-boot-assets */ []', JSON.stringify(homeAssets)), tags };
+        },
+      },
+    },
     
     // Brotli compression
     compression({

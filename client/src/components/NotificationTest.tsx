@@ -3,7 +3,7 @@ import { Bell, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import WebApp from '@twa-dev/sdk';
+import WebApp from '../lib/telegramSdk';
 
 export function NotificationTest() {
   const [isSending, setIsSending] = useState(false);
