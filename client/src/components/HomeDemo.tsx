@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { useHaptic } from '../hooks/useHaptic';
 import { hintRoute } from '../lib/routeModules';
+import { HomeArtwork } from './HomeArtwork';
 import './HomeDemo.css';
 import './CategorySegments.css';
 
@@ -20,15 +21,6 @@ const projects = [
 ] as const;
 
 const miniatures = import.meta.glob<string>('../assets/home-preview/*.webp', { eager: true, import: 'default', query: '?inline' });
-function DemoArtwork({ src, view, first }: { src: string; view: View; first: boolean }) {
-  const [ready, setReady] = useState(false);
-  const miniature = miniatures[src.replace('/home-editorial/', '../assets/home-preview/')];
-  return <span className="home-demo__art" style={ready ? undefined : { backgroundImage: `url("${miniature}")` }}>
-    <img src={src} srcSet={homePreviewSrcSet(src)} sizes={homePreviewSizes} data-view={view} data-ready={ready}
-      width={1024} height={1536} alt="" draggable={false} fetchPriority={first ? 'high' : 'auto'} decoding="async"
-      onLoad={event => { void event.currentTarget.decode().then(() => setReady(true), () => {}); }} />
-  </span>;
-}
 
 /** A stationary touch following a preview swipe can end without a compatibility click. */
 function PreviewChoice({ active, choose, children }: { active: boolean; choose: () => void; children: string }) {
@@ -166,7 +158,10 @@ export default function HomeDemo({ ru, onOpenDemo }: Props) {
     </div>
     <div className="home-demo__card">
     <button type="button" ref={preview} className="home-demo__image" data-testid="home-open-demo" onPointerEnter={event => { if (event.pointerType === 'mouse') hintRoute(`/demos/${project.id}/app`); }} onFocus={event => { if (event.currentTarget.matches(':focus-visible')) hintRoute(`/demos/${project.id}/app`); }} onPointerDown={startSwipe} onPointerUp={finishSwipe} onPointerCancel={() => { gesture.current = null; }} onClick={(event) => { if (suppressClick.current && event.detail !== 0) { suppressClick.current = false; return; } onOpenDemo(project.id); }} aria-label={`${action} · ${ru ? project.label : project.labelEn}`}>
-      <DemoArtwork key={project[view]} src={project[view]} view={view} first={projectIndex === 0 && view === 'home'} />
+      <HomeArtwork className="home-demo__art" src={project[view]} view={view} alt=""
+        placeholder={miniatures[project[view].replace('/home-editorial/', '../assets/home-preview/')]}
+        srcSet={homePreviewSrcSet(project[view])} sizes={homePreviewSizes}
+        fetchPriority={projectIndex === 0 && view === 'home' ? 'high' : 'auto'} />
       <span className="home-demo__copy"><strong>{ru ? project.label : project.labelEn}</strong><span>{ru ? project.detail : project.detailEn}</span>
         <span className="home-demo__open">{action} <ArrowUpRight size={15} aria-hidden="true"/></span>
       </span>

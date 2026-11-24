@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { StudioContactLink } from './StudioContactLink';
+import { HomeArtwork } from './HomeArtwork';
 import { ArrowRight, ArrowUpRight, ChevronDown } from 'lucide-react';
 import { useHaptic } from '../hooks/useHaptic';
 import flowerCover from '../assets/showcase-art/flower-store.webp';
 import salonCover from '../assets/showcase-art/lumi-studio.webp';
+import flowerMini from '../assets/showcase-art/flower-store.preview.webp?inline';
+import salonMini from '../assets/showcase-art/lumi-studio.preview.webp?inline';
 import './HomeStory.css';
+
+const journeyPreviews = import.meta.glob<string>('../assets/journey-preview/*.webp', { eager: true, import: 'default', query: '?inline' });
 
 interface Props { ru: boolean; onNavigate: (section: string) => void; onOpenDemo: (id: string) => void }
 
@@ -55,7 +60,8 @@ export default function HomeStory({ ru, onNavigate, onOpenDemo }: Props) {
         </div>
         <div className="hs-demo__stage">
           <div className="hs-demo__copy" aria-live="polite"><h3>{selected.title}</h3><p>{selected.text}</p></div>
-          <img src={selected.image} alt={selected.alt} loading="lazy" decoding="async" width={1024} height={1536}/>
+          <HomeArtwork className="hs-demo__art" src={selected.image} alt={selected.alt} loading="lazy"
+            placeholder={journeyPreviews[selected.image.replace('/home-story/', '../assets/journey-preview/')]} />
         </div>
       </div>
       <button type="button" className="hs-link" onClick={() => onOpenDemo('muraka-fashion')}>{ru ? 'Попробовать магазин' : 'Try the store'} <ArrowUpRight size={16} aria-hidden="true"/></button>
@@ -64,11 +70,11 @@ export default function HomeStory({ ru, onNavigate, onOpenDemo }: Props) {
       <h2 id="hs-solutions-title">{ru ? 'Что нужно вашему бизнесу?' : 'What does your business need?'}</h2>
       <div className="hs-solutions__grid">
         <button type="button" onClick={() => onOpenDemo('flower-store')}>
-          <img src={flowerCover} width={612} height={816} loading="lazy" decoding="async" alt=""/>
+          <HomeArtwork className="hs-solutions__art" src={flowerCover} placeholder={flowerMini} loading="lazy" alt="" />
           <span><strong>{ru ? 'Продавать товары' : 'Sell products'}</strong><small>{ru ? 'Каталог, выбор варианта и корзина. Посмотрите на примере магазина цветов.' : 'A catalog, product options and cart. Explore a flower shop.'}</small></span><ArrowUpRight aria-hidden="true" size={20}/>
         </button>
         <button type="button" onClick={() => onOpenDemo('lumi-studio')}>
-          <img src={salonCover} width={612} height={816} loading="lazy" decoding="async" alt=""/>
+          <HomeArtwork className="hs-solutions__art" src={salonCover} placeholder={salonMini} loading="lazy" alt="" />
           <span><strong>{ru ? 'Принимать записи' : 'Take bookings'}</strong><small>{ru ? 'Услуга, специалист и свободное время. Попробуйте запись в салон.' : 'Choose a service, a specialist and a time. Try a salon booking.'}</small></span><ArrowUpRight aria-hidden="true" size={20}/>
         </button>
       </div>

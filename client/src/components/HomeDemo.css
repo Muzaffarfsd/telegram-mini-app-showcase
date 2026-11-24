@@ -10,9 +10,7 @@
 .home-demo__copy strong { font-size:clamp(19px,5vw,25px); font-weight:650; letter-spacing:-.04em; line-height:1.12; overflow-wrap:break-word; }
 .home-demo__copy > span:not(.home-demo__open) { grid-column:1; color:var(--muted); font-size:13px; line-height:1.38; }
 .home-demo__open { grid-area:1 / 2 / 3; display:inline-flex; align-items:center; gap:5px; padding:0 12px; min-height:44px; border-radius:99px; background:var(--ink); color:white; font-size:13px; font-weight:600; white-space:nowrap; }
-.home-demo__art { display:block; height:var(--home-preview-height); width:100%; background-position:center; background-repeat:no-repeat; background-size:contain; }
-.home-demo__art img { width:100%; height:100%; display:block; object-fit:contain; opacity:0; }
-.home-demo__art img[data-ready="true"] { opacity:1; }
+.home-demo__art { --art-surface:var(--paper); height:var(--home-preview-height); width:100%; }
 .home-demo__switch { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:6px 10px 7px 20px; border-top:1px solid rgba(0,0,0,.13); }
 .home-demo__switch > span { color:var(--muted); font-size:12px; }
 .home-demo__switch > div { position:relative; display:grid; grid-template-columns:repeat(2,1fr); }
