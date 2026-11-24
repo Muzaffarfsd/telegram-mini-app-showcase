@@ -49,6 +49,30 @@ async function run(browserType, name, width, height, language = 'ru') {
     const order = home.getByTestId('home-start-order');
     const contact = home.locator('.studio-intro-actions').getByRole('link', { name: language === 'ru' ? 'Написать в Telegram' : 'Message us on Telegram' });
     assert.equal(await contact.getAttribute('href'), 'https://t.me/web4tgs');
+    const [browseBox, estimateBox, contactBox] = await Promise.all([primary, order, contact].map(el => el.boundingBox()));
+    assert.equal(browseBox.y, estimateBox.y, 'browse and estimate share the first row');
+    assert.ok(contactBox.y >= estimateBox.y + estimateBox.height && contactBox.width >= browseBox.width + estimateBox.width, 'Telegram is a full-width action below both buttons');
+    for (const icon of await home.locator('a.studio-contact img').all()) await icon.evaluate(el => el.decode());
+    assert.equal(await home.locator('a.studio-contact img[alt=""]').count(), 2);
+    const [header, headline] = await Promise.all([page.locator('.w4-topbar'), home.locator('h1')].map(el => el.boundingBox()));
+    const headerGap = headline.y - header.y - header.height;
+    assert.ok(headerGap >= 8 && headerGap <= 16, 'headline sits just below the header');
+    await page.getByTestId('button-hamburger').tap();
+    const drawer = page.getByRole('dialog').filter({ has: page.getByTestId('button-menu-close') });
+    await drawer.waitFor();
+    const dismiss = drawer.getByTestId('button-menu-close');
+    assert.deepEqual(await dismiss.evaluate(el => [getComputedStyle(el).backgroundColor, getComputedStyle(el.querySelector('svg')).stroke]), ['rgb(17, 17, 17)', 'rgb(255, 255, 255)']);
+    const bottom = await drawer.evaluate(el => {
+      el.scrollTop = el.scrollHeight;
+      const footer = el.querySelector('.w4m-footer');
+      const last = footer.querySelector('a:last-child').getBoundingClientRect();
+      const expected = parseFloat(getComputedStyle(footer).paddingBottom);
+      return { surfaces:[el, footer].map(node => getComputedStyle(node).backgroundColor), gap:el.getBoundingClientRect().bottom - last.bottom, expected };
+    });
+    assert.deepEqual(bottom.surfaces, ['rgb(255, 255, 255)', 'rgb(255, 255, 255)']);
+    assert.ok(Math.abs(bottom.gap - bottom.expected) <= 1, 'bottom links sit directly above the safe padding');
+    await dismiss.tap();
+    await drawer.waitFor({state:'hidden'});
     for (const action of [contact, primary, order]) {
       const box = await action.boundingBox();
       assert.ok(box && box.y >= 0 && box.y + box.height <= height - 70, 'primary actions are visible on entry');
@@ -72,7 +96,7 @@ async function run(browserType, name, width, height, language = 'ru') {
     });
     assert.deepEqual(contactEvents, ['https://t.me/web4tgs', true, false, false]);
     const gallery = home.getByTestId('home-exhibit');
-    await gallery.getByRole('heading', { name: language === 'ru' ? 'Что увидит ваш клиент?' : 'What will your customers see?' }).waitFor();
+    await gallery.getByRole('heading', { name: language === 'ru' ? 'Выберите приложение для своего бизнеса' : 'Choose an app for your business' }).waitFor();
     assert.equal((await gallery.locator('.home-demo__open').innerText()).trim(), language === 'ru' ? 'Смотреть коллекцию' : 'Browse the collection');
     const preview = await gallery.locator('.home-demo__art').boundingBox();
     const card = await gallery.locator('.home-demo__card').boundingBox();

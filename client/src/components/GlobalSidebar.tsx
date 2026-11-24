@@ -1,6 +1,6 @@
 import { useEdgeSwipeOpen } from '@/hooks/useEdgeSwipeOpen';
 import { useState, useCallback, useEffect, useRef, forwardRef, memo, type CSSProperties } from "react";
-import { ChevronRight, ArrowUpRight, Send } from "lucide-react";
+import { ChevronRight, ArrowUpRight, Send, X } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { SiInstagram, SiTelegram, SiYoutube, SiTiktok } from "react-icons/si";
 import UserAvatar from "./UserAvatar";
@@ -22,8 +22,6 @@ interface GlobalSidebarProps {
 
 const drawerWidth = () => Math.min(370, window.innerWidth - 40);
 const FONT = '"Google Sans App", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
-const EM = '#34d399';
-const EM_SOFT = '#6ee7b7';
 
 interface AnimatedHamburgerIconProps {
   isOpen: boolean;
@@ -43,11 +41,11 @@ const AnimatedHamburgerIcon = memo(forwardRef<HTMLButtonElement, AnimatedHamburg
         aria-expanded={isOpen}
         data-testid={testId}
       >
-        <span className="hb-icon">
-          <span className={`hb-line l1 ${isOpen ? 'open' : ''}`} />
-          <span className={`hb-line l2 ${isOpen ? 'open' : ''}`} />
-          <span className={`hb-line l3 ${isOpen ? 'open' : ''}`} />
-        </span>
+        {isOpen ? <X size={20} strokeWidth={2} aria-hidden="true" /> : <span className="hb-icon" aria-hidden="true">
+          <span className="hb-line l1" />
+          <span className="hb-line l2" />
+          <span className="hb-line l3" />
+        </span>}
       </button>
     );
   }
@@ -230,7 +228,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           -webkit-tap-highlight-color:transparent;position:relative;
           transition:transform .24s cubic-bezier(.34,1.5,.64,1),background .2s,border-color .2s;
         }
-        .hb-btn.open{background:rgba(52,211,153,0.13);border-color:rgba(52,211,153,0.32);}
         .hb-btn:active{transform:scale(.9);}
         .hb-icon{width:14px;height:9px;position:relative;display:flex;flex-direction:column;
           justify-content:space-between;align-items:flex-start;}
@@ -238,12 +235,8 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
           transition:transform .34s cubic-bezier(.68,-0.5,.27,1.5),opacity .2s,width .24s,background .2s;
           transform-origin:center;}
         .hb-line.l1{width:100%;} .hb-line.l2{width:62%;} .hb-line.l3{width:100%;}
-        .hb-line.l1.open{transform:translateY(3.7px) rotate(45deg);width:100%;background:${EM_SOFT};}
-        .hb-line.l2.open{opacity:0;transform:scaleX(0);}
-        .hb-line.l3.open{transform:translateY(-3.7px) rotate(-45deg);width:100%;background:${EM_SOFT};}
         html.light .hb-btn{background:rgba(0,0,0,0.05);border-color:rgba(0,0,0,0.1);}
         html.light .hb-line{background:#16181c;}
-        html.light .hb-btn.open{background:rgba(52,211,153,0.13);border-color:rgba(52,211,153,0.4);}
         @media (hover:hover){
           .hb-btn:hover{background:rgba(255,255,255,0.1);}
           html.light .hb-btn:hover{background:rgba(0,0,0,0.08);}
@@ -260,9 +253,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         }
         .w4m-overlay.open{opacity:1;pointer-events:auto;}
         .w4m-panel{
-          position:fixed;top:0;left:0;height:100%;z-index:100001;
+          position:fixed;top:0;left:0;height:100%;max-height:var(--projects-viewport,100dvh);z-index:100001;
           width:min(372px,calc(100vw - 38px));
-          background:#f4f4f6;
+          background:#fff;
           border-right:1px solid rgba(255,255,255,0.75);
           border-radius:0 26px 26px 0;
           color:#252529;font-family:${FONT};
@@ -287,6 +280,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         }
         .w4m-panel::-webkit-scrollbar{display:none;}
         .w4m-panel{scrollbar-width:none;}
+        .w4m-panel > div{flex:none;}
+        .w4m-footer{
+          margin-top:auto;padding:20px 24px max(12px,env(safe-area-inset-bottom,0px),var(--sab,0px),var(--csab,0px),var(--projects-safe-bottom,0px));
+          background:inherit;
+        }
+        .w4m-footer-links{display:flex;align-items:center;justify-content:space-between;gap:2px;margin-top:12px;}
         .w4m-panel,.w4m-panel button,.w4m-panel span,.w4m-panel a{font-family:${FONT}!important;font-optical-sizing:none;}
         .w4m-panel [data-testid="button-nav-profile"] > div{background-color:rgba(70,72,80,0.06);}
         .w4m-panel [data-testid="button-nav-profile"] > div svg{color:#6f7178;}
@@ -306,24 +305,21 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         .w4m-tap:active{transform:scale(.97);}
         .w4m-cta{
           display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;
-          border-radius:999px;background:rgba(255,255,255,0.66);border:1px solid rgba(255,255,255,0.9);cursor:pointer;
-          box-shadow:0 3px 14px rgba(45,48,57,0.06),inset 0 1px 0 rgba(255,255,255,0.9);
+          border-radius:999px;background:transparent;border:1px solid #d6d6d6;cursor:pointer;
           transition:transform .18s cubic-bezier(.22,1,.36,1);-webkit-tap-highlight-color:transparent;
         }
         .w4m-cta:active{transform:scale(.975);}
         .w4m-soc{
           width:44px;height:44px;display:flex;align-items:center;justify-content:center;
-          border-radius:14px;background:rgba(255,255,255,0.55);
-          border:1px solid rgba(255,255,255,0.9);cursor:pointer;
+          border-radius:14px;background:transparent;
+          border:0;cursor:pointer;
           transition:transform .2s cubic-bezier(.34,1.5,.64,1),background-color .18s ease;
           -webkit-tap-highlight-color:transparent;
         }
         .w4m-soc:active{transform:scale(.92);}
         .w4m-row:focus-visible,.w4m-tap:focus-visible,.w4m-cta:focus-visible,
-        .w4m-soc:focus-visible,.hb-btn:focus-visible{outline:2px solid ${EM};outline-offset:3px;}
-        .w4m-panel .hb-btn.open{background:rgba(255,255,255,0.62);border-color:rgba(255,255,255,0.9);border-radius:50%;}
-        .w4m-panel .hb-line.l1.open,.w4m-panel .hb-line.l3.open{background:#34343a;}
-        @media (prefers-reduced-transparency:reduce){.w4m-panel{background:#fafafc;backdrop-filter:none;-webkit-backdrop-filter:none;}}
+        .w4m-soc:focus-visible,.hb-btn:focus-visible{outline:2px solid #555;outline-offset:3px;}
+        .w4m-panel button.hb-btn.open{background:#111;color:#fff;border:0;border-radius:50%;}
 
         /* ── top bar ── */
         .w4-topbar{
@@ -463,14 +459,14 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         </div>
 
         {/* bottom */}
-        <div style={{ padding: '28px 24px calc(env(safe-area-inset-bottom, 0px) + 22px)' }}>
+        <div className="w4m-footer">
           <button onClick={() => handleNavClick('constructor')} className="w4m-cta" data-testid="button-discuss-project">
             <span style={{ fontFamily: FONT, fontSize: '0.95rem', fontWeight: 700, color: '#28282d', letterSpacing: '-0.01em' }}>
               {language === 'ru' ? 'Обсудить проект' : 'Discuss a project'}
             </span>
             <ArrowUpRight size={17} color="#28282d" strokeWidth={2.6} />
           </button>
-          <div className="flex items-center justify-between" style={{ gap: 8, marginTop: 18 }}>
+          <div className="w4m-footer-links">
             {socialLinks.map((s) => (
               <a key={s.label} href={s.url}
                 onClick={(e) => { e.preventDefault(); openExternal(s.url); }}

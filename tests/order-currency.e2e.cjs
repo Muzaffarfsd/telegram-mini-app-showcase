@@ -35,6 +35,12 @@ async function check(browser, width, language, state) {
   assert.doesNotMatch(noteText, /\d{2}[./-]\d{2}[./-]\d{4}|\d{4}-\d{2}-\d{2}/);
   assert.equal(await note.getAttribute('title'), null, 'The rate date must not appear in a tooltip');
   assert.equal(noteText, expected);
+  const choiceColors = await page.locator('.order-template-action').evaluateAll(items => items.map(el => {
+    const style = getComputedStyle(el);
+    return [style.backgroundColor, style.color];
+  }));
+  assert.ok(choiceColors.length >= rows.length);
+  for (const colors of choiceColors) assert.deepEqual(colors, ['rgb(17, 17, 17)', 'rgb(255, 255, 255)']);
   for (const [id, rubles, dollars] of rows) {
     const card = page.getByTestId(`template-${id}`);
     const price = normalize(await card.locator('.order-template-price').innerText());

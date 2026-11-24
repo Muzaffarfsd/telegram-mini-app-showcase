@@ -48,7 +48,7 @@
 .order-template-art { position: absolute; z-index: 0; width: 46%; height: 68%; object-fit: contain; right: 3%; bottom: 8%; pointer-events: none; }
 .order-showcase-card { min-height: 246px; }
 .order-showcase-art { width: 49%; height: 86%; right: 1%; bottom: 4%; }
-.order-template-action { position: absolute; z-index: 1; left: 22px; bottom: 21px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 43px; padding: 0 16px; border-radius: 999px; color: #202124; background: #fff; font-size: 13px; font-weight: 500; }
+.order-template-action { position: absolute; z-index: 1; left: 22px; bottom: 21px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px; color: #fff; background: #111; font-size: 13px; font-weight: 550; }
 .order-template-info { position: absolute; z-index: 2; top: 9px; right: 9px; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; color: #62656a; background: transparent; cursor: pointer; }
 .order-showcase-wrap .order-template-info { background: rgba(255,255,255,.92); }
 .order-template-info:hover { background: rgba(255,255,255,.7); }

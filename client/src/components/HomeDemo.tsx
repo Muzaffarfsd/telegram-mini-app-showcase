@@ -160,7 +160,7 @@ export default function HomeDemo({ ru, onOpenDemo }: Props) {
   }, [project, projectIndex, view]);
 
   return <div className="home-demo" data-testid="home-exhibit" data-project={project.id}>
-    <h2>{ru ? 'Что увидит ваш клиент?' : 'What will your customers see?'}</h2>
+    <h2>{ru ? 'Выберите приложение для своего бизнеса' : 'Choose an app for your business'}</h2>
     <div className="home-demo__projects category-segments" ref={categories} role="group" aria-label={ru ? 'Выберите пример' : 'Choose an example'}>
       {projects.map((item, index) => <PreviewChoice key={item.id} active={projectIndex === index} choose={() => chooseProject(index)}>{ru ? item.title : item.titleEn}</PreviewChoice>)}
     </div>
