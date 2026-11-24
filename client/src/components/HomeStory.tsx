@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { StudioContactLink } from './StudioContactLink';
 import { ArrowRight, ArrowUpRight, ChevronDown } from 'lucide-react';
 import { useHaptic } from '../hooks/useHaptic';
 import flowerCover from '../assets/showcase-art/flower-store.webp';
@@ -84,7 +85,7 @@ export default function HomeStory({ ru, onNavigate, onOpenDemo }: Props) {
       <div><h2 id="hs-final-title">{ru ? 'Сколько будет стоить ваше приложение?' : 'What would your app cost?'}</h2>
       <p>{ru ? 'Выберите направление и нужные функции. Мы покажем предварительный расчёт.' : 'Choose your business type and features for a preliminary estimate.'}</p></div>
       <div className="hs-final__actions"><button type="button" onClick={() => navigate('constructor')}>{ru ? 'Рассчитать проект' : 'Get an estimate'} <ArrowRight size={18} aria-hidden="true"/></button>
-      <a href="https://t.me/web4tgs" target="_blank" rel="noopener noreferrer" onClick={event => { if (window.Telegram?.WebApp?.openTelegramLink) { event.preventDefault(); window.Telegram.WebApp.openTelegramLink('https://t.me/web4tgs'); } }}>{ru ? 'Написать в Telegram' : 'Message us on Telegram'} <ArrowUpRight size={15} aria-hidden="true"/></a></div>
+      <StudioContactLink ru={ru} /></div>
     </section>
   </div>;
 }
