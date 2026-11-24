@@ -7,12 +7,12 @@ import UserAvatar from "./UserAvatar";
 import { useLanguage } from "../contexts/LanguageContext";
 import { isProfileRoute } from "../lib/profileRoutes";
 import { BrandMark } from "./BrandMark";
+import { hintRoute } from '@/lib/routeModules';
 import { pauseBackgroundPrefetch } from "@/lib/interactionBudget";
 
 interface GlobalSidebarProps {
   currentRoute: string;
   onNavigate: (section: string) => void;
-  onOpen?: () => void;
   user?: { photo_url?: string; first_name?: string };
 }
 
@@ -54,7 +54,7 @@ const AnimatedHamburgerIcon = memo(forwardRef<HTMLButtonElement, AnimatedHamburg
 ));
 AnimatedHamburgerIcon.displayName = 'AnimatedHamburgerIcon';
 
-export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }: GlobalSidebarProps) {
+export default function GlobalSidebar({ currentRoute, onNavigate, user }: GlobalSidebarProps) {
   useTheme();
   const { t, language } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -121,12 +121,11 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
     pauseBackgroundPrefetch(400);
     setSidebarOpen(true);
     triggerHaptic('medium');
-    onOpen?.();
     focusFrame.current = requestAnimationFrame(() => {
       focusFrame.current = null;
       firstFocusableRef.current?.focus({ preventScroll: true });
     });
-  }, [onOpen, triggerHaptic]);
+  }, [triggerHaptic]);
 
   const closeSidebar = useCallback((restoreFocus = true) => {
     if (focusFrame.current !== null) cancelAnimationFrame(focusFrame.current);
@@ -442,6 +441,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
                 return (
                   <button
                     key={item.section || 'home'}
+                    onPointerDown={() => hintRoute('/' + item.section)}
+                    onPointerEnter={event => { if (event.pointerType === 'mouse') hintRoute('/' + item.section); }}
+                    onFocus={event => { if (event.currentTarget.matches(':focus-visible')) hintRoute('/' + item.section); }}
                     onClick={() => handleNavClick(item.section)}
                     className="w4m-row"
                     data-testid={`button-nav-${item.section || 'home'}`}

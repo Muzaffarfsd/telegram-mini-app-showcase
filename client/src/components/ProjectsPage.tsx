@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { preloadDemo } from './demos/DemoRegistry';
+import { hintRoute } from '../lib/routeModules';
 import { ShowcaseArtwork } from './ShowcaseArtwork';
 import './ProjectsShowcase.css';
 
@@ -55,18 +55,19 @@ const ProjectCard = memo(function ProjectCard({ project, ru, first, onOpenDemo }
 }) {
   const index = ru ? 0 : 1;
   const title = project.title[index];
+  const hint = () => hintRoute(`/demos/${project.id}/app`);
   const action = ru ? 'Открыть демо' : 'Open demo';
   return <button type="button" className="ps-card" data-project={project.id}
     data-testid={`card-app-${project.id}`} aria-label={`${action}: ${title}`}
     onClick={() => onOpenDemo(project.id)}
-    onPointerEnter={event => { if (event.pointerType === 'mouse') preloadDemo(project.id); }}
-    onFocus={event => { if (event.currentTarget.matches(':focus-visible')) preloadDemo(project.id); }}>
+    onPointerEnter={event => { if (event.pointerType === 'mouse') hint(); }}
+    onFocus={event => { if (event.currentTarget.matches(':focus-visible')) hint(); }}>
     <span className="ps-copy">
       <strong className="ps-title">{title}</strong>
       <span className="ps-description">{project.description[index]}</span>
     </span>
     <ShowcaseArtwork id={project.id} first={first} />
-    <span className="ps-open" aria-hidden="true"><span>{action}</span><ArrowUpRight size={16} /></span>
+    <span className="ps-open" aria-hidden="true" onPointerDown={hint}><span>{action}</span><ArrowUpRight size={16} /></span>
   </button>;
 });
 

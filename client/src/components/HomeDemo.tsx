@@ -1,8 +1,8 @@
-import { backgroundPrefetchWait } from '../lib/interactionBudget';
+import { backgroundPrefetchWait, canSpeculate } from '../lib/interactionBudget';
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { useHaptic } from '../hooks/useHaptic';
-import { preloadDemo } from './demos/DemoRegistry';
+import { hintRoute } from '../lib/routeModules';
 import './HomeDemo.css';
 
 interface Props { ru: boolean; onOpenDemo: (id: string) => void }
@@ -101,7 +101,7 @@ export default function HomeDemo({ ru, onOpenDemo }: Props) {
       idle = undefined;
     };
     const warm = () => {
-      if (done || !visible || document.hidden) return;
+      if (done || !visible || !canSpeculate()) return;
       const wait = backgroundPrefetchWait();
       if (wait > 0 || target.matches(':active')) {
         schedule(Math.max(100, wait));
@@ -109,7 +109,7 @@ export default function HomeDemo({ ru, onOpenDemo }: Props) {
       }
       done = true;
       observer.disconnect();
-      preloadDemo(project.id);
+      hintRoute(`/demos/${project.id}/app`);
       const adjacent = new Image();
       adjacent.src = view === 'home' ? project.product : projects[(projectIndex + 1) % projects.length].home;
     };

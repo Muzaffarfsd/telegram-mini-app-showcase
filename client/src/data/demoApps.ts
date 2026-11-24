@@ -121,7 +121,7 @@ export const demoApps: DemoApp[] = [
     title: 'Магазин украшений',
     description: 'Демо магазина украшений: коллекция и оформление заказа',
     category: 'Электронная коммерция',
-    image: '/jewelry/tiffany-creative/t1-worn.png',
+    image: '/jewelry/tiffany-creative/t1-worn-display.webp',
     creator: 'WEB4TG',
     likes: '0',
     badge: 'Демо',

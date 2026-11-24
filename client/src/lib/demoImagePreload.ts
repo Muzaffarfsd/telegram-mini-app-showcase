@@ -5,7 +5,7 @@ import { warmImage } from './warmImage';
 const firstImages: Record<string, string> = {
   'muraka-fashion': '/muraka-fashion/transparent-v2/hero-jacket.webp',
   'women-fashion': '/women-fashion/hero.webp',
-  'jewelry-store': '/jewelry/tiffany-creative/t1-worn.png',
+  'jewelry-store': '/jewelry/tiffany-hero-candidates/hero-close-t1.webp',
   'nike-sneakers': '/royal-step/jordan-cutout.webp',
   'royal-step': '/royal-step/jordan-cutout.webp',
   'lumi-studio': '/lumi/generated/lumi-v4-hero.webp',

@@ -76,8 +76,23 @@ export function serveStatic(app: Express) {
     );
   }
 
-  // Serve static assets with aggressive caching
-  app.use('/assets', express.static(path.join(distPath, 'assets'), {
+  const assetsDir = path.join(distPath, 'assets');
+  const packed = new Set(fs.readdirSync(assetsDir).filter(name => /\.(?:css|js)\.(?:br|gz)$/.test(name)));
+  // Vite has already compressed the bundles. Serve those bytes directly
+  // instead of recompressing the same JavaScript on every cold request.
+  app.use('/assets', (req, res, next) => {
+    const name = req.path.slice(1);
+    if (!/^[\w.-]+\.(?:js|css)$/.test(name) || (req.method !== 'GET' && req.method !== 'HEAD')) return next();
+    res.vary('Accept-Encoding');
+    if (!req.get('Accept-Encoding') || req.get('Range') || req.get('x-no-compression')) return next();
+    const formats = ['br', 'gzip'].filter(enc => packed.has(name + (enc === 'br' ? '.br' : '.gz')));
+    const encoding = req.acceptsEncodings(...formats, 'identity');
+    if (encoding !== 'br' && encoding !== 'gzip') return next();
+    res.setHeader('Content-Encoding', encoding);
+    res.type(name.endsWith('.css') ? 'text/css' : 'application/javascript');
+    res.sendFile(name + (encoding === 'br' ? '.br' : '.gz'), { root: assetsDir, maxAge: '1y', immutable: true });
+  });
+  app.use('/assets', express.static(assetsDir, {
     maxAge: '1y', // 1 year for hashed assets
     immutable: true,
     etag: true,

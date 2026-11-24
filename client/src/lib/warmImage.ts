@@ -1,9 +1,12 @@
+import { canSpeculate } from './interactionBudget';
+
 // Start a small number of likely-needed images before a navigation completes.
 // The browser owns the HTTP/decoded cache; failed or evicted images can retry.
 const pending = new Map<string, HTMLImageElement>();
 
 export function warmImage(src: string | undefined, priority: 'high' | 'low' = 'low', responsive?: { srcSet: string; sizes: string }): void {
   if (!src || typeof window === 'undefined') return;
+  if (priority === 'low' && !canSpeculate()) return;
   const existing = pending.get(src);
   if (existing) {
     if (priority === 'high') existing.fetchPriority = 'high';

@@ -1,4 +1,5 @@
-import { useState, Suspense, useCallback, useEffect, useLayoutEffect, memo, useMemo, useRef } from "react";
+import { PageBoundary } from '@/utils/loadablePage';
+import { useState, useCallback, useEffect, useLayoutEffect, memo, useMemo, useRef } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,8 +12,15 @@ import UserAvatar from "./components/UserAvatar";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useRouting, navigate } from "./hooks/useRouting";
 import { afterScrollLayout } from "./lib/afterScrollLayout";
-import { warmDemoImage } from "./lib/demoImagePreload";
-import { backgroundPrefetchWait, pauseBackgroundPrefetch } from "./lib/interactionBudget";
+import {
+  ShowcasePage, PremiumAppsPage, ProjectsPage, AboutPage, DemoAppLanding, ConstructorPage,
+  ProfilePage, CheckoutPage, DemoAppShell, HelpPage, ReviewPage, AIAgentPage, PhotoGallery,
+  ReferralProgram, GamificationHub, EarningPage, NotificationsPage, AnalyticsPage, CoinShopPage,
+  hintRoute,
+} from "./lib/routeModules";
+import { RewardsProvider } from "./contexts/RewardsContext";
+import { XPNotificationProvider } from "./contexts/XPNotificationContext";
+import { backgroundPrefetchWait, canSpeculate, pauseBackgroundPrefetch } from "./lib/interactionBudget";
 import { isProfileRoute } from "./lib/profileRoutes";
 import { useScrollHaptic } from "./hooks/useScrollHaptic";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
@@ -34,30 +42,8 @@ const initSentry = () => {
   }
 };
 
-const LazyRewardsProvider = lazyWithRetry(() => import("./contexts/RewardsContext").then(m => ({ default: m.RewardsProvider })));
-const LazyXPNotificationProvider = lazyWithRetry(() => import("./contexts/XPNotificationContext").then(m => ({ default: m.XPNotificationProvider })));
-
-const ShowcasePage = lazyWithRetry(() => import("./components/ShowcasePage"));
-const PremiumAppsPage = lazyWithRetry(() => import("./components/PremiumAppsPage"));
-const ProjectsPage = lazyWithRetry(() => import("./components/ProjectsPage"));
-const AboutPage = lazyWithRetry(() => import("./components/AboutPage"));
-const DemoAppLanding = lazyWithRetry(() => import("./components/DemoAppLanding"));
-const ConstructorPage = lazyWithRetry(() => import("./components/OrderExperience"));
-const ProfilePage = lazyWithRetry(() => import("./components/ProfilePage"));
-const CheckoutPage = lazyWithRetry(() => import("./components/CheckoutPage"));
-const DemoAppShell = lazyWithRetry(() => import("./components/DemoAppShell"));
-const HelpPage = lazyWithRetry(() => import("./components/HelpPage"));
-const ReviewPage = lazyWithRetry(() => import("./components/ReviewPage"));
-const AIAgentPage = lazyWithRetry(() => import("./components/AIConsultantPage"));
 const AIProcessPage = AIAgentPage;
-const PhotoGallery = lazyWithRetry(() => import("./pages/PhotoGallery"));
 const NotFoundPage = lazyWithRetry(() => import("./pages/NotFound"));
-const ReferralProgram = lazyWithRetry(() => import("./components/ReferralProgram").then(m => ({ default: m.ReferralProgram })));
-const GamificationHub = lazyWithRetry(() => import("./components/GamificationHub").then(m => ({ default: m.GamificationHub })));
-const EarningPage = lazyWithRetry(() => import("./components/EarningPage").then(m => ({ default: m.EarningPage })));
-const NotificationsPage = lazyWithRetry(() => import("./pages/notifications"));
-const AnalyticsPage = lazyWithRetry(() => import("./pages/analytics"));
-const CoinShopPage = lazyWithRetry(() => import("./components/CoinShopPage"));
 
 import GlobalSidebar from "./components/GlobalSidebar";
 import { ProfileDetailSkeleton, ProfileSkeleton } from "./components/ProfileSkeleton";
@@ -69,101 +55,6 @@ import { ProjectsSkeleton } from "./components/ProjectsSkeleton";
 import { PageTransition } from "./components/PageTransition";
 const OfflineIndicator = lazyWithRetry(() => import("./components/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
 const AIAgentButton = lazyWithRetry(() => import("./components/AIAgent/AIAgentButton").then(m => ({ default: m.AIAgentButton })));
-
-let backgroundImportBusy = false;
-
-function isSlowNetwork(): boolean {
-  const conn = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
-  if (!conn) return false;
-  if (conn.saveData) return true;
-  const et = conn.effectiveType;
-  return et === 'slow-2g' || et === '2g' || et === '3g';
-}
-
-const prefetchAllRoutes = () => {
-  if (isSlowNetwork()) return;
-
-  const critical = [
-    () => import("./components/ShowcasePage"),
-    () => import("./components/ProjectsPage"),
-    () => import("./components/OrderExperience"),
-    () => import("./components/ProfilePage"),
-    () => import("./components/AIConsultantPage"),
-  ];
-  const secondary = [
-    () => import("./components/PremiumAppsPage"),
-    () => import("./components/AboutPage"),
-    () => import("./components/DemoAppLanding"),
-    () => import("./components/DemoAppShell"),
-    () => import("./components/HelpPage"),
-    () => import("./components/ReviewPage"),
-    () => import("./components/AIConsultantPage"),
-    () => import("./components/CoinShopPage"),
-    () => import("./components/ReferralProgram"),
-    () => import("./components/GamificationHub"),
-    () => import("./components/EarningPage"),
-    () => import("./pages/PhotoGallery"),
-    () => import("./pages/notifications"),
-    () => import("./pages/analytics"),
-  ];
-  const chunks = [...critical, ...secondary];
-  let i = 0;
-  const loadNext = () => {
-    if (i < chunks.length) {
-      if (isSlowNetwork()) return;
-      const wait = backgroundPrefetchWait();
-      if (wait > 0 || backgroundImportBusy) {
-        window.setTimeout(loadNext, Math.max(wait, 100));
-        return;
-      }
-      backgroundImportBusy = true;
-      chunks[i]().catch(() => {}).finally(() => {
-        backgroundImportBusy = false;
-        i++;
-        if ('requestIdleCallback' in window) {
-          (window as any).requestIdleCallback(loadNext, { timeout: 5000 });
-        } else {
-          setTimeout(loadNext, 100);
-        }
-      });
-    }
-  };
-  loadNext();
-};
-
-// Opening the menu is a strong signal that one of its destinations is next.
-// Start at idle, so parsing a page cannot stall the opening gesture itself.
-let menuPrefetchStarted = false;
-const prefetchMenuRoutes = () => {
-  if (menuPrefetchStarted || isSlowNetwork()) return;
-  menuPrefetchStarted = true;
-  const destinations = [
-    () => import('./components/ShowcasePage'),
-    () => import('./components/ProjectsPage'),
-    () => import('./components/OrderExperience'),
-    () => import('./components/AIConsultantPage'),
-    () => import('./components/AboutPage'),
-    () => import('./pages/analytics'),
-  ];
-  let next = 0;
-  const loadNext = () => {
-    const wait = backgroundPrefetchWait();
-    if (wait > 0 || backgroundImportBusy) {
-      window.setTimeout(loadNext, Math.max(wait, 100));
-      return;
-    }
-    const load = destinations[next++];
-    if (!load) return;
-    if (isSlowNetwork()) return;
-    backgroundImportBusy = true;
-    load().catch(() => {}).finally(() => { backgroundImportBusy = false; scheduleNext(); });
-  };
-  const scheduleNext = () => {
-    if ('requestIdleCallback' in window) window.requestIdleCallback(loadNext, { timeout: 1000 });
-    else window.setTimeout(loadNext, 50);
-  };
-  scheduleNext();
-};
 
 function MenuRouteSkeleton({ label }: { label: string }) {
   return <main role="status" aria-label={label} aria-busy="true" style={{ minHeight: '100dvh', background: '#fff', padding: 'calc(max(env(safe-area-inset-top, 0px), var(--csat, 0px), 12px) + 90px) 20px 80px' }}>
@@ -194,6 +85,7 @@ const LiquidGlassFilter = memo(() => (
 
 interface NavTabProps {
   onClick: () => void;
+  path: string;
   isActive: boolean;
   ariaLabel: string;
   testId: string;
@@ -201,7 +93,7 @@ interface NavTabProps {
   children: React.ReactNode;
 }
 
-const NavTab = memo(({ onClick, isActive, ariaLabel, testId, label, children }: NavTabProps) => (
+const NavTab = memo(({ onClick, path, isActive, ariaLabel, testId, label, children }: NavTabProps) => (
   <button
     type="button"
     className="relative z-30 flex items-center justify-center rounded-[14px] gpu-layer"
@@ -219,6 +111,9 @@ const NavTab = memo(({ onClick, isActive, ariaLabel, testId, label, children }: 
       WebkitTapHighlightColor: 'transparent',
     }}
     onClick={onClick}
+    onPointerDown={() => { if (!isActive) hintRoute(path); }}
+    onPointerEnter={event => { if (!isActive && event.pointerType === 'mouse') hintRoute(path); }}
+    onFocus={event => { if (!isActive && event.currentTarget.matches(':focus-visible')) hintRoute(path); }}
     aria-label={ariaLabel}
     aria-current={isActive ? 'page' : undefined}
     data-testid={testId}
@@ -296,6 +191,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
           />
 
           <NavTab
+            path="/"
             onClick={() => navAction('/')}
             isActive={route.component === 'showcase'}
             ariaLabel={language === 'ru' ? 'Главная' : 'Home'}
@@ -313,6 +209,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
           </NavTab>
           
           <NavTab
+            path="/ai-process"
             onClick={() => navAction('/ai-process')}
             isActive={isAI}
             ariaLabel={language === 'ru' ? 'ИИ агент' : 'AI Agent'}
@@ -330,6 +227,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
           </NavTab>
           
           <NavTab
+            path="/projects"
             onClick={() => navAction('/projects')}
             isActive={route.component === 'projects'}
             ariaLabel={language === 'ru' ? 'Проекты' : 'Projects'}
@@ -347,6 +245,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
           </NavTab>
           
           <NavTab
+            path="/constructor"
             onClick={() => navAction('/constructor')}
             isActive={route.component === 'constructor'}
             ariaLabel={language === 'ru' ? 'Заказать' : 'Order'}
@@ -364,6 +263,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
           </NavTab>
           
           <NavTab
+            path="/profile"
             onClick={() => navAction('/profile')}
             isActive={isProfile}
             ariaLabel={language === 'ru' ? 'Профиль' : 'Profile'}
@@ -470,9 +370,8 @@ function AppContent() {
   
   const { route } = useRouting();
   useLayoutEffect(() => {
-    if (route.component === 'demoApp') warmDemoImage(route.params?.id, 'high');
+    if (route.component === 'demoApp') pauseBackgroundPrefetch();
   }, [route.component, route.params?.id]);
-  const prefetchStarted = useRef(false);
   const demoReturnPath = useRef<'/' | '/projects'>('/');
   const projectsReturnScroll = useRef<number | null>(null);
   const pendingDemoHash = useRef<string | null>(null);
@@ -541,16 +440,26 @@ function AppContent() {
   }, []);
 
   useEffect(() => {
-    // A direct demo link needs its own content first, not every other app page.
-    if (prefetchStarted.current || route.component.includes('demo')) return;
-    const start = () => { if (!prefetchStarted.current) { prefetchStarted.current = true; prefetchAllRoutes(); } };
-    if ('requestIdleCallback' in window) {
-      const id = window.requestIdleCallback(start, { timeout: 3000 });
-      return () => window.cancelIdleCallback(id);
-    } else {
-      const id = window.setTimeout(start, 1000);
-      return () => window.clearTimeout(id);
-    }
+    // Only prepare the other showcase tab while the current page is settled.
+    const next = route.component === 'showcase' ? '/projects' : route.component === 'projects' ? '/' : null;
+    if (!next || !canSpeculate()) return;
+    let idle: number | undefined;
+    let timer: number;
+    const warm = () => {
+      if (!canSpeculate()) return;
+      const wait = backgroundPrefetchWait();
+      if (wait) timer = window.setTimeout(schedule, wait);
+      else hintRoute(next);
+    };
+    const schedule = () => {
+      if (window.requestIdleCallback) idle = window.requestIdleCallback(warm);
+      else warm();
+    };
+    timer = window.setTimeout(schedule, 1200);
+    return () => {
+      clearTimeout(timer);
+      if (idle !== undefined) window.cancelIdleCallback(idle);
+    };
   }, [route.component]);
 
   const handleNavigate = useCallback((section: string, data?: any) => {
@@ -564,7 +473,6 @@ function AppContent() {
   }, [hapticFeedback]);
 
   const handleOpenDemo = useCallback((demoId: string) => {
-    warmDemoImage(demoId, 'high');
     projectsReturnScroll.current = route.component === 'projects' ? document.getElementById('root')?.scrollTop ?? 0 : null;
     demoReturnPath.current = route.component === 'projects' ? '/projects' : '/';
     pendingDemoHash.current = `#/demos/${demoId}/app`;
@@ -646,9 +554,9 @@ function AppContent() {
     <>
       <TelegramButtonsSync routeComponent={route.component} />
       <LazyMotionProvider>
-        <Suspense fallback={route.component === 'showcase' ? <StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} /> : route.component.includes('demo') ? <DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} /> : <div style={{minHeight:'1px'}} />}>
-          <LazyRewardsProvider>
-            <LazyXPNotificationProvider>
+        <PageBoundary fallback={route.component === 'showcase' ? <StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} /> : route.component.includes('demo') ? <DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} /> : <div style={{minHeight:'1px'}} />}>
+          <RewardsProvider>
+            <XPNotificationProvider>
               <div className={route.component === 'projects' ? 'relative' : 'relative min-h-screen'}>
                 <div className="floating-elements"></div>
                 
@@ -657,7 +565,6 @@ function AppContent() {
                     <GlobalSidebar 
                       currentRoute={isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore ? 'showcase' : route.component}
                       onNavigate={handleNavigate}
-                      onOpen={prefetchMenuRoutes}
                       user={user}
                     />
                   </ErrorBoundary>
@@ -666,43 +573,43 @@ function AppContent() {
                 <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={route.component.includes('demo') || route.component === 'projects' ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'constructor', 'aiProcess', 'aiAgent', 'about', 'analytics'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
                   {(visitedTabs.has('showcase') || route.component === 'showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
-                      <Suspense fallback={<StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} />}>
+                      <PageBoundary fallback={<StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} />}>
                         <ShowcasePage onOpenDemo={handleOpenDemo} onNavigate={handleNavigate} />
-                      </Suspense>
+                      </PageBoundary>
                     </div>
                   )}
                   {(visitedTabs.has('projects') || route.component === 'projects') && (
                     <div style={{ display: route.component === 'projects' ? 'block' : 'none' }}>
-                      <Suspense fallback={<ProjectsSkeleton label={language === 'ru' ? 'Загрузка витрины приложений' : 'Loading app showcase'} />}>
+                      <PageBoundary fallback={<ProjectsSkeleton label={language === 'ru' ? 'Загрузка витрины приложений' : 'Loading app showcase'} />}>
                         <ProjectsPage onNavigate={handleNavigate} onOpenDemo={handleOpenDemo} />
-                      </Suspense>
+                      </PageBoundary>
                     </div>
                   )}
                   {(visitedTabs.has('aiProcess') || route.component === 'aiProcess') && (
                     <div style={{ display: route.component === 'aiProcess' ? 'block' : 'none' }}>
-                      <Suspense fallback={<AIConsultantSkeleton label={language === 'ru' ? 'Загрузка страницы консультанта' : 'Loading consultant page'} />}>
+                      <PageBoundary fallback={<AIConsultantSkeleton label={language === 'ru' ? 'Загрузка страницы консультанта' : 'Loading consultant page'} />}>
                         <AIProcessPage onNavigate={handleNavigate} />
-                      </Suspense>
+                      </PageBoundary>
                     </div>
                   )}
                   {(visitedTabs.has('constructor') || route.component === 'constructor') && (
                     <div style={{ display: route.component === 'constructor' ? 'block' : 'none' }}>
-                      <Suspense fallback={<OrderSkeleton label={language === 'ru' ? 'Загрузка страницы заказа' : 'Loading order page'} />}>
+                      <PageBoundary fallback={<OrderSkeleton label={language === 'ru' ? 'Загрузка страницы заказа' : 'Loading order page'} />}>
                         <ConstructorPage onNavigate={handleNavigate} />
-                      </Suspense>
+                      </PageBoundary>
                     </div>
                   )}
                   {(visitedTabs.has('profile') || route.component === 'profile') && (
                     <div style={{ display: route.component === 'profile' ? 'block' : 'none' }}>
-                      <Suspense fallback={<ProfileSkeleton label={language === 'ru' ? 'Загрузка профиля' : 'Loading profile'} />}>
+                      <PageBoundary fallback={<ProfileSkeleton label={language === 'ru' ? 'Загрузка профиля' : 'Loading profile'} />}>
                         <ProfilePage onNavigate={handleNavigate} active={route.component === 'profile'} />
-                      </Suspense>
+                      </PageBoundary>
                     </div>
                   )}
                   {!isCachedTab && (
                     <PageTransition routeKey={`${route.component}-${route.params?.id || ''}`}>
                       <ErrorBoundary>
-                        <Suspense fallback={route.component.includes('demo') ? <DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} /> : isProfile ? <ProfileDetailSkeleton label={language === 'ru' ? 'Загрузка страницы профиля' : 'Loading profile page'} /> : route.component === 'aiAgent' ? <AIConsultantSkeleton label={language === 'ru' ? 'Загрузка страницы консультанта' : 'Loading consultant page'} /> : <MenuRouteSkeleton label={language === 'ru' ? 'Загрузка страницы' : 'Loading page'} />}>
+                        <PageBoundary fallback={route.component.includes('demo') ? <DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} /> : isProfile ? <ProfileDetailSkeleton label={language === 'ru' ? 'Загрузка страницы профиля' : 'Loading profile page'} /> : route.component === 'aiAgent' ? <AIConsultantSkeleton label={language === 'ru' ? 'Загрузка страницы консультанта' : 'Loading consultant page'} /> : <MenuRouteSkeleton label={language === 'ru' ? 'Загрузка страницы' : 'Loading page'} />}>
                           <NonCachedRoute
                             route={route}
                             handleNavigate={handleNavigate}
@@ -711,7 +618,7 @@ function AppContent() {
                             handlePaymentSuccess={handlePaymentSuccess}
                             orderData={orderData}
                           />
-                        </Suspense>
+                        </PageBoundary>
                       </ErrorBoundary>
                     </PageTransition>
                   )}
@@ -736,18 +643,18 @@ function AppContent() {
               <Toaster />
               
               {(shouldShowBottomNav || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore) && route.component !== 'aiProcess' && route.component !== 'aiAgent' && (
-                <Suspense fallback={null}>
-                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : route.component === 'projects' || route.component === 'about' ? 'projects-ai-surface' : route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore ? 'home-ai-surface' : undefined}><AIAgentButton profileMode={isProfile || route.component === 'constructor' || route.component === 'projects' || route.component === 'about' || route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore} /></div>
-                </Suspense>
+                <PageBoundary fallback={null}>
+                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : route.component === 'projects' || route.component === 'about' ? 'projects-ai-surface' : route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore ? 'home-ai-surface' : undefined}><AIAgentButton route={route} profileMode={isProfile || route.component === 'constructor' || route.component === 'projects' || route.component === 'about' || route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore} /></div>
+                </PageBoundary>
               )}
 
-              <Suspense fallback={null}>
+              <PageBoundary fallback={null}>
                 <OfflineIndicator />
-              </Suspense>
+              </PageBoundary>
 
-            </LazyXPNotificationProvider>
-          </LazyRewardsProvider>
-        </Suspense>
+            </XPNotificationProvider>
+          </RewardsProvider>
+        </PageBoundary>
       </LazyMotionProvider>
     </>
   );

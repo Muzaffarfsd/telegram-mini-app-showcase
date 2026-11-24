@@ -2,15 +2,17 @@ import { createRoot } from "react-dom/client";
 import { importWithRecovery } from "./utils/lazyWithRecovery";
 import { initializeDemoShareStart } from './lib/demoShareStart';
 
+import { warmRoute } from './lib/routeModules';
 import "./index.css";
 
 initializeDemoShareStart();
 const root = createRoot(document.getElementById("root")!);
-void import("./lib/cleanupRetiredDemos")
-  .then(({ cleanupRetiredDemos }) => cleanupRetiredDemos())
-  .catch(() => {})
-  .then(() => importWithRecovery(() => import("./App")))
-  .then(({ default: App }) => root.render(<App />))
+warmRoute(window.location.hash.slice(1), 'high');
+// Keep storage migration ahead of consumers, but overlap its I/O with code loading.
+void Promise.all([
+  importWithRecovery(() => import("./App")),
+  import("./lib/cleanupRetiredDemos").then(m => m.cleanupRetiredDemos()).catch(() => {}),
+]).then(([{ default: App }]) => root.render(<App />))
   .catch((error) => {
     console.error('Failed to start app:', error);
     root.render(<main role="alert" style={{ minHeight: '100dvh', display: 'grid', placeContent: 'center', gap: 16, background: '#fff', color: '#171717', textAlign: 'center', padding: 24 }}>

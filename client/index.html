@@ -65,12 +65,6 @@
         image.setAttribute('imagesrcset', '/apple-store/generated/sizes/hero-iphone18-promax-burgundy-reference-v1-160.webp 160w, /apple-store/generated/sizes/hero-iphone18-promax-burgundy-reference-v1-480.webp 480w, /apple-store/generated/hero-iphone18-promax-burgundy-reference-v1.webp 940w');
         image.setAttribute('imagesizes', '(max-width: 448px) 55vw, 220px');
         document.head.appendChild(image);
-      } else {
-        ['/fonts/Stengazeta.ttf', '/fonts/Onder-Regular.ttf'].forEach(function (href) {
-          var font = document.createElement('link');
-          font.rel = 'preload'; font.href = href; font.as = 'font'; font.type = 'font/ttf'; font.crossOrigin = 'anonymous';
-          document.head.appendChild(font);
-        });
       }
     })();
   </script>

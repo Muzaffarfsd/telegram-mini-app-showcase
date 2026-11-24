@@ -77,8 +77,8 @@ async function navigation(event) {
     const response = await event.preloadResponse || await fetch(event.request);
     // Store only the shared shell key, never Telegram launch parameters in URLs.
     if (response.ok) {
-      const cache = await caches.open(STATIC_CACHE);
-      await cache.put('/', response.clone());
+      const copy = response.clone();
+      event.waitUntil(caches.open(STATIC_CACHE).then(cache => cache.put('/', copy)).catch(() => {}));
     }
     return response;
   } catch {
@@ -87,15 +87,20 @@ async function navigation(event) {
   }
 }
 
-async function publicAsset(request) {
-  const cache = await caches.open(ASSET_CACHE);
-  const cached = await cache.match(request);
+async function publicAsset(request, event) {
+  const cache = await caches.open(ASSET_CACHE).catch(() => null);
+  if (!cache) return fetch(request);
+  const cached = await cache.match(request).catch(() => undefined);
   if (cached) return cached;
   const response = await fetch(request);
   if (response.ok && response.type !== 'opaque' && !/no-store|private/i.test(response.headers.get('cache-control') || '')) {
-    await cache.put(request, response.clone());
-    const keys = await cache.keys();
-    await Promise.all(keys.slice(0, Math.max(0, keys.length - MAX_ASSETS)).map(key => cache.delete(key)));
+    const write = cache.put(request, response.clone()).then(async () => {
+      const keys = await cache.keys();
+      await Promise.all(keys.slice(0, Math.max(0, keys.length - MAX_ASSETS)).map(key => cache.delete(key)));
+    }).catch(() => {});
+    // Stream the network response to the page while the worker persists its copy.
+    if (event) event.waitUntil(write);
+    else await write;
   }
   return response;
 }
@@ -111,7 +116,7 @@ self.addEventListener('fetch', event => {
     if (!['/', '/index.html'].includes(url.pathname)) return;
     event.respondWith(navigation(event));
   } else if (isPublicAsset(url)) {
-    event.respondWith(publicAsset(request));
+    event.respondWith(publicAsset(request, event));
   }
 });
 

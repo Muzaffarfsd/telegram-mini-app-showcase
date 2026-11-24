@@ -1,7 +1,8 @@
 // Dynamic demo registry for lazy loading
 import { ComponentType } from 'react';
-import { lazyWithRecovery as lazy } from '../../utils/lazyWithRecovery';
+import { loadablePage } from '../../utils/loadablePage';
 import { warmDemoImage } from '../../lib/demoImagePreload';
+import { canSpeculate } from '../../lib/interactionBudget';
 
 // Type for demo components
 export interface DemoComponent {
@@ -10,82 +11,63 @@ export interface DemoComponent {
 }
 
 // Demo registry with lazy loading
-export const demoRegistry: Record<string, DemoComponent> = {
+const loaders = {
   'flower-store': {
-    component: lazy(() => import('./FlowerStore')),
-    preload: () => import('./FlowerStore')
+    load: () => import('./FlowerStore')
   },
   'china-buyer': {
-    component: lazy(() => import('./ChinaBuyer')),
-    preload: () => import('./ChinaBuyer')
+    load: () => import('./ChinaBuyer')
   },
   'medical-center': {
-    component: lazy(() => import('./MedicalCenter')),
-    preload: () => import('./MedicalCenter')
+    load: () => import('./MedicalCenter')
   },
   'lumi-studio': {
-    component: lazy(() => import('./LumiStudio')),
-    preload: () => import('./LumiStudio')
+    load: () => import('./LumiStudio')
   },
   'opt-market': {
-    component: lazy(() => import('./OptMarket')),
-    preload: () => import('./OptMarket')
+    load: () => import('./OptMarket')
   },
   'apple-store': {
-    component: lazy(() => import('./AppleStore')),
-    preload: () => import('./AppleStore')
+    load: () => import('./AppleStore')
   },
   'muraka-fashion': {
-    component: lazy(() => import('./MurakaFashion')),
-    preload: () => import('./MurakaFashion')
+    load: () => import('./MurakaFashion')
   },
   'jewelry-store': {
-    component: lazy(() => import('./JewelryStore')),
-    preload: () => import('./JewelryStore')
+    load: () => import('./JewelryStore')
   },
   'women-fashion': {
-    component: lazy(() => import('./WomenFashion')),
-    preload: () => import('./WomenFashion')
+    load: () => import('./WomenFashion')
   },
   'nike-sneakers': {
-    component: lazy(() => import('./RoyalStep')),
-    preload: () => import('./RoyalStep')
+    load: () => import('./RoyalStep')
   },
   'royal-step': {
-    component: lazy(() => import('./RoyalStep')),
-    preload: () => import('./RoyalStep')
+    load: () => import('./RoyalStep')
   },
   'fitness': {
-    component: lazy(() => import('./Fitness')),
-    preload: () => import('./Fitness')
+    load: () => import('./Fitness')
   },
   'banking': {
-    component: lazy(() => import('./Banking')),
-    preload: () => import('./Banking')
+    load: () => import('./Banking')
   },
   'bookstore': {
-    component: lazy(() => import('./Bookstore')),
-    preload: () => import('./Bookstore')
+    load: () => import('./Bookstore')
   },
   'car-rental': {
-    component: lazy(() => import('./CarRental')),
-    preload: () => import('./CarRental')
+    load: () => import('./CarRental')
   },
   'taxi': {
-    component: lazy(() => import('./Taxi')),
-    preload: () => import('./Taxi')
+    load: () => import('./Taxi')
   },
   'medical': {
-    component: lazy(() => import('./Medical')),
-    preload: () => import('./Medical')
+    load: () => import('./Medical')
   },
   'courses': {
-    component: lazy(() => import('./Courses')),
-    preload: () => import('./Courses')
+    load: () => import('./Courses')
   },
   'car-wash': {
-    component: lazy(() => import('./CarWash')),
-    preload: () => import('./CarWash')
+    load: () => import('./CarWash')
   },
   
   // Aliases for compatibility with demoApps.ts IDs
@@ -94,42 +76,29 @@ export const demoRegistry: Record<string, DemoComponent> = {
   
   // Premium Design Collection - New Apps
   'oxyz-nft': {
-    component: lazy(() => import('./OxyzNFT')),
-    preload: () => import('./OxyzNFT')
+    load: () => import('./OxyzNFT')
   },
   'skincare-aura': {
-    component: lazy(() => import('./SkincareStore')),
-    preload: () => import('./SkincareStore')
+    load: () => import('./SkincareStore')
   },
   'emily-carter-ai': {
-    component: lazy(() => import('./EmilyCarterAI')),
-    preload: () => import('./EmilyCarterAI')
+    load: () => import('./EmilyCarterAI')
   },
 };
 
-const preloadedSet = new Set<string>();
+export const demoRegistry: Record<string, DemoComponent> = Object.fromEntries(
+  Object.entries(loaders).map(([id, { load }]) => {
+    const component = loadablePage<ComponentType<any>>(load);
+    return [id, { component, preload: component.preload }];
+  })
+);
 
 export const preloadCriticalDemos = () => {
-  const criticalDemos = ['flower-store', 'lumi-studio', 'apple-store'];
-  
-  criticalDemos.forEach((demoId, index) => {
-    const demo = demoRegistry[demoId];
-    if (demo?.preload && !preloadedSet.has(demoId)) {
-      const itemDelay = index * 300;
-      const doPreload = () => {
-        setTimeout(() => {
-          if (!preloadedSet.has(demoId)) {
-            preloadedSet.add(demoId);
-            demo.preload!().catch(() => {});
-          }
-        }, itemDelay);
-      };
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(doPreload, { timeout: 5000 });
-      } else {
-        setTimeout(doPreload, 1000 + itemDelay);
-      }
-    }
+  if (!canSpeculate()) return;
+  ['flower-store', 'lumi-studio', 'apple-store'].forEach((id, index) => {
+    const warm = () => { if (canSpeculate()) void demoRegistry[id].preload?.().catch(() => {}); };
+    if ('requestIdleCallback' in window) requestIdleCallback(() => setTimeout(warm, index * 300), { timeout: 5000 });
+    else setTimeout(warm, 1000 + index * 300);
   });
 };
 
@@ -141,17 +110,12 @@ export const getDemoComponent = (demoId: string): ComponentType<any> | null => {
 
 // Check if demo exists
 export const isDemoAvailable = (demoId: string): boolean => {
-  return demoId in demoRegistry;
+  return Object.hasOwn(demoRegistry, demoId);
 };
 
-export const preloadDemo = (demoId: string): void => {
-  warmDemoImage(demoId);
-  if (preloadedSet.has(demoId)) return;
-  const demo = demoRegistry[demoId];
-  if (demo?.preload) {
-    preloadedSet.add(demoId);
-    demo.preload().catch(() => {
-      preloadedSet.delete(demoId);
-    });
-  }
-};
+export function preloadDemo(id: string, priority: 'high' | 'low' = 'low'): void {
+  const key = Object.hasOwn(demoRegistry, id) ? id : id.replace(/-\d+$/, '');
+  if (!Object.hasOwn(demoRegistry, key)) return;
+  warmDemoImage(key, priority);
+  void demoRegistry[key].preload?.().catch(() => {});
+}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
+import { warmRoute } from '../lib/routeModules';
 import { scrollToTop } from './useScrollToTop';
 import { trackPageView } from '../utils/vitals';
 import { applyLightDestinationTelegramChrome, isLightDestinationHash } from '../lib/telegramChrome';
@@ -52,6 +53,7 @@ function parseHash(): Route {
 }
 
 export function navigate(path: string): void {
+  warmRoute(path, 'high');
   window.location.hash = path;
   document.documentElement.classList.toggle('light-route-transition', isLightDestinationHash());
   applyLightDestinationTelegramChrome();
@@ -69,6 +71,7 @@ export function useRouting() {
   useEffect(() => {
     const handleHashChange = () => {
       const next = parseHash();
+      warmRoute(window.location.hash.slice(1), 'high');
       document.documentElement.classList.toggle('light-route-transition', isLightDestinationHash());
       applyLightDestinationTelegramChrome();
       // Reset the old shell before React mounts and lays out the destination.

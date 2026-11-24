@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, memo, lazy, Suspense, useMemo, useCallback } from "react";
 import { AnimatePresence, m } from "@/utils/LazyMotionProvider";
 import { useTelegram } from "@/hooks/useTelegram";
-import { useRouting, navigate } from "@/hooks/useRouting";
+import { type Route, navigate } from "@/hooks/useRouting";
 import { AI_DEMO_MODE, type PageContext } from "@/hooks/useAIAgent";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAIInteractions, useSwipeGesture } from "@/hooks/useAIInteractions";
@@ -107,7 +107,7 @@ const GLASS = {
 
 
 
-export const AIAgentButton = memo(({ profileMode = false }: { profileMode?: boolean }) => {
+export const AIAgentButton = memo(({ route, profileMode = false }: { route: Route; profileMode?: boolean }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasOpened, setHasOpened] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -118,7 +118,6 @@ export const AIAgentButton = memo(({ profileMode = false }: { profileMode?: bool
   const [tourActive, setTourActive] = useState(false);
   const [showSessionSummary, setShowSessionSummary] = useState(false);
   const { hapticFeedback } = useTelegram();
-  const { route } = useRouting();
   const { language } = useLanguage();
   const fabRef = useRef<HTMLButtonElement | null>(null);
   const proactiveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);

@@ -1,4 +1,5 @@
-import { useState, Suspense, memo, useEffect, useCallback, useMemo, useRef } from "react";
+import { PageBoundary } from '@/utils/loadablePage';
+import { useState, memo, useEffect, useCallback, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Home, Grid3X3, ShoppingCart, User } from "lucide-react";
 import { demoApps } from "../data/demoApps";
@@ -253,9 +254,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   if (demoId === 'flower-store') {
     const FlowerStore = getDemoComponent(demoId);
     return <div style={{ background: '#fff', minHeight: '100vh' }}>
-      <Suspense fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
+      <PageBoundary fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
         {FlowerStore && <FlowerStore onClose={onClose} />}
-      </Suspense>
+      </PageBoundary>
     </div>;
   }
 
@@ -263,9 +264,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   if (demoId === 'china-buyer') {
     const ChinaBuyer = getDemoComponent(demoId);
     return <div style={{ background: '#fff', minHeight: '100vh' }}>
-      <Suspense fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
+      <PageBoundary fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
         {ChinaBuyer && <ChinaBuyer onClose={onClose} />}
-      </Suspense>
+      </PageBoundary>
     </div>;
   }
 
@@ -273,9 +274,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   if (demoId === 'medical-center') {
     const MedicalCenter = getDemoComponent(demoId);
     return <div style={{ background: '#fff', minHeight: '100vh' }}>
-      <Suspense fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
+      <PageBoundary fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
         {MedicalCenter && <MedicalCenter onClose={onClose} />}
-      </Suspense>
+      </PageBoundary>
     </div>;
   }
 
@@ -283,9 +284,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   if (demoId === 'lumi-studio') {
     const LumiStudio = getDemoComponent(demoId);
     return <div style={{ background: '#fff', minHeight: '100vh' }}>
-      <Suspense fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
+      <PageBoundary fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
         {LumiStudio && <LumiStudio onClose={onClose} />}
-      </Suspense>
+      </PageBoundary>
     </div>;
   }
 
@@ -293,9 +294,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   if (demoId === 'opt-market') {
     const OptMarket = getDemoComponent(demoId);
     return <div style={{ background: '#fff', minHeight: '100vh' }}>
-      <Suspense fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
+      <PageBoundary fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
         {OptMarket && <OptMarket onClose={onClose} />}
-      </Suspense>
+      </PageBoundary>
     </div>;
   }
 
@@ -303,9 +304,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   if (demoId === 'apple-store') {
     const AppleStore = getDemoComponent(demoId);
     return <div style={{ background: '#fff', minHeight: '100vh' }}>
-      <Suspense fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
+      <PageBoundary fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
         {AppleStore && <AppleStore onClose={onClose} />}
-      </Suspense>
+      </PageBoundary>
     </div>;
   }
 
@@ -313,9 +314,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   if (demoId === 'muraka-fashion') {
     const MurakaFashion = getDemoComponent(demoId);
     return <div style={{ background: '#fff', minHeight: '100vh' }}>
-      <Suspense fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
+      <PageBoundary fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
         {MurakaFashion && <MurakaFashion onClose={onClose} />}
-      </Suspense>
+      </PageBoundary>
     </div>;
   }
 
@@ -323,9 +324,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   if (demoId === 'jewelry-store') {
     const JewelryStore = getDemoComponent(demoId);
     return <div style={{ background: '#fff', minHeight: '100vh' }}>
-      <Suspense fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
+      <PageBoundary fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
         {JewelryStore && <JewelryStore onClose={onClose} />}
-      </Suspense>
+      </PageBoundary>
     </div>;
   }
 
@@ -333,9 +334,9 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   if (demoId === 'women-fashion') {
     const WomenFashion = getDemoComponent(demoId);
     return <div style={{ background: '#fff', minHeight: '100vh' }}>
-      <Suspense fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
+      <PageBoundary fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
         {WomenFashion && <WomenFashion onClose={onClose} />}
-      </Suspense>
+      </PageBoundary>
     </div>;
   }
 
@@ -344,14 +345,14 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   if (demoId === 'royal-step' || demoId === 'nike-sneakers') {
     const RoyalStep = getDemoComponent(demoId);
     return <div style={{ background: '#fff', minHeight: '100vh' }}>
-      <Suspense fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
+      <PageBoundary fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
         {RoyalStep && <RoyalStep onClose={onClose} />}
-      </Suspense>
+      </PageBoundary>
     </div>;
   }
 
   return (
-    <Suspense fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
+    <PageBoundary fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>
     <>
       {/* Fixed background layer - covers entire viewport including bottom edge */}
       <div className="fixed inset-0 -z-10" style={{ backgroundColor: theme.background }} />
@@ -525,7 +526,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
         document.body
       )}
     </>
-    </Suspense>
+    </PageBoundary>
   );
 });
 
