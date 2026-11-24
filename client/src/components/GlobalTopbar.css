@@ -1,0 +1,50 @@
+.w4-topbar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 90;
+  padding-top: max(env(safe-area-inset-top, 0px), var(--csat, 0px), 12px);
+  border-bottom: 1px solid transparent;
+}
+
+/* Only the backdrop fades. The logo, controls and first line below stay sharp. */
+.w4-topbar::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -1px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, #fff 0%, rgba(255,255,255,.96) 58%, rgba(255,255,255,.86) 72%, transparent 100%);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) and ((mask-image: linear-gradient(black, transparent)) or (-webkit-mask-image: linear-gradient(black, transparent))) {
+  .w4-topbar::before {
+    --topbar-fade: linear-gradient(to bottom, black 0%, black 55%, rgba(0,0,0,.87) 69%, rgba(0,0,0,.42) 85%, transparent 100%);
+    --topbar-blur: 14px;
+    background: linear-gradient(to bottom, rgba(255,255,255,.76), rgba(255,255,255,.52) 60%, rgba(255,255,255,.12));
+    -webkit-backdrop-filter: blur(var(--topbar-blur));
+    backdrop-filter: blur(var(--topbar-blur));
+    -webkit-mask-image: var(--topbar-fade);
+    mask-image: var(--topbar-fade);
+  }
+  html.low-performance .w4-topbar::before { --topbar-blur: 7px; }
+}
+
+html .w4-topbar .hb-btn {
+  border-radius: 50%;
+  border-color: rgba(36,36,40,.14);
+  background: linear-gradient(150deg, rgba(255,255,255,.76), rgba(242,242,242,.48));
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.82), 0 1px 3px rgba(0,0,0,.06);
+}
+.w4-topbar .hb-line { background: #242428; }
+
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  .w4-topbar { background: Canvas; }
+  .w4-topbar::before { content: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .w4-topbar { background: #fff; }
+  html .w4-topbar .hb-btn { background: #f1f1f1; }
+}
+@media (forced-colors: active) {
+  html .w4-topbar .hb-btn { border-color: ButtonText; background: ButtonFace; }
+  .w4-topbar .hb-line { forced-color-adjust: none; background: ButtonText; }
+}

@@ -7,6 +7,7 @@ import UserAvatar from "./UserAvatar";
 import { useLanguage } from "../contexts/LanguageContext";
 import { isProfileRoute } from "../lib/profileRoutes";
 import { BrandMark } from "./BrandMark";
+import './GlobalTopbar.css';
 import { hintRoute } from '@/lib/routeModules';
 import { pauseBackgroundPrefetch } from "@/lib/interactionBudget";
 
@@ -322,17 +323,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         .w4m-panel button.hb-btn.open{background:#111;color:#fff;border:0;border-radius:50%;}
 
         /* ── top bar ── */
-        .w4-topbar{
-          position:fixed;top:0;left:0;right:0;z-index:90;
-          background:rgba(255,255,255,0.88);
-          backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-          border-bottom:1px solid rgba(0,0,0,0.04);
-          padding-top:max(env(safe-area-inset-top,0px),var(--csat,0px),12px);
-        }
-        .w4-topbar .hb-btn{background:rgba(237,239,243,.72);border-color:rgba(255,255,255,.95);border-radius:50%;}
-        .w4-topbar .hb-line{background:#242428;}
         .w4-topbar .profile-brand{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transform:none!important;pointer-events:none;}
-        html.light .w4-topbar{background:rgba(250,250,252,0.8);border-bottom-color:rgba(0,0,0,0.07);}
 
         @media (prefers-reduced-motion:reduce){
           .hb-btn,.hb-line,.w4m-overlay,.w4m-panel,.w4m-row,.w4m-cta,.w4m-soc,.w4m-tap{

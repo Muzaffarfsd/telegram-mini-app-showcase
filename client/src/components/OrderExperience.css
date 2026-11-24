@@ -177,9 +177,7 @@
 @media (max-width: 340px) { .order-page { padding-left: 15px; padding-right: 15px; }.order-template { min-height: 208px; padding-left: 18px; }.order-showcase-card { min-height: 232px; }.order-template-copy strong { font-size: 18px; }.order-template-action { left: 18px; }.order-feature-price { font-size: 11px; } }
 @media (prefers-reduced-motion: reduce) { .order-page *, .order-page *::before, .order-page *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 
-.w4-topbar.order-topbar { background: rgba(255,255,255,.88) !important; border-bottom-color: transparent !important; backdrop-filter: blur(20px) !important; -webkit-backdrop-filter: blur(20px) !important; }
 .order-topbar .profile-brand { left: 0 !important; right: 0; top: 0 !important; height: 100%; display: flex; align-items: center; justify-content: center; transform: none !important; pointer-events: none; }
-.order-topbar .hb-btn { background: rgba(237,239,243,.72) !important; border: 1px solid rgba(255,255,255,.95); border-radius: 50%; box-shadow: 0 4px 14px rgba(55,45,60,.08), inset 0 1px 0 rgba(255,255,255,.9); }
 .order-topbar .hb-line { background: #242428 !important; }
 nav.order-nav[role="navigation"] { background: rgba(255,255,255,.48) !important; border: 1px solid rgba(255,255,255,.78); box-shadow: 0 5px 18px rgba(25,25,30,.13), inset 0 1px 0 rgba(255,255,255,.7) !important; }
 .order-nav > div:first-child { background: transparent !important; backdrop-filter: blur(24px) saturate(1.1) !important; -webkit-backdrop-filter: blur(24px) saturate(1.1) !important; }
@@ -191,7 +189,7 @@ nav.order-nav[role="navigation"] { background: rgba(255,255,255,.48) !important;
 .order-ai-surface .alex-fab-breathing::after { content: 'AI'; position: absolute; color: #303036; font-family: 'Google Sans App', sans-serif; font-size: 13px; font-weight: 700; }
 .order-ai-surface .alex-fab-breathing[aria-label="Close menu"]::after { content: '×'; font-size: 24px; font-weight: 400; }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { nav.order-nav[role="navigation"] { background: rgba(255,255,255,.96) !important; } }
-@media (prefers-reduced-transparency: reduce) { .w4-topbar.order-topbar, nav.order-nav[role="navigation"] { background: #fff !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; } }
+@media (prefers-reduced-transparency: reduce) { nav.order-nav[role="navigation"] { background: #fff !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; } }
 
 .order-loading-heading { display: grid; justify-items: center; padding-top: 14px; }
 .order-loading-step { width: 66px; height: 10px; border-radius: 6px; }

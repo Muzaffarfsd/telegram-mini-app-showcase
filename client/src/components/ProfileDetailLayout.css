@@ -998,13 +998,6 @@ html.profile-detail-theme [data-scroll='main'] {
   background: #fff !important;
 }
 
-html.profile-detail-theme .w4-topbar {
-  background: rgba(255, 255, 255, 0.82) !important;
-  border-bottom-color: transparent;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-}
-
 html.profile-detail-theme .w4-topbar .profile-brand {
   left: 0 !important;
   right: 0;
@@ -1015,13 +1008,6 @@ html.profile-detail-theme .w4-topbar .profile-brand {
   justify-content: center;
   transform: none !important;
   pointer-events: none;
-}
-
-html.profile-detail-theme .w4-topbar .hb-btn {
-  background: rgba(237, 239, 243, 0.72) !important;
-  border: 1px solid rgba(255, 255, 255, 0.95);
-  border-radius: 50%;
-  box-shadow: 0 4px 14px rgba(55, 45, 60, 0.08);
 }
 
 html.profile-detail-theme .w4-topbar .hb-line {
@@ -1117,7 +1103,6 @@ html.profile-detail-theme .alex-fab-breathing[aria-label='Close menu']::after {
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  html.profile-detail-theme .w4-topbar,
   html.profile-detail-theme nav[role='navigation'] {
     background: #fff !important;
     backdrop-filter: none !important;

@@ -19,12 +19,6 @@ html.projects-route-theme .projects-dock {
   transition: none;
 }
 html.projects-route-theme nav.projects-nav { height: var(--projects-tab-height); pointer-events: auto; }
-html.projects-route-theme .w4-topbar {
-  background: #fff !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border-bottom-color: rgba(37, 39, 42, .06) !important;
-}
 nav.projects-nav[role="navigation"] {
   width: min(100%, 356px) !important;
   min-width: 0 !important;
@@ -63,6 +57,6 @@ html.projects-route-theme .projects-nav > div:first-child {
   nav.projects-nav[role="navigation"] { background: #fafafa !important; }
 }
 @media (prefers-reduced-transparency: reduce) {
-  nav.projects-nav[role="navigation"], html.projects-route-theme .w4-topbar { background: #fff !important; }
+  nav.projects-nav[role="navigation"] { background: #fff !important; }
   .projects-nav > div:first-child { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
 }

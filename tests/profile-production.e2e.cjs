@@ -39,7 +39,12 @@ async function assertDrawnIcon(locator, label) {
       const navShadow = await nav.evaluate(e => getComputedStyle(e).boxShadow);
       assert.ok(!navShadow.includes('0.4)'), `mobile dark shadow overrode profile design: ${navShadow}`);
       const header = page.locator('.profile-topbar');
-      assert.match(await header.evaluate(e => getComputedStyle(e).backdropFilter), /blur/, 'profile header should be glass');
+      const glass = await header.evaluate(e => {
+        const style = getComputedStyle(e, '::before');
+        return [style.backdropFilter, style.maskImage];
+      });
+      assert.match(glass[0], /blur/, 'the shared header blurs the page behind the controls');
+      assert.match(glass[1], /linear-gradient/, 'the blur fades at the bottom edge');
       const mark = header.getByTestId('header-brand-mark');
       assert.equal(await mark.getAttribute('aria-label'), 'WEB4TG');
       assert.equal(await mark.locator('rect').getAttribute('fill'), '#000000');
