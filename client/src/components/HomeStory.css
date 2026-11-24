@@ -62,3 +62,15 @@ html.lang-ru .hs-final h2, html.lang-en .hs-final h2, .hs-final h2 { margin-top:
   html.lang-ru .hs-final h2, html.lang-en .hs-final h2, .hs-final h2 { font-size:22px; }
 }
 @media(prefers-reduced-motion:reduce) { .hs-content *, .hs-content *::before, .hs-content *::after { animation:none !important; transition-duration:.01ms !important; } }
+
+/* Only the decorative flower moves; the text and touch targets stay stationary. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .hs-solution__feature img {
+      animation: hs-flower-enter linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 100%;
+    }
+    @keyframes hs-flower-enter { from { transform: translateY(6px); } to { transform: translateY(0); } }
+  }
+}

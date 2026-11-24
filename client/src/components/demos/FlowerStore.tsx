@@ -1,3 +1,4 @@
+import { afterScrollLayout } from '@/lib/afterScrollLayout';
 import { DemoHomeButton } from '../DemoHomeButton';
 import { FlowerGalleryImage } from './FlowerGalleryImage';
 import {useEffect, useLayoutEffect, useRef, useState} from 'react';
@@ -63,7 +64,7 @@ const productFromUrl=()=>{const query=window.location.hash.split('?')[1]||'';con
 const baseHash='#/demos/flower-store/app';
 const viewUrl=(view:FlowerView)=>`${window.location.pathname}${window.location.search}${baseHash}${view.screen==='detail'?`?product=${encodeURIComponent(view.id)}`:''}`;
 const rootScroll=()=>document.getElementById('root');
-function toScroll(value=0){requestAnimationFrame(()=>requestAnimationFrame(()=>{rootScroll()?.scrollTo({top:value,behavior:'instant'});window.scrollTo({top:0,behavior:'instant'})}))}
+function toScroll(value=0){afterScrollLayout(()=>rootScroll()?.scrollTo({top:value,behavior:'instant'}))}
 function ProductCard({item,favorite,onFavorite,onOpen}:{item:FlowerCatalogItem;favorite:boolean;onFavorite:()=>void;onOpen:()=>void}){return <article className="fs-card"><div className="fs-card-photo"><button type="button" className="fs-card-photo-open" onClick={onOpen} aria-label={`Открыть ${item.productKind==='gift'?'подарок':'букет'} ${item.name}`}><FlowerGalleryImage src={item.images[0]} alt="" loading="lazy" decoding="async"/></button><button type="button" className="fs-card-heart" onClick={onFavorite} aria-label={`${favorite?'Убрать из избранного':'В избранное'}: ${item.name}`} aria-pressed={favorite}><Heart size={19} fill={favorite?'currentColor':'none'}/></button></div><div className="fs-card-caption"><span>{item.category.toUpperCase()}{item.productKind==='gift'?'':' / РАЗМЕР M'}</span><button type="button" onClick={onOpen}>{item.name}<ArrowUpRight size={17}/></button><p>{item.subtitle}</p><strong>{flowerMoney(item.price)}</strong><small>примерная цена</small></div></article>}
 export default function FlowerStore({onClose}:{onClose:()=>void}){
  const initialId=productFromUrl();

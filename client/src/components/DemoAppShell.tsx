@@ -149,9 +149,8 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   const { hapticFeedback } = useTelegram();
   const { t, language } = useLanguage();
   
-  // Scroll to top when demo opens
+  // The router owns the initial scroll reset.
   useEffect(() => {
-    scrollToTop();
     setCartCount(0);
     setDemoDark(initialDemoDark(demoId));
   }, [demoId]);

@@ -1,3 +1,5 @@
+import { afterScrollLayout } from '@/lib/afterScrollLayout';
+import { observeSettledScroll } from '@/lib/settledScroll';
 import { useCallback, useEffect, useRef } from 'react';
 
 /** Store only non-sensitive view state here (never checkout contact details). */
@@ -58,7 +60,9 @@ export function useJewelryHistory<T extends object>({ getSnapshot, restore }: Fa
   const enabledRef = useRef(false);
   const restoringRef = useRef(false);
   const pendingBackRef = useRef(false);
-  const restoreFramesRef = useRef<number[]>([]);
+  const activeIndex = useRef(0);
+  const positions = useRef(new Map<number, number>());
+  const cancelRestoreRef = useRef<(() => void) | undefined>(undefined);
 
   const replaceCurrent = useCallback(() => {
     if (!enabledRef.current || restoringRef.current || window.location.hash !== hashRef.current) return false;
@@ -66,6 +70,7 @@ export function useJewelryHistory<T extends object>({ getSnapshot, restore }: Fa
     const entry = readEntry<T>(state, hashRef.current);
     if (!state || !entry || entry.session !== sessionRef.current) return false;
     const root = document.getElementById('root');
+    positions.current.set(entry.index, root?.scrollTop ?? 0);
     try {
       window.history.replaceState({ ...state, [key]: { ...entry, snapshot: getSnapshotRef.current(), scrollTop: root?.scrollTop ?? 0 } }, '', window.location.href);
       return true;
@@ -77,11 +82,11 @@ export function useJewelryHistory<T extends object>({ getSnapshot, restore }: Fa
     // A user can navigate again while the two-frame scroll restoration is pending.
     // Finish that restoration before saving the current entry and pushing the next one.
     if (restoringRef.current) {
-      restoreFramesRef.current.forEach(cancelAnimationFrame);
-      restoreFramesRef.current = [];
+      cancelRestoreRef.current?.();
+      cancelRestoreRef.current = undefined;
       const current = readEntry<T>(stateObject(), hashRef.current);
       const root = document.getElementById('root');
-      if (root && current?.session === sessionRef.current) root.scrollTop = current.scrollTop;
+      if (root && current?.session === sessionRef.current) root.scrollTop = positions.current.get(current.index) ?? current.scrollTop;
       restoringRef.current = false;
     }
     if (!replaceCurrent()) return false;
@@ -91,6 +96,8 @@ export function useJewelryHistory<T extends object>({ getSnapshot, restore }: Fa
     const scrollTop = options?.preserveScroll ? (document.getElementById('root')?.scrollTop ?? 0) : 0;
     try {
       window.history.pushState({ ...state, [key]: { ...entry, index: entry.index + 1, snapshot: next, scrollTop } }, '', window.location.href);
+      activeIndex.current = entry.index + 1;
+      positions.current.set(activeIndex.current, scrollTop);
       return true;
     } catch { return false; }
   }, [replaceCurrent]);
@@ -114,31 +121,32 @@ export function useJewelryHistory<T extends object>({ getSnapshot, restore }: Fa
     const existing = readEntry<T>(state, hash);
     const session = existing?.session ?? freshSession();
     sessionRef.current = session;
+    activeIndex.current = existing?.index ?? 0;
+    positions.current.clear();
     try {
       if (!existing) window.history.replaceState({ ...state, [key]: { version:1, session, index:0, hash, snapshot:getSnapshotRef.current(), scrollTop:document.getElementById('root')?.scrollTop ?? 0 } }, '', window.location.href);
       enabledRef.current = true;
     } catch { return; }
 
-    const cancelRestore = () => { restoreFramesRef.current.forEach(cancelAnimationFrame); restoreFramesRef.current = []; };
+    const cancelRestore = () => { cancelRestoreRef.current?.(); cancelRestoreRef.current = undefined; };
     const applyEntry = (entry: FashionHistoryEntry<T>) => {
       cancelRestore();
+      activeIndex.current = entry.index;
       restoringRef.current = true;
       restoreRef.current(entry.snapshot);
-      const first = requestAnimationFrame(() => {
-        const second = requestAnimationFrame(() => {
-          // A fast subsequent transition must not restore scroll into another route/entry.
-          const current = readEntry<T>(stateObject(), hashRef.current);
-          if (window.location.hash === hashRef.current && current?.session === entry.session && current.index === entry.index) {
-            const root = document.getElementById('root');
-            if (root) root.scrollTop = entry.scrollTop;
-          }
-          restoringRef.current = false;
-          restoreFramesRef.current = [];
-          replaceCurrent();
-        });
-        restoreFramesRef.current.push(second);
-      });
-      restoreFramesRef.current = [first];
+      const finishRestore = () => {
+        restoringRef.current = false;
+        cancelRestoreRef.current = undefined;
+      };
+      cancelRestoreRef.current = afterScrollLayout(() => {
+        const current = readEntry<T>(stateObject(), hashRef.current);
+        if (current?.session === entry.session && current.index === entry.index) {
+          const root = document.getElementById('root');
+          if (root) root.scrollTop = positions.current.get(entry.index) ?? entry.scrollTop;
+        }
+        finishRestore();
+        replaceCurrent();
+      }, finishRestore);
     };
     if (existing) applyEntry(existing);
 
@@ -148,21 +156,16 @@ export function useJewelryHistory<T extends object>({ getSnapshot, restore }: Fa
       const entry = readEntry<T>(stateObject(), hashRef.current);
       if (entry && entry.session === sessionRef.current) applyEntry(entry);
     };
-    let scrollFrame = 0;
-    const root = document.getElementById('root');
-    const onScroll = () => {
-      if (restoringRef.current || scrollFrame) return;
-      scrollFrame = requestAnimationFrame(() => { scrollFrame = 0; replaceCurrent(); });
-    };
-    root?.addEventListener('scroll', onScroll, { passive:true });
+    const stopTracking = observeSettledScroll(document.getElementById('root'), replaceCurrent, top => {
+      if (!restoringRef.current) positions.current.set(activeIndex.current, top);
+    });
     window.addEventListener('popstate', onPop);
     return () => {
       enabledRef.current = false;
       pendingBackRef.current = false;
       restoringRef.current = false;
       cancelRestore();
-      cancelAnimationFrame(scrollFrame);
-      root?.removeEventListener('scroll', onScroll);
+      stopTracking();
       window.removeEventListener('popstate', onPop);
     };
   }, [replaceCurrent]);

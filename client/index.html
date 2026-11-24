@@ -330,7 +330,7 @@
          report their height via contentSafeAreaInset on most clients, so we
          set --csat=60px ourselves the moment we request fullscreen. */
       try{
-        if(typeof tg.requestFullscreen==='function'){
+        if(typeof tg.requestFullscreen==='function' && (!tg.isVersionAtLeast || tg.isVersionAtLeast('8.0'))){
           tg.requestFullscreen();
           __htmlEl.dataset.tgFullscreen='1';
           __htmlEl.style.setProperty('--csat','54px');

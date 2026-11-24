@@ -1,3 +1,4 @@
+import { afterScrollLayout } from '@/lib/afterScrollLayout';
 import { DemoHomeButton } from '../DemoHomeButton';
 import { restoreTelegramChrome } from '@/lib/telegramChrome';
 import { useEffect, useMemo, useRef, useState, type FormEvent, type ComponentPropsWithoutRef } from 'react';
@@ -286,7 +287,7 @@ export default function JewelryStore({ onClose }: { onClose: () => void }) {
   const back = () => fashionHistory.back(() => {
     if (screen === 'product' && previousScreen === 'catalog') {
       setScreen('catalog'); setSheet(null); setSizeError(false);
-      requestAnimationFrame(() => requestAnimationFrame(() => { const root = document.getElementById('root'); if (root) root.scrollTop = catalogScroll.current; }));
+      afterScrollLayout(() => { const root = document.getElementById('root'); if (root) root.scrollTop = catalogScroll.current; });
     } else if (screen === 'product') { setSheet(null); setScreen(previousScreen); scrollToTop(); }
     else if (screen === 'checkout') { setScreen(checkoutOrigin.current); setSheet('cart'); }
     else { setSheet(null); setScreen('home'); scrollToTop(); }

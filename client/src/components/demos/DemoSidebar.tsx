@@ -1,3 +1,4 @@
+import { useEdgeSwipeOpen } from '@/hooks/useEdgeSwipeOpen';
 import { useState, useCallback, useEffect, useRef, ReactNode } from "react";
 import { X, Home, ShoppingBag, Heart, User, Settings, LogOut, ChevronRight } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
@@ -26,115 +27,15 @@ export interface DemoSidebarProps {
   children?: ReactNode;
 }
 
+const drawerWidth = () => Math.min(280, window.innerWidth - 48);
+
 export function useDemoSidebar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [swipeOffset, setSwipeOffset] = useState(0);
-  const isSwipingToOpen = useRef(false);
-  const edgeSwipeStartX = useRef<number>(0);
-  const edgeSwipeStartY = useRef<number>(0);
-  const swipeDirection = useRef<'horizontal' | 'vertical' | null>(null);
-  const touchStartX = useRef<number>(0);
-  const touchCurrentX = useRef<number>(0);
-  const [closeSwipeOffset, setCloseSwipeOffset] = useState(0);
-
   const open = useCallback(() => setIsOpen(true), []);
   const close = useCallback(() => setIsOpen(false), []);
-  const toggle = useCallback(() => setIsOpen(prev => !prev), []);
-
-  const handleEdgeTouchStart = useCallback((e: TouchEvent) => {
-    const touch = e.touches[0];
-    if (touch.clientX <= 50 && !isOpen) {
-      isSwipingToOpen.current = true;
-      edgeSwipeStartX.current = touch.clientX;
-      edgeSwipeStartY.current = touch.clientY;
-      swipeDirection.current = null;
-    }
-  }, [isOpen]);
-
-  const handleEdgeTouchMove = useCallback((e: TouchEvent) => {
-    if (!isSwipingToOpen.current) return;
-    
-    const touch = e.touches[0];
-    const diffX = touch.clientX - edgeSwipeStartX.current;
-    const diffY = touch.clientY - edgeSwipeStartY.current;
-    
-    if (swipeDirection.current === null && (Math.abs(diffX) > 10 || Math.abs(diffY) > 10)) {
-      swipeDirection.current = Math.abs(diffX) > Math.abs(diffY) ? 'horizontal' : 'vertical';
-    }
-    
-    if (swipeDirection.current === 'horizontal' && diffX > 0) {
-      e.preventDefault();
-      const sidebarWidth = Math.min(280, window.innerWidth - 48);
-      const offset = Math.min(diffX, sidebarWidth);
-      setSwipeOffset(offset);
-    }
-  }, []);
-
-  const handleEdgeTouchEnd = useCallback(() => {
-    if (!isSwipingToOpen.current) return;
-    
-    const sidebarWidth = Math.min(280, window.innerWidth - 48);
-    if (swipeOffset > sidebarWidth * 0.3) {
-      setIsOpen(true);
-    }
-    
-    setSwipeOffset(0);
-    isSwipingToOpen.current = false;
-    edgeSwipeStartX.current = 0;
-    edgeSwipeStartY.current = 0;
-    swipeDirection.current = null;
-  }, [swipeOffset]);
-
-  const handleSidebarTouchStart = useCallback((e: TouchEvent) => {
-    if (!isOpen) return;
-    touchStartX.current = e.touches[0].clientX;
-    touchCurrentX.current = e.touches[0].clientX;
-  }, [isOpen]);
-
-  const handleSidebarTouchMove = useCallback((e: TouchEvent) => {
-    if (!isOpen) return;
-    touchCurrentX.current = e.touches[0].clientX;
-    const diff = touchStartX.current - touchCurrentX.current;
-    if (diff > 0) {
-      setCloseSwipeOffset(Math.min(diff, 280));
-    }
-  }, [isOpen]);
-
-  const handleSidebarTouchEnd = useCallback(() => {
-    if (!isOpen) return;
-    if (closeSwipeOffset > 100) {
-      setIsOpen(false);
-    }
-    setCloseSwipeOffset(0);
-    touchStartX.current = 0;
-    touchCurrentX.current = 0;
-  }, [isOpen, closeSwipeOffset]);
-
-  useEffect(() => {
-    if (isOpen) return;
-    
-    document.addEventListener('touchstart', handleEdgeTouchStart, { passive: true });
-    document.addEventListener('touchmove', handleEdgeTouchMove, { passive: false });
-    document.addEventListener('touchend', handleEdgeTouchEnd, { passive: true });
-    
-    return () => {
-      document.removeEventListener('touchstart', handleEdgeTouchStart);
-      document.removeEventListener('touchmove', handleEdgeTouchMove);
-      document.removeEventListener('touchend', handleEdgeTouchEnd);
-    };
-  }, [isOpen, handleEdgeTouchStart, handleEdgeTouchMove, handleEdgeTouchEnd]);
-
-  return {
-    isOpen,
-    open,
-    close,
-    toggle,
-    swipeOffset,
-    closeSwipeOffset,
-    handleSidebarTouchStart,
-    handleSidebarTouchMove,
-    handleSidebarTouchEnd,
-  };
+  const toggle = useCallback(() => setIsOpen(previous => !previous), []);
+  useEdgeSwipeOpen({ enabled: !isOpen, edge: 25, width: drawerWidth, onOpen: open });
+  return { isOpen, open, close, toggle };
 }
 
 export default function DemoSidebar({

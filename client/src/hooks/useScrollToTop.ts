@@ -1,3 +1,4 @@
+import { cancelPendingPageScroll } from '@/lib/afterScrollLayout';
 import { useCallback, useRef, useEffect } from 'react';
 
 /**
@@ -6,70 +7,22 @@ import { useCallback, useRef, useEffect } from 'react';
  * Reset during navigation without overriding a gesture that follows it.
  */
 
-// Reset the window and the app's scrollable containers.
-function forceScrollToTop(): void {
-  // Immediate scroll - no delay
-  window.scrollTo(0, 0);
-  document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0;
-  
-  // Reset all possible scrollable containers
-  const scrollableSelectors = [
-    '.smooth-scroll-page',
-    '.overflow-auto',
-    '.overflow-y-auto',
-    '.overflow-scroll',
-    '[data-scroll-container]',
-    '[data-scroll="main"]',
-    'main',
-    '#root',
-    '.min-h-screen',
-  ];
-  
-  scrollableSelectors.forEach(selector => {
-    try {
-      const elements = document.querySelectorAll(selector);
-      elements.forEach(el => {
-        if (el instanceof HTMLElement) {
-          el.scrollTop = 0;
-        }
-      });
-    } catch (e) {
-      // Ignore selector errors
-    }
-  });
+// Each page has one scrolling element. A caller with an inner scroller supplies it explicitly.
+function pageScroller(container?: HTMLElement | null) {
+  return container ?? document.getElementById('root') ?? document.scrollingElement;
 }
 
-// Standalone function for use outside React components
 export function scrollToTop(container?: HTMLElement | null): void {
-  // Immediate scroll first
-  forceScrollToTop();
-  
-  // Reset container scroll if provided
-  if (container) {
-    container.scrollTop = 0;
-    container.scrollLeft = 0;
+  cancelPendingPageScroll();
+  const target = pageScroller(container);
+  if (target && (target.scrollTop || target.scrollLeft)) {
+    target.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }
-  
-  // Use requestAnimationFrame for after-render scroll
-  requestAnimationFrame(() => {
-    forceScrollToTop();
-    if (container) {
-      container.scrollTop = 0;
-    }
-  });
-  
 }
 
-// Scroll to top with animation option
 export function scrollToTopSmooth(container?: HTMLElement | null): void {
-  requestAnimationFrame(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-    
-    if (container) {
-      container.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-    }
-  });
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  pageScroller(container)?.scrollTo({ top: 0, left: 0, behavior: reducedMotion ? 'instant' : 'smooth' });
 }
 
 /**

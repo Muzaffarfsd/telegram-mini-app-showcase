@@ -112,7 +112,6 @@ export const DemoShell = memo(function DemoShell({
 }: DemoShellProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
   
   const { progress, isRefreshing } = usePullToRefresh({
     onRefresh: enablePullToRefresh && onRefresh ? onRefresh : async () => {},
@@ -122,7 +121,6 @@ export const DemoShell = memo(function DemoShell({
 
   const handleScroll = useCallback(() => {
     const currentScrollY = containerRef.current?.scrollTop || window.scrollY;
-    setScrollY(currentScrollY);
     setShowScrollButton(currentScrollY > 300);
   }, []);
 

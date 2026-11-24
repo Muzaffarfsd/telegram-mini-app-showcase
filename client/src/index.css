@@ -4188,8 +4188,8 @@ img, video {
   
   /* Optimize main scroll container on touch */
   #root {
-    /* iOS-like momentum scrolling */
-    scroll-snap-type: y proximity;
+    /* Free vertical movement on pages; individual carousels own their snap points. */
+    scroll-snap-type: none;
     
     /* Prevent overscroll bounce affecting performance */
     overscroll-behavior: contain;

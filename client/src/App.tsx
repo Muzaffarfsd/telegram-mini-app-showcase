@@ -11,7 +11,7 @@ import UserAvatar from "./components/UserAvatar";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useRouting, navigate } from "./hooks/useRouting";
 import { warmDemoImage } from "./lib/demoImagePreload";
-import { backgroundPrefetchWait } from "./lib/interactionBudget";
+import { backgroundPrefetchWait, pauseBackgroundPrefetch } from "./lib/interactionBudget";
 import { isProfileRoute } from "./lib/profileRoutes";
 import { useScrollHaptic } from "./hooks/useScrollHaptic";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
@@ -509,6 +509,17 @@ function AppContent() {
     if (window.Telegram?.WebApp) {
       document.body.classList.add('tg-app-optimized');
     }
+  }, []);
+
+  useEffect(() => {
+    const root = document.getElementById('root');
+    const deferImports = () => pauseBackgroundPrefetch(250);
+    root?.addEventListener('pointerdown', deferImports, { passive: true, capture: true });
+    root?.addEventListener('scroll', deferImports, { passive: true, capture: true });
+    return () => {
+      root?.removeEventListener('pointerdown', deferImports, true);
+      root?.removeEventListener('scroll', deferImports, true);
+    };
   }, []);
 
   useEffect(() => {

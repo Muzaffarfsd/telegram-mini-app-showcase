@@ -1,3 +1,4 @@
+import { useEdgeSwipeOpen } from '@/hooks/useEdgeSwipeOpen';
 import { useState, useCallback, useEffect, useRef, forwardRef, memo, type CSSProperties } from "react";
 import { ChevronRight, ArrowUpRight, Send } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
@@ -19,6 +20,7 @@ interface GlobalSidebarProps {
    WEB4TG — global menu · light glass drawer
    ==================================================================== */
 
+const drawerWidth = () => Math.min(370, window.innerWidth - 40);
 const FONT = '"Google Sans App", "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif';
 const EM = '#34d399';
 const EM_SOFT = '#6ee7b7';
@@ -65,11 +67,6 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
   const touchCurrentX = useRef<number>(0);
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [swipeOpenOffset, setSwipeOpenOffset] = useState(0);
-  const isSwipingToOpen = useRef(false);
-  const edgeSwipeStartX = useRef<number>(0);
-  const edgeSwipeStartY = useRef<number>(0);
-  const swipeDirection = useRef<'horizontal' | 'vertical' | null>(null);
-
   useEffect(() => {
     try {
       const tg = (window as any).Telegram?.WebApp;
@@ -207,52 +204,13 @@ export default function GlobalSidebar({ currentRoute, onNavigate, onOpen, user }
     touchCurrentX.current = 0;
   }, [closeSidebar]);
 
-  const handleEdgeTouchStart = useCallback((e: TouchEvent) => {
-    const touch = e.touches[0];
-    if (touch.clientX <= 25 && !sidebarOpen) {
-      isSwipingToOpen.current = true;
-      edgeSwipeStartX.current = touch.clientX;
-      edgeSwipeStartY.current = touch.clientY;
-      swipeDirection.current = null;
-    }
-  }, [sidebarOpen]);
-  const handleEdgeTouchMove = useCallback((e: TouchEvent) => {
-    if (!isSwipingToOpen.current) return;
-    const touch = e.touches[0];
-    const diffX = touch.clientX - edgeSwipeStartX.current;
-    const diffY = touch.clientY - edgeSwipeStartY.current;
-    if (swipeDirection.current === null && (Math.abs(diffX) > 20 || Math.abs(diffY) > 20)) {
-      swipeDirection.current = Math.abs(diffX) > Math.abs(diffY) * 2 ? 'horizontal' : 'vertical';
-    }
-    if (swipeDirection.current === 'horizontal' && diffX > 30) {
-      e.preventDefault();
-      pauseBackgroundPrefetch(400);
-      const w = Math.min(370, window.innerWidth - 40);
-      setSwipeOpenOffset(Math.min(diffX, w));
-    }
-  }, []);
-  const handleEdgeTouchEnd = useCallback(() => {
-    if (!isSwipingToOpen.current) return;
-    const w = Math.min(370, window.innerWidth - 40);
-    if (swipeOpenOffset > w * 0.3) openSidebar();
-    setSwipeOpenOffset(0);
-    isSwipingToOpen.current = false;
-    edgeSwipeStartX.current = 0;
-    edgeSwipeStartY.current = 0;
-    swipeDirection.current = null;
-  }, [swipeOpenOffset, openSidebar]);
-
-  useEffect(() => {
-    if (sidebarOpen) return;
-    document.addEventListener('touchstart', handleEdgeTouchStart, { passive: true });
-    document.addEventListener('touchmove', handleEdgeTouchMove, { passive: false });
-    document.addEventListener('touchend', handleEdgeTouchEnd, { passive: true });
-    return () => {
-      document.removeEventListener('touchstart', handleEdgeTouchStart);
-      document.removeEventListener('touchmove', handleEdgeTouchMove);
-      document.removeEventListener('touchend', handleEdgeTouchEnd);
-    };
-  }, [sidebarOpen, handleEdgeTouchStart, handleEdgeTouchMove, handleEdgeTouchEnd]);
+  useEdgeSwipeOpen({
+    enabled: !sidebarOpen,
+    edge: 25,
+    width: drawerWidth,
+    onOpen: openSidebar,
+    onProgress: setSwipeOpenOffset,
+  });
 
   const isActive = (routes: string[]) => routes.includes(currentRoute);
   const isProfileActive = isProfileRoute(currentRoute);

@@ -1,3 +1,5 @@
+import { afterScrollLayout } from '@/lib/afterScrollLayout';
+import { observeSettledScroll } from '@/lib/settledScroll';
 import { DemoHomeButton } from '../DemoHomeButton';
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
@@ -166,7 +168,9 @@ function useAppleHistory<T extends object>({ getSnapshot, restore, canSave }: Ap
   const enabledRef = useRef(false);
   const restoringRef = useRef(false);
   const pendingBackRef = useRef(false);
-  const restoreFramesRef = useRef<number[]>([]);
+  const activeIndex = useRef(0);
+  const positions = useRef(new Map<number, number>());
+  const cancelRestoreRef = useRef<(() => void) | undefined>(undefined);
 
   const replaceCurrent = useCallback(() => {
     if (!enabledRef.current || restoringRef.current || window.location.hash !== hashRef.current || (canSaveRef.current && !canSaveRef.current())) return false;
@@ -174,6 +178,7 @@ function useAppleHistory<T extends object>({ getSnapshot, restore, canSave }: Ap
     const entry = readEntry<T>(state, hashRef.current);
     if (!state || !entry || entry.session !== sessionRef.current) return false;
     const root = document.getElementById('root');
+    positions.current.set(entry.index, root?.scrollTop ?? 0);
     try {
       window.history.replaceState({ ...state, [key]: { ...entry, snapshot: getSnapshotRef.current(), scrollTop: root?.scrollTop ?? 0 } }, '', window.location.href);
       return true;
@@ -185,11 +190,11 @@ function useAppleHistory<T extends object>({ getSnapshot, restore, canSave }: Ap
     // A user can navigate again while the two-frame scroll restoration is pending.
     // Finish that restoration before saving the current entry and pushing the next one.
     if (restoringRef.current) {
-      restoreFramesRef.current.forEach(cancelAnimationFrame);
-      restoreFramesRef.current = [];
+      cancelRestoreRef.current?.();
+      cancelRestoreRef.current = undefined;
       const current = readEntry<T>(stateObject(), hashRef.current);
       const root = document.getElementById('root');
-      if (root && current?.session === sessionRef.current) root.scrollTop = current.scrollTop;
+      if (root && current?.session === sessionRef.current) root.scrollTop = positions.current.get(current.index) ?? current.scrollTop;
       restoringRef.current = false;
     }
     if (!replaceCurrent()) return false;
@@ -199,6 +204,8 @@ function useAppleHistory<T extends object>({ getSnapshot, restore, canSave }: Ap
     const scrollTop = options?.preserveScroll ? (document.getElementById('root')?.scrollTop ?? 0) : 0;
     try {
       window.history.pushState({ ...state, [key]: { ...entry, index: entry.index + 1, snapshot: next, scrollTop } }, '', window.location.href);
+      activeIndex.current = entry.index + 1;
+      positions.current.set(activeIndex.current, scrollTop);
       return true;
     } catch { return false; }
   }, [replaceCurrent]);
@@ -222,31 +229,32 @@ function useAppleHistory<T extends object>({ getSnapshot, restore, canSave }: Ap
     const existing = readEntry<T>(state, hash);
     const session = existing?.session ?? freshSession();
     sessionRef.current = session;
+    activeIndex.current = existing?.index ?? 0;
+    positions.current.clear();
     try {
       if (!existing) window.history.replaceState({ ...state, [key]: { version:1, session, index:0, hash, snapshot:getSnapshotRef.current(), scrollTop:document.getElementById('root')?.scrollTop ?? 0 } }, '', window.location.href);
       enabledRef.current = true;
     } catch { return; }
 
-    const cancelRestore = () => { restoreFramesRef.current.forEach(cancelAnimationFrame); restoreFramesRef.current = []; };
+    const cancelRestore = () => { cancelRestoreRef.current?.(); cancelRestoreRef.current = undefined; };
     const applyEntry = (entry: AppleHistoryEntry<T>) => {
       cancelRestore();
+      activeIndex.current = entry.index;
       restoringRef.current = true;
       restoreRef.current(entry.snapshot);
-      const first = requestAnimationFrame(() => {
-        const second = requestAnimationFrame(() => {
-          // A fast subsequent transition must not restore scroll into another route/entry.
-          const current = readEntry<T>(stateObject(), hashRef.current);
-          if (window.location.hash === hashRef.current && current?.session === entry.session && current.index === entry.index) {
-            const root = document.getElementById('root');
-            if (root) root.scrollTop = entry.scrollTop;
-          }
-          restoringRef.current = false;
-          restoreFramesRef.current = [];
-          replaceCurrent();
-        });
-        restoreFramesRef.current.push(second);
-      });
-      restoreFramesRef.current = [first];
+      const finishRestore = () => {
+        restoringRef.current = false;
+        cancelRestoreRef.current = undefined;
+      };
+      cancelRestoreRef.current = afterScrollLayout(() => {
+        const current = readEntry<T>(stateObject(), hashRef.current);
+        if (current?.session === entry.session && current.index === entry.index) {
+          const root = document.getElementById('root');
+          if (root) root.scrollTop = positions.current.get(entry.index) ?? entry.scrollTop;
+        }
+        finishRestore();
+        replaceCurrent();
+      }, finishRestore);
     };
     if (existing) applyEntry(existing);
 
@@ -256,21 +264,16 @@ function useAppleHistory<T extends object>({ getSnapshot, restore, canSave }: Ap
       const entry = readEntry<T>(stateObject(), hashRef.current);
       if (entry && entry.session === sessionRef.current) applyEntry(entry);
     };
-    let scrollTimer = 0;
-    const root = document.getElementById('root');
-    const onScroll = () => {
-      if (restoringRef.current || scrollTimer) return;
-      scrollTimer = window.setTimeout(() => { scrollTimer = 0; replaceCurrent(); }, 250);
-    };
-    root?.addEventListener('scroll', onScroll, { passive:true });
+    const stopTracking = observeSettledScroll(document.getElementById('root'), replaceCurrent, top => {
+      if (!restoringRef.current && (!canSaveRef.current || canSaveRef.current())) positions.current.set(activeIndex.current, top);
+    });
     window.addEventListener('popstate', onPop);
     return () => {
       enabledRef.current = false;
       pendingBackRef.current = false;
       restoringRef.current = false;
       cancelRestore();
-      clearTimeout(scrollTimer);
-      root?.removeEventListener('scroll', onScroll);
+      stopTracking();
       window.removeEventListener('popstate', onPop);
     };
   }, [replaceCurrent]);
@@ -317,12 +320,12 @@ export default function AppleStore({onClose}:{onClose:()=>void}) {
   const appleHistory = useAppleHistory({getSnapshot:snapshot,restore:value=>{localStack.current=[];localRestoring.current=false;apply(value);},canSave:()=>localStack.current.length===0&&!localRestoring.current});
   useEffect(()=>{appleHistory.replaceCurrent();},[screen,sheet,selectedId,category,query,sort,priceRange,photo,color,capacity,previous,lastOrderId,appleHistory.replaceCurrent]);
   function navigate(patch:Partial<Snapshot>,preserve=false){if(localRestoring.current)return;const current=snapshot();const next={...current,...patch};if(Object.keys(patch).every(k=>current[k as keyof Snapshot]===next[k as keyof Snapshot]))return;if(patch.screen&&patch.screen!==screen&&keyboardNavigation.current)focusNextScreen.current=true;const root=document.getElementById('root');if(localStack.current.length||localRestoring.current||!appleHistory.push(next,{preserveScroll:preserve}))localStack.current.push({snapshot:current,scrollTop:root?.scrollTop??0});apply(next);if(!preserve)scrollToTop();}
-  function backOrLocal(fallback:()=>void){if(localRestoring.current)return;const entry=localStack.current.pop();if(!entry){appleHistory.back(fallback);return;}localRestoring.current=true;apply(entry.snapshot);requestAnimationFrame(()=>requestAnimationFrame(()=>{const root=document.getElementById('root');if(root)root.scrollTop=entry.scrollTop;localRestoring.current=false;if(!localStack.current.length)appleHistory.replaceCurrent();}));}
+  function backOrLocal(fallback:()=>void){if(localRestoring.current)return;const entry=localStack.current.pop();if(!entry){appleHistory.back(fallback);return;}localRestoring.current=true;apply(entry.snapshot);afterScrollLayout(()=>{const root=document.getElementById('root');if(root)root.scrollTop=entry.scrollTop;localRestoring.current=false;if(!localStack.current.length)appleHistory.replaceCurrent();},()=>{localRestoring.current=false;});}
   function closeSheet(){backOrLocal(()=>setSheet(null));}
   function goHome(){navigate({screen:'home',sheet:null});}
   function browse(cat:Category|'Все'='Все'){catalogScroll.current=0;navigate({screen:'catalog',sheet:null,category:cat,query:'',sort:'featured',priceRange:'all'});}
   function openProduct(id:string,selectedColor?:string,selectedCapacity?:string){setPhotoZoom(false);if(list.some(item=>item.id===id))setRecent(old=>[id,...old.filter(value=>value!==id)].slice(0,8));if(screen==='catalog')catalogScroll.current=document.getElementById('root')?.scrollTop||0;const item=byId(id);navigate({screen:'product',sheet:null,selectedId:id,previous:screen==='product'?previous:screen,photo:0,color:selectedColor && item.colors.includes(selectedColor)?selectedColor:item.colors[0],capacity:selectedCapacity && item.capacities.includes(selectedCapacity)?selectedCapacity:item.capacities[0]});}
-  function back(){backOrLocal(()=>{if(screen==='product'&&previous==='catalog'){setScreen('catalog');setSheet(null);requestAnimationFrame(()=>requestAnimationFrame(()=>{const root=document.getElementById('root');if(root)root.scrollTop=catalogScroll.current;}));}else if(screen==='product')navigate({screen:previous,sheet:null});else if(screen==='checkout'){setScreen(checkoutOrigin.current);setSheet('cart');}else goHome();});}
+  function back(){backOrLocal(()=>{if(screen==='product'&&previous==='catalog'){setScreen('catalog');setSheet(null);afterScrollLayout(()=>{const root=document.getElementById('root');if(root)root.scrollTop=catalogScroll.current;});}else if(screen==='product')navigate({screen:previous,sheet:null});else if(screen==='checkout'){setScreen(checkoutOrigin.current);setSheet('cart');}else goHome();});}
   function openSheet(value:Exclude<Sheet,null>){setPhotoZoom(false);focusBefore.current=document.activeElement instanceof HTMLElement?document.activeElement:null;navigate({sheet:value},true);}
   function favorite(id:string){setFavorites(old=>old.includes(id)?old.filter(x=>x!==id):[...old,id]);}
   function add(){setCart(old=>{const found=old.find(row=>row.id===current.id&&row.color===color&&row.capacity===capacity);return found?old.map(row=>row===found?{...row,quantity:Math.min(10,row.quantity+1)}:row):[...old,{id:current.id,color,capacity,quantity:1}];});openSheet('cart');}
