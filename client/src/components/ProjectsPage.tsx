@@ -66,8 +66,10 @@ const ProjectCard = memo(function ProjectCard({ project, ru, first, onOpenDemo }
       <strong className="ps-title">{title}</strong>
       <span className="ps-description">{project.description[index]}</span>
     </span>
-    <ShowcaseArtwork id={project.id} first={first} />
-    <span className="ps-open" aria-hidden="true" onPointerDown={hint}><span>{action}</span><ArrowUpRight size={16} /></span>
+    <span className="ps-artwork-layer" aria-hidden="true">
+      <ShowcaseArtwork id={project.id} first={first} />
+    </span>
+    <span className="ps-open" aria-hidden="true"><span>{action}</span><ArrowUpRight size={16} /></span>
   </button>;
 });
 

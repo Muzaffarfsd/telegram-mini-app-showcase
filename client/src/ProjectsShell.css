@@ -1,10 +1,4 @@
 /* Shared app chrome, scoped exclusively to the projects route. */
-html.projects-route-theme {
-  --projects-viewport: min(100dvh, var(--tg-viewport-height, 100dvh), var(--projects-visual-bottom, 100dvh));
-  --projects-safe-bottom: max(12px, env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px), var(--tg-safe-area-bottom, 0px), var(--sab, 0px), var(--csab, 0px));
-  --projects-tab-height: 60px;
-  --projects-dock-space: calc(8px + var(--projects-tab-height) + var(--projects-safe-bottom));
-}
 /* Telegram applies safe-area padding inline on body. The showcase header
    and dock already handle those insets inside the visible viewport. */
 html.projects-route-theme body {
@@ -15,16 +9,20 @@ html.projects-route-theme #root {
   height: calc(var(--projects-viewport) - var(--projects-dock-space));
   min-height: 0;
   scroll-padding-bottom: 28px;
+  transition: none;
 }
 html.projects-route-theme .projects-dock {
   top: calc(var(--projects-viewport) - var(--projects-dock-space));
   bottom: auto;
   height: var(--projects-dock-space);
   pointer-events: none;
+  transition: none;
 }
 html.projects-route-theme nav.projects-nav { height: var(--projects-tab-height); pointer-events: auto; }
 html.projects-route-theme .w4-topbar {
-  background: rgba(255, 255, 255, .91) !important;
+  background: #fff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   border-bottom-color: rgba(37, 39, 42, .06) !important;
 }
 nav.projects-nav[role="navigation"] {
@@ -37,10 +35,10 @@ nav.projects-nav[role="navigation"] {
   border: 1px solid rgba(255, 255, 255, .9);
   box-shadow: 0 5px 20px rgba(30, 33, 35, .14), inset 0 1px 0 rgba(255,255,255,.9) !important;
 }
-.projects-nav > div:first-child {
+html.projects-route-theme .projects-nav > div:first-child {
   background: transparent !important;
-  backdrop-filter: blur(24px) saturate(1.1) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(1.1) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 .projects-nav > div:nth-child(2) {
   box-shadow: inset 0 1px 0 rgba(255,255,255,.8) !important;

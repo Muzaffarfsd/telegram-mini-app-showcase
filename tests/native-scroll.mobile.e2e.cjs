@@ -77,6 +77,19 @@ async function installShowcaseTelegramHost(ctx) {
 }
 
 async function checkShowcaseEnd(page, cdp) {
+  await page.waitForFunction(() => window.Telegram.WebApp.MainButton.isVisible && window.Telegram.WebApp.SecondaryButton.isVisible);
+  const geometry = () => page.evaluate(() => {
+    const root = document.getElementById('root');
+    return [root.clientHeight, root.scrollTop, document.querySelector('nav.projects-nav').getBoundingClientRect().top];
+  });
+  const initial = await geometry();
+  for (const height of [674, 633, 598, 683]) {
+    await page.evaluate(async h => {
+      window.Telegram.WebView.receiveEvent('viewport_changed', { height: h, is_expanded: true, is_state_stable: false });
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    }, height);
+    assert.deepEqual(await geometry(), initial, 'the dock and the scroll area must stay still while Telegram animates');
+  }
   // Resize the native sheet during the trip. Exercise the SDK events and
   // actual finger drags all the way down instead of jumping next to the CTA.
   await page.evaluate(() => {
@@ -86,6 +99,23 @@ async function checkShowcaseEnd(page, cdp) {
   });
   await page.waitForFunction(() => window.Telegram.WebApp.viewportHeight === 684);
   const root = page.locator('#root');
+  // Starting a drag on the black action must scroll without importing the demo.
+  const firstAction = page.getByTestId('card-app-muraka-fashion').locator('.ps-open');
+  await firstAction.scrollIntoViewIfNeeded();
+  const actionBox = await firstAction.boundingBox();
+  const topBefore = await root.evaluate(el => el.scrollTop);
+  const demoRequests = [];
+  const onRequest = request => {
+    if (/\/assets\/(MurakaFashion|DemoAppShell)-[^/]+\.js/.test(new URL(request.url()).pathname)) demoRequests.push(request.url());
+  };
+  page.on('request', onRequest);
+  const actionX = actionBox.x + actionBox.width / 2;
+  const actionY = actionBox.y + actionBox.height / 2;
+  await swipe(cdp, [actionX, actionY], [actionX, actionY - 130]);
+  await page.waitForFunction(top => document.getElementById('root').scrollTop > top + 40, topBefore);
+  page.off('request', onRequest);
+  assert.deepEqual(demoRequests, []);
+  assert.equal(new URL(page.url()).hash, '#/projects');
   for (let i = 0; i < 14; i++) {
     if (await root.evaluate(el => el.scrollHeight - el.clientHeight - el.scrollTop < 2)) break;
     const x = i % 2 ? 95 : 280;

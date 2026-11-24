@@ -259,7 +259,14 @@
     .projects-load-cards { display:grid; gap:12px; }
     .projects-load-card { height:226px; border-radius:24px; }
     .projects-load-card:first-child { height:248px; }
-    .projects-load-nav { position:fixed; left:50%; bottom:16px; transform:translateX(-50%); width:min(calc(100% - 36px),320px); height:56px; border-radius:24px; background:#f5f6f7; box-shadow:0 4px 18px rgba(30,33,35,.10); display:flex; justify-content:space-around; align-items:center; }
+    /* The static placeholder and the live dock use the same settled geometry. */
+    html.projects-route-theme {
+      --projects-viewport: var(--projects-visual-bottom, var(--tg-viewport-stable-height, 100dvh));
+      --projects-safe-bottom: max(12px, env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px), var(--tg-safe-area-bottom, 0px), var(--sab, 0px), var(--csab, 0px));
+      --projects-tab-height: 60px;
+      --projects-dock-space: calc(8px + var(--projects-tab-height) + var(--projects-safe-bottom));
+    }
+    .projects-load-nav { position:fixed; left:50%; top:calc(var(--projects-viewport) - var(--projects-safe-bottom) - var(--projects-tab-height)); transform:translateX(-50%); width:min(calc(100% - 24px),356px); height:var(--projects-tab-height); border-radius:22px; background:#f5f6f7; box-shadow:0 4px 18px rgba(30,33,35,.10); display:flex; justify-content:space-around; align-items:center; }
     .projects-load-nav .projects-load-shape { width:30px; height:30px; border-radius:10px; }
     @keyframes projects-load-shimmer { from { background-position:100% 0; } to { background-position:-100% 0; } }
     @media(prefers-reduced-motion:reduce) { .projects-load-shape { animation:none; background:#e9edf1; } }

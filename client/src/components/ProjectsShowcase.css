@@ -43,6 +43,7 @@
 .ps-title { margin-top: 0; font-size: clamp(21px, 5.9vw, 26px); font-weight: 700; letter-spacing: -.055em; line-height: 1.04; overflow-wrap: anywhere; }
 .ps-description { margin-top: 10px; max-width: 20ch; font-size: 13px; color: #4b4b49; line-height: 1.4; }
 .ps-open { position: relative; z-index: 1; grid-column: 1; width: max-content; gap: 6px; justify-content: center; align-self: end; min-height: 44px; margin: 0 0 18px 18px; padding: 0 13px; background: #111; border-radius: 99px; color: #fff; font-size: 13px; font-weight: 550; line-height: 1; }
+.ps-artwork-layer { position: absolute; inset: 0; pointer-events: none; contain: strict; content-visibility: auto; }
 .ps-art { position: absolute; width: min(54%, 174px); aspect-ratio: 3 / 4; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none; }
 .ps-scene, .ps-original { display: block; position: absolute; inset: 0; width: 100%; height: 100%; }
 .ps-scene { transform: rotate(2deg); }
@@ -51,7 +52,8 @@
 .ps-glass { position: absolute; inset: 1.1% 2.35%; overflow: clip; border-radius: 14.5% / 7.3%; background: white; }
 .ps-glass::after { content: ''; position: absolute; top: 1.1%; left: 39.5%; width: 21%; height: 2.2%; border-radius: 99px; background: #101010; }
 .ps-screen { position: absolute; inset: 5% 0 0; display: block; width: 100%; height: 95%; object-fit: contain; object-position: center top; }
-.ps-card:active { outline: 1px solid #29252533; outline-offset: -1px; }
+.ps-card:active, .ps-order:active { transform: none; transition: none; }
+.ps-card:active .ps-open { background: #303030; }
 @media (hover: hover) {
   .ps-open svg { transition: transform .16s ease-out; }
   .ps-card:hover .ps-open svg { transform: translate(1px, -1px); }

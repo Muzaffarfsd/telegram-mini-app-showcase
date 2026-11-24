@@ -12,7 +12,7 @@ interface SafeAreaInset {
 }
 
 // MainButton interface
-interface TelegramButton {
+export interface TelegramButton {
   text: string;
   color: string;
   textColor: string;
@@ -32,6 +32,7 @@ interface TelegramButton {
 }
 
 interface TelegramWebApp {
+  platform?: string;
   version?: string;
   bottomBarColor?: string;
   setBottomBarColor?: (color: string) => void;
