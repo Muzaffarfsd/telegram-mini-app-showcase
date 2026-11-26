@@ -7,11 +7,13 @@ const key = 'web4tg-furniture-planner-v1';
 const layout = page => page.evaluate(key => JSON.parse(localStorage.getItem(key)), key);
 const item = value => value.items.find(entry => entry.productId === 'rivet-revolve-sofa');
 async function waitSaved(page, predicate) {
-  await page.waitForFunction(({ key, predicate }) => {
-    const raw = localStorage.getItem(key);
-    return raw && Function('state', `return (${predicate})(state)`)(JSON.parse(raw));
-  }, { key, predicate: predicate.toString() }, { timeout: 15000 });
-  return layout(page);
+  const deadline = Date.now() + 15000;
+  while (Date.now() < deadline) {
+    const state = await layout(page);
+    if (state && predicate(state)) return state;
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  throw new Error('Timed out waiting for the saved furniture layout');
 }
 async function openHome(page) {
   await page.goto(new URL('/#/demos/furniture-studio/app', site).href, { waitUntil: 'domcontentloaded' });

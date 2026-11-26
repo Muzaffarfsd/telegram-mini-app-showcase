@@ -1251,6 +1251,8 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Checkpoint:** previous commit `8ea63a2a`.
 **Verification:** Security boundary tests and browser check against the production page with the corrected CSP; repeat verification against the deployed version follows publication.
 
+**Follow-up:** The production store and planner mobile tests passed after deployment. The planner test was updated to poll saved state without JavaScript string evaluation, which production CSP correctly blocks.
+
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description
