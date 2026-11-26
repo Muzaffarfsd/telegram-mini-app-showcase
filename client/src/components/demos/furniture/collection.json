@@ -1,0 +1,943 @@
+[
+  {
+    "id": "abo-b07p5lmn2c",
+    "name": "Sloane",
+    "brand": "Rivet",
+    "category": "Диваны",
+    "images": [
+      "/furniture/collection/B07P5LMN2C-7168HPhsezL.webp",
+      "/furniture/collection/B07P5LMN2C-81OrBMtT31L.webp",
+      "/furniture/collection/B07P5LMN2C-911Yrb-gzeL.webp",
+      "/furniture/collection/B07P5LMN2C-A1O6LnQp4YL.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07P5LMN2C.glb",
+    "plannerModelUrl": "/furniture/collection/B07P5LMN2C-room.glb",
+    "dimensionsM": [
+      1.631,
+      0.909,
+      0.841
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Двухместный диван с простёганной спинкой, ширина 163 см.",
+      "en": "A two-seat sofa with a tufted back, 163 cm wide."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07P5LMN2C",
+          "en": "B07P5LMN2C"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Полиэстер, каркас и ножки из массива",
+          "en": "Polyester upholstery, solid wood frame and legs"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b07syl34qz",
+    "name": "Elvas",
+    "brand": "Alkove",
+    "category": "Диваны",
+    "images": [
+      "/furniture/collection/B07SYL34QZ-61+x6mjoHdL.webp",
+      "/furniture/collection/B07SYL34QZ-71BjZtt77UL.webp",
+      "/furniture/collection/B07SYL34QZ-41F4DlqRpPL.webp",
+      "/furniture/collection/B07SYL34QZ-61si0sb53-L.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07SYL34QZ.glb",
+    "plannerModelUrl": "/furniture/collection/B07SYL34QZ-room.glb",
+    "dimensionsM": [
+      1.45,
+      1,
+      0.33
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Модуль-шезлонг семейства Elvas с местом для хранения.",
+      "en": "A chaise module from the Elvas family with integrated storage."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07SYL34QZ",
+          "en": "B07SYL34QZ"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Полиэстер, сосна и МДФ",
+          "en": "Polyester, pine and MDF"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b07b78lzqc",
+    "name": "Ian",
+    "brand": "Rivet",
+    "category": "Обеденные столы",
+    "images": [
+      "/furniture/collection/B07B78LZQC-818LFcL0XBL.webp",
+      "/furniture/collection/B07B78LZQC-81Cog+hc5AL.webp",
+      "/furniture/collection/B07B78LZQC-91rLYX-Uv-L.webp",
+      "/furniture/collection/B07B78LZQC-81w3yBT55mL.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07B78LZQC.glb",
+    "plannerModelUrl": "/furniture/collection/B07B78LZQC-room.glb",
+    "dimensionsM": [
+      1.067,
+      1.067,
+      0.762
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Круглая деревянная столешница диаметром около 107 см.",
+      "en": "A round wooden dining table approximately 107 cm across."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07B78LZQC",
+          "en": "B07B78LZQC"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Массив дерева, шпон акации",
+          "en": "Solid hardwood with acacia veneer"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html",
+    "shape": "round"
+  },
+  {
+    "id": "abo-b07jg45f5b",
+    "name": "Olney",
+    "brand": "Alkove",
+    "category": "Обеденные столы",
+    "images": [
+      "/furniture/collection/B07JG45F5B-71rK7+Tmj7L.webp",
+      "/furniture/collection/B07JG45F5B-817FoSMwagL.webp",
+      "/furniture/collection/B07JG45F5B-71LhcxdGZDL.webp",
+      "/furniture/collection/B07JG45F5B-716WIKIja1L.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07JG45F5B.glb",
+    "plannerModelUrl": "/furniture/collection/B07JG45F5B-room.glb",
+    "dimensionsM": [
+      1.6,
+      0.95,
+      0.77
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Раздвижной стол. В комнате показан сложенный вариант длиной 160 см.",
+      "en": "An extending dining table. The room shows its 160 cm closed configuration."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07JG45F5B",
+          "en": "B07JG45F5B"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Массив дерева с натуральным шпоном",
+          "en": "Solid wood with natural veneer"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b0857jw1b9",
+    "name": "Scarlett",
+    "brand": "Stone & Beam",
+    "category": "Стулья",
+    "images": [
+      "/furniture/collection/B0857JW1B9-61Y5Yh1DzBL.webp",
+      "/furniture/collection/B0857JW1B9-61sLzBGaFWL.webp",
+      "/furniture/collection/B0857JW1B9-612tf6vG3VL.webp",
+      "/furniture/collection/B0857JW1B9-71BL6f7oaRL.webp"
+    ],
+    "modelUrl": "/furniture/collection/B0857JW1B9.glb",
+    "plannerModelUrl": "/furniture/collection/B0857JW1B9-room.glb",
+    "dimensionsM": [
+      0.48,
+      0.551,
+      0.813
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Деревянный каркас и плетёная отделка. В редакторе размещается один стул.",
+      "en": "A wooden frame with woven detailing. Place one chair at a time in the room."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B0857JW1B9",
+          "en": "B0857JW1B9"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Деревянный каркас, плетёное сиденье",
+          "en": "Wood frame and woven seat"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b084s12myc",
+    "name": "Bergen",
+    "brand": "Stone & Beam",
+    "category": "Стулья",
+    "images": [
+      "/furniture/collection/B084S12MYC-71SeCDVTJtL.webp",
+      "/furniture/collection/B084S12MYC-719C0tzKCKL.webp",
+      "/furniture/collection/B084S12MYC-71q9Y96TJlL.webp",
+      "/furniture/collection/B084S12MYC-A1rm-FcdaWL.webp"
+    ],
+    "modelUrl": "/furniture/collection/B084S12MYC.glb",
+    "plannerModelUrl": "/furniture/collection/B084S12MYC-room.glb",
+    "dimensionsM": [
+      0.508,
+      0.571,
+      0.832
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Обеденный стул с мягкой обивкой и деревянными ножками.",
+      "en": "An upholstered dining chair on wooden legs."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B084S12MYC",
+          "en": "B084S12MYC"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Тканевая обивка и массив дерева",
+          "en": "Fabric upholstery and solid wood"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b07dbd9vy1",
+    "name": "Decorah",
+    "brand": "Ravenna Home",
+    "category": "Стулья",
+    "images": [
+      "/furniture/collection/B07DBD9VY1-51noxmVbXxL.webp",
+      "/furniture/collection/B07DBD9VY1-61Bi8AJnXpL.webp",
+      "/furniture/collection/B07DBD9VY1-91+1AbLFD1L.webp",
+      "/furniture/collection/B07DBD9VY1-913XBWMiNkL.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07DBD9VY1.glb",
+    "plannerModelUrl": "/furniture/collection/B07DBD9VY1-room.glb",
+    "dimensionsM": [
+      0.406,
+      0.406,
+      0.61
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Штабелируемый металлический табурет высотой около 61 см.",
+      "en": "A stackable metal counter stool approximately 61 cm tall."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07DBD9VY1",
+          "en": "B07DBD9VY1"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Металл",
+          "en": "Metal"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b07tr659g8",
+    "name": "Ems",
+    "brand": "Movian",
+    "category": "Хранение",
+    "images": [
+      "/furniture/collection/B07TR659G8-814nRTIdvbL.webp",
+      "/furniture/collection/B07TR659G8-816WuZPQ-sL.webp",
+      "/furniture/collection/B07TR659G8-41hG0Q-lIBL.webp",
+      "/furniture/collection/B07TR659G8-71AQRmD2OaL.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07TR659G8.glb",
+    "plannerModelUrl": "/furniture/collection/B07TR659G8-room.glb",
+    "dimensionsM": [
+      1.8,
+      0.395,
+      0.762
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Низкий буфет с двумя дверцами и тремя выдвижными ящиками.",
+      "en": "A low sideboard with two doors and three drawers."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07TR659G8",
+          "en": "B07TR659G8"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "ДСП, меламиновое покрытие, металл",
+          "en": "Particleboard, melamine finish and metal"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b07qtb45s5",
+    "name": "Martin",
+    "brand": "Movian",
+    "category": "Хранение",
+    "images": [
+      "/furniture/collection/B07QTB45S5-71qn9ILU+sL.webp",
+      "/furniture/collection/B07QTB45S5-71lKwG-sVgL.webp",
+      "/furniture/collection/B07QTB45S5-61mvyJAGCjL.webp",
+      "/furniture/collection/B07QTB45S5-615xK4-jc0L.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07QTB45S5.glb",
+    "plannerModelUrl": "/furniture/collection/B07QTB45S5-room.glb",
+    "dimensionsM": [
+      0.77,
+      0.35,
+      1.85
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Открытый книжный стеллаж с отделкой под дуб.",
+      "en": "An open bookcase with an oak-effect finish."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07QTB45S5",
+          "en": "B07QTB45S5"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Полки с отделкой под дуб, металлический каркас",
+          "en": "Oak-effect shelves and metal frame"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b072zlcb3m",
+    "name": "Bristol",
+    "brand": "Rivet",
+    "category": "Столы",
+    "images": [
+      "/furniture/collection/B072ZLCB3M-81Xh+yZvD1L.webp",
+      "/furniture/collection/B072ZLCB3M-A1OdfC9iHhL.webp",
+      "/furniture/collection/B072ZLCB3M-91A-nCul3fL.webp",
+      "/furniture/collection/B072ZLCB3M-81D0VezjM9L.webp"
+    ],
+    "modelUrl": "/furniture/collection/B072ZLCB3M.glb",
+    "plannerModelUrl": "/furniture/collection/B072ZLCB3M-room.glb",
+    "dimensionsM": [
+      0.462,
+      0.48,
+      0.48
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Ореховая столешница с естественной кромкой на тёмном металлическом основании.",
+      "en": "A natural-edge walnut top on a dark metal base."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B072ZLCB3M",
+          "en": "B072ZLCB3M"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Ореховый шпон, древесная плита и металл",
+          "en": "Walnut veneer, engineered wood and metal"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b07b4yxr7d",
+    "name": "Brass Floor",
+    "brand": "Rivet",
+    "category": "Свет",
+    "images": [
+      "/furniture/collection/B07B4YXR7D-71eVGnLjTiL.webp",
+      "/furniture/collection/B07B4YXR7D-71GgT0bQ7aL.webp",
+      "/furniture/collection/B07B4YXR7D-916qI1jilrL.webp",
+      "/furniture/collection/B07B4YXR7D-A1SGZFOHayL.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07B4YXR7D.glb",
+    "plannerModelUrl": "/furniture/collection/B07B4YXR7D-room.glb",
+    "dimensionsM": [
+      0.254,
+      0.711,
+      1.588
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Напольный светильник с льняным абажуром и отделкой под старую латунь.",
+      "en": "A standing lamp with a linen shade and antique brass finish."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07B4YXR7D",
+          "en": "B07B4YXR7D"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Стекло, металл и пластик",
+          "en": "Glass, metal and plastic"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b07374m9zw",
+    "name": "Copper Dome",
+    "brand": "Rivet",
+    "category": "Свет",
+    "images": [
+      "/furniture/collection/B07374M9ZW-714p3F7MOXL.webp",
+      "/furniture/collection/B07374M9ZW-81J7z76kaTL.webp",
+      "/furniture/collection/B07374M9ZW-81xpSVo0wnL.webp",
+      "/furniture/collection/B07374M9ZW-71PFFMbOIQL.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07374M9ZW.glb",
+    "plannerModelUrl": "/furniture/collection/B07374M9ZW-room.glb",
+    "dimensionsM": [
+      0.305,
+      0.305,
+      0.762
+    ],
+    "placement": "ceiling",
+    "description": {
+      "ru": "Медно-розовый купольный подвес над обеденным столом.",
+      "en": "A copper-toned dome pendant for the dining table."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07374M9ZW",
+          "en": "B07374M9ZW"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Металл",
+          "en": "Metal"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b07k7k25zl",
+    "name": "Hayes",
+    "brand": "Alkove",
+    "category": "Кровати",
+    "images": [
+      "/furniture/collection/B07K7K25ZL-51du6nyJHPL.webp",
+      "/furniture/collection/B07K7K25ZL-512IG-gjDWL.webp",
+      "/furniture/collection/B07K7K25ZL-71HTyxrnJrL.webp",
+      "/furniture/collection/B07K7K25ZL-710oVg7WthL.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07K7K25ZL.glb",
+    "plannerModelUrl": "/furniture/collection/B07K7K25ZL-room.glb",
+    "dimensionsM": [
+      1.672,
+      2.092,
+      0.94
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Деревянная кровать под матрас 160 × 200 см. В плане учтён внешний размер рамы.",
+      "en": "A wood bed for a 160 × 200 cm mattress. The plan uses the outside frame dimensions."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07K7K25ZL",
+          "en": "B07K7K25ZL"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Массив дуба с масляной отделкой",
+          "en": "Solid oak with an oiled finish"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b07rpzsm4w",
+    "name": "Bedside",
+    "brand": "AmazonBasics",
+    "category": "Хранение",
+    "images": [
+      "/furniture/collection/B07RPZSM4W-71ft-U5W-JL.webp",
+      "/furniture/collection/B07RPZSM4W-71juF9VcgAL.webp",
+      "/furniture/collection/B07RPZSM4W-71-xEx-NswL.webp",
+      "/furniture/collection/B07RPZSM4W-81WHypip47L.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07RPZSM4W.glb",
+    "plannerModelUrl": "/furniture/collection/B07RPZSM4W-room.glb",
+    "dimensionsM": [
+      0.45,
+      0.38,
+      0.53
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Прикроватная тумба с одним ящиком и открытой полкой.",
+      "en": "A bedside table with one drawer and an open shelf."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07RPZSM4W",
+          "en": "B07RPZSM4W"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Меламин с декоративной плёнкой",
+          "en": "Melamine with finish foil"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b07qj1x2j4",
+    "name": "Haraden",
+    "brand": "Rivet",
+    "category": "Банкетки и пуфы",
+    "images": [
+      "/furniture/collection/B07QJ1X2J4-81VlSf9Cc7L.webp",
+      "/furniture/collection/B07QJ1X2J4-91tm6LuQn1L.webp",
+      "/furniture/collection/B07QJ1X2J4-81weTRT1jsL.webp",
+      "/furniture/collection/B07QJ1X2J4-A1hkFZCB3gL.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07QJ1X2J4.glb",
+    "plannerModelUrl": "/furniture/collection/B07QJ1X2J4-room.glb",
+    "dimensionsM": [
+      1.118,
+      0.406,
+      0.432
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Синяя обитая банкетка с простёганным сиденьем.",
+      "en": "A navy upholstered bench with a button-tufted seat."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07QJ1X2J4",
+          "en": "B07QJ1X2J4"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Полиэстер и деревянный каркас",
+          "en": "Polyester and wood frame"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b07p8st6vt",
+    "name": "Emerly",
+    "brand": "Rivet",
+    "category": "Банкетки и пуфы",
+    "images": [
+      "/furniture/collection/B07P8ST6VT-91aY7PVqtdL.webp",
+      "/furniture/collection/B07P8ST6VT-A1qtp-xZVcL.webp",
+      "/furniture/collection/B07P8ST6VT-B1uBsrKEDFS.webp",
+      "/furniture/collection/B07P8ST6VT-91iXK6wv67L.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07P8ST6VT.glb",
+    "plannerModelUrl": "/furniture/collection/B07P8ST6VT-room.glb",
+    "dimensionsM": [
+      0.838,
+      0.584,
+      0.457
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Низкий мягкий пуф в серой обивке.",
+      "en": "A low upholstered ottoman in steel grey."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07P8ST6VT",
+          "en": "B07P8ST6VT"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Полиэстер, деревянный каркас, металлические ножки",
+          "en": "Polyester, wood frame and metal legs"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b07b4wkmyk",
+    "name": "Ivory Geometry",
+    "brand": "Stone & Beam",
+    "category": "Ковры",
+    "images": [
+      "/furniture/collection/B07B4WKMYK-91UOOcdwcTL.webp",
+      "/furniture/collection/B07B4WKMYK-91NKaTxVhQL.webp",
+      "/furniture/collection/B07B4WKMYK-81C0loiFfSL.webp",
+      "/furniture/collection/B07B4WKMYK-910linHBY4L.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07B4WKMYK.glb",
+    "plannerModelUrl": "/furniture/collection/B07B4WKMYK-room.glb",
+    "dimensionsM": [
+      2.286,
+      1.524,
+      0.006
+    ],
+    "placement": "rug",
+    "description": {
+      "ru": "Шерстяной ковёр с геометрическим рисунком. Мебель можно поставить поверх него.",
+      "en": "A geometric wool area rug that can sit underneath furniture."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07B4WKMYK",
+          "en": "B07B4WKMYK"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "100% шерсть, ручное ткачество",
+          "en": "100% handwoven wool"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b07jxxr83f",
+    "name": "Stanberg",
+    "brand": "Movian",
+    "category": "Рабочие столы",
+    "images": [
+      "/furniture/collection/B07JXXR83F-81m9AAzkSVL.webp",
+      "/furniture/collection/B07JXXR83F-81srVmcJxRL.webp",
+      "/furniture/collection/B07JXXR83F-7192yHZ0HcL.webp",
+      "/furniture/collection/B07JXXR83F-71AZ6GG2J+L.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07JXXR83F.glb",
+    "plannerModelUrl": "/furniture/collection/B07JXXR83F-room.glb",
+    "dimensionsM": [
+      1.4,
+      0.55,
+      0.76
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Письменный стол с ящиком и закрытой секцией.",
+      "en": "A writing desk with a drawer and closed storage."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07JXXR83F",
+          "en": "B07JXXR83F"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Древесная плита с декоративным покрытием",
+          "en": "Engineered wood with decorative finish"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b07mkqt7v4",
+    "name": "Twill Swivel",
+    "brand": "AmazonBasics",
+    "category": "Кресла",
+    "images": [
+      "/furniture/collection/B07MKQT7V4-812d-89r2aL.webp",
+      "/furniture/collection/B07MKQT7V4-81PBPag35+L.webp",
+      "/furniture/collection/B07MKQT7V4-91thGc-I9vL.webp",
+      "/furniture/collection/B07MKQT7V4-81G3MtEsY2L.webp"
+    ],
+    "modelUrl": "/furniture/collection/B07MKQT7V4.glb",
+    "plannerModelUrl": "/furniture/collection/B07MKQT7V4-room.glb",
+    "dimensionsM": [
+      0.655,
+      0.6,
+      0.82
+    ],
+    "placement": "floor",
+    "description": {
+      "ru": "Поворотное рабочее кресло на роликах, ткань кирпичного оттенка.",
+      "en": "A swivel task chair with casters and brick-red twill upholstery."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B07MKQT7V4",
+          "en": "B07MKQT7V4"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Саржевая обивка, стальная крестовина",
+          "en": "Twill upholstery and steel base"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  },
+  {
+    "id": "abo-b0825dnrxl",
+    "name": "Striped Table Lamp",
+    "brand": "Rivet",
+    "category": "Свет",
+    "images": [
+      "/furniture/collection/B0825DNRXL-41AjNHfLkHL.webp",
+      "/furniture/collection/B0825DNRXL-41qiZRLkiAL.webp",
+      "/furniture/collection/B0825DNRXL-41Cmgu+pU0L.webp",
+      "/furniture/collection/B0825DNRXL-91sRiUyT6kL.webp"
+    ],
+    "modelUrl": "/furniture/collection/B0825DNRXL.glb",
+    "plannerModelUrl": "/furniture/collection/B0825DNRXL-room.glb",
+    "dimensionsM": [
+      0.305,
+      0.305,
+      0.641
+    ],
+    "placement": "surface",
+    "description": {
+      "ru": "Настольная лампа в скандинавском стиле со светлым деревом.",
+      "en": "A Scandinavian-style table lamp with light wood accents."
+    },
+    "details": [
+      {
+        "label": {
+          "ru": "Артикул архива",
+          "en": "Archive ID"
+        },
+        "value": {
+          "ru": "B0825DNRXL",
+          "en": "B0825DNRXL"
+        }
+      },
+      {
+        "label": {
+          "ru": "Материал",
+          "en": "Material"
+        },
+        "value": {
+          "ru": "Дерево, металл и льняной абажур",
+          "en": "Wood, metal and linen shade"
+        }
+      }
+    ],
+    "sourceUrl": "https://amazon-berkeley-objects.s3.amazonaws.com/index.html"
+  }
+]

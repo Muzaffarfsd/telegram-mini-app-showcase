@@ -3,6 +3,7 @@ export type PlannerProduct = {
   id: string;
   name: string;
   category?: string;
+  placement?: 'floor' | 'rug' | 'ceiling' | 'surface';
   modelUrl: string;
   widthM: number;
   depthM: number;
@@ -12,7 +13,8 @@ export type PlannerProduct = {
 
 export type PlannerItem = { id: string; productId: string; x: number; z: number; rotation: number };
 /** Back-wall opening coordinates are metres from the left-hand corner. */
-export type PlannerOpening = { start: number; width: number };
+export type WallSide = 'back' | 'right' | 'front' | 'left';
+export type PlannerOpening = { start: number; width: number; wall?:WallSide; hinge?:'left'|'right' };
 export type PlannerOpenings = { window: PlannerOpening | null; door: PlannerOpening | null };
 export type PlannerRoom = { width: number; depth: number; openings?: PlannerOpenings };
 
@@ -23,20 +25,23 @@ export function roomOpenings(room: PlannerRoom): PlannerOpenings {
   const center = -Math.min(0.3, side * 0.22);
   return { window: { start: room.width / 2 + center - width / 2, width }, door: null };
 }
+export const openingWalls:WallSide[]=['back','right','front','left'];
+export function wallLength(room:PlannerRoom,side:WallSide='back'){return side==='left'||side==='right'?room.depth:room.width}
+export function wallPoint(room:PlannerRoom,side:WallSide='back',along=0,inward=0){const w=room.width/2,d=room.depth/2;switch(side){case 'right':return {x:w-inward,z:-d+along};case 'front':return {x:w-along,z:d-inward};case 'left':return {x:-w+inward,z:d-along};default:return {x:-w+along,z:-d+inward}}}
 export function validOpenings(room: PlannerRoom): boolean {
   if (room.openings === undefined) return true;
   const openings = room.openings;
   if (!openings || typeof openings !== 'object' || !('window' in openings) || !('door' in openings)) return false;
-  const valid = (o: PlannerOpening | null, min: number) => o === null || (typeof o === 'object' && Number.isFinite(o.start) && Number.isFinite(o.width) && o.width >= min && o.width <= 3 && o.start >= 0.1 && o.start + o.width <= room.width - 0.1 + 1e-7);
+  const valid = (o: PlannerOpening | null, min: number) => o === null || (typeof o === 'object' && Number.isFinite(o.start) && Number.isFinite(o.width) && o.width >= min && o.width <= 3 && o.start >= 0.1 && (!o.wall||openingWalls.includes(o.wall)) && (!o.hinge||['left','right'].includes(o.hinge)) && o.start + o.width <= wallLength(room,o.wall) - 0.1 + 1e-7);
   if (!valid(openings.window, 0.4) || !valid(openings.door, 0.6)) return false;
-  return !openings.window || !openings.door || openings.window.start + openings.window.width + 0.1 <= openings.door.start + 1e-7 || openings.door.start + openings.door.width + 0.1 <= openings.window.start + 1e-7;
+  return !openings.window || !openings.door || (openings.window.wall||'back')!==(openings.door.wall||'back') || openings.window.start + openings.window.width + 0.1 <= openings.door.start + 1e-7 || openings.door.start + openings.door.width + 0.1 <= openings.window.start + 1e-7;
 }
 /** Approximate 0.8 m approach zone, a warning rather than a certified clearance. */
 export function doorApproachOccupied(room: PlannerRoom, items: readonly PlannerItem[], products: readonly PlannerProduct[]): boolean {
   const door = roomOpenings(room).door;
   if (!door) return false;
-  const x = -room.width / 2 + door.start + door.width / 2, z = -room.depth / 2 + 0.4;
-  return items.some(item => { const product = products.find(p => p.id === item.productId); if (!product) return false; const half = footprint(product, item.rotation); return Math.abs(item.x - x) < half.x + door.width / 2 && Math.abs(item.z - z) < half.z + 0.4; });
+  const {x,z}=wallPoint(room,door.wall,door.start+door.width/2,.4), side=door.wall==='left'||door.wall==='right';
+  return items.some(item => { const product = products.find(p => p.id === item.productId); if (!product || product.placement==='ceiling' || product.placement==='rug' || product.placement==='surface') return false; const half = footprint(product, item.rotation); return Math.abs(item.x - x) < half.x + (side?.4:door.width/2) && Math.abs(item.z - z) < half.z + (side?door.width/2:.4); });
 }
 export type PlannerLayout = { version: 1; room: PlannerRoom; items: PlannerItem[] };
 export type PlannerView = 'top' | 'perspective';
@@ -71,7 +76,7 @@ export function bookshelfPlacement(room: PlannerRoom, items: readonly PlannerIte
   const x = room.width / 2 - 0.63, z = -room.depth / 2 + 0.265;
   const openings = roomOpenings(room);
   const clearOfOpenings = [openings.window, openings.door].every(opening => {
-    if (!opening) return true;
+    if (!opening || (opening.wall && opening.wall!=='back')) return true;
     const center = -room.width / 2 + opening.start + opening.width / 2;
     return Math.abs(x - center) >= 0.62 + opening.width / 2 + 0.3;
   });
@@ -91,8 +96,8 @@ export function picturePlacement(room: PlannerRoom, items: readonly PlannerItem[
   const margin = 0.1, pictureHalf = 0.3;
   const blocked: Array<[number, number]> = [];
   const openings = roomOpenings(room);
-  if (openings.window) blocked.push([-room.width / 2 + openings.window.start - 0.44, -room.width / 2 + openings.window.start + openings.window.width + 0.44]);
-  if (openings.door) blocked.push([-room.width / 2 + openings.door.start - 0.08, -room.width / 2 + openings.door.start + openings.door.width + 0.08]);
+  if (openings.window && (!openings.window.wall||openings.window.wall==='back')) blocked.push([-room.width / 2 + openings.window.start - 0.44, -room.width / 2 + openings.window.start + openings.window.width + 0.44]);
+  if (openings.door && (!openings.door.wall||openings.door.wall==='back')) blocked.push([-room.width / 2 + openings.door.start - 0.08, -room.width / 2 + openings.door.start + openings.door.width + 0.08]);
   if (shelfVisible) {
     const shelf = bookshelfPlacement(room, items, products);
     blocked.push([shelf.x - 0.68, shelf.x + 0.68]);
@@ -143,12 +148,36 @@ export function contain(item: PlannerItem, product: PlannerProduct, room: Planne
 
 /** Separating-axis check on two rotated rectangular footprints. */
 export function overlaps(a: PlannerItem, ap: PlannerProduct, b: PlannerItem, bp: PlannerProduct): boolean {
+
+  if (ap.placement === 'rug' || bp.placement === 'rug') return ap.placement === bp.placement && Math.abs(a.x-b.x)<.05 && Math.abs(a.z-b.z)<.05;
+  if ((ap.placement || 'floor') !== (bp.placement || 'floor')) return false;
   const axes = [a.rotation, b.rotation].flatMap(angle => [{ x: Math.cos(angle), z: Math.sin(angle) }, { x: -Math.sin(angle), z: Math.cos(angle) }]);
   const project = (p: PlannerProduct, angle: number, axis: { x: number; z: number }) => {
     const c = Math.cos(angle), s = Math.sin(angle);
     return Math.abs(axis.x * c + axis.z * s) * p.widthM / 2 + Math.abs(-axis.x * s + axis.z * c) * p.depthM / 2;
   };
   return axes.every(axis => Math.abs((a.x - b.x) * axis.x + (a.z - b.z) * axis.z) < project(ap, a.rotation, axis) + project(bp, b.rotation, axis) - 0.005);
+}
+
+export function canSupport(p:PlannerProduct){return (p.category||'').toLowerCase().includes('столы')||(p.category==='Хранение'&&p.heightM<=1.1)}
+export function supportFor(piece:PlannerItem,product:PlannerProduct,items:readonly PlannerItem[],products:readonly PlannerProduct[]){
+  if(product.placement!=='surface')return undefined;
+  return items.find(i=>{const p=products.find(v=>v.id===i.productId);if(i.id===piece.id||!p||!canSupport(p))return false;
+    const c=Math.cos(i.rotation),s=Math.sin(i.rotation),dx=piece.x-i.x,dz=piece.z-i.z,half=footprint(product,piece.rotation-i.rotation);
+    return Math.abs(dx*c+dz*s)+half.x<=p.widthM/2+.002&&Math.abs(-dx*s+dz*c)+half.z<=p.depthM/2+.002;});
+}
+export function surfaceHeight(piece:PlannerItem,p:PlannerProduct,items:readonly PlannerItem[],products:readonly PlannerProduct[],ceiling=2.6){
+  if(p.placement==='ceiling')return ceiling-p.heightM-.01;
+  if(p.placement==='rug')return .022;
+  const support=supportFor(piece,p,items,products);return support?products.find(v=>v.id===support.productId)?.heightM||0:0;
+}
+export function supportedPieces(id:string,items:readonly PlannerItem[],products:readonly PlannerProduct[]){
+  return items.filter(i=>{const p=products.find(v=>v.id===i.productId);return p&&supportFor(i,p,items,products)?.id===id;});
+}
+export function moveWithContents(items:PlannerItem[],before:PlannerItem,after:PlannerItem,products:readonly PlannerProduct[]){
+  const cargo=supportedPieces(before.id,items,products),angle=after.rotation-before.rotation,c=Math.cos(angle),s=Math.sin(angle);
+  return items.map(i=>{if(i.id===before.id)return after;if(!cargo.includes(i))return i;
+    const dx=i.x-before.x,dz=i.z-before.z;return {...i,x:after.x+dx*c-dz*s,z:after.z+dx*s+dz*c,rotation:i.rotation+angle};});
 }
 
 export function validProducts(products: readonly PlannerProduct[]): PlannerProduct[] {

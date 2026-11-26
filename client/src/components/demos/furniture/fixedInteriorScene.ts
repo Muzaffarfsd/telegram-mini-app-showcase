@@ -1,9 +1,11 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import type { PlannerItem, PlannerProduct, PlannerView } from './plannerTypes';
 
+import { surfaceHeight } from './plannerTypes';
 export type FixedSceneState = { items: PlannerItem[]; products: readonly PlannerProduct[]; selected: string | null; view: PlannerView };
 type Callbacks = {
   onSelect: (id: string) => void; onMove: (id: string, x: number, z: number) => void;
@@ -11,7 +13,8 @@ type Callbacks = {
   onGestureEnd: () => void; onGestureCancel: () => void; onError: (message: string) => void;
   onBounds: (id: string, size: { widthM: number; depthM: number; heightM: number }) => void;
 };
-export const FIXED_BOUNDS = { left: -3.18, right: 4.8, back: -2.7, front: 6.4 } as const;
+import { FIXED_BOUNDS } from './fixedInteriorModel';
+export { FIXED_BOUNDS };
 const CENTER = { x: (FIXED_BOUNDS.left + FIXED_BOUNDS.right) / 2, z: (FIXED_BOUNDS.back + FIXED_BOUNDS.front) / 2 };
 
 /** Fixed architectural scene. Camera and products are independent of the light bake. */
@@ -26,11 +29,11 @@ export async function createFixedInteriorScene(canvas: HTMLCanvasElement, callba
   const sun = new THREE.DirectionalLight('#fff2d9', 1.7); sun.position.set(-7, 7, 2); sun.castShadow = true;
   sun.shadow.mapSize.set(1024, 1024); Object.assign(sun.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 0.1, far: 30 });
   sun.shadow.bias = -0.0002; sun.shadow.normalBias = 0.025; scene.add(sun);
-  const camera = new THREE.PerspectiveCamera(65, 1, 0.05, 100); camera.position.set(.45, 1.5, 2.25);
+  const camera = new THREE.PerspectiveCamera(65, 1, 0.05, 100); camera.position.set(.95, 1.62, 4.65);
   const top = new THREE.OrthographicCamera(-4.5, 4.5, 10, -10, 0.1, 100); top.position.set(CENTER.x, 16, CENTER.z); top.up.set(0, 0, -1); top.lookAt(CENTER.x, 0, CENTER.z);
-  const controls = new OrbitControls(camera, canvas); controls.target.set(-0.65, 0.7, -1.85); controls.enablePan = false;
+  const controls = new OrbitControls(camera, canvas); controls.target.set(-.35, .70, -.95); controls.enablePan = false;
   controls.minDistance = 1.5; controls.maxDistance = 9; controls.maxPolarAngle = Math.PI / 2.05; controls.update();
-  const loader = new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder);
+  const loader = new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder); const basis=new KTX2Loader().setTranscoderPath('/furniture/basis/').detectSupport(renderer); loader.setKTX2Loader(basis);
   const objects = new THREE.Group(); scene.add(objects);
   const instances = new Map<string, THREE.Group>(), models = new Map<string, THREE.Group>(), cached = new Map<string, Promise<THREE.Group>>();
   let state: FixedSceneState = { items: [], products: [], selected: null, view: 'perspective' };
@@ -64,7 +67,7 @@ export async function createFixedInteriorScene(canvas: HTMLCanvasElement, callba
   const shadowTexture = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const ctx = c.getContext('2d');
     if (ctx) { const g = ctx.createRadialGradient(64, 64, 2, 64, 64, 64); g.addColorStop(0, 'rgba(35,25,20,.27)'); g.addColorStop(1, 'rgba(35,25,20,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, 128, 128); } return new THREE.CanvasTexture(c); })();
   try {
-    const gltf = await loader.loadAsync('/furniture/interiors/fixed-living-room.glb');
+    const gltf = await loader.loadAsync('/furniture/interiors/living-light.glb');
     if (destroyed) { dispose(gltf.scene); throw new Error('cancelled'); }
     room = gltf.scene;
     room.traverse(node => {
@@ -75,7 +78,7 @@ export async function createFixedInteriorScene(canvas: HTMLCanvasElement, callba
       }
     });
     scene.add(room);
-  } catch (error) { renderer.dispose(); shadowTexture.dispose(); controls.dispose(); throw error; }
+  } catch (error) { basis.dispose(); renderer.dispose(); shadowTexture.dispose(); controls.dispose(); throw error; }
 
   function setHighlight() {
     if (highlight) { scene.remove(highlight); highlight.geometry.dispose(); (highlight.material as THREE.Material).dispose(); highlight = null; }
@@ -112,9 +115,9 @@ export async function createFixedInteriorScene(canvas: HTMLCanvasElement, callba
     for (const item of next.items) {
       const product = next.products.find(p => p.id === item.productId); if (!product) continue;
       if (!instances.has(item.id)) add(item, product);
-      const anchor = instances.get(item.id)!; anchor.position.set(item.x, 0, item.z); anchor.rotation.y = -item.rotation;
+      const anchor = instances.get(item.id)!; anchor.position.set(item.x, surfaceHeight(item,product,next.items,next.products,2.8), item.z); anchor.rotation.y = -item.rotation;
     }
-    if (next.view === 'perspective' && previousSelection !== next.selected) {
+    if (next.view === 'perspective' && previousSelection !== null && previousSelection !== next.selected) {
       const selected = next.items.find(item => item.id === next.selected), product = selected && next.products.find(p => p.id === selected.productId);
       if (selected && product) {
         const distance = Math.max(2.8, product.widthM * 2.0);
@@ -185,6 +188,6 @@ export async function createFixedInteriorScene(canvas: HTMLCanvasElement, callba
       canvas.removeEventListener('pointerdown', down); canvas.removeEventListener('pointermove', move); canvas.removeEventListener('pointerup', end); canvas.removeEventListener('pointercancel', end); canvas.removeEventListener('lostpointercapture', end); canvas.removeEventListener('webglcontextlost', lost);
       if (highlight) { highlight.geometry.dispose(); (highlight.material as THREE.Material).dispose(); } if (room) dispose(room);
       instances.forEach(a => { const shadow = a.children[0] as THREE.Mesh; shadow.geometry.dispose(); (shadow.material as THREE.Material).dispose(); });
-      cached.forEach(p => { void p.then(dispose).catch(() => {}); }); shadowTexture.dispose(); renderer.dispose();
+      cached.forEach(p => { void p.then(dispose).catch(() => {}); }); shadowTexture.dispose(); basis.dispose(); renderer.dispose();
     } };
 }

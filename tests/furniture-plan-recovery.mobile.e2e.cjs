@@ -10,7 +10,7 @@ const initial = { version: 1, room: { width: 2, depth: 2 }, items: [
 const read = page => page.evaluate(key => JSON.parse(localStorage.getItem(key)), key);
 async function open(page) {
   await page.getByRole('button', { name: 'Открыть планировщик', exact: true }).click();
-  await page.getByRole('button', { name: /^Своя комната/ }).click();
+
   await page.locator('.fpl-stage canvas').waitFor();
   await page.waitForFunction(() => !Array.from(document.querySelectorAll('.fpl-status')).some(node => node.textContent.includes('Загружаем')), null, { timeout: 45000 });
   await page.getByText('Сохранённая расстановка не изменена автоматически', { exact: false }).waitFor();
@@ -39,18 +39,11 @@ async function open(page) {
     // Select the sofa through the scene, then move in small steps while it is
     // still overlapping: an already-invalid state must not trap the user.
     const cdp = await context.newCDPSession(page), canvas = page.locator('.fpl-stage canvas');
-    const box = await canvas.boundingBox();
-    let target;
-    for (let fy = 0.25; fy <= 0.65 && !target; fy += 0.05) {
-      for (let fx = 0.30; fx <= 0.70 && !target; fx += 0.05) {
-        await page.locator('.fpl-items button').nth(1).click();
-        const x = box.x + fx * box.width, y = box.y + fy * box.height;
-        await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
-        await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-        if ((await page.locator('.fpl-items button[aria-pressed=true]').innerText()).includes('Диван')) target = { x, y };
-      }
-    }
-    assert(target, 'sofa should remain selectable in the scene');
+    await canvas.scrollIntoViewIfNeeded();const box=await canvas.boundingBox();
+    const scale=Math.min((box.width-66)/6,(box.height-88)/6);
+    const target={x:box.x+box.width/2-.45*scale,y:box.y+box.height/2};
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[target]});await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    assert.match(await page.locator('.fpl-items button[aria-pressed=true]').innerText(),/Диван/);
     // Moving away must work in gradual increments, before the collision has
     // completely cleared, so the user can recover the arrangement by hand.
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [target] });

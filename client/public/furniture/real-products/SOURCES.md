@@ -4,6 +4,8 @@ ABO product photography and 3D models: Amazon.com, Amazon Berkeley Objects (ABO)
 
 These are historical archive records: current pricing, availability, provenance of newer versions and 2026 release status are not asserted. Photos are downscaled to at most 1400 px and converted to WebP; 3D source files are the web-compressed [CodePawl ABO GLB conversion](https://huggingface.co/datasets/codepawl/abo-glb) with textures resized to at most 2048 px for inspection and 1024 px for the multi-object planner. Geometry is retained; downloaded meshopt geometry is decoded in our resized copies.
 
+The November room collection adds twenty archived products and eighty photographs. [View the model and original photograph credits for each product](../collection/SOURCES.md). Lower-detail scene models and transparent plan images are derived from the same products as the full product viewer.
+
 ## Added products and photographs
 
 ### B07GDSF3MR — Amazon Brand - Rivet Round Coffee Table with Solid Wood Legs, 80 x 80 x 36cm, MDF with Walnut Veneer/Solid Beech Wood

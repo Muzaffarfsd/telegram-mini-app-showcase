@@ -44,6 +44,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   const { language } = useLanguage();
   const { hapticFeedback } = useTelegram();
   const ru = language === "ru";
+  const furniture=window.location.hash.startsWith("#/demos/furniture-studio/app");
   const reducedMotion = useReducedMotion();
   const dialogRef = useRef<HTMLDivElement>(null);
   const draftRef = useRef<AIAgentDraft>({ input: "", previewImage: null, imageData: null });
@@ -257,6 +258,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
   const lastMessage = messages[messages.length - 1];
   const showSuggestions = lastMessage?.role === "assistant" && !lastMessage.isStreaming && !isLoading;
   const followUps = useMemo(() => {
+    if(furniture)return ru?["Как измерить проход?","Как сохранить план?"]:["How do I measure clearance?","How do I save my plan?"];
     const text = lastMessage?.content.toLowerCase() || "";
     if (ru) {
       if (/цен[аы]|стоимост|тариф/.test(text)) return ["Что входит в стоимость?", "Какие сроки?"];
@@ -266,9 +268,9 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
     if (/price|cost|tariff/.test(text)) return ["What's included?", "How long does it take?"];
     if (/demo|example|portfolio/.test(text)) return ["Show more examples", "How do I choose?"];
     return ["Tell me more", "Show examples"];
-  }, [lastMessage, ru]);
+  }, [lastMessage, ru, furniture]);
 
-  const starters = ru ? [
+  const starters = furniture ? (ru?['Подобрать диван по ширине','Сравнить обивку','Как поделиться планом?']:['Find a sofa by width','Compare upholstery','How do I share a plan?']).map(title=>({title,prompt:title})) : ru ? [
     { title: "Подобрать приложение", prompt: "Помогите выбрать Mini App для моего бизнеса" },
     { title: "Узнать стоимость", prompt: "Расскажите о стоимости разработки Mini App" },
     { title: "Посмотреть примеры", prompt: "Покажите примеры готовых проектов" },
@@ -321,7 +323,7 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                     </div>}
                   </div>
                 )}
-                <button type="button" className="ai-chat-icon-button" onClick={close} aria-label="Close"><ChevronDown size={21} /></button>
+                <button type="button" className="ai-chat-icon-button" onClick={close} aria-label={ru?"Закрыть":"Close"}><ChevronDown size={21} /></button>
               </div>
             </header>
 
@@ -345,8 +347,8 @@ export const AIAgentPanel = memo(({ isOpen, onClose, pageContext }: AIAgentPanel
                   <div className="ai-chat-hero-art"><img src={consultant} alt="" width="144" height="144" /></div>
                   <div className="ai-chat-welcome-copy">
                     <p className="ai-chat-kicker">WEB4TG · {demoMode ? (ru ? "ДЕМО" : "DEMO") : "AI"}</p>
-                    <h3>{ru ? "Привет! Я ваш ИИ-консультант" : "Hello! I'm your AI consultant"}</h3>
-                    <p>{demoMode ? (ru ? "Попробуйте пример диалога: настоящие ответы появятся после подключения ИИ." : "Try an example conversation. Real answers will be available after AI is connected.") : (ru ? "Помогу выбрать приложение, разобраться с возможностями и обсудить ваш проект." : "I'll help you choose an app, explore its features and discuss your project.")}</p>
+                    <h3>{furniture?(ru?'Помощь с выбором мебели':'Furniture selection help'):ru ? "Привет! Я ваш ИИ-консультант" : "Hello! I'm your AI consultant"}</h3>
+                    <p>{furniture?(ru?'Размеры, обивка и сохранение вашей расстановки.':'Dimensions, upholstery and saving your room plan.'):demoMode ? (ru ? "Попробуйте пример диалога: настоящие ответы появятся после подключения ИИ." : "Try an example conversation. Real answers will be available after AI is connected.") : (ru ? "Помогу выбрать приложение, разобраться с возможностями и обсудить ваш проект." : "I'll help you choose an app, explore its features and discuss your project.")}</p>
                   </div>
                   <div className="ai-chat-starters" aria-label={ru ? "Варианты вопросов" : "Suggested questions"}>
                     {starters.map((item, index) => <button type="button" key={item.title} onClick={() => send(item.prompt)}>

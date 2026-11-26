@@ -45,9 +45,9 @@ async function exercise(engine, width, ru) {
     await openComparison();
     assert.equal(await count(), 4);
     await page.waitForFunction(() => document.activeElement.id === 'fs-compare-title');
-    const dimensions = page.locator('.fs-compare-table tbody tr').nth(2);
-    assert.match(await dimensions.innerText(), /203 × 158 × 90/);
-    assert.match(await page.locator('.fs-compare-table tbody tr').nth(3).innerText(), ru ? /Полиэстер/ : /Polyester/);
+    const rows = page.locator('.fs-compare-table tbody tr');
+    assert.match(await rows.filter({has:page.getByRole('rowheader',{name:label('Ширина','Width'),exact:true})}).innerText(),/203/);
+    assert.match(await rows.filter({has:page.getByRole('rowheader',{name:label('Материал','Material'),exact:true})}).innerText(), /полиэстер|polyester/i);
     const geometry = await page.evaluate(() => ({ viewport: document.documentElement.clientWidth, document: document.documentElement.scrollWidth, area: document.querySelector('.fs-compare-scroll').clientWidth, table: document.querySelector('.fs-compare-scroll').scrollWidth }));
     assert(geometry.document <= geometry.viewport + 1, JSON.stringify(geometry));
     assert(geometry.table > geometry.area, JSON.stringify(geometry));

@@ -4,6 +4,14 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 — Furniture catalogue, room planning and art direction
+
+- Rebuilt the bilingual store around the Ian dining setting. The photograph, hotspot, catalogue and editable dining room all lead to the corresponding real product. Added catalogue search by size and material, scale comparison, model evidence, product drawing, room associations and a reachable mobile checkout.
+- Expanded the catalogue to 30 pieces across 11 categories, with 124 photographs, 30 product models, 30 smaller room models and true-scale floor-plan silhouettes. Sources for the new archival items are in client/public/furniture/collection/SOURCES.md.
+- Created five editable rooms with distinct dimensions, finishes, furniture, daylight and evening light. Modelled room-specific styling and rendered the thumbnails from the editor. The sixth option is the existing fixed living room, now delivered as a 1.75 MB derivative of the previous 16.15 MB shell.
+- Added a 2D canvas available while 3D loads, two-finger gestures, four-wall openings, reversible layout edits, editable named projects, shareable floor plans, PNG export, full-set handoff and optional device-native AR. The fixed room can be copied without overwriting the customer's personal plan.
+- Verified mobile storefront and room flows in Chromium, catalogue and fallbacks in WebKit, all 124 gallery photos and all thirty full-detail and room models. Before this work the released store was at 265eff89. Native Telegram and physical AR tracking still require devices.
+
 ## 2026-11-12 — Simplify the MIRA and jewelry home headers
 
 - Removed the local collection/demo labels and top exit buttons from the MIRA and jewelry home screens; raised both hero sections by 30 CSS pixels while retaining their existing navigation.

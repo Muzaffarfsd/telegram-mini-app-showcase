@@ -1,16 +1,20 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+import { makeWall } from './wallApertures';
+import { dressWall } from './roomArchitecture';
 import gardenImage from '../../../assets/furniture/house.webp';
-import { bookshelfPlacement, cabinetPlacement, footprint, picturePlacement, roomOpenings, sidePicturePlacement, type PlannerItem, type PlannerProduct, type PlannerRoom, type PlannerView } from './plannerTypes';
+import { stylePiece } from './roomStyling';
+import { supportedPieces, surfaceHeight, bookshelfPlacement, cabinetPlacement, footprint, picturePlacement, roomOpenings, wallPoint, sidePicturePlacement, type PlannerItem, type PlannerProduct, type PlannerRoom, type PlannerView } from './plannerTypes';
 
 type SceneState = { room: PlannerRoom; items: PlannerItem[]; products: readonly PlannerProduct[]; selected: string | null; view: PlannerView };
 type Callbacks = { onSelect: (id: string | null) => void; onMove: (id: string, x: number, z: number) => void; onRotate: (id: string, rotation: number) => void; onDragStart: () => void; onDragEnd: () => void; onDragCancel: () => void; onError: (text: string) => void; onModelError: (id: string, text: string) => void; onBounds: (id: string, size: { widthM: number; depthM: number; heightM: number }) => void };
 
 /** One renderer, one shared GLB per product, rendered only on interaction/change. */
-export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbacks) {
+export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbacks, theme='custom') {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -53,13 +57,14 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
   controls.minPolarAngle = 0.22; controls.maxPolarAngle = Math.PI / 2.18;
   const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
   const ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-  const loader = new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder);
+  const loader = new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder); const basis=new KTX2Loader().setTranscoderPath('/furniture/basis/').detectSupport(renderer); loader.setKTX2Loader(basis);
   const cached = new Map<string, Promise<THREE.Group>>();
   const instances = new Map<string, THREE.Group>();
   const models = new Map<string, THREE.Group>();
   const requested = new Set<string>();
   let state: SceneState = { room: { width: 4.8, depth: 4 }, items: [], products: [], selected: null, view: 'top' };
   let destroyed = false, frame = 0, resourceFrame = 0, architectureKey = '', cameraKey = '';
+  let evening=false,frontWall:THREE.Group|null=null;
   let backWall: THREE.Group | null = null, sideWall: THREE.Group | null = null, rightWall: THREE.Group | null = null, ceiling: THREE.Group | null = null;
   let wood: THREE.Texture | null = null, normal: THREE.Texture | null = null, environment: THREE.Texture | null = null, rugTexture: THREE.Texture | null = null, rugNormal: THREE.Texture | null = null, plaster: THREE.Texture | null = null, garden: THREE.Texture | null = null, linen: THREE.Texture | null = null, linenNormal: THREE.Texture | null = null;
   let plant: THREE.Group | null = null, plantRequested = false;
@@ -83,15 +88,16 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
       if (backWall) backWall.visible = state.view === 'perspective' && perspective.position.z > -state.room.depth / 2 + 0.04;
       if (sideWall) sideWall.visible = state.view === 'perspective' && perspective.position.x > -state.room.width / 2 + 0.04;
       if (rightWall) rightWall.visible = state.view === 'perspective' && perspective.position.x < state.room.width / 2 - 0.04;
+      if(frontWall)frontWall.visible=state.view==='perspective'&&perspective.position.z<state.room.depth/2-.04;
       if (ceiling) ceiling.visible = state.view === 'perspective' && perspective.position.y < 2.58;
       if (decor) decor.visible = decorClear && state.view === 'perspective' && perspective.position.x < state.room.width / 2 - 0.04;
       if (bookshelf) bookshelf.visible = bookshelfClear && state.view === 'perspective' && perspective.position.z > -state.room.depth / 2 + 0.04;
-      if (pendant) pendant.visible = state.view === 'perspective' && perspective.position.y < 2.58;
+      if (pendant) pendant.visible = state.view === 'perspective' && perspective.position.y < 2.58 && !state.items.some(i=>state.products.find(p=>p.id===i.productId)?.placement==='ceiling');
       if (wallPicture) wallPicture.visible = pictureClear && state.view === 'perspective' && (pictureOnSide ? perspective.position.x > -state.room.width / 2 + 0.04 : perspective.position.z > -state.room.depth / 2 + 0.04);
       planFill.visible = state.view === 'top';
-      sun.intensity = state.view === 'top' ? 1.15 : 2.6;
-      sun.shadow.intensity = state.view === 'top' ? 0.15 : 0.6;
-      renderer.toneMappingExposure = state.view === 'top' ? 1.22 : 1;
+      sun.intensity = state.view === 'top' ? 1.15 : evening? .72:2.1;
+      sun.shadow.intensity = state.view === 'top' ? 0.15 : .85;
+      renderer.toneMappingExposure = state.view === 'top' ? 1.22 : evening?.79:.93;
       (scene.background as THREE.Color).set(state.view === 'top' ? '#d8d4ce' : '#eeeae4');
       renderer.render(scene, camera());
     }
@@ -133,7 +139,7 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
   })();
   function rebuildRoom(room: PlannerRoom, view: PlannerView) {
     architecture.children.slice().forEach(node => { architecture.remove(node); disposeGroup(node); });
-    backWall = null; sideWall = null; rightWall = null; ceiling = null;
+    frontWall=null;backWall = null; sideWall = null; rightWall = null; ceiling = null;
     const { width: w, depth: d } = room;
     const shadowExtent = Math.max(4, Math.hypot(w, d) / 2 + 2);
     sun.shadow.camera.left = -shadowExtent; sun.shadow.camera.right = shadowExtent;
@@ -154,7 +160,7 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
     rugBase.receiveShadow = true;
     const rug = new THREE.Mesh(new THREE.PlaneGeometry(rugWidth, rugDepth), new THREE.MeshStandardMaterial({ color: '#f3eee5', roughness: 1 }));
     rug.receiveShadow = true;
-    rug.rotation.x = -Math.PI / 2; rug.position.set(0, 0.014, Math.min(0.2, (d - rugDepth) / 2)); architecture.add(rug);
+    rug.rotation.x = -Math.PI / 2; rug.position.set(0, 0.014, Math.min(0.2, (d - rugDepth) / 2)); architecture.add(rug); const hasOwnRug=state.items.some(i=>state.products.find(p=>p.id===i.productId)?.placement==='rug');rug.visible=rugBase.visible=!hasOwnRug;
     if (rugTexture) { const map = rugTexture.clone(); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(rugWidth / 1.8, rugDepth / 0.9); map.needsUpdate = true; (rug.material as THREE.MeshStandardMaterial).map = map; }
     if (rugNormal) { const map = rugNormal.clone(); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(rugWidth / 1.8, rugDepth / 0.9); map.needsUpdate = true; (rug.material as THREE.MeshStandardMaterial).normalMap = map; (rug.material as THREE.MeshStandardMaterial).normalScale.set(0.3, 0.3); }
     if (view === 'top') {
@@ -192,13 +198,13 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
       // A cutaway room: its shell is architectural geometry, not a picture.
       // Window and trim scale with available wall space, but never stretch the
       // movable furniture or occupy its floor footprint.
-      const h = 2.6, wall = '#e7e0d5', backZ = -d / 2;
-      const openings = roomOpenings(room);
+      const h = 2.6, wall = ({studio:'#e7dfca',dining:'#d6d8c8',reading:'#d5c4a6',office:'#d0d8d2',bedroom:'#ebdcd3'} as Record<string,string>)[theme] || '#e7e0d5', backZ = -d / 2;
+      const all=roomOpenings(room);const openings={window:all.window&&(!all.window.wall||all.window.wall==='back')?all.window:null,door:all.door&&(!all.door.wall||all.door.wall==='back')?all.door:null};
       const windowWidth = openings.window?.width ?? 0;
       const windowX = openings.window ? -w / 2 + openings.window.start + windowWidth / 2 : 0;
       const side = (w - windowWidth) / 2;
       windowFill.position.set(windowX, 2.0, backZ + 0.7);
-      backWall = new THREE.Group(); sideWall = new THREE.Group(); rightWall = new THREE.Group(); ceiling = new THREE.Group(); architecture.add(backWall, sideWall, rightWall, ceiling);
+      backWall = new THREE.Group(); sideWall = new THREE.Group(); rightWall = new THREE.Group(); ceiling = new THREE.Group(); architecture.add(backWall, sideWall, rightWall, ceiling); if(![all.window,all.door].some(o=>o?.wall==='left'))dressWall(theme,sideWall,w,d);
       const backWallGroup = backWall;
       const wallPieces: THREE.Mesh[] = [];
       const segment = (a: number, b: number, y: number, height: number) => {
@@ -225,6 +231,11 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
           (mesh.material as THREE.MeshStandardMaterial).bumpScale = 0.025;
         }
       });
+      for(const side of ['left','right','front'] as const){if(![all.window,all.door].some(o=>o?.wall===side))continue;
+        const target=side==='left'?sideWall:side==='right'?rightWall:new THREE.Group();if(side==='front'){frontWall=target;architecture.add(target);}
+        if(side==='left')returnWall.visible=false;if(side==='right')rightReturnWall.visible=false;
+        target.add(makeWall(room,side,wall,garden));}
+      if(all.window){const o=all.window,side=o.wall||'back',offset=o.start+o.width/2;const lamp=wallPoint(room,side,offset,.38);windowFill.position.set(lamp.x,1.84,lamp.z);const outside=wallPoint(room,side,offset-.65,-1.6);sun.position.set(outside.x,2.5,outside.z);sun.target.position.set(-outside.x*.42,0,-outside.z*.42);sun.target.updateMatrixWorld();}
       if (openings.window) {
         const pane = block(backWall, windowWidth, 1.79, 0.025, windowX, 1.325, backZ - 0.07, '#d1d6cf');
         pane.material.dispose();
@@ -332,12 +343,12 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
     controls.target.set(targetX, targetY, targetZ); controls.update();
     resize();
   }
-  const shadowTexture = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const ctx = c.getContext('2d'); if (ctx) { const g = ctx.createRadialGradient(64,64,0,64,64,64); g.addColorStop(0,'rgba(30,22,16,.34)'); g.addColorStop(1,'rgba(30,22,16,0)'); ctx.fillStyle=g; ctx.fillRect(0,0,128,128); } return new THREE.CanvasTexture(c); })();
+  const shadowTexture = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const ctx = c.getContext('2d'); if (ctx) { const g = ctx.createRadialGradient(64,64,0,64,64,64); g.addColorStop(0,'rgba(30,22,16,.67)'); g.addColorStop(.48,'rgba(30,22,16,.32)'); g.addColorStop(1,'rgba(30,22,16,0)'); ctx.fillStyle=g; ctx.fillRect(0,0,128,128); } return new THREE.CanvasTexture(c); })();
   function addObject(item: PlannerItem, product: PlannerProduct) {
-    const anchor = new THREE.Group(); anchor.userData.plannerId = item.id;
+    const anchor = new THREE.Group(); anchor.userData.plannerId = item.id; anchor.userData.modelUrl=product.modelUrl;
     instances.set(item.id, anchor); objects.add(anchor);
     const shadow = new THREE.Mesh(new THREE.PlaneGeometry(product.widthM * 1.25, product.depthM * 1.25), new THREE.MeshBasicMaterial({ map: shadowTexture, transparent: true, depthWrite: false }));
-    shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.02; anchor.add(shadow);
+    shadow.rotation.x = -Math.PI / 2; shadow.position.y = .043;shadow.visible=product.placement!=='ceiling'&&product.placement!=='rug';anchor.add(shadow);
     let promise = cached.get(product.modelUrl);
     if (!promise) { promise = loader.loadAsync(product.modelUrl).then(gltf => gltf.scene); cached.set(product.modelUrl, promise); }
     requested.add(item.id);
@@ -358,7 +369,7 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
       const scale = product.widthM / size.x;
       callbacks.onBounds(product.id, { widthM: size.x * scale, depthM: size.z * scale, heightM: size.y * scale });
       const inner = new THREE.Group(); inner.add(model); inner.scale.setScalar(scale); inner.position.set(-center.x * scale, -box.min.y * scale, -center.z * scale);
-      anchor.add(inner); models.set(item.id, inner); requested.delete(item.id); updateHighlight(); refreshAfterResourceChange();
+      anchor.add(inner);const styling=stylePiece(theme,product,inner);if(styling){anchor.add(styling);styling.visible=!supportedPieces(item.id,state.items,state.products).length;}models.set(item.id, inner); requested.delete(item.id); updateHighlight(); refreshAfterResourceChange();
     }).catch(() => { requested.delete(item.id); if (!destroyed) callbacks.onModelError(product.id, `Не удалось загрузить 3D-модель: ${product.name}`); });
   }
   function updateHighlight() {
@@ -523,12 +534,13 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
       plant.visible = next.view === 'perspective' && !occupied && !blocksDoor;
     }
     configureCamera();
-    const live = new Set(next.items.map(item => item.id));
-    instances.forEach((group, id) => { if (!live.has(id)) { objects.remove(group); const shadow = group.children[0] as THREE.Mesh; shadow?.geometry?.dispose(); (shadow?.material as THREE.Material | undefined)?.dispose(); instances.delete(id); models.delete(id); requested.delete(id); } });
+    const live = new Map(next.items.map(item=>[item.id,next.products.find(p=>p.id===item.productId)?.modelUrl] as const));
+    instances.forEach((group, id) => { if (live.get(id)!==group.userData.modelUrl) {const styling=group.getObjectByName('room-styling');if(styling)disposeGroup(styling); objects.remove(group); const shadow = group.children[0] as THREE.Mesh; shadow?.geometry?.dispose(); (shadow?.material as THREE.Material | undefined)?.dispose(); instances.delete(id); models.delete(id); requested.delete(id); } });
     for (const item of next.items) {
       const product = next.products.find(p => p.id === item.productId); if (!product) continue;
       if (!instances.has(item.id)) addObject(item, product);
-      const instance = instances.get(item.id)!; instance.position.set(item.x, 0, item.z); instance.rotation.y = -item.rotation;
+      const instance = instances.get(item.id)!;const styling=instance.getObjectByName('room-styling');if(styling)styling.visible=!supportedPieces(item.id,next.items,next.products).length;
+      instance.position.set(item.x,surfaceHeight(item,product,next.items,next.products),item.z); instance.rotation.y = -item.rotation;
     }
     if (oldSelection !== next.selected || next.selected) updateHighlight();
     renderer.shadowMap.needsUpdate = true;
@@ -644,6 +656,16 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
   resize();
   return {
     update,
+    cameraPose(){return [...perspective.position.toArray(),...controls.target.toArray()];},
+    restoreCamera(pose:number[]){if(pose.length!==6||!pose.every(n=>Number.isFinite(n)&&Math.abs(n)<100))return;perspective.position.fromArray(pose);controls.target.fromArray(pose,3);controls.update();draw();},
+    setEvening(enabled:boolean){evening=enabled;sun.color.set(enabled?'#ffbd80':'#fff2dd');sun.intensity=enabled?1.0:2.6;windowFill.color.set(enabled?'#ffd298':'#fff4df');windowFill.intensity=enabled?3.0:.65;scene.environmentIntensity=enabled?.32:.65;renderer.toneMappingExposure=enabled?.88:1;refreshAfterResourceChange();},
+    editorialCamera(view:'entrance'|'seated'|'detail'){
+      const chosen=state.items.find(i=>i.id===state.selected)||state.items[0],p=chosen&&state.products.find(p=>p.id===chosen.productId);
+      const w=state.room.width,d=state.room.depth;
+      if(view==='detail'&&chosen&&p){const distance=Math.max(.55,Math.min(2,p.widthM*.85));perspective.position.set(chosen.x+distance*.66,Math.max(.48,p.heightM*.92),chosen.z+distance);controls.target.set(chosen.x,p.heightM*.57,chosen.z)}
+      else {perspective.position.set((view==='seated'?-.29:.29)*w,view==='seated'?1.12:1.53,d*.5-.13);controls.target.set((chosen?.x||0)*.54,.75,(chosen?.z||0)*.70-.15)}
+      controls.update();draw();
+    },
     resetPlanView() { top.zoom = 1; top.position.set(0, 14, 0); top.updateProjectionMatrix(); draw(); },
     showRoomOverview() { if (state.view === 'perspective') configureCamera(true); },
     showInside() {
@@ -671,8 +693,8 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
       destroyed = true; cancelAnimationFrame(frame); cancelAnimationFrame(resourceFrame); observer.disconnect(); controls.removeEventListener('change', draw); controls.dispose();
       canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerup', onEnd); canvas.removeEventListener('pointercancel', onEnd); canvas.removeEventListener('lostpointercapture', onEnd); canvas.removeEventListener('webglcontextlost', lost);
       if (highlight) { highlight.geometry.dispose(); (highlight.material as THREE.Material).dispose(); }
-      architecture.children.forEach(disposeGroup); instances.forEach(group => { const shadow = group.children[0] as THREE.Mesh; shadow?.geometry?.dispose(); (shadow?.material as THREE.Material | undefined)?.dispose(); });
-      cached.forEach(promise => { void promise.then(disposeGroup).catch(() => {}); }); if (plant) disposeGroup(plant); if (decor) disposeGroup(decor); if (bookshelf) disposeGroup(bookshelf); if (pendant) disposeGroup(pendant); if (wallPicture) disposeGroup(wallPicture); shadowTexture.dispose(); wallFadeTexture.dispose(); wood?.dispose(); normal?.dispose(); environment?.dispose(); rugTexture?.dispose(); rugNormal?.dispose(); plaster?.dispose(); linen?.dispose(); linenNormal?.dispose(); garden?.dispose(); renderer.dispose();
+      architecture.children.forEach(disposeGroup); instances.forEach(group => { const styling=group.getObjectByName('room-styling');if(styling)disposeGroup(styling); const shadow = group.children[0] as THREE.Mesh; shadow?.geometry?.dispose(); (shadow?.material as THREE.Material | undefined)?.dispose(); });
+      cached.forEach(promise => { void promise.then(disposeGroup).catch(() => {}); }); if (plant) disposeGroup(plant); if (decor) disposeGroup(decor); if (bookshelf) disposeGroup(bookshelf); if (pendant) disposeGroup(pendant); if (wallPicture) disposeGroup(wallPicture); shadowTexture.dispose(); wallFadeTexture.dispose(); wood?.dispose(); normal?.dispose(); environment?.dispose(); rugTexture?.dispose(); rugNormal?.dispose(); plaster?.dispose(); linen?.dispose(); linenNormal?.dispose(); garden?.dispose(); basis.dispose(); renderer.dispose();
     },
   };
 }

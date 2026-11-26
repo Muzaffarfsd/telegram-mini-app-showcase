@@ -6,7 +6,7 @@ import { AI_DEMO_MODE, type PageContext } from "@/hooks/useAIAgent";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAIInteractions, useSwipeGesture } from "@/hooks/useAIInteractions";
 import type { TourStep } from "./AIGuidedTour";
-import { BotMessageSquare, X } from "lucide-react";
+import { BotMessageSquare, MessageCircle, X } from "lucide-react";
 import { AIAgentPanel } from "./AIAgentPanel";
 import headerConsultantIcon from "@/assets/consultant/header-consultant-v1.webp";
 import "./AIAgentButton.css";
@@ -117,6 +117,7 @@ export const AIAgentButton = memo(({ route, profileMode = false }: { route: Rout
   const [showSessionSummary, setShowSessionSummary] = useState(false);
   const { hapticFeedback } = useTelegram();
   const { language } = useLanguage();
+  const furniture = route.params?.id === 'furniture-studio' && window.location.hash.startsWith('#/demos/furniture-studio/app');
   const fabRef = useRef<HTMLButtonElement | null>(null);
   const proactiveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dismissedPages = useRef<Set<string>>(new Set());
@@ -576,7 +577,7 @@ export const AIAgentButton = memo(({ route, profileMode = false }: { route: Rout
         onPointerUp={handleFabPointerUp}
         onPointerCancel={handleFabPointerUp}
         whileTap={{ scale: 0.92 }}
-        className={`alex-fab-breathing${profileMode && !showMenu ? " alex-fab-has-header-mark" : ""}`}
+        className={`alex-fab-breathing${furniture ? ' alex-fab-furniture' : ''}${profileMode && !showMenu ? " alex-fab-has-header-mark" : ""}`}
         style={{
           position: "fixed", right: "16px", bottom: "140px",
           width: "56px", height: "56px", borderRadius: "50%",
@@ -593,11 +594,11 @@ export const AIAgentButton = memo(({ route, profileMode = false }: { route: Rout
           transition: "box-shadow 0.32s cubic-bezier(0.32,0.72,0,1), transform 0.18s ease",
           overflow: "hidden",
         }}
-        aria-label={showMenu ? "Close menu" : "Chat with Alex"}
+        aria-label={furniture ? (showMenu ? (language==='ru'?'Закрыть меню':'Close menu') : (language==='ru'?'Помощь с мебелью':'Furniture help')) : showMenu ? "Close menu" : "Chat with Alex"}
       >
         {showMenu ? (
           <X size={22} color="#fff" strokeWidth={1.8} />
-        ) : profileMode ? (
+        ) : furniture ? <MessageCircle size={21} strokeWidth={1.7} aria-hidden="true"/> : profileMode ? (
           <img className="alex-fab-header-mark" src={headerConsultantIcon} alt="" width={30} height={30} draggable={false} />
         ) : (
           /* mini-orb visual identity for FAB */

@@ -34,10 +34,11 @@ const products = [
       await page.locator('.rfv').getByRole('button', { name: 'Закрыть 3D-обзор' }).tap();
       await page.locator('.rfv').waitFor({ state: 'detached' });
       if (product.name === 'Adrienne') {
-        const mobileModel = page.waitForResponse(response => response.url().includes(`${product.id}-mobile.glb`) && response.ok());
+        const mobileModel = page.waitForResponse(response => response.url().includes(`${product.id}-lod.glb`) && response.ok());
         await page.getByRole('button', { name: /Посмотреть в комнате/ }).tap();
         await page.getByRole('button', { name: /^Своя комната/ }).tap();
         await page.locator('[data-testid=furniture-planner] .fpl-stage canvas').waitFor({ timeout: 45000 });
+        await page.getByRole('button',{name:'Интерьер',exact:true}).tap();
         await mobileModel;
         await page.getByRole('button', { name: 'Закрыть планировщик' }).tap();
         await page.locator('.fs-product-info').waitFor();

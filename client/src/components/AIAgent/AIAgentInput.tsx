@@ -524,9 +524,9 @@ export const AIAgentInput = memo(
           <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleImageSelect} style={{ display: "none" }} />
           <button type="button" className="ai-chat-compose-action" aria-label={ru ? "Вложения и возможности" : "Attachments and tools"} aria-expanded={showTools} onClick={() => { setShowEmoji(false); setShowTools(value => !value); }}><Plus size={21} /></button>
           <textarea ref={textareaRef} value={input} onChange={handleInput} onKeyDown={handleKeyDown} aria-label={ru ? "Сообщение" : "Message"} placeholder={voiceMode ? (ru ? "Или напишите сообщение..." : "Or type a message...") : (placeholder || "Message...")} rows={1} />
-          <button type="button" className="ai-chat-compose-action" disabled={isLoading} onClick={isActive ? () => { recognitionRef.current?.stop(); setIsListening(false); cleanupAudioPipeline(); } : startSpeechRecognition} aria-label={isActive ? "Stop recording" : "Voice input"}>{isActive ? <StopIcon size={15} /> : <MicIcon size={19} />}</button>
+          <button type="button" className="ai-chat-compose-action" disabled={isLoading} onClick={isActive ? () => { recognitionRef.current?.stop(); setIsListening(false); cleanupAudioPipeline(); } : startSpeechRecognition} aria-label={isActive ? (ru?"Остановить запись":"Stop recording") : (ru?"Голосовой ввод":"Voice input")}>{isActive ? <StopIcon size={15} /> : <MicIcon size={19} />}</button>
           {isLoading && onStop ? <button type="button" className="ai-chat-send is-stop" onClick={onStop} aria-label="Stop generation"><StopIcon size={14} /></button> :
-            <button type="button" className="ai-chat-send" onClick={handleSend} disabled={!hasDraft} aria-label="Send message"><ArrowUpIcon size={18} /></button>}
+            <button type="button" className="ai-chat-send" onClick={handleSend} disabled={!hasDraft} aria-label={ru?"Отправить сообщение":"Send message"}><ArrowUpIcon size={18} /></button>}
         </div>
       </div>
     );

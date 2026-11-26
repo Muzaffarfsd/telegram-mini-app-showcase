@@ -1,19 +1,30 @@
+import { lockBackground } from './modalBackground';
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Minus, Plus, RotateCcw, X } from 'lucide-react';
 import './RealFurnitureViewer.css';
 
-type Props = { modelUrl: string; posterUrl: string; name: string; ru: boolean; onClose: () => void; onPlaceInRoom?: () => void };
+type Props = { modelUrl: string; dimensions?:readonly [number,number,number]; placement?:string; detailUrl?:string; posterUrl: string; name: string; ru: boolean; onClose: () => void; onPlaceInRoom?: () => void };
 type ViewerControls = { orbit: (horizontal: number, vertical: number) => void; zoom: (factor: number) => void; reset: () => void; preset: (view: 'front' | 'side' | 'back' | 'top') => void };
 
 /** Product-only 3D inspection; the separate room planner handles placement. */
-export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru, onClose, onPlaceInRoom }: Props) {
+export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru, dimensions, placement, detailUrl, onClose, onPlaceInRoom }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const dialog = useRef<HTMLElement>(null);
   const close = useRef<HTMLButtonElement>(null);
   const closeRef = useRef(onClose); closeRef.current = onClose;
   const [portalHost] = useState(() => document.createElement('div'));
   const controls = useRef<ViewerControls | null>(null);
+  const source=useRef<import('three').Object3D|null>(null),arSession=useRef<XRSession|null>(null);
+  const [ar,setAR]=useState<'xr'|'apple'|null>(null),[nativeURL,setNativeURL]=useState(''),[arMessage,setARMessage]=useState(''),[detail,setDetail]=useState(false),[ruler,setRuler]=useState(false);
+  useEffect(()=>{let live=true;if(dimensions&&placement!=='ceiling'&&placement!=='surface'){
+    if(document.createElement('a').relList?.supports?.('ar'))setAR('apple');
+    else navigator.xr?.isSessionSupported('immersive-ar').then(ok=>{if(live&&ok)setAR('xr')}).catch(()=>{});
+  }return()=>{live=false;void arSession.current?.end().catch(()=>{})}},[dimensions,placement]);
+  useEffect(()=>()=>{if(nativeURL)URL.revokeObjectURL(nativeURL)},[nativeURL]);
+  async function openNative(){if(!source.current||!dimensions)return;try{if(ar==='xr'&&navigator.xr){const session=await navigator.xr.requestSession('immersive-ar',{requiredFeatures:['hit-test']});arSession.current=session;const {placeInAR}=await import('./productAR');await placeInAR(session,source.current,dimensions[0]);}
+    else{setARMessage(ru?'Готовим модель…':'Preparing the model…');const {quickLook}=await import('./productAR');setNativeURL(await quickLook(source.current,dimensions[0]));setARMessage('')}}catch{setARMessage(ru?'Не удалось открыть AR. Предмет доступен в 3D и на плане.':'AR could not open. Use the 3D view or floor plan.')}}
+
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const [attempt, setAttempt] = useState(0);
   const [activeView, setActiveView] = useState<'front' | 'side' | 'back' | 'top' | null>(null);
@@ -27,8 +38,7 @@ export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru, onC
     const oldOverflow = root?.style.overflow ?? '';
     document.body.appendChild(portalHost);
     const background = Array.from(document.body.children).filter(node => node !== portalHost);
-    const inertBefore = background.map(node => node.hasAttribute('inert'));
-    background.forEach(node => node.setAttribute('inert', ''));
+    const release=lockBackground(background);
     if (root) root.style.overflow = 'hidden';
     close.current?.focus({ preventScroll: true });
     const onKey = (event: globalThis.KeyboardEvent) => {
@@ -43,7 +53,7 @@ export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru, onC
     document.addEventListener('keydown', onKey);
     return () => {
       document.removeEventListener('keydown', onKey);
-      background.forEach((node, index) => { if (!inertBefore[index]) node.removeAttribute('inert'); });
+      release();
       if (root) root.style.overflow = oldOverflow;
       portalHost.remove();
       const restoreTarget = previousFocus?.isConnected && previousFocus !== document.body && previousFocus !== document.documentElement
@@ -115,7 +125,8 @@ export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru, onC
       let width = 1, height = 1;
       let targetY = 0;
       let radius = 1;
-      let azimuth = -0.35;
+      const firstAngle=/Westview|Frankie|Elvas/.test(name)?-.55:/Ian|Bristol|Table/.test(name)?.50:-.35;
+      let azimuth = firstAngle;
       let polar = Math.PI * 0.40;
       let zoom = 1;
       const disposeObject = (object: InstanceType<typeof THREE.Object3D>) => {
@@ -161,7 +172,7 @@ export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru, onC
       const contextLost = (event: Event) => { event.preventDefault(); if (!disposed) setStatus('unavailable'); };
       element.addEventListener('webglcontextlost', contextLost);
       cleanup = () => {
-        disposed = true;
+        disposed = true;source.current=null;
         cancelAnimationFrame(renderFrame); cancelAnimationFrame(readyFrame);
         resize.disconnect();
         element.removeEventListener('webglcontextlost', contextLost);
@@ -189,7 +200,7 @@ export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru, onC
         model.scale.setScalar(scale);
         model.position.set(-center.x * scale, -box.min.y * scale, -center.z * scale);
         model.traverse(item => { if (item instanceof THREE.Mesh) item.castShadow = true; });
-        scene.add(model);
+        scene.add(model); source.current=model;
         // A soft studio grounding cue avoids hard, aliased shadow-map artifacts on mobile.
         const shadowCanvas = document.createElement('canvas');
         shadowCanvas.width = shadowCanvas.height = 256;
@@ -217,7 +228,7 @@ export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru, onC
         controls.current = {
           orbit: (horizontal, vertical) => { azimuth += horizontal; polar = THREE.MathUtils.clamp(polar + vertical, 0.12, Math.PI - 0.12); draw(); },
           zoom: factor => { zoom = THREE.MathUtils.clamp(zoom * factor, 0.7, 2.5); draw(); },
-          reset: () => { azimuth = -0.35; polar = Math.PI * 0.40; zoom = 1; draw(); },
+          reset: () => { azimuth = firstAngle; polar = Math.PI * 0.40; zoom = 1; draw(); },
           preset: view => { azimuth = view === 'side' ? -Math.PI / 2 : view === 'back' ? Math.PI : 0; polar = view === 'top' ? 0.12 : Math.PI * 0.40; zoom = 1; draw(); },
         };
         draw();
@@ -269,7 +280,10 @@ export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru, onC
         <div><span>{ru ? 'ОБЗОР ПРЕДМЕТА / 360°' : 'PRODUCT VIEW / 360°'}</span><h2>{name}</h2></div>
         <button ref={close} type="button" className="rfv-close" onClick={onClose} aria-label={ru ? 'Закрыть 3D-обзор' : 'Close 3D view'}><X size={22} /></button>
       </header>
+      <div className="rfv-tools">{dimensions&&<button type="button" aria-pressed={ruler} onClick={()=>setRuler(v=>!v)}>{ru?'Размеры':'Dimensions'}</button>}{detailUrl&&<button type="button" aria-pressed={detail} onClick={()=>setDetail(v=>!v)}>{ru?'Деталь на фото':'Photo detail'}</button>}{ar&&status==='ready'&&(nativeURL?<a rel="ar" href={nativeURL}><img src={posterUrl} alt=""/>{ru?'Открыть в AR':'Open in AR'}</a>:<button type="button" onClick={openNative}>{ru?'Примерить в AR':'View in AR'}</button>)}</div>{arMessage&&<p role="status">{arMessage}</p>}
       <div className="rfv-stage">
+        {detail&&detailUrl&&<button className="rfv-detail-photo" onClick={()=>setDetail(false)} aria-label={ru?'Вернуться к модели':'Return to model'}><img src={detailUrl} alt={ru?'Фотография детали товара':'Product detail photograph'}/></button>}
+        {ruler&&dimensions&&<div className="rfv-dimensions">{ru?'Ш × Г × В':'W × D × H'} · {dimensions.map(v=>Math.round(v*100)).join(' × ')} {ru?'см':'cm'} · ≈</div>}
         <div className="rfv-drag" tabIndex={status === 'ready' ? 0 : -1} role="group" aria-label={ru ? '3D-модель. Стрелки вращают, плюс и минус меняют масштаб.' : '3D model. Arrow keys rotate; plus and minus zoom.'} onKeyDown={keyView} onPointerDown={start} onPointerMove={move} onPointerCancel={end} onPointerUp={end} onLostPointerCapture={end}>
           {status !== 'ready' && <img className="rfv-poster" src={posterUrl} alt="" />}
           <canvas ref={canvas} aria-hidden="true" style={{ opacity: status === 'ready' ? 1 : 0 }} />

@@ -71,41 +71,31 @@ async function exercise(engine, live3D, width) {
     await page.getByTestId('card-app-furniture-studio').tap();
     const store = page.getByTestId('furniture-store');
     await store.waitFor();
-    assert(await store.getByRole('heading', { name: 'Место для жизни.' }).isVisible());
+    assert(await store.getByRole('heading', { name: 'Вокруг стола' }).isVisible());
     await noHorizontalOverflow('store home');
 
     await page.getByRole('button', { name: 'Каталог', exact: true }).tap();
     await page.locator('.fs-catalog').waitFor();
-    assert.equal((await page.locator('.fs-result').textContent()).trim(), '10 моделей');
+    assert.equal((await page.locator('.fs-result').textContent()).trim(), '30 моделей');
     await page.getByRole('button', { name: 'Диваны', exact: true }).tap();
-    assert.equal((await page.locator('.fs-result').textContent()).trim(), '5 моделей');
+    assert.equal((await page.locator('.fs-result').textContent()).trim(), '7 моделей');
     await page.getByRole('button', { name: 'Кресла', exact: true }).tap();
-    assert.equal((await page.locator('.fs-result').textContent()).trim(), '3 модели');
+    assert.equal((await page.locator('.fs-result').textContent()).trim(), '4 модели');
     await page.getByRole('button', { name: 'Все', exact: true }).tap();
     const sort = page.getByLabel('Сортировка');
     await sort.selectOption('name');
-    assert.deepEqual(await page.locator('.fs-catalog .fs-card-meta > button:not(.fs-card-compare)').allTextContents(), [
-      'Adrienne',
-      'Frankie',
-      'Morat',
-      'Ribe',
-      'Rivet Revolve',
-      'Rivet Revolve',
-      'Round Coffee Table',
-      'Scutari',
-      'Waverly Oak',
-      'Westview',
-    ]);
+    const ordered=await page.locator('.fs-catalog .fs-card-meta > button:not(.fs-card-compare)').allTextContents();
+    assert.equal(ordered.length,30);const names=ordered.map(s=>s.replace(/^(Диван|Кресло) · /,''));assert.deepEqual(names,[...names].sort(new Intl.Collator('ru',{sensitivity:'base'}).compare));
     await page.getByLabel('Поиск по коллекции').fill('Westview');
     assert.equal((await page.locator('.fs-result').textContent()).trim(), '1 модель');
     await page.getByLabel('Поиск по коллекции').fill('полиэстер');
-    assert.equal((await page.locator('.fs-result').textContent()).trim(), '5 моделей');
+    assert.equal((await page.locator('.fs-result').textContent()).trim(), '9 моделей');
     await page.getByLabel('Очистить поиск').tap();
     await page.locator('.fs-filters summary').tap();
     await page.getByLabel('Ширина до, см').fill('200');
-    assert.equal((await page.locator('.fs-result').textContent()).trim(), '6 моделей');
+    assert.equal((await page.locator('.fs-result').textContent()).trim(), '25 моделей');
     await page.getByLabel('Основной материал').selectOption('polyester');
-    assert.equal((await page.locator('.fs-result').textContent()).trim(), '2 модели');
+    assert.equal((await page.locator('.fs-result').textContent()).trim(), '6 моделей');
     await tapFirstProduct();
     await page.locator('.fs-product-info').waitFor();
     await page.getByRole('button', { name: 'Назад', exact: true }).tap();
@@ -114,7 +104,7 @@ async function exercise(engine, live3D, width) {
     assert.equal(await page.getByLabel('Ширина до, см').inputValue(), '200');
     assert.equal(await page.getByLabel('Основной материал').inputValue(), 'polyester');
     await page.getByRole('button', { name: 'Сбросить фильтры' }).tap();
-    assert.equal((await page.locator('.fs-result').textContent()).trim(), '10 моделей');
+    assert.equal((await page.locator('.fs-result').textContent()).trim(), '30 моделей');
     await page.locator('.fs-filters summary').tap();
     await noHorizontalOverflow('catalogue');
 
@@ -165,7 +155,7 @@ async function exercise(engine, live3D, width) {
     await viewer.waitFor({ state: 'detached' });
     await noHorizontalOverflow('product');
 
-    await page.getByRole('button', { name: /ДОБАВИТЬ В КОРЗИНУ/ }).tap();
+    await page.getByRole('button', { name: /Добавить в подборку/i }).tap();
     const cart = page.getByRole('dialog');
     await cart.waitFor();
     const quantityButton = await cart.getByRole('button', { name: /Увеличить количество/ }).boundingBox();

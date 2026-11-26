@@ -33,7 +33,7 @@ async function check(engine, width, lang) {
     await fab.tap();
     const chat = page.locator('.ai-chat-sheet');
     await chat.waitFor({state:'visible'});
-    await chat.getByRole('button', {name:'Close'}).tap();
+    await chat.getByRole('button', {name:lang==='ru'?'Закрыть':'Close'}).tap();
     await chat.waitFor({state:'hidden'});
     await page.evaluate(() => { window.__failFurnitureStorage = false; });
     await warning.getByRole('button', {name: lang === 'ru' ? 'Повторить' : 'Retry'}).tap();

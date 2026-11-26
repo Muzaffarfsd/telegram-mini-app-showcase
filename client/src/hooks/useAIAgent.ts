@@ -563,6 +563,10 @@ export function useAIAgent(pageContext?: PageContext) {
         let example: string;
         if (imageBase64) {
           example = ru ? "Фото добавлено для примера и никуда не отправлено. Анализ изображений появится после подключения консультанта." : "The image is included in this example and has not been sent. Image analysis will be available after the consultant is connected.";
+        } else if(window.location.hash.startsWith('#/demos/furniture-studio/app')){
+          if(/обивк|ткан|material|upholster/i.test(query)) example=ru?'Откройте фотографии одной модели и увеличьте крупный план ткани. В каталоге есть фильтр материалов. Для сравнения при другом свете переключите день и вечер в комнате.':'Open a close-up photograph on the product page. Filter by material in the catalogue and compare daylight and evening lighting in a room.';
+          else if(/план|подели|сохран|share|save/i.test(query)) example=ru?'В своей комнате нажмите «Сохранить вариант», чтобы вернуться к нему из профиля. «Ссылка на план» передаёт расстановку в выбранный момент. «Скачать план» сохраняет изображение.':'In your room, Save version adds the arrangement to your profile. Copy plan link shares the current arrangement and Download plan saves its image.';
+          else example=ru?'В каталоге выберите «Диваны» и в фильтрах укажите максимальную ширину в сантиметрах. Поставьте подходящий диван в свою комнату. При выборе предмета виден зазор до ближайшей стены.':'Choose Sofas in the catalogue and enter a maximum width in centimetres. Place a candidate in your room and select it to see its nearest-wall clearance.';
         } else if (query.includes("выбрать mini app") || query.includes("choose a mini app")) {
           example = ru ? "Например, для магазина можно выбрать приложение с каталогом, корзиной и авторизацией. Нужный набор зависит от задач вашего бизнеса." : "For example, a shop can use an app with a catalog, cart and sign-in. The right features depend on your business.";
         } else if (query.includes("стоимости разработки") || query.includes("development pricing")) {

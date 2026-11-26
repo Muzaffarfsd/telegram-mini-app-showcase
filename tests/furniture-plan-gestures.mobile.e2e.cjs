@@ -20,7 +20,7 @@ async function run(browser, width) {
   try {
     await page.goto(new URL('/#/demos/furniture-studio/app', site).href);
     await page.getByRole('button', { name: 'Открыть планировщик', exact: true }).click();
-    await page.getByRole('button', { name: /^Своя комната/ }).click();
+
     await page.waitForFunction(() => !Array.from(document.querySelectorAll('.fpl-status')).some(e => e.textContent.includes('Загружаем')), null, { timeout: 45000 });
     const canvas = page.locator('.fpl-stage canvas');
     await canvas.waitFor();

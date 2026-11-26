@@ -12,7 +12,7 @@ const key = 'web4tg-furniture-planner-v1';
     await page.goto(new URL('/#/demos/furniture-studio/app', base).href, { waitUntil: 'domcontentloaded' });
     await page.getByTestId('furniture-store').waitFor();
     await page.getByRole('button', { name: 'Открыть планировщик', exact: true }).tap();
-    await page.getByRole('button', { name: /^Своя комната/ }).tap();
+
     await page.getByTestId('furniture-planner').waitFor();
     await page.waitForFunction(storageKey => {
       const canvas = document.querySelector('.fpl-stage canvas');
@@ -37,7 +37,7 @@ const key = 'web4tg-furniture-planner-v1';
     assert(savedSofa, 'the sofa is retained after Back');
     assert(Math.abs(savedSofa.rotation - initialSofa.rotation - Math.PI / 12) < 1e-4, 'Back persists the most recent rotation');
     await page.getByRole('button', { name: 'Открыть планировщик', exact: true }).tap();
-    await page.getByRole('button', { name: /^Своя комната/ }).tap();
+
     await page.getByTestId('furniture-planner').waitFor();
     await page.waitForFunction(storageKey => {
       const canvas = document.querySelector('.fpl-stage canvas');
