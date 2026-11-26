@@ -12,6 +12,9 @@ export interface DemoComponent {
 
 // Demo registry with lazy loading
 const loaders = {
+  'furniture-studio': {
+    load: () => import('./furniture/FurnitureShop')
+  },
   'flower-store': {
     load: () => import('./FlowerStore')
   },

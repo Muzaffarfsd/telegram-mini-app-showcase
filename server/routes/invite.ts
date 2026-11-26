@@ -62,7 +62,7 @@ export function createInviteRouter(dependencies: InviteDependencies = defaults) 
       }
 
       const ru = parsed.data.language === 'ru';
-      const photoUrl = demoId ? `https://w4tg.up.railway.app/share/demos/${demoId}.jpg` : inviteImageUrl;
+      const photoUrl = demoId ? `https://w4tg.up.railway.app/share/demos/${demoId === 'furniture-studio' ? 'furniture-studio-v3' : demoId}.jpg` : inviteImageUrl;
       const caption = demoId
         ? ru
           ? `<b>${demoShareEntries[demoId].ru}</b>\n\nПосмотри демо приложения для бизнеса в Telegram.`

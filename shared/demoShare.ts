@@ -1,5 +1,6 @@
 /** Public demo destinations. Keep share links constrained to these published demos. */
 export const demoShareEntries = {
+  'furniture-studio': { ru: 'Мебельный салон', en: 'Furniture showroom' },
   'flower-store': { ru: 'Цветочный магазин', en: 'Flower shop' },
   'china-buyer': { ru: 'Байер из Китая', en: 'China sourcing' },
   'medical-center': { ru: 'Медицинский центр', en: 'Medical center' },

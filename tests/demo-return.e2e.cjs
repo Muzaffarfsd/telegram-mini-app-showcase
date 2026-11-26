@@ -14,7 +14,7 @@ const published = new Set([...metadata.matchAll(/\bid:\s*'([^']+)'/g)].map(match
 const aliases = new Map([...shell.matchAll(/demoId === '([^']+)'\s*\?\s*'([^']+)'\s*:\s*demoId/g)].map(match => [match[1], match[2]]));
 const routes = registered.filter(id => published.has(aliases.get(id) || id));
 const roots = {
-  'flower-store': 'flower-store', 'china-buyer': 'china-buyer', 'medical-center': 'medical-center',
+  'furniture-studio': 'furniture-store', 'flower-store': 'flower-store', 'china-buyer': 'china-buyer', 'medical-center': 'medical-center',
   'lumi-studio': 'lumi-studio', 'opt-market': 'opt-market', 'apple-store': 'apple-store',
   'muraka-fashion': 'muraka-fashion', 'women-fashion': 'women-fashion', 'jewelry-store': 'jewelry-store',
   'nike-sneakers': 'royal-step', 'royal-step': 'royal-step', 'skincare-aura': 'demo-content',

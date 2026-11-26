@@ -7,6 +7,7 @@ const sharp = require('sharp');
 
 // Handset bounds and foreground in the original 264 by 352 reference compositions.
 const scenes = {
+  'furniture-studio': null,
   'flower-store': null,
   'muraka-fashion': { handset: [66, 27, 136, 298], foreground: [[45, 277], [70, 292], [82, 303], [101, 311], [108, 320], [102, 346], [33, 348]] },
   'women-fashion': { handset: [61, 21, 138, 303], foreground: [[41, 327], [98, 322], [132, 320], [155, 314], [171, 306], [189, 300], [202, 286], [247, 264], [260, 351], [34, 351]] },
@@ -25,7 +26,8 @@ const width = 204;
 const height = 272;
 
 async function picture(folder, id) {
-  const bytes = await fs.readFile(path.join(source, folder, id + '.webp'));
+  const filename = folder === 'covers' && id === 'furniture-studio' ? 'furniture-studio-v3.webp' : id + '.webp';
+  const bytes = await fs.readFile(path.join(source, folder, filename));
   return 'data:image/webp;base64,' + bytes.toString('base64');
 }
 
@@ -64,6 +66,8 @@ async function main() {
   try {
     const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 3 });
     for (const [id, scene] of Object.entries(scenes)) {
+      const only = process.argv.find(arg => arg.startsWith('--id='));
+      if (only && id !== only.slice(5)) continue;
       const html = await composition(id, scene);
       await page.setContent(`<style>
         *{box-sizing:border-box} body{margin:0} .art{position:absolute;width:174px;height:232px;right:0;top:20px}

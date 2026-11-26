@@ -160,6 +160,15 @@ export const demoApps: DemoApp[] = [
     badge: 'Новинка',
     badgeColor: 'bg-black',
   },
+  {
+    id: 'furniture-studio',
+    title: 'Мебельный салон',
+    description: 'Каталог мебели с просмотром в интерьере и демонстрационной корзиной.',
+    category: 'Электронная коммерция',
+    image: '/furniture/real-products/sofa-main.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+  },
   // НОВЫЕ E-COMMERCE ПРИЛОЖЕНИЯ
   
   // Futuristic Fashion Collection - 4 Premium Designs

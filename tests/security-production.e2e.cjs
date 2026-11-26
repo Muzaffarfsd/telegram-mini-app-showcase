@@ -17,7 +17,7 @@ const aliases = new Map([...shell.matchAll(/demoId === '([^']+)'\s*\?\s*'([^']+)
 const isActive = id => published.has(aliases.get(id) || id);
 assert.ok(registered.length > 0, 'Read the actual registry; an empty scan must not pass');
 const demoRoots = {
-  'flower-store': 'flower-store', 'china-buyer': 'china-buyer',
+  'furniture-studio': 'furniture-store', 'flower-store': 'flower-store', 'china-buyer': 'china-buyer',
   'medical-center': 'medical-center', 'lumi-studio': 'lumi-studio',
   'opt-market': 'opt-market', 'apple-store': 'apple-store',
   'muraka-fashion': 'muraka-fashion', 'women-fashion': 'women-fashion', 'jewelry-store': 'jewelry-store',

@@ -1235,6 +1235,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Verification:** Vite build; top screenshot comparison and mobile Chromium/WebKit at 320/390/430px in RU/EN; three real-screen states, FAQ, project actions, reduced-motion and accessibility. Images and reports in workspace `work/home-lower-new-*`. No real orders/messages sent. New design awaits user evaluation.
 
 ---
+## 2026-11-26 · Furniture store and room planner demo
+
+**What:** Added a furniture store with sourced product photos and 3D models, product details, a 360° viewer, a movable room planner, demo checkout and sharing integration. Reworked the planner interface, architecture and materials after visual feedback. This remains a demo, and its room rendering is not yet photorealistic.
+**Why:** User requested a furniture-specific adaptation of the clothing-store structure and asked to review it in the deployed application.
+**Files:** `client/src/components/demos/furniture/`, `client/public/furniture/`, furniture showcase/share assets, demo registration/navigation and furniture tests.
+**Checkpoint:** previous commit `4eb8fe3d`.
+**Verification:** Production build; planner Chromium mobile 320/390 including touch, collision, persistence and fallback; store Chromium 390 WebGL and WebKit 320 fallback; 13 share and planner unit tests. Room captures: `work/scene-final2026-390.png` and `work/scene-final2026-390-side.png`. Physical phones not tested; project-wide TypeScript check has existing errors outside the furniture files.
+
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description

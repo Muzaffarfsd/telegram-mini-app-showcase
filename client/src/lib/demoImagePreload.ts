@@ -4,6 +4,7 @@ import { warmImage } from './warmImage';
 // would compete with the page the user is actually viewing.
 const firstImages: Record<string, string> = {
   'muraka-fashion': '/muraka-fashion/transparent-v2/hero-jacket.webp',
+  'furniture-studio': '/furniture/real-products/sofa-main.webp',
   'women-fashion': '/women-fashion/hero.webp',
   'jewelry-store': '/jewelry/tiffany-hero-candidates/hero-close-t1.webp',
   'nike-sneakers': '/royal-step/jordan-cutout.webp',

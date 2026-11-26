@@ -3,6 +3,7 @@ export const showcaseActions = {
   'women-fashion': ['Собрать образ', 'Style a look'],
   'nike-sneakers': ['Выбрать пару', 'Find a pair'],
   'apple-store': ['Выбрать модель', 'Explore models'],
+  'furniture-studio': ['Выбрать мебель', 'Explore furniture'],
   'flower-store': ['Выбрать букет', 'Choose a bouquet'],
   'lumi-studio': ['Выбрать мастера', 'Find a stylist'],
   'opt-market': ['Собрать закупку', 'Build a wholesale order'],

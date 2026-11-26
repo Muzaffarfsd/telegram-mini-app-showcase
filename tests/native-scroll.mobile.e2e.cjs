@@ -22,6 +22,7 @@ const cases = [
   ['#/demos/opt-market/app', '[data-testid="opt-market"]', false],
   ['#/demos/nike-sneakers/app', '[data-testid="royal-step"]', false],
   ['#/demos/skincare-aura/app', '[data-testid="demo-content"]', false],
+  ['#/demos/furniture-studio/app', '[data-testid="furniture-store"]', false],
   ['#/demos/apple-store/app', '.as-store', true],
 ];
 

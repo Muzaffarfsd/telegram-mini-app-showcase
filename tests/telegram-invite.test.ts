@@ -106,7 +106,8 @@ test('missing or unusable referral codes yield a general invitation, and databas
 test('each published demo gets its own server-chosen picture and Mini App deep link', async () => {
   for (const demoId of Object.keys(demoShareEntries)) {
     // Telegram needs an actual public image at the URL, not the SPA fallback.
-    const photo = readFileSync(resolve('client/public/share/demos', `${demoId}.jpg`));
+    const imageId = demoId === 'furniture-studio' ? 'furniture-studio-v3' : demoId;
+    const photo = readFileSync(resolve('client/public/share/demos', `${imageId}.jpg`));
     assert.equal(photo.readUInt16BE(0), 0xffd8, `${demoId} share image must be a JPEG`);
     calls = [];
     lookup = async () => { throw new Error('Demo sharing must not query referral data'); };
@@ -117,7 +118,7 @@ test('each published demo gets its own server-chosen picture and Mini App deep l
     assert.equal(result.deepLink, expected, demoId);
     assert.equal(demoShareIdFromStartParam(new URL(expected).searchParams.get('startapp')!), demoId);
     const message = calls[0].body.result;
-    assert.equal(message.photo_url, `https://w4tg.up.railway.app/share/demos/${demoId}.jpg`);
+    assert.equal(message.photo_url, `https://w4tg.up.railway.app/share/demos/${imageId}.jpg`);
     assert.equal(message.thumbnail_url, message.photo_url);
     assert.equal(message.reply_markup.inline_keyboard[0][0].url, expected);
     assert.equal(message.reply_markup.inline_keyboard[0][0].style, 'primary');

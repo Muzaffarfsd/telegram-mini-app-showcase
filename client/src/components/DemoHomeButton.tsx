@@ -5,7 +5,7 @@ import { BrandMark } from './BrandMark';
 import './DemoHomeButton.css';
 
 /** Returns to the WEB4TG showcase, not the current demo's home screen. */
-export function DemoHomeButton({ color }: { color?: string }) {
+export function DemoHomeButton({ color, onReturn }: { color?: string; onReturn?: () => void }) {
   const { language } = useLanguage();
   const label = language === 'ru' ? 'Вернуться в WEB4TG' : 'Back to WEB4TG';
 
@@ -16,7 +16,7 @@ export function DemoHomeButton({ color }: { color?: string }) {
       aria-label={label}
       title={label}
       data-testid="demo-return-web4tg"
-      onClick={() => navigate('/')}
+      onClick={onReturn ?? (() => navigate('/'))}
       style={color ? { color } : undefined}
     >
       <span className="demo-home-button__mark" data-testid="demo-return-brand" aria-hidden="true">

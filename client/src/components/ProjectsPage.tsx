@@ -37,6 +37,8 @@ const projects: Project[] = [
     description: ['Модель и размер пары сразу попадают в заказ.', 'Every order includes the exact pair and size.'] },
   { id: 'apple-store', category: 'shops', title: ['Магазин техники Apple', 'Apple device store'],
     description: ['Покупатель подбирает iPhone по цвету и объёму памяти.', 'Choose an iPhone, then pick a finish and storage size.'] },
+  { id: 'furniture-studio', category: 'shops', title: ['Мебельный салон', 'Furniture showroom'],
+    description: ['Покупатель выбирает мебель и рассматривает её в интерьере.', 'Customers browse furniture and view it in a room.'] },
   { id: 'flower-store', category: 'shops', title: ['Магазин цветов', 'Flower shop'],
     description: ['Клиент выбирает букет. Флорист видит композицию и размер.', 'Choose a bouquet and size. The florist sees both.'] },
   { id: 'lumi-studio', category: 'services', title: ['Студия красоты', 'Beauty studio'],
