@@ -17,13 +17,7 @@ export default function FurnitureShop({ onClose }: { onClose: () => void }) {
               posterUrl={product.images[0]}
               dimensions={product.dimensionsM}
               placement={product.placement}
-              detailUrl={
-                product.id === 'rivet-revolve-sofa' ||
-                product.id === 'abo-b0857jw1b9' ||
-                product.name === 'Sloane'
-                  ? product.images[product.name === 'Sloane' ? 3 : 2]
-                  : undefined
-              }
+              detailUrl={product.images[2]}
               name={product.name}
               ru={language === 'ru'}
               onClose={closeViewer}

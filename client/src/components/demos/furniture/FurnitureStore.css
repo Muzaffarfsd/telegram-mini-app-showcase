@@ -10,7 +10,7 @@
   --fs-safe-bottom: max(12px, env(safe-area-inset-bottom, 0px), var(--sab, 0px), var(--csab, 0px));
   --fs-obscured: max(0px, calc(100dvh - var(--tg-viewport-height, 100dvh)));
   color: #171717;
-  font-family: 'Google Sans App', system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 .fs-store {
@@ -30,8 +30,8 @@
   right: max(20px, calc((100vw - 430px) / 2)) !important;
   bottom: auto !important;
   background: rgba(255,255,255,.9) !important;
-  border: 1px solid rgba(36,36,40,.12) !important;
-  box-shadow: 0 4px 16px rgba(55,45,60,.08) !important;
+  border: 1px solid rgba(36, 36, 36, .12) !important;
+  box-shadow: 0 4px 16px rgba(48, 48, 48, .08) !important;
   animation: none !important;
 }
 #root.fs-scroll-root .home-ai-surface[inert],
@@ -101,7 +101,7 @@ body:has(.fs-planner) .fs-nav {
   margin: 0 20px;
   padding: 0;
   border: 0;
-  color: #292a2d;
+  color: #262626;
   background: none;
   font-size: 13px !important;
   font-weight: 700 !important;
@@ -126,14 +126,14 @@ body:has(.fs-planner) .fs-nav {
   padding: 26px 20px 0;
 }
 .fs-hero-kicker {
-  color: #77736e;
+  color: #777777;
   font-size: 10px;
   font-weight: 750;
   letter-spacing: 0.13em;
 }
 .fs-hero-headline {
   margin-top: 13px !important;
-  color: #222321;
+  color: #262626;
   font-size: clamp(24px, 7.4vw, 33px);
   line-height: 1.05;
   font-weight: 700;
@@ -142,7 +142,7 @@ body:has(.fs-planner) .fs-nav {
 }
 .fs-hero-intro {
   margin-top: 9px !important;
-  color: #66645f;
+  color: #686868;
   font-size: 12px;
   line-height: 1.45;
 }
@@ -155,7 +155,7 @@ body:has(.fs-planner) .fs-nav {
   padding: 0;
   border: 0;
   overflow: hidden;
-  background: #eae6df;
+  background: #e8e8e8;
   text-align: left;
 }
 .fs-hero-photo img {
@@ -170,7 +170,7 @@ body:has(.fs-planner) .fs-nav {
   top: 14px;
   padding: 8px 10px;
   background: rgba(255, 255, 255, 0.92);
-  color: #393a37;
+  color: #343434;
   font-size: 9px;
   font-weight: 750;
   letter-spacing: 0.08em;
@@ -218,7 +218,7 @@ body:has(.fs-planner) .fs-nav {
   font-weight: 700;
 }
 .fs-hero-meta span {
-  color: #77736e;
+  color: #777777;
   font-size: 11px;
 }
 .fs-round-link {
@@ -226,7 +226,7 @@ body:has(.fs-planner) .fs-nav {
   place-items: center;
   width: 44px;
   height: 44px;
-  border: 1px solid #d5d2cb;
+  border: 1px solid #d6d6d6;
   border-radius: 50%;
   background: #fff;
   color: #222;
@@ -238,24 +238,24 @@ body:has(.fs-planner) .fs-nav {
   gap: 12px;
   margin: 38px 20px 0;
   padding: 20px;
-  background: #f2f0ea;
+  background: #efefef;
 }
 .fs-plan-copy > span {
-  color: #77736d;
+  color: #777777;
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.1em;
 }
 .fs-plan-copy h2 {
   margin-top: 10px;
-  color: #242622;
+  color: #262626;
   font-size: 19px;
   letter-spacing: -0.04em;
   line-height: 1.1;
 }
 .fs-plan-copy p {
   margin-top: 8px !important;
-  color: #666760;
+  color: #686868;
   font-size: 11px;
   line-height: 1.5;
 }
@@ -268,7 +268,7 @@ body:has(.fs-planner) .fs-nav {
   padding: 0;
   border: 0;
   background: transparent;
-  color: #242622;
+  color: #262626;
   text-align: left;
   font-size: 11px !important;
   font-weight: 750 !important;
@@ -277,14 +277,14 @@ body:has(.fs-planner) .fs-nav {
   position: relative;
   width: 100px;
   height: 100px;
-  border: 2px solid #99988e;
-  background: #e9e7de;
+  border: 2px solid #8f8f8f;
+  background: #e8e8e8;
 }
 .fs-plan-diagram::before,
 .fs-plan-diagram::after {
   content: '';
   position: absolute;
-  background: #c9c5b9;
+  background: #cacaca;
 }
 .fs-plan-diagram::before {
   left: 12px;
@@ -305,7 +305,7 @@ body:has(.fs-planner) .fs-nav {
   width: 27px;
   height: 27px;
   border-radius: 50%;
-  border: 1px solid #b1ac9e;
+  border: 1px solid #a5a5a5;
 }
 .fs-plan-diagram i,
 .fs-plan-diagram b {
@@ -313,7 +313,7 @@ body:has(.fs-planner) .fs-nav {
   top: -3px;
   width: 18px;
   height: 4px;
-  background: #f2f0ea;
+  background: #efefef;
 }
 .fs-plan-diagram i {
   left: 15px;
@@ -333,7 +333,7 @@ body:has(.fs-planner) .fs-nav {
   margin-bottom: 16px;
 }
 .fs-section-head h2 {
-  font-family: 'Arial Black', 'Google Sans App', system-ui, sans-serif;
+  font-family: 'Arial Black', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
   font-size: clamp(20px, 5.5vw, 25px);
   line-height: 0.98;
   font-weight: 900;
@@ -403,7 +403,7 @@ body:has(.fs-planner) .fs-nav {
 }
 .fs-card-image {
   position: relative;
-  background: #f3f1ed;
+  background: #efefef;
   overflow: hidden;
 }
 .fs-card-open {
@@ -521,7 +521,7 @@ body:has(.fs-planner) .fs-nav {
   margin: 26px 0 14px;
   padding: 0 12px;
   min-height: 48px;
-  background: #f3f1ed;
+  background: #efefef;
 }
 .fs-search input {
   min-width: 0;
@@ -549,9 +549,9 @@ body:has(.fs-planner) .fs-nav {
   font-size: 12px !important;
 }
 .fs-chip.is-active {
-  border-color: #1f3027;
+  border-color: #262626;
   color: #fff;
-  background: #1f3027;
+  background: #262626;
 }
 .fs-catalog-tools {
   display: flex;
@@ -692,7 +692,7 @@ body:has(.fs-planner) .fs-nav {
   user-select: none;
   will-change: transform;
 }
-.fs-zoom-hint { margin: 10px 0 0; text-align: center; font-size: 12px; color: #66625d; }
+.fs-zoom-hint { margin: 10px 0 0; text-align: center; font-size: 12px; color: #686868; }
 .fs-zoom-actions {
   display: flex;
   justify-content: center;
@@ -727,27 +727,27 @@ body:has(.fs-planner) .fs-nav {
   justify-content: center;
   gap: 10px;
   padding: 18px;
-  background: #f0eee9;
-  color: #5d5a54;
+  background: #efefef;
+  color: #585858;
   font-size: 12px;
   line-height: 1.4;
   text-align: center;
 }
-.fs-filters { border-bottom: 1px solid #e4e1da; }
+.fs-filters { border-bottom: 1px solid #e0e0e0; }
 .fs-filters summary { min-height: 48px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-weight: 700; }
 .fs-filters summary::after { content: ''; width: 7px; height: 7px; margin-left: auto; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg) translateY(-2px); }
 .fs-filters[open] summary::after { transform: rotate(225deg) translate(-2px, -1px); }
-.fs-filters summary span { color: #72654f; font-size: 11px; }
+.fs-filters summary span { color: #686868; font-size: 11px; }
 .fs-filter-fields { display: grid; gap: 8px; padding: 4px 0 16px; }
 .fs-filter-fields label { font-size: 12px; font-weight: 700; }
-.fs-filter-fields input, .fs-filter-fields select { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid #d8d4cb; background: #fff; font-size: 16px; }
+.fs-filter-fields input, .fs-filter-fields select { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid #d6d6d6; background: #fff; font-size: 16px; }
 .fs-filter-fields button { justify-self: start; min-height: 44px; border: 0; padding: 0; background: none; text-decoration: underline; font-size: 12px; }
-.fs-filter-error { color: #8a3030; font-size: 12px; }
+.fs-filter-error { color: #464646; font-size: 12px; }
 .fs-gallery-fallback { position: absolute; inset: 0; }
 .fs-gallery-fallback button {
   min-height: 44px;
   padding: 0 14px;
-  border: 1px solid #bdb7ac;
+  border: 1px solid #b9b9b9;
   background: #fff;
   color: #242424;
 }
@@ -758,8 +758,8 @@ body:has(.fs-planner) .fs-nav {
   gap: 12px;
   margin: 12px 20px 0;
   padding: 12px 14px;
-  background: #f5eee2;
-  color: #513b23;
+  background: #efefef;
+  color: #464646;
   font-size: 12px;
   line-height: 1.45;
 }
@@ -929,9 +929,9 @@ body:has(.fs-planner) .fs-nav {
   min-height: 68px;
   margin-top: 18px;
   padding: 12px;
-  border: 1px solid #dfded8;
-  background: #f8f7f3;
-  color: #262724;
+  border: 1px solid #e0e0e0;
+  background: #f8f8f8;
+  color: #262626;
   text-align: left;
 }
 .fs-product-planner > span {
@@ -945,7 +945,7 @@ body:has(.fs-planner) .fs-nav {
   font-size: 13px;
 }
 .fs-product-planner small {
-  color: #6e6c66;
+  color: #686868;
   font-size: 11px;
   line-height: 1.35;
 }
@@ -990,8 +990,8 @@ body:has(.fs-planner) .fs-nav {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  background: #1f3027;
-  border-color: #1f3027;
+  background: #262626;
+  border-color: #262626;
   color: #fff;
 }
 .fs-primary:disabled {
@@ -1137,10 +1137,10 @@ body:has(.fs-planner) .fs-nav {
   font-weight: 400;
 }
 .fs-field input[aria-invalid='true'] {
-  border-color: #a44936;
+  border-color: #585858;
 }
 .fs-field-error {
-  color: #a44936;
+  color: #585858;
   font-size: 11px;
   font-weight: 500;
   line-height: 1.4;
@@ -1406,34 +1406,34 @@ body:has(.fs-planner) .fs-nav {
 }
 
 /* Product comparison stays in the page flow; only its table scrolls sideways. */
-.fs-comparison-entry { margin: 20px 0 18px; border-block: 1px solid #deded8; }
-.fs-open-comparison { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 5px 0; border: 0; background: transparent; color: #20382b; text-align: left; font-weight: 700; font-size: 14px; }
-.fs-open-comparison span { margin-left: auto; font-size: 12px; color: #5a685d; }
-.fs-comparison-entry p { margin: -1px 0 12px !important; color: #66716a; font-size: 11px; }
-.fs-card-meta .fs-card-compare { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; padding: 4px 3px; color: #294b38; font-size: 11px; font-weight: 700; }
-.fs-card-meta .fs-card-compare[aria-pressed='true'] { color: #173d29; }
+.fs-comparison-entry { margin: 20px 0 18px; border-block: 1px solid #e0e0e0; }
+.fs-open-comparison { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 5px 0; border: 0; background: transparent; color: #343434; text-align: left; font-weight: 700; font-size: 14px; }
+.fs-open-comparison span { margin-left: auto; font-size: 12px; color: #686868; }
+.fs-comparison-entry p { margin: -1px 0 12px !important; color: #686868; font-size: 11px; }
+.fs-card-meta .fs-card-compare { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; padding: 4px 3px; color: #464646; font-size: 11px; font-weight: 700; }
+.fs-card-meta .fs-card-compare[aria-pressed='true'] { color: #343434; }
 .fs-card-meta .fs-card-compare:disabled, .fs-product-comparison button:disabled { opacity: .45; }
 .fs-product-comparison { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
-.fs-product-comparison button, .fs-compare-add { display: inline-flex; justify-content: center; align-items: center; gap: 6px; min-height: 44px; padding: 8px 12px; border: 1px solid #aab7a9; background: #f7f8f3; color: #294b38; font-size: 12px; font-weight: 700; }
-.fs-compare-limit { margin: -8px 0 14px !important; color: #625f55; font-size: 12px; line-height: 1.45; }
+.fs-product-comparison button, .fs-compare-add { display: inline-flex; justify-content: center; align-items: center; gap: 6px; min-height: 44px; padding: 8px 12px; border: 1px solid #b9b9b9; background: #f8f8f8; color: #464646; font-size: 12px; font-weight: 700; }
+.fs-compare-limit { margin: -8px 0 14px !important; color: #585858; font-size: 12px; line-height: 1.45; }
 .fs-compare { margin-top: 28px; }
 .fs-compare h1 { font-size: clamp(30px, 8vw, 37px); line-height: 1.08; font-weight: 700; letter-spacing: -.045em; }
-.fs-compare-intro { margin: 12px 0 0 !important; max-width: 42ch; color: #606960; font-size: 13px; line-height: 1.5; }
-.fs-compare-empty { margin-top: 28px; padding: 26px 20px; background: #f3f4ee; }
+.fs-compare-intro { margin: 12px 0 0 !important; max-width: 42ch; color: #686868; font-size: 13px; line-height: 1.5; }
+.fs-compare-empty { margin-top: 28px; padding: 26px 20px; background: #f4f4f4; }
 .fs-compare-empty h2 { font-size: 17px; }
-.fs-compare-empty p { margin: 10px 0 20px !important; font-size: 13px; line-height: 1.5; color: #606960; }
-.fs-compare-hint { margin: 24px 0 10px !important; font-size: 12px; line-height: 1.4; color: #606960; }
-.fs-compare-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; border: 1px solid #deded8; }
+.fs-compare-empty p { margin: 10px 0 20px !important; font-size: 13px; line-height: 1.5; color: #686868; }
+.fs-compare-hint { margin: 24px 0 10px !important; font-size: 12px; line-height: 1.4; color: #686868; }
+.fs-compare-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; border: 1px solid #e0e0e0; }
 .fs-compare-table { width: 100%; min-width: 280px; table-layout: fixed; border-collapse: separate; border-spacing: 0; font-size: 11px; line-height: 1.4; text-align: left; }
 .fs-compare-table[data-count='3'] { min-width: 410px; }
-.fs-compare-table th, .fs-compare-table td { padding: 10px 8px; vertical-align: top; border-bottom: 1px solid #e6e7e0; overflow-wrap: anywhere; }
+.fs-compare-table th, .fs-compare-table td { padding: 10px 8px; vertical-align: top; border-bottom: 1px solid #e8e8e8; overflow-wrap: anywhere; }
 .fs-compare-table tr:last-child th, .fs-compare-table tr:last-child td { border-bottom: 0; }
-.fs-compare-table th:first-child { position: sticky; left: 0; z-index: 1; width: 72px; background: #f6f7f2; color: #5b665c; font-weight: 600; }
+.fs-compare-table th:first-child { position: sticky; left: 0; z-index: 1; width: 72px; background: #f4f4f4; color: #686868; font-weight: 600; }
 .fs-compare-table thead th:not(:first-child) { background: #fff; font-weight: 400; }
-.fs-compare-model { display: flex; flex-direction: column; align-items: stretch; gap: 5px; width: 100%; min-height: 44px; padding: 0; border: 0; background: transparent; color: #1e3025; text-align: left; font-size: 11px; }
+.fs-compare-model { display: flex; flex-direction: column; align-items: stretch; gap: 5px; width: 100%; min-height: 44px; padding: 0; border: 0; background: transparent; color: #262626; text-align: left; font-size: 11px; }
 .fs-compare-model strong { font-size: 12px; line-height: 1.25; }
-.fs-compare-model > span:last-child { color: #68726a; }
-.fs-compare-photo { position: relative; display: block; width: 100%; aspect-ratio: 1 / .8; background: #f2f0ea; overflow: hidden; }
+.fs-compare-model > span:last-child { color: #686868; }
+.fs-compare-photo { position: relative; display: block; width: 100%; aspect-ratio: 1 / .8; background: #efefef; overflow: hidden; }
 .fs-compare-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.fs-compare-remove { display: inline-flex; align-items: center; gap: 3px; min-height: 44px; padding: 4px 0; border: 0; background: transparent; color: #526258; font-size: 11px; }
+.fs-compare-remove { display: inline-flex; align-items: center; gap: 3px; min-height: 44px; padding: 4px 0; border: 0; background: transparent; color: #585858; font-size: 11px; }
 .fs-compare-add { margin-top: 16px; }

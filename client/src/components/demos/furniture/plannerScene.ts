@@ -381,7 +381,7 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
         new THREE.Vector3(-x, 0, -z), new THREE.Vector3(x, 0, -z),
         new THREE.Vector3(x, 0, z), new THREE.Vector3(-x, 0, z),
       ]);
-      highlight = new THREE.LineLoop(geometry, new THREE.LineBasicMaterial({ color: '#34483f', transparent: true, opacity: 0.86 }));
+      highlight = new THREE.LineLoop(geometry, new THREE.LineBasicMaterial({ color: '#252525', transparent: true, opacity: 0.86 }));
       highlight.position.set(selected.x, 0.045, selected.z);
       highlight.rotation.y = -selected.rotation;
       scene.add(highlight);

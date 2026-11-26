@@ -18,7 +18,7 @@ async function check(engine, width, lang) {
     };
   }, lang);
   await context.route('**/telegram-web-app.js', route => route.fulfill({contentType: 'text/javascript', body: ''}));
-  await context.route('**/furniture/real-products/sofa-*.webp', route => route.abort());
+  await context.route('**/furniture/studio/rivet-revolve-sofa/*.webp', route => route.abort());
   try {
     await page.goto(new URL('/#/demos/furniture-studio/app', base).href, {waitUntil:'domcontentloaded'});
     await page.getByTestId('furniture-store').waitFor();
@@ -46,7 +46,7 @@ async function check(engine, width, lang) {
     const galleryError = page.locator('.fs-gallery-fallback');
     await galleryError.waitFor({state:'visible'});
     assert(await galleryError.getByRole('button', {name: lang === 'ru' ? 'Попробовать снова' : 'Try again'}).isVisible());
-    await context.unroute('**/furniture/real-products/sofa-*.webp');
+    await context.unroute('**/furniture/studio/rivet-revolve-sofa/*.webp');
     await galleryError.getByRole('button', {name: lang === 'ru' ? 'Попробовать снова' : 'Try again'}).tap();
     await galleryError.waitFor({state:'detached'});
     await page.waitForFunction(() => { const image = document.querySelector('.fs-gallery-main'); return !!image && image.complete && image.naturalWidth > 0; });

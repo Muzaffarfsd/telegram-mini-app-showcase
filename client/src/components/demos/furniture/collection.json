@@ -4,12 +4,7 @@
     "name": "Sloane",
     "brand": "Rivet",
     "category": "Диваны",
-    "images": [
-      "/furniture/collection/B07P5LMN2C-7168HPhsezL.webp",
-      "/furniture/collection/B07P5LMN2C-81OrBMtT31L.webp",
-      "/furniture/collection/B07P5LMN2C-911Yrb-gzeL.webp",
-      "/furniture/collection/B07P5LMN2C-A1O6LnQp4YL.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07P5LMN2C.glb",
     "plannerModelUrl": "/furniture/collection/B07P5LMN2C-room.glb",
     "dimensionsM": [
@@ -51,12 +46,7 @@
     "name": "Elvas",
     "brand": "Alkove",
     "category": "Диваны",
-    "images": [
-      "/furniture/collection/B07SYL34QZ-61+x6mjoHdL.webp",
-      "/furniture/collection/B07SYL34QZ-71BjZtt77UL.webp",
-      "/furniture/collection/B07SYL34QZ-41F4DlqRpPL.webp",
-      "/furniture/collection/B07SYL34QZ-61si0sb53-L.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07SYL34QZ.glb",
     "plannerModelUrl": "/furniture/collection/B07SYL34QZ-room.glb",
     "dimensionsM": [
@@ -98,12 +88,7 @@
     "name": "Ian",
     "brand": "Rivet",
     "category": "Обеденные столы",
-    "images": [
-      "/furniture/collection/B07B78LZQC-818LFcL0XBL.webp",
-      "/furniture/collection/B07B78LZQC-81Cog+hc5AL.webp",
-      "/furniture/collection/B07B78LZQC-91rLYX-Uv-L.webp",
-      "/furniture/collection/B07B78LZQC-81w3yBT55mL.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07B78LZQC.glb",
     "plannerModelUrl": "/furniture/collection/B07B78LZQC-room.glb",
     "dimensionsM": [
@@ -146,12 +131,7 @@
     "name": "Olney",
     "brand": "Alkove",
     "category": "Обеденные столы",
-    "images": [
-      "/furniture/collection/B07JG45F5B-71rK7+Tmj7L.webp",
-      "/furniture/collection/B07JG45F5B-817FoSMwagL.webp",
-      "/furniture/collection/B07JG45F5B-71LhcxdGZDL.webp",
-      "/furniture/collection/B07JG45F5B-716WIKIja1L.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07JG45F5B.glb",
     "plannerModelUrl": "/furniture/collection/B07JG45F5B-room.glb",
     "dimensionsM": [
@@ -193,12 +173,7 @@
     "name": "Scarlett",
     "brand": "Stone & Beam",
     "category": "Стулья",
-    "images": [
-      "/furniture/collection/B0857JW1B9-61Y5Yh1DzBL.webp",
-      "/furniture/collection/B0857JW1B9-61sLzBGaFWL.webp",
-      "/furniture/collection/B0857JW1B9-612tf6vG3VL.webp",
-      "/furniture/collection/B0857JW1B9-71BL6f7oaRL.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B0857JW1B9.glb",
     "plannerModelUrl": "/furniture/collection/B0857JW1B9-room.glb",
     "dimensionsM": [
@@ -240,12 +215,7 @@
     "name": "Bergen",
     "brand": "Stone & Beam",
     "category": "Стулья",
-    "images": [
-      "/furniture/collection/B084S12MYC-71SeCDVTJtL.webp",
-      "/furniture/collection/B084S12MYC-719C0tzKCKL.webp",
-      "/furniture/collection/B084S12MYC-71q9Y96TJlL.webp",
-      "/furniture/collection/B084S12MYC-A1rm-FcdaWL.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B084S12MYC.glb",
     "plannerModelUrl": "/furniture/collection/B084S12MYC-room.glb",
     "dimensionsM": [
@@ -254,6 +224,10 @@
       0.832
     ],
     "placement": "floor",
+    "sourceNote": {
+      "ru": "На интерьерном кадре показано несколько предметов. Размеры и 3D-модель приведены для одного.",
+      "en": "The interior includes several pieces. The dimensions and 3D model refer to one piece."
+    },
     "description": {
       "ru": "Обеденный стул с мягкой обивкой и деревянными ножками.",
       "en": "An upholstered dining chair on wooden legs."
@@ -287,12 +261,7 @@
     "name": "Decorah",
     "brand": "Ravenna Home",
     "category": "Стулья",
-    "images": [
-      "/furniture/collection/B07DBD9VY1-51noxmVbXxL.webp",
-      "/furniture/collection/B07DBD9VY1-61Bi8AJnXpL.webp",
-      "/furniture/collection/B07DBD9VY1-91+1AbLFD1L.webp",
-      "/furniture/collection/B07DBD9VY1-913XBWMiNkL.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07DBD9VY1.glb",
     "plannerModelUrl": "/furniture/collection/B07DBD9VY1-room.glb",
     "dimensionsM": [
@@ -301,6 +270,10 @@
       0.61
     ],
     "placement": "floor",
+    "sourceNote": {
+      "ru": "На интерьерном кадре показано несколько предметов. Размеры и 3D-модель приведены для одного.",
+      "en": "The interior includes several pieces. The dimensions and 3D model refer to one piece."
+    },
     "description": {
       "ru": "Штабелируемый металлический табурет высотой около 61 см.",
       "en": "A stackable metal counter stool approximately 61 cm tall."
@@ -334,12 +307,7 @@
     "name": "Ems",
     "brand": "Movian",
     "category": "Хранение",
-    "images": [
-      "/furniture/collection/B07TR659G8-814nRTIdvbL.webp",
-      "/furniture/collection/B07TR659G8-816WuZPQ-sL.webp",
-      "/furniture/collection/B07TR659G8-41hG0Q-lIBL.webp",
-      "/furniture/collection/B07TR659G8-71AQRmD2OaL.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07TR659G8.glb",
     "plannerModelUrl": "/furniture/collection/B07TR659G8-room.glb",
     "dimensionsM": [
@@ -381,12 +349,7 @@
     "name": "Martin",
     "brand": "Movian",
     "category": "Хранение",
-    "images": [
-      "/furniture/collection/B07QTB45S5-71qn9ILU+sL.webp",
-      "/furniture/collection/B07QTB45S5-71lKwG-sVgL.webp",
-      "/furniture/collection/B07QTB45S5-61mvyJAGCjL.webp",
-      "/furniture/collection/B07QTB45S5-615xK4-jc0L.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07QTB45S5.glb",
     "plannerModelUrl": "/furniture/collection/B07QTB45S5-room.glb",
     "dimensionsM": [
@@ -428,12 +391,7 @@
     "name": "Bristol",
     "brand": "Rivet",
     "category": "Столы",
-    "images": [
-      "/furniture/collection/B072ZLCB3M-81Xh+yZvD1L.webp",
-      "/furniture/collection/B072ZLCB3M-A1OdfC9iHhL.webp",
-      "/furniture/collection/B072ZLCB3M-91A-nCul3fL.webp",
-      "/furniture/collection/B072ZLCB3M-81D0VezjM9L.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B072ZLCB3M.glb",
     "plannerModelUrl": "/furniture/collection/B072ZLCB3M-room.glb",
     "dimensionsM": [
@@ -475,12 +433,7 @@
     "name": "Brass Floor",
     "brand": "Rivet",
     "category": "Свет",
-    "images": [
-      "/furniture/collection/B07B4YXR7D-71eVGnLjTiL.webp",
-      "/furniture/collection/B07B4YXR7D-71GgT0bQ7aL.webp",
-      "/furniture/collection/B07B4YXR7D-916qI1jilrL.webp",
-      "/furniture/collection/B07B4YXR7D-A1SGZFOHayL.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07B4YXR7D.glb",
     "plannerModelUrl": "/furniture/collection/B07B4YXR7D-room.glb",
     "dimensionsM": [
@@ -522,12 +475,7 @@
     "name": "Copper Dome",
     "brand": "Rivet",
     "category": "Свет",
-    "images": [
-      "/furniture/collection/B07374M9ZW-714p3F7MOXL.webp",
-      "/furniture/collection/B07374M9ZW-81J7z76kaTL.webp",
-      "/furniture/collection/B07374M9ZW-81xpSVo0wnL.webp",
-      "/furniture/collection/B07374M9ZW-71PFFMbOIQL.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07374M9ZW.glb",
     "plannerModelUrl": "/furniture/collection/B07374M9ZW-room.glb",
     "dimensionsM": [
@@ -569,12 +517,7 @@
     "name": "Hayes",
     "brand": "Alkove",
     "category": "Кровати",
-    "images": [
-      "/furniture/collection/B07K7K25ZL-51du6nyJHPL.webp",
-      "/furniture/collection/B07K7K25ZL-512IG-gjDWL.webp",
-      "/furniture/collection/B07K7K25ZL-71HTyxrnJrL.webp",
-      "/furniture/collection/B07K7K25ZL-710oVg7WthL.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07K7K25ZL.glb",
     "plannerModelUrl": "/furniture/collection/B07K7K25ZL-room.glb",
     "dimensionsM": [
@@ -616,12 +559,7 @@
     "name": "Bedside",
     "brand": "AmazonBasics",
     "category": "Хранение",
-    "images": [
-      "/furniture/collection/B07RPZSM4W-71ft-U5W-JL.webp",
-      "/furniture/collection/B07RPZSM4W-71juF9VcgAL.webp",
-      "/furniture/collection/B07RPZSM4W-71-xEx-NswL.webp",
-      "/furniture/collection/B07RPZSM4W-81WHypip47L.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07RPZSM4W.glb",
     "plannerModelUrl": "/furniture/collection/B07RPZSM4W-room.glb",
     "dimensionsM": [
@@ -663,12 +601,7 @@
     "name": "Haraden",
     "brand": "Rivet",
     "category": "Банкетки и пуфы",
-    "images": [
-      "/furniture/collection/B07QJ1X2J4-81VlSf9Cc7L.webp",
-      "/furniture/collection/B07QJ1X2J4-91tm6LuQn1L.webp",
-      "/furniture/collection/B07QJ1X2J4-81weTRT1jsL.webp",
-      "/furniture/collection/B07QJ1X2J4-A1hkFZCB3gL.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07QJ1X2J4.glb",
     "plannerModelUrl": "/furniture/collection/B07QJ1X2J4-room.glb",
     "dimensionsM": [
@@ -710,12 +643,7 @@
     "name": "Emerly",
     "brand": "Rivet",
     "category": "Банкетки и пуфы",
-    "images": [
-      "/furniture/collection/B07P8ST6VT-91aY7PVqtdL.webp",
-      "/furniture/collection/B07P8ST6VT-A1qtp-xZVcL.webp",
-      "/furniture/collection/B07P8ST6VT-B1uBsrKEDFS.webp",
-      "/furniture/collection/B07P8ST6VT-91iXK6wv67L.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07P8ST6VT.glb",
     "plannerModelUrl": "/furniture/collection/B07P8ST6VT-room.glb",
     "dimensionsM": [
@@ -757,12 +685,7 @@
     "name": "Ivory Geometry",
     "brand": "Stone & Beam",
     "category": "Ковры",
-    "images": [
-      "/furniture/collection/B07B4WKMYK-91UOOcdwcTL.webp",
-      "/furniture/collection/B07B4WKMYK-91NKaTxVhQL.webp",
-      "/furniture/collection/B07B4WKMYK-81C0loiFfSL.webp",
-      "/furniture/collection/B07B4WKMYK-910linHBY4L.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07B4WKMYK.glb",
     "plannerModelUrl": "/furniture/collection/B07B4WKMYK-room.glb",
     "dimensionsM": [
@@ -804,12 +727,7 @@
     "name": "Stanberg",
     "brand": "Movian",
     "category": "Рабочие столы",
-    "images": [
-      "/furniture/collection/B07JXXR83F-81m9AAzkSVL.webp",
-      "/furniture/collection/B07JXXR83F-81srVmcJxRL.webp",
-      "/furniture/collection/B07JXXR83F-7192yHZ0HcL.webp",
-      "/furniture/collection/B07JXXR83F-71AZ6GG2J+L.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07JXXR83F.glb",
     "plannerModelUrl": "/furniture/collection/B07JXXR83F-room.glb",
     "dimensionsM": [
@@ -851,12 +769,7 @@
     "name": "Twill Swivel",
     "brand": "AmazonBasics",
     "category": "Кресла",
-    "images": [
-      "/furniture/collection/B07MKQT7V4-812d-89r2aL.webp",
-      "/furniture/collection/B07MKQT7V4-81PBPag35+L.webp",
-      "/furniture/collection/B07MKQT7V4-91thGc-I9vL.webp",
-      "/furniture/collection/B07MKQT7V4-81G3MtEsY2L.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B07MKQT7V4.glb",
     "plannerModelUrl": "/furniture/collection/B07MKQT7V4-room.glb",
     "dimensionsM": [
@@ -898,12 +811,7 @@
     "name": "Striped Table Lamp",
     "brand": "Rivet",
     "category": "Свет",
-    "images": [
-      "/furniture/collection/B0825DNRXL-41AjNHfLkHL.webp",
-      "/furniture/collection/B0825DNRXL-41qiZRLkiAL.webp",
-      "/furniture/collection/B0825DNRXL-41Cmgu+pU0L.webp",
-      "/furniture/collection/B0825DNRXL-91sRiUyT6kL.webp"
-    ],
+    "gallerySize": 4,
     "modelUrl": "/furniture/collection/B0825DNRXL.glb",
     "plannerModelUrl": "/furniture/collection/B0825DNRXL-room.glb",
     "dimensionsM": [

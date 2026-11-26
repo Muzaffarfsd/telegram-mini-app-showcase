@@ -1,11 +1,11 @@
-.fpl { color:#1b1b1b; background:#fff; font-family:'Google Sans App',system-ui,sans-serif; max-width:448px; min-height:100%; margin:0 auto; padding:18px 20px calc(110px + env(safe-area-inset-bottom, 0px)); }
+.fpl { color:#1b1b1b; background:#fff; font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif; max-width:448px; min-height:100%; margin:0 auto; padding:18px 20px calc(110px + env(safe-area-inset-bottom, 0px)); }
 .fpl *, .fpl *::before, .fpl *::after { box-sizing:border-box; }
 .fpl h1,.fpl p { margin:0; }.fpl button,.fpl input,.fpl select { font:inherit; }.fpl button { cursor:pointer; }.fpl button:focus-visible,.fpl input:focus-visible,.fpl select:focus-visible { outline:2px solid #171717; outline-offset:2px; }.fpl button:disabled { opacity:.42; cursor:default; }
 .fpl-header { display:flex; align-items:flex-start; justify-content:space-between; gap:15px; padding-bottom:16px; }.fpl-header p { color:#666; font-size:10px; font-weight:800; letter-spacing:.1em; }.fpl-header h1 { margin-top:7px; font-size:25px; line-height:1; font-weight:900; letter-spacing:-.05em; }.fpl-header > button,.fpl-edit-title button { display:grid; place-items:center; width:44px; height:44px; border:0; border-radius:50%; background:#f2f2f2; color:#1b1b1b; }
-.fpl-views { display:flex; width:max-content; max-width:100%; padding:3px; border-radius:30px; background:#efefed; margin-bottom:12px; }.fpl-views button { min-height:40px; padding:0 16px; border:0; border-radius:30px; background:transparent; color:#444; font-size:12px; }.fpl-views button[aria-pressed=true] { background:#1b1b1b; color:#fff; }
+.fpl-views { display:flex; width:max-content; max-width:100%; padding:3px; border-radius:30px; background:#efefef; margin-bottom:12px; }.fpl-views button { min-height:40px; padding:0 16px; border:0; border-radius:30px; background:transparent; color:#444; font-size:12px; }.fpl-views button[aria-pressed=true] { background:#1b1b1b; color:#fff; }
 .fpl-toolbar { display:flex; align-items:flex-start; justify-content:space-between; gap:6px; }.fpl-history { display:flex; gap:2px; }.fpl-history button { display:grid; place-items:center; width:40px; height:44px; border:0; background:transparent; color:#222; }
-.fpl-stage { position:relative; overflow:hidden; background:#eeeae4; height:clamp(310px, 100vw, 430px); }.fpl-stage canvas { width:100%; height:100%; display:block; touch-action:none; }.fpl-unavailable { position:absolute; inset:0; display:grid; place-items:center; padding:24px; background:#f3f1ed; text-align:center; color:#555; font-size:13px; line-height:1.5; }
-.fpl-hint,.fpl-disclaimer,.fpl-save,.fpl-status { margin-top:9px!important; color:#666; font-size:11px; line-height:1.5; }.fpl-status { color:#6d412d; }.fpl-disclaimer { margin-top:5px!important; }
+.fpl-stage { position:relative; overflow:hidden; background:#e8e8e8; height:clamp(310px, 100vw, 430px); }.fpl-stage canvas { width:100%; height:100%; display:block; touch-action:none; }.fpl-unavailable { position:absolute; inset:0; display:grid; place-items:center; padding:24px; background:#efefef; text-align:center; color:#555; font-size:13px; line-height:1.5; }
+.fpl-hint,.fpl-disclaimer,.fpl-save,.fpl-status { margin-top:9px!important; color:#666; font-size:11px; line-height:1.5; }.fpl-status { color:#464646; }.fpl-disclaimer { margin-top:5px!important; }
 .fpl-room { display:grid; grid-template-columns:1fr 1fr auto; gap:8px; align-items:end; margin-top:24px; }.fpl-room label,.fpl-add label { display:grid; gap:7px; color:#444; font-size:11px; font-weight:700; }.fpl-room input,.fpl-add select { min-width:0; height:44px; padding:0 10px; border:1px solid #ddd; border-radius:0; background:#fff; color:#1b1b1b; font-size:16px; }.fpl-room button,.fpl-add button { min-height:44px; padding:0 12px; border:0; background:#1b1b1b; color:#fff; font-size:12px; font-weight:700; }
 .fpl-add { margin-top:22px; }.fpl-add > div { display:flex; gap:8px; margin-top:7px; }.fpl-add select { flex:1; }.fpl-add button { display:flex; align-items:center; gap:5px; }.fpl-items { display:flex; gap:6px; overflow-x:auto; padding:16px 0 2px; scrollbar-width:none; }.fpl-items button { flex:none; min-height:40px; padding:0 12px; border:1px solid #ddd; border-radius:30px; background:#fff; color:#333; font-size:11px; }.fpl-items button[aria-pressed=true] { background:#1b1b1b; border-color:#1b1b1b; color:#fff; }
 .fpl-edit { margin-top:18px; border-top:1px solid #ddd; padding-top:10px; }.fpl-edit-title { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:14px; }.fpl-edit-controls { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }.fpl-edit-controls button { display:grid; place-items:center; width:44px; height:44px; border:1px solid #dedede; background:#fff; color:#1b1b1b; }.fpl-save { margin-top:20px!important; }
@@ -14,40 +14,40 @@
 
 /* Give the room the full mobile canvas while retaining a quiet editorial
    frame and generous touch targets for the controls beneath it. */
-.fpl { background:#fdfcfb; padding-top:20px; }
+.fpl { background:#fcfcfc; padding-top:20px; }
 .fpl-header { padding-bottom:15px; align-items:center; }
-.fpl-header p { color:#746f69; font-size:10px; letter-spacing:.12em; }
+.fpl-header p { color:#777777; font-size:10px; letter-spacing:.12em; }
 .fpl-header h1 { font-size:26px; line-height:1.08; }
-.fpl-header > button { background:#f2f0ed; }
-.fpl-room-meta { display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-top:1px solid #e8e5e1; color:#716b65; font-size:11px; line-height:1.35; }
+.fpl-header > button { background:#efefef; }
+.fpl-room-meta { display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-top:1px solid #e8e8e8; color:#686868; font-size:11px; line-height:1.35; }
 .fpl-toolbar { align-items:center; margin-bottom:12px; }
-.fpl-views { background:#eeece9; margin-bottom:0; }
+.fpl-views { background:#efefef; margin-bottom:0; }
 .fpl-views button { min-height:44px; font-size:12px; font-weight:600; white-space:nowrap; }
 .fpl-history button { width:40px; height:44px; }
 .fpl-stage { margin-inline:-40px; height:clamp(320px,105vw,410px); }
-.fpl-hint,.fpl-disclaimer { font-size:11px; color:#6d6861; }
+.fpl-hint,.fpl-disclaimer { font-size:11px; color:#686868; }
 .fpl-hint { margin-top:12px!important; }
-.fpl-disclaimer { color:#6d655e; }
-.fpl-section-heading { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding-top:22px; margin-top:22px; border-top:1px solid #e8e5e1; }
+.fpl-disclaimer { color:#686868; }
+.fpl-section-heading { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding-top:22px; margin-top:22px; border-top:1px solid #e8e8e8; }
 .fpl-section-heading h2 { margin:0; font-size:17px; font-weight:750; letter-spacing:-.035em; line-height:1.2; }
-.fpl-section-heading > span { color:#6d655e; font-size:11px; }
+.fpl-section-heading > span { color:#686868; font-size:11px; }
 .fpl-furniture-heading { margin-top:26px; }
 .fpl-room { margin-top:14px; }
-.fpl-room label,.fpl-add label { font-size:11px; color:#6c655d; }
-.fpl-room input,.fpl-add select { border-color:#dedad5; background:#fff; }
-.fpl-room button,.fpl-add button { background:#242321; }
+.fpl-room label,.fpl-add label { font-size:11px; color:#686868; }
+.fpl-room input,.fpl-add select { border-color:#d6d6d6; background:#fff; }
+.fpl-room button,.fpl-add button { background:#262626; }
 .fpl-add { margin-top:14px; }
 .fpl-items { padding-top:14px; }
-.fpl-items button { min-height:44px; border-color:#dfdbd6; color:#494541; }
-.fpl-edit { margin-top:20px; padding:16px; border:1px solid #e9e5df; background:#f7f5f2; }
+.fpl-items button { min-height:44px; border-color:#d6d6d6; color:#464646; }
+.fpl-edit { margin-top:20px; padding:16px; border:1px solid #e8e8e8; background:#f4f4f4; }
 .fpl-edit-title > div { display:grid; gap:5px; }
-.fpl-edit-title span { color:#6d655e; font-size:9px; font-weight:800; letter-spacing:.1em; }
+.fpl-edit-title span { color:#686868; font-size:9px; font-weight:800; letter-spacing:.1em; }
 .fpl-edit-title strong { font-size:15px; letter-spacing:-.02em; }
 .fpl-edit-title button { width:42px; height:42px; background:#fff; }
-.fpl-edit-caption { margin-top:13px!important; color:#6d655e; font-size:11px; }
+.fpl-edit-caption { margin-top:13px!important; color:#686868; font-size:11px; }
 .fpl-edit-controls { display:grid; grid-template-columns:repeat(4,minmax(44px,1fr)); gap:6px; margin-top:8px; }
-.fpl-edit-controls button { width:100%; height:44px; border-color:#e5e1db; background:#fff; }
-.fpl-handoff { min-height:52px; background:#242321; }
+.fpl-edit-controls button { width:100%; height:44px; border-color:#e0e0e0; background:#fff; }
+.fpl-handoff { min-height:52px; background:#262626; }
 @media(max-width:350px) {
   .fpl-header h1 { font-size:22px; white-space:nowrap; }
   .fpl-views button { padding-inline:11px; }
@@ -68,7 +68,7 @@
   -webkit-overflow-scrolling:touch;
   padding-top:max(14px, env(safe-area-inset-top, 0px), var(--csat, 0px));
   padding-bottom:calc(32px + max(env(safe-area-inset-bottom, 0px), var(--csab, 0px)));
-  box-shadow:0 0 0 100vmax #eeeae4;
+  box-shadow:0 0 0 100vmax #e8e8e8;
 }
 .fpl-stage { margin-inline:-20px; height:clamp(225px,40dvh,410px); }
 .fpl-items { padding:8px 0 2px; }
@@ -80,9 +80,9 @@
 .fpl-edit-title button { width:44px; height:44px; }
 .fpl-edit-caption { display:none; }
 .fpl-edit-controls { grid-template-columns:repeat(4,minmax(44px,1fr)); margin-top:6px; }
-.fpl-drag-feedback { position:absolute; z-index:2; left:50%; bottom:12px; transform:translateX(-50%); max-width:calc(100% - 24px); padding:9px 14px; border-radius:20px; background:#292522; color:#fff; font-size:12px; line-height:1.25; text-align:center; pointer-events:none; box-shadow:0 4px 14px #0002; }
-.fpl-reset-view { position:absolute; top:12px; right:12px; display:grid; place-items:center; width:44px; height:44px; border:1px solid #e3ded7; border-radius:50%; background:#fffefbf0; color:#292522; box-shadow:0 4px 12px #0001; }
-.fpl-inside-view { position:absolute; top:12px; right:12px; min-height:44px; padding:0 16px; border:1px solid #e3ded7; border-radius:22px; background:#fffefbf0; color:#292522; font-size:12px; font-weight:700; box-shadow:0 4px 12px #0001; }
+.fpl-drag-feedback { position:absolute; z-index:2; left:50%; bottom:12px; transform:translateX(-50%); max-width:calc(100% - 24px); padding:9px 14px; border-radius:20px; background:#262626; color:#fff; font-size:12px; line-height:1.25; text-align:center; pointer-events:none; box-shadow:0 4px 14px #0002; }
+.fpl-reset-view { position:absolute; top:12px; right:12px; display:grid; place-items:center; width:44px; height:44px; border:1px solid #e0e0e0; border-radius:50%; background:#fffffff0; color:#262626; box-shadow:0 4px 12px #0001; }
+.fpl-inside-view { position:absolute; top:12px; right:12px; min-height:44px; padding:0 16px; border:1px solid #e0e0e0; border-radius:22px; background:#fffffff0; color:#262626; font-size:12px; font-weight:700; box-shadow:0 4px 12px #0001; }
 @media(max-width:350px) {
   .fpl-stage { margin-inline:-16px; height:clamp(225px,40dvh,370px); }
   .fpl-history button { width:44px; }
@@ -92,24 +92,24 @@
   .fpl-toolbar { margin-bottom:6px; }
   .fpl-stage { height:clamp(205px,36dvh,240px); }
 }
-.fpl-openings { margin-top:20px; border:1px solid #e3dfd9; padding:0 14px 14px; background:#faf8f5; }
+.fpl-openings { margin-top:20px; border:1px solid #e0e0e0; padding:0 14px 14px; background:#f8f8f8; }
 .fpl-openings summary { min-height:48px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-size:14px; font-weight:700; list-style:none; }
 .fpl-openings summary::-webkit-details-marker { display:none; }
 .fpl-openings summary::after { content:'+'; font-size:20px; font-weight:400; }
 .fpl-openings[open] summary::after { content:'−'; }
 .fpl-openings summary:focus-visible { outline:2px solid #171717; outline-offset:2px; }
-.fpl-stage canvas:focus-visible { outline:3px solid #242321; outline-offset:-3px; }
+.fpl-stage canvas:focus-visible { outline:3px solid #262626; outline-offset:-3px; }
 .fpl-item-actions { display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:14px; }
-.fpl-item-actions button { min-height:44px; padding:0; border:0; background:none; color:#524d47; font-size:12px; text-decoration:underline; text-underline-offset:3px; }
-.fpl-hint { color:#4f4a44; font-size:12px; line-height:1.55; }
-.fpl-hint strong { color:#292622; font-weight:650; }
-.fpl-openings p { color:#625c55; font-size:11px; line-height:1.5; }
-.fpl-openings fieldset { border:0; border-top:1px solid #e8e4df; padding:12px 0; margin:14px 0 0; min-width:0; }
+.fpl-item-actions button { min-height:44px; padding:0; border:0; background:none; color:#464646; font-size:12px; text-decoration:underline; text-underline-offset:3px; }
+.fpl-hint { color:#464646; font-size:12px; line-height:1.55; }
+.fpl-hint strong { color:#262626; font-weight:650; }
+.fpl-openings p { color:#585858; font-size:11px; line-height:1.5; }
+.fpl-openings fieldset { border:0; border-top:1px solid #e0e0e0; padding:12px 0; margin:14px 0 0; min-width:0; }
 .fpl-openings legend { padding:0 5px 0 0; font-size:12px; font-weight:700; }
 .fpl-openings-toggle { display:flex; align-items:center; gap:9px; min-height:44px; font-size:12px; }
-.fpl-openings-toggle input { width:20px; height:20px; accent-color:#242321; }
+.fpl-openings-toggle input { width:20px; height:20px; accent-color:#262626; }
 .fpl-openings-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-.fpl-openings-fields label { display:grid; gap:6px; color:#625c55; font-size:11px; font-weight:700; }
-.fpl-openings-fields input { width:100%; min-width:0; height:44px; padding:0 10px; border:1px solid #dedad5; background:#fff; font-size:16px; }
-.fpl-openings > button { width:100%; min-height:44px; margin-top:14px; border:0; background:#242321; color:#fff; font-size:12px; font-weight:700; }
-.fpl-openings .fpl-opening-error { margin-top:10px; color:#79442b; }
+.fpl-openings-fields label { display:grid; gap:6px; color:#585858; font-size:11px; font-weight:700; }
+.fpl-openings-fields input { width:100%; min-width:0; height:44px; padding:0 10px; border:1px solid #d6d6d6; background:#fff; font-size:16px; }
+.fpl-openings > button { width:100%; min-height:44px; margin-top:14px; border:0; background:#262626; color:#fff; font-size:12px; font-weight:700; }
+.fpl-openings .fpl-opening-error { margin-top:10px; color:#464646; }

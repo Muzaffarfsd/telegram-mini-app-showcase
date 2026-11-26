@@ -1,4 +1,5 @@
 import collection from './collection.json';
+import { studioGallery } from './studioPhotography';
 
 /** Data supplied here must describe verified, real products. Nothing below is a listing yet. */
 export interface FurnitureProduct {
@@ -8,7 +9,7 @@ export interface FurnitureProduct {
   category: string;
   placement?: 'floor' | 'rug' | 'ceiling' | 'surface';
   shape?: string;
-  /** Verified product photography supplied for this product; first image is the cover. */
+  /** Gallery views of this product. The first image is the studio cover. */
   images: readonly string[];
   /** Path or URL of a verified, appropriately licensed 3D asset, when available. */
   modelUrl?: string;
@@ -32,13 +33,12 @@ export interface FurnitureProduct {
   attribution?: { credit: string; creditEn?: string; sourceUrl: string; licenseUrl: string };
 }
 
-// The source photographs are resized and converted to WebP; the 3D files use
-// web-compressed versions of the ABO models. No current price or stock is claimed.
+// Specifications and licensed models come from the cited product archive.
 const attribution = {
   credit:
-    'Фото и 3D: Amazon.com; Amazon Berkeley Objects — M. Guillaumin, T. Dideriksen, K. Deng, H. Arora, A. Dhua, X. Zhang, T. Yago-Vicente, J. Collins, S. Goel, J. Malik. Изображения и модели сжаты.',
+    'Исходные изображения и 3D-модели предоставлены Amazon.com. Amazon Berkeley Objects — M. Guillaumin, T. Dideriksen, K. Deng, H. Arora, A. Dhua, X. Zhang, T. Yago-Vicente, J. Collins, S. Goel, J. Malik. Студийные ракурсы выполнены по 3D-моделям. Интерьерные кадры созданы для этой витрины.',
   creditEn:
-    'Photos and 3D: Amazon.com; Amazon Berkeley Objects — M. Guillaumin, T. Dideriksen, K. Deng, H. Arora, A. Dhua, X. Zhang, T. Yago-Vicente, J. Collins, S. Goel, J. Malik. Images and models are compressed.',
+    'Original imagery and 3D models by Amazon.com. Amazon Berkeley Objects — M. Guillaumin, T. Dideriksen, K. Deng, H. Arora, A. Dhua, X. Zhang, T. Yago-Vicente, J. Collins, S. Goel, J. Malik. Studio views are rendered from the models. Interior images were made for this showroom.',
   sourceUrl: 'https://amazon-berkeley-objects.s3.amazonaws.com/index.html',
   licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
 };
@@ -49,7 +49,7 @@ export const furnitureCatalog: readonly FurnitureProduct[] = [
     name: 'Rivet Revolve',
     brand: 'Rivet',
     category: 'Диваны',
-    images: [root + 'sofa-main.webp', root + 'sofa-room.webp', root + 'sofa-detail.webp', root + 'sofa-angle.webp', root + 'sofa-side.webp', root + 'sofa-back.webp'],
+    images: studioGallery('rivet-revolve-sofa', 6),
     modelUrl: root + 'B072FVHRZ3.glb',
     plannerModelUrl: root + 'B072FVHRZ3-lod.glb',
     dimensionsM: [2.03, 1.58, 0.9],
@@ -93,7 +93,7 @@ export const furnitureCatalog: readonly FurnitureProduct[] = [
     name: 'Rivet Revolve',
     brand: 'Rivet',
     category: 'Кресла',
-    images: [root + 'chair-main.webp', root + 'chair-detail.webp', root + 'chair-room.webp', root + 'chair-fabric.webp', root + 'chair-dimensions.webp'],
+    images: studioGallery('rivet-revolve-chair', 5),
     modelUrl: root + 'B071J7Q6KD.glb',
     plannerModelUrl: root + 'B071J7Q6KD-lod.glb',
     dimensionsM: [0.83, 0.88, 0.9],
@@ -133,7 +133,7 @@ export const furnitureCatalog: readonly FurnitureProduct[] = [
     name: 'Westview',
     brand: 'Stone & Beam',
     category: 'Диваны',
-    images: [root + 'B082VLYF5W-catalog-optimized.webp', root + 'B082VLYF5W-detail1.webp', root + 'B082VLYF5W-detail3.webp', root + 'B082VLYF5W-detail4.webp'],
+    images: studioGallery('stone-beam-westview', 4),
     modelUrl: root + 'B082VLYF5W.glb',
     plannerModelUrl: root + 'B082VLYF5W-lod.glb',
     dimensionsM: [2.26, 1.07, 0.8],
@@ -183,7 +183,7 @@ export const furnitureCatalog: readonly FurnitureProduct[] = [
     name: 'Waverly Oak',
     brand: 'Alkove / Hallowood',
     category: 'Столы',
-    images: [root + 'table-main.webp', root + 'table-detail.webp', root + 'table-front.webp'],
+    images: studioGallery('hallowood-waverly-table', 3),
     modelUrl: root + 'B01LWVEZ1C.glb',
     plannerModelUrl: root + 'B01LWVEZ1C-lod.glb',
     dimensionsM: [0.9, 0.45, 0.45],
@@ -220,7 +220,7 @@ export const furnitureCatalog: readonly FurnitureProduct[] = [
   },
   {
     id: 'rivet-adrienne-chair', name: 'Adrienne', brand: 'Rivet', category: 'Кресла',
-    images: [1, 2, 3, 4].map(n => root + `B07QGSZ38G-photo${n}.webp`),
+    images: studioGallery('rivet-adrienne-chair', 4),
     modelUrl: root + 'B07QGSZ38G.glb', plannerModelUrl: root + 'B07QGSZ38G-lod.glb',
     dimensionsM: [0.76, 0.73, 0.81],
     facts: [{ label: 'Размер', value: '≈ 76 × 73 × 81 см' }, { label: 'Цвет', value: 'Stucco' }],
@@ -236,7 +236,7 @@ export const furnitureCatalog: readonly FurnitureProduct[] = [
   },
   {
     id: 'movian-scutari-chair', name: 'Scutari', brand: 'Movian', category: 'Кресла',
-    images: [1, 2, 3, 4].map(n => root + `B07QZ21DDV-photo${n}.webp`),
+    images: studioGallery('movian-scutari-chair', 4),
     modelUrl: root + 'B07QZ21DDV.glb', plannerModelUrl: root + 'B07QZ21DDV-lod.glb',
     dimensionsM: [0.78, 0.75, 0.78],
     facts: [{ label: 'Размер', value: '78 × 75 × 78 см' }, { label: 'Цвет', value: 'Светло-серый' }],
@@ -248,7 +248,7 @@ export const furnitureCatalog: readonly FurnitureProduct[] = [
   },
   {
     id: 'movian-ribe-sofa', name: 'Ribe', brand: 'Movian', category: 'Диваны',
-    images: [1, 2, 3, 4].map(n => root + `B07VNL95FP-photo${n}.webp`),
+    images: studioGallery('movian-ribe-sofa', 4),
     modelUrl: root + 'B07VNL95FP.glb', plannerModelUrl: root + 'B07VNL95FP-lod.glb',
     dimensionsM: [2, 0.92, 0.85],
     facts: [{ label: 'Размер', value: '200 × 92 × 85 см' }, { label: 'Цвет', value: 'Песочный' }],
@@ -261,7 +261,7 @@ export const furnitureCatalog: readonly FurnitureProduct[] = [
   },
   {
     id: 'movian-morat-sofa', name: 'Morat', brand: 'Movian', category: 'Диваны',
-    images: [1, 2, 3, 4].map(n => root + `B07VNL9S77-photo${n}.webp`),
+    images: studioGallery('movian-morat-sofa', 4),
     modelUrl: root + 'B07VNL9S77.glb', plannerModelUrl: root + 'B07VNL9S77-lod.glb',
     dimensionsM: [2.12, 0.9, 0.8],
     facts: [{ label: 'Размер', value: '212 × 90 × 80 см' }, { label: 'Цвет', value: 'Светло-серый' }],
@@ -274,7 +274,7 @@ export const furnitureCatalog: readonly FurnitureProduct[] = [
   },
   {
     id: 'rivet-round-coffee-table', name: 'Round Coffee Table', brand: 'Rivet', category: 'Столы',
-    images: [1, 2, 3, 4].map(n => root + `B07GDSF3MR-photo${n}.webp`),
+    images: studioGallery('rivet-round-coffee-table', 4),
     modelUrl: root + 'B07GDSF3MR.glb', plannerModelUrl: root + 'B07GDSF3MR-lod.glb',
     dimensionsM: [0.8, 0.8, 0.36],
     facts: [{ label: 'Размер', value: '80 × 80 × 36 см' }, { label: 'Цвет', value: 'Орех' }],
@@ -286,7 +286,7 @@ export const furnitureCatalog: readonly FurnitureProduct[] = [
   },
   {
     id: 'mercer41-frankie-gray', name: 'Frankie', brand: 'Mercer41', category: 'Диваны',
-    images: [1, 2, 3, 4, 5, 6].map(n => root + `frankie-gray-${String(n).padStart(2, '0')}.webp`),
+    images: studioGallery('mercer41-frankie-gray', 6),
     modelUrl: root + 'frankie-gray.glb', plannerModelUrl: root + 'frankie-room.glb',
     dimensionsM: [2.1844, 1.0287, 0.7874],
     facts: [{ label: 'Размер', value: '≈ 218 × 103 × 79 см' }, { label: 'Цвет', value: 'Gray Velvet' }],
@@ -301,8 +301,8 @@ export const furnitureCatalog: readonly FurnitureProduct[] = [
       { label: { ru: 'Артикул Wayfair', en: 'Wayfair SKU' }, value: { ru: 'MCRF6337', en: 'MCRF6337' } },
     ],
     sourceDescription: {
-      ru: 'Характеристики и фотографии — с карточки Wayfair; 3D-модель — Wayfair / Eric Chadwick, опубликована Khronos. Данные и комплектацию уточняйте у продавца.',
-      en: 'Specifications and photos are from Wayfair; the 3D model is by Wayfair / Eric Chadwick, published by Khronos. Confirm current specifications and contents with the seller.',
+      ru: 'Характеристики взяты из карточки Wayfair. 3D-модель Wayfair / Eric Chadwick опубликована Khronos. Данные и комплектацию уточняйте у продавца.',
+      en: 'Specifications are from Wayfair; the 3D model is by Wayfair / Eric Chadwick, published by Khronos. Confirm current specifications and contents with the seller.',
     },
     sourceNote: {
       ru: 'Оттенок и фактура в 3D приблизительны и зависят от освещения. Размеры в планировщике ориентировочные.',
@@ -310,11 +310,11 @@ export const furnitureCatalog: readonly FurnitureProduct[] = [
     },
     sourceUrl: 'https://www.wayfair.com/furniture/pdp/mercer41-frankie-86-velvet-tuxedo-arm-sofa-mcrf6337.html',
     attribution: {
-      credit: 'Фото: Wayfair. 3D: Wayfair, LLC / Eric Chadwick (2021); выбран встроенный серый вариант, материалы и геометрия сохранены. CC BY 4.0 относится к 3D-модели.',
-      creditEn: 'Photos: Wayfair. 3D: Wayfair, LLC / Eric Chadwick (2021); the built-in gray variant is selected; materials and geometry are retained. CC BY 4.0 applies to the 3D model.',
+      credit: 'Исходные изображения предоставлены Wayfair. Студийные и интерьерные изображения созданы для этой витрины. 3D: Wayfair, LLC / Eric Chadwick (2021); выбран встроенный серый вариант, материалы и геометрия сохранены. CC BY 4.0 относится к 3D-модели.',
+      creditEn: 'Reference imagery by Wayfair. Studio and interior images were made for this showroom. 3D: Wayfair, LLC / Eric Chadwick (2021); the built-in gray variant is selected; materials and geometry are retained. CC BY 4.0 applies to the 3D model.',
       sourceUrl: 'https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/GlamVelvetSofa',
       licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
     },
   },
-  ...collection.map(row => ({ ...row, dimensionsM: row.dimensionsM as [number,number,number], placement: row.placement as FurnitureProduct['placement'], attribution })),
+  ...collection.map(row => ({ ...row, images: studioGallery(row.id, row.gallerySize), dimensionsM: row.dimensionsM as [number,number,number], placement: row.placement as FurnitureProduct['placement'], attribution })),
 ];

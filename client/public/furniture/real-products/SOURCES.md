@@ -8,6 +8,10 @@ Room files use the lower-detail geometry for the same SKU and native WebP versio
 
 The November room collection adds twenty archived products and eighty photographs. [View the model and original photograph credits for each product](../collection/SOURCES.md). Lower-detail scene models and transparent plan images are derived from the same products as the full product viewer.
 
+## Current showroom images
+
+The furniture storefront uses a new series of 124 images for 30 products. Studio angles and details were rendered from the credited product geometry. Each main product view and its mobile preview is encoded with a transparent WebP alpha channel. The interior photographs are newly staged visualisations. Twenty-nine use generated interiors guided by the original product appearance. The Scarlett chair was rendered from its licensed mesh on a limestone set. The original image and model records remain below and in the [collection credits](../collection/SOURCES.md). The room diagrams use the same models.
+
 ## Added products and photographs
 
 ### B07GDSF3MR — Amazon Brand - Rivet Round Coffee Table with Solid Wood Legs, 80 x 80 x 36cm, MDF with Walnut Veneer/Solid Beech Wood

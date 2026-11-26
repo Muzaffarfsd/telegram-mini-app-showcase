@@ -37,7 +37,7 @@ export function ShowcaseArtwork({ id, index, ru }: { id: string; index: number; 
   const image = useRef<HTMLImageElement>(null);
   const art = artwork.get(id)!;
   const furniture = id === 'furniture-studio';
-  const screenSource = `/showcase/screens/furniture-studio-v6${ru ? '' : '-en'}.png`;
+  const screenSource = `/showcase/screens/furniture-studio-v7${ru ? '' : '-en'}.png`;
   const screenFailed = screenFailure === screenSource;
   const ready = (coverReady || coverFailed) && (!furniture || screenReady === screenSource || screenFailed);
   const source = furniture ? '/showcase/covers/furniture-studio-v4.webp' : art.src;
@@ -52,7 +52,7 @@ export function ShowcaseArtwork({ id, index, ru }: { id: string; index: number; 
         alt="" draggable={false} decoding="async" onLoad={event => { void event.currentTarget.decode().then(() => setCoverReady(true), () => setCoverFailed(true)); }} onError={() => setCoverFailed(true)} />
       <span className="ps-furniture-screen"><img src={eager || coverReady ? screenSource : undefined}
         alt="" draggable={false} decoding="async" onLoad={event => { void event.currentTarget.decode().then(() => setScreenReady(screenSource), () => setScreenFailure(screenSource)); }} onError={() => setScreenFailure(screenSource)} /></span>
-      {screenFailed && <img className="ps-furniture-fallback" src="/furniture/real-products/sofa-main.webp" alt="" draggable={false} decoding="async" />}
+      {screenFailed && <img className="ps-furniture-fallback" src="/furniture/studio/rivet-revolve-sofa/studio.small.webp" alt="" draggable={false} decoding="async" />}
     </span> : <img ref={image} src={eager ? source : undefined} data-detail={source} width={612} height={816}
       alt="" draggable={false} fetchPriority={index === 0 ? 'high' : 'auto'} decoding="async"
       onLoad={event => { void event.currentTarget.decode().then(() => setCoverReady(true), () => {}); }} />}

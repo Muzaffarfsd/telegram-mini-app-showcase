@@ -140,6 +140,7 @@ ErrorBoundary.tsx
 ```
 DemoRegistry.ts                - Map demoId → lazy() component. Critical demos pre-fetched.
 DemoSidebar.tsx                - Sidebar shown inside each demo
+furniture-studio               → furniture/FurnitureShop.tsx, FurnitureHome.tsx, FurnitureStore.tsx, CatalogProductRow.tsx, FurnitureDetails.tsx and FurnitureReviews.tsx. studioPhotography.ts maps product views in public/furniture/studio/. RoomExperience.tsx opens the room and plan editors.
 jewelry-store                  → JewelryStore.tsx + JewelryStore.css + jewelryProducts.ts — independent Tiffany jewelry demo based on MIRA, 20 products and demo checkout; imagery in client/public/jewelry/
 
 clothing-store/premium-fashion  → PremiumFashionStore.tsx (183 KB) — luxury fashion store

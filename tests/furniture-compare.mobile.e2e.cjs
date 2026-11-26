@@ -20,6 +20,10 @@ async function exercise(engine, width, ru) {
   const label = (r, e) => ru ? r : e;
   const count = () => page.locator('.fs-compare-table thead th').count();
   const openComparison = () => page.locator('.fs-open-comparison').tap();
+  async function toggleCompare(control) {
+    await control.locator('xpath=ancestor::details/summary').tap();
+    await control.tap();
+  }
   const catalog = () => page.getByRole('button', { name: label('Каталог', 'Catalogue'), exact: true }).tap();
   try {
     await page.goto(new URL('/#/projects', base).href, { waitUntil: 'domcontentloaded' });
@@ -33,14 +37,14 @@ async function exercise(engine, width, ru) {
     await page.waitForFunction(() => document.activeElement.id === 'fs-compare-title');
     await page.getByRole('button', { name: label('В каталог', 'Browse catalogue') }).tap();
     const cards = page.locator('.fs-catalog .fs-card');
-    await page.locator('.fs-catalog .fs-card-compare[aria-pressed="false"]').first().tap();
+    await toggleCompare(page.locator('.fs-catalog .fs-card-compare[aria-pressed="false"]').first());
     await openComparison();
     assert.equal(await count(), 2);
     assert(await page.getByText(label('Добавьте ещё модель для сравнения.', 'Add another piece to compare.')).isVisible());
     await page.getByRole('button', { name: label('Добавить модель', 'Add a piece') }).tap();
     await page.locator('.fs-catalog').waitFor();
-    await cards.nth(1).locator('.fs-card-compare').tap();
-    await cards.nth(2).locator('.fs-card-compare').tap();
+    await toggleCompare(cards.nth(1).locator('.fs-card-compare'));
+    await toggleCompare(cards.nth(2).locator('.fs-card-compare'));
     assert(await cards.nth(3).locator('.fs-card-compare').isDisabled());
     await openComparison();
     assert.equal(await count(), 4);
@@ -78,7 +82,7 @@ async function exercise(engine, width, ru) {
     await page.locator('.fs-open-comparison').waitFor();
     await page.waitForFunction(() => document.activeElement?.classList.contains('fs-open-comparison'));
     await page.evaluate(() => { const original = Storage.prototype.setItem; window.__restoreStorage = () => { Storage.prototype.setItem = original; }; Storage.prototype.setItem = function(key, value) { if (key === 'web4tg-furniture-store-v1') throw new Error('quota'); return original.call(this, key, value); }; });
-    await page.locator('.fs-catalog .fs-card-compare[aria-pressed="false"]').first().tap();
+    await toggleCompare(page.locator('.fs-catalog .fs-card-compare[aria-pressed="false"]').first());
     await page.getByRole('alert').waitFor({ state: 'visible' });
     await page.evaluate(() => window.__restoreStorage());
     await page.getByRole('button', { name: label('Повторить', 'Retry') }).tap();

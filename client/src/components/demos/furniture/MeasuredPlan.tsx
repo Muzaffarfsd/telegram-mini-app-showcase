@@ -32,13 +32,13 @@ function transform(layout: PlannerLayout, o: Options) {
   };
 }
 const colors: Record<string, string> = {
-  Диваны: '#b78c65',
-  Кресла: '#a2ac9c',
-  Хранение: '#af9171',
-  Столы: '#c5a37d',
-  Стулья: '#b8b2a4',
-  Кровати: '#c0ada2',
-  Свет: '#dbc08a',
+  Диваны: '#8f8f8f',
+  Кресла: '#a5a5a5',
+  Хранение: '#8f8f8f',
+  Столы: '#a5a5a5',
+  Стулья: '#b9b9b9',
+  Кровати: '#b9b9b9',
+  Свет: '#cacaca',
 };
 const spriteCache = new Map<string, HTMLImageElement>();
 function loadSilhouette(id: string) {
@@ -64,15 +64,15 @@ export function drawMeasuredPlan(
     rw = room.width * s,
     rh = room.depth * s;
   c.clearRect(0, 0, w, h);
-  c.fillStyle = '#eae9e2';
+  c.fillStyle = '#e8e8e8';
   c.fillRect(0, 0, w, h);
-  c.fillStyle = '#faf8ef';
+  c.fillStyle = '#f8f8f8';
   c.fillRect(a.x, a.y, rw, rh);
   c.save();
   c.beginPath();
   c.rect(a.x, a.y, rw, rh);
   c.clip();
-  c.strokeStyle = '#e7e4d9';
+  c.strokeStyle = '#e0e0e0';
   c.lineWidth = 0.65;
   for (let v = 0; v < room.width; v += 0.25) {
     c.beginPath();
@@ -87,7 +87,7 @@ export function drawMeasuredPlan(
     c.stroke();
   }
   c.restore();
-  c.strokeStyle = '#41493e';
+  c.strokeStyle = '#464646';
   c.lineWidth = 4;
   c.strokeRect(a.x, a.y, rw, rh);
   const openings = roomOpenings(room);
@@ -100,10 +100,10 @@ export function drawMeasuredPlan(
     c.save();
     c.translate(origin.x, origin.y);
     c.rotate((openingWalls.indexOf(side) * Math.PI) / 2);
-    c.fillStyle = '#faf8ef';
+    c.fillStyle = '#f8f8f8';
     c.fillRect(0, -3, v, 6);
     c.lineWidth = 1.5;
-    c.strokeStyle = kind === 'door' ? '#98704c' : '#59838b';
+    c.strokeStyle = kind === 'door' ? '#777777' : '#777777';
     if (kind === 'window') c.strokeRect(0, -1.7, v, 3.4);
     else {
       if (opening.hinge === 'right') {
@@ -136,8 +136,8 @@ export function drawMeasuredPlan(
     c.translate(at.x, at.y);
     c.rotate(i.rotation);
     c.lineWidth = sel ? 2 : 1;
-    c.strokeStyle = sel ? '#244e39' : '#6a695a';
-    c.fillStyle = p.placement === 'rug' ? '#ddd0b5' : colors[p.category || ''] || '#c4ae8c';
+    c.strokeStyle = sel ? '#464646' : '#686868';
+    c.fillStyle = p.placement === 'rug' ? '#d6d6d6' : colors[p.category || ''] || '#b9b9b9';
     if (p.placement === 'ceiling') c.setLineDash([3, 3]);
     const pic = loadSilhouette(p.id);
     if (!pic.complete || !pic.naturalWidth) {
@@ -161,7 +161,7 @@ export function drawMeasuredPlan(
         }
       }
       if (p.category === 'Кровати') {
-        c.fillStyle = '#e9e3d8';
+        c.fillStyle = '#e0e0e0';
         for (const dx of [-0.44, 0.02]) {
           c.beginPath();
           c.roundRect(pw * dx, -pd * 0.44, pw * 0.41, pd * 0.19, 3);
@@ -176,7 +176,7 @@ export function drawMeasuredPlan(
       c.drawImage(pic, -iw / 2, -ih / 2, iw, ih);
     }
     if (sel) {
-      c.strokeStyle = '#244e39';
+      c.strokeStyle = '#464646';
       c.strokeRect(-pw / 2 - 3, -pd / 2 - 3, pw + 6, pd + 6);
     }
     c.restore();
@@ -197,7 +197,7 @@ export function drawMeasuredPlan(
       const y0 = !vertical ? pos.y : gap === top ? a.y : pos.y + ext.z * s;
       const x1 = x0 + (vertical ? 0 : gap),
         y1 = y0 + (vertical ? gap : 0);
-      c.strokeStyle = '#496e56';
+      c.strokeStyle = '#686868';
       c.lineWidth = 1;
       c.setLineDash([2, 3]);
       c.beginPath();
@@ -206,7 +206,7 @@ export function drawMeasuredPlan(
       c.stroke();
       c.setLineDash([]);
       c.font = '600 10px system-ui';
-      c.fillStyle = '#2a4932';
+      c.fillStyle = '#464646';
       c.textAlign = vertical ? 'left' : 'center';
       c.fillText(
         Math.round((gap / s) * 100) + ' ' + (ru ? 'см' : 'cm'),
@@ -215,7 +215,7 @@ export function drawMeasuredPlan(
       );
     }
   }
-  c.fillStyle = '#38473d';
+  c.fillStyle = '#464646';
   c.font = '600 13px system-ui';
   c.textAlign = 'center';
   c.fillText(room.width.toLocaleString(ru ? 'ru' : 'en') + ' ' + (ru ? 'м' : 'm'), a.x + rw / 2, a.y - 10);

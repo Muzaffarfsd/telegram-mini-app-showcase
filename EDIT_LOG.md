@@ -4,6 +4,12 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 — Monochrome furniture store, catalogue rows and transparent product covers
+
+- Rebuilt the home, independent catalogue and product page. The catalogue uses horizontal rows with quick add, favourites and comparison. Product pages have sourced measurements, materials, model-specific care and locally saved reviews in Russian and English.
+- Produced 124 distinct gallery views for the 30 existing models. Each full-size cover and each small cover has real transparency. Studio and macro views derive from the licensed geometry. New interiors and responsive WebP files are mapped in studioPhotography.ts and credited in the furniture asset sources.
+- Updated the 390px Russian and English showroom artwork. Baseline 87c28985. Verified all 60 alpha images, 248 served gallery variants, 320px WebKit and mobile Chromium shopping flows, gallery failures, storage recovery, room editing, 3D and checkout. The existing TypeScript diagnostics are tracked separately from the build.
+
 ## 2026-11-26 — Native room textures on the public storefront
 
 - The hosted security policy blocked the Basis JavaScript decoder during the first public smoke test. Repacked 29 reduced-detail meshes with the same SKU's native WebP base-colour, normal and material maps, preserving the compressed geometry, UVs and material bindings. All 30 room models now decode through the browser's native image path.

@@ -3,6 +3,8 @@ import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } 
 import { createPortal } from 'react-dom';
 import {
   ArrowLeft,
+  ArrowUpRight,
+  ChevronDown,
   ArrowRight,
   Box,
   Check,
@@ -13,6 +15,8 @@ import {
   Plus,
   Search,
   ShoppingBag,
+  SlidersHorizontal,
+  Columns2,
   Trash2,
   UserRound,
   X,
@@ -24,6 +28,10 @@ import { restoreTelegramChrome } from '../../../lib/telegramChrome';
 import { scrollToTop } from '../../../hooks/useScrollToTop';
 import { furnitureCatalog, type FurnitureProduct } from './storeCatalog';
 import FurnitureHome from './FurnitureHome';
+import FurnitureReviews from './FurnitureReviews';
+import { studioAngleLabel, studioSrcSet, studioThumbnail } from './studioPhotography';
+import FurnitureDetails from './FurnitureDetails';
+import CatalogProductRow from './CatalogProductRow';
 import { categoriesEn, materials, materialText, matchesSearch, typeLabel } from './catalogSearch';
 import SavedRooms from './SavedRooms';
 import { stories, readProjects, sharedRoom, type RoomKey, type RoomProject } from './roomLibrary';
@@ -31,6 +39,7 @@ import { roomProducts } from './roomProducts';
 import FurniturePhotoSurface from './FurniturePhotoSurface';
 import { useFurnitureHistory } from './useFurnitureHistory';
 import './FurnitureStore.css';
+import './atelier.css';
 
 type Screen = 'home' | 'catalog' | 'product' | 'planner' | 'compare' | 'account' | 'checkout' | 'success';
 type Sheet = 'cart' | null;
@@ -65,6 +74,11 @@ type StoreProps = {
   renderPlanner?: (product: FurnitureProduct, onClose: () => void, scene: RoomKey, project: RoomProject | undefined, openItem:(id:string)=>void, addKit:(ids:string[])=>void, transfer:()=>void) => ReactNode;
 };
 
+const featuredOrder: Record<string, number> = {
+  'rivet-revolve-sofa': 0,
+  'abo-b0857jw1b9': 1,
+  'rivet-round-coffee-table': 2,
+};
 const storageKey = 'web4tg-furniture-store-v1';
 const englishCategory = categoriesEn;
 const englishFact: Record<string, string> = {
@@ -174,22 +188,27 @@ function savedState(products: readonly FurnitureProduct[]): {
 function ProductImage({
   product,
   className = '',
+  preferredPhoto = 0,
 }: {
   product: FurnitureProduct;
   className?: string;
+  preferredPhoto?: number;
 }) {
   const { language } = useLanguage();
   const t = (r: string, e: string) => (language === 'ru' ? r : e);
-  const [imageIndex, setImageIndex] = useState(0);
-  useEffect(() => setImageIndex(0), [product.id]);
-  return product.images[imageIndex] ? (
+  const [failed, setFailed] = useState<string[]>([]);
+  const preferred = product.images[preferredPhoto] || product.images[0];
+  const src = preferred && !failed.includes(preferred) ? preferred : product.images.find(image => !failed.includes(image));
+  return src ? (
     <img
       className={className}
-      src={product.images[imageIndex]}
+      src={src}
+      srcSet={studioSrcSet(src)}
+      sizes="(max-width: 679px) 46vw, (max-width: 1039px) 29vw, 250px"
       alt={product.name}
       loading="lazy"
       decoding="async"
-      onError={() => setImageIndex((index) => index + 1)}
+      onError={() => setFailed(current => current.includes(src) ? current : [...current,src])}
     />
   ) : (
     <span className="fs-image-empty fs-image-fallback" role="img" aria-label={t('Фотография недоступна', 'Photo unavailable')}>
@@ -203,17 +222,11 @@ function ProductCard({
   favorite,
   onOpen,
   onFavorite,
-  compared = false,
-  compareFull = false,
-  onCompare,
 }: {
   product: FurnitureProduct;
   favorite: boolean;
   onOpen: () => void;
   onFavorite: () => void;
-  compared?: boolean;
-  compareFull?: boolean;
-  onCompare?: () => void;
 }) {
   const { language } = useLanguage();
   const t = (r: string, e: string) => (language === 'ru' ? r : e);
@@ -245,14 +258,6 @@ function ProductCard({
         <span>{product.brand} · {language === 'ru' ? product.category : englishCategory[product.category] || product.category}</span>
         {product.dimensionsM && <span>{product.dimensionsM.map(value => Math.round(value * 100)).join(' × ')} {language === 'ru' ? 'см' : 'cm'}</span>}
         {product.priceLabel && <strong>{product.priceLabel}</strong>}
-        {onCompare && <button
-          type="button"
-          className="fs-card-compare"
-          onClick={onCompare}
-          aria-pressed={compared}
-          aria-label={`${compared ? t('Убрать из сравнения', 'Remove from comparison') : t('Добавить в сравнение', 'Add to comparison')}: ${product.name}, ${language === 'ru' ? product.category : englishCategory[product.category] || product.category}`}
-          disabled={compareFull && !compared}
-        >{compared ? <Check size={14} aria-hidden="true" /> : <Plus size={14} aria-hidden="true" />}{compared ? t('В сравнении', 'Comparing') : t('Сравнить', 'Compare')}</button>}
       </div>
     </article>
   );
@@ -267,6 +272,7 @@ export default function FurnitureStore({
   const { language } = useLanguage();
   const ru = language === 'ru';
   const t = (r: string, e: string) => (ru ? r : e);
+  const [catalogPhoto, setCatalogPhoto] = useState<0 | 1>(0);
   const [initial] = useState(() => savedState(products));
   const [favorites, setFavorites] = useState(initial.favorites);
   const [cart, setCart] = useState(initial.cart);
@@ -316,6 +322,7 @@ export default function FurnitureStore({
       const filter=materials.find(m=>m.id===material);
       return (!filter||filter.pattern.test(materialText(product)))&&matchesSearch(product,query);
     });
+    if (sort === 'featured') matches.sort((a, b) => (featuredOrder[a.id] ?? 3) - (featuredOrder[b.id] ?? 3));
     if(sort==='width') matches.sort((a,b)=>(a.dimensionsM?.[0]??Infinity)-(b.dimensionsM?.[0]??Infinity));
     if (sort === 'name') {
       const collator = new Intl.Collator(language === 'ru' ? 'ru' : 'en', { sensitivity: 'base' });
@@ -641,7 +648,7 @@ export default function FurnitureStore({
         )
         .filter((line) => line.quantity > 0)
     );
-  const add = (product: FurnitureProduct) => {
+  const add = (product: FurnitureProduct, openBag = true) => {
     const atLimit = (cart.find((line) => line.id === product.id)?.quantity || 0) >= 10;
     setCart((current) =>
       current.some((line) => line.id === product.id)
@@ -651,7 +658,7 @@ export default function FurnitureStore({
         : [...current, { id: product.id, quantity: 1 }]
     );
     setNotice(atLimit ? t('В демо-корзине максимум 10 штук одной модели.', 'The demo bag is limited to 10 pieces per model.') : t('Добавлено в демо-корзину.', 'Added to your demo bag.'));
-    transition({ sheet: 'cart' }, true);
+    if (openBag) transition({ sheet: 'cart' }, true);
   };
   const repeat = (order: DemoOrder) => {
     const eligible = order.items.filter((line) =>
@@ -759,10 +766,10 @@ export default function FurnitureStore({
         {screen === 'catalog' && (
           <section className="fs-section fs-catalog">
             <div className="fs-page-intro">
-              <p className="fs-eyebrow">{t('КОЛЛЕКЦИЯ / МЕБЕЛЬ', 'COLLECTION / FURNITURE')}</p>
-              <h1>{t('Коллекция.', 'The collection.')}</h1>
-              <p>{t('Мебель для вашего пространства.', 'Furniture for your space.')}</p>
+              <h1>{t('Каталог', 'Catalogue')}</h1>
+              <button type="button" className="fs-open-comparison" onClick={openComparison} aria-label={t('Сравнение', 'Compare') + ' ' + comparison.length + ' / 3'}><Columns2 size={17}/><span>{t('Сравнение','Compare')}</span><small>{comparison.length} / 3</small></button>
             </div>
+            <div className="fs-catalog-searchbar">
             <div className="fs-search">
               <Search size={19} />
               <label className="fs-sr" htmlFor="fs-search">
@@ -786,6 +793,25 @@ export default function FurnitureStore({
                 </button>
               )}
             </div>
+            <details className="fs-filters">
+              <summary><SlidersHorizontal size={18}/><span className="fs-sr">{t('Фильтры', 'Filters')}</span>{(maxWidth || material !== 'all') && <span aria-label={t('Фильтры включены', 'Filters active')}>●</span>}</summary>
+              <div className="fs-filter-fields">
+                <label htmlFor="fs-width">{t('Ширина до, см', 'Maximum width, cm')}</label>
+                <input id="fs-width" type="number" inputMode="numeric" min="1" max="1000" value={maxWidth} onChange={event => setMaxWidth(event.target.value)} placeholder={t('Например, 200', 'For example, 200')} aria-invalid={!!maxWidth && Number(maxWidth) <= 0} />
+                {maxWidth && Number(maxWidth) <= 0 && <span className="fs-filter-error">{t('Укажите ширину больше нуля.', 'Enter a width greater than zero.')}</span>}
+                <label htmlFor="fs-material">{t('Основной материал', 'Main material')}</label>
+                <select id="fs-material" value={material} onChange={event => setMaterial(event.target.value as MaterialFilter)}>
+                  <option value="all">{t('Любой', 'Any')}</option>
+                  {materials.filter(m=>products.some(p=>m.pattern.test(materialText(p)))).map(m=><option key={m.id} value={m.id}>{ru?m.ru:m.en}</option>)}
+                </select>
+                {(maxWidth || material !== 'all') && <button type="button" onClick={() => { setMaxWidth(''); setMaterial('all'); }}>{t('Сбросить фильтры', 'Clear filters')}</button>}
+              </div>
+            {filtered.length > 0 && <div className="fs-photo-mode" role="group" aria-label={t('Вид каталога','Catalogue view')}>
+              <button type="button" aria-pressed={catalogPhoto === 0} onClick={() => setCatalogPhoto(0)}>{t('В студии','In the studio')}</button>
+              <button type="button" aria-pressed={catalogPhoto === 1} onClick={() => setCatalogPhoto(1)}>{t('В интерьере','In an interior')}</button>
+            </div>}
+            </details>
+            </div>
             <div className="fs-chips" role="group" aria-label={t('Категории', 'Categories')}>
               {['Все', ...categories].map((item) => (
                 <button
@@ -799,25 +825,8 @@ export default function FurnitureStore({
                 </button>
               ))}
             </div>
-            <div className="fs-comparison-entry"><button type="button" className="fs-open-comparison" onClick={openComparison}>{t('Сравнение','Compare')} <span>{comparison.length} / 3</span><ArrowRight size={16}/></button></div>
-            <details className="fs-filters">
-              <summary>{t('Фильтры', 'Filters')}{(maxWidth || material !== 'all') && <span aria-label={t('Фильтры включены', 'Filters active')}>●</span>}</summary>
-              <div className="fs-filter-fields">
-                <label htmlFor="fs-width">{t('Ширина до, см', 'Maximum width, cm')}</label>
-                <input id="fs-width" type="number" inputMode="numeric" min="1" max="1000" value={maxWidth} onChange={event => setMaxWidth(event.target.value)} placeholder={t('Например, 200', 'For example, 200')} aria-invalid={!!maxWidth && Number(maxWidth) <= 0} />
-                {maxWidth && Number(maxWidth) <= 0 && <span className="fs-filter-error">{t('Укажите ширину больше нуля.', 'Enter a width greater than zero.')}</span>}
-                <label htmlFor="fs-material">{t('Основной материал', 'Main material')}</label>
-                <select id="fs-material" value={material} onChange={event => setMaterial(event.target.value as MaterialFilter)}>
-                  <option value="all">{t('Любой', 'Any')}</option>
-                  {materials.filter(m=>products.some(p=>m.pattern.test(materialText(p)))).map(m=><option key={m.id} value={m.id}>{ru?m.ru:m.en}</option>)}
-                </select>
-                {(maxWidth || material !== 'all') && <button type="button" onClick={() => { setMaxWidth(''); setMaterial('all'); }}>{t('Сбросить фильтры', 'Clear filters')}</button>}
-              </div>
-            </details>
-            <div className="fs-catalog-tools">
-              <p className="fs-result" aria-live="polite" aria-atomic="true">
-                {modelCount(filtered.length, ru)}
-              </p>
+            <div className="fs-catalog-list-tools">
+            <p className="fs-result" aria-live="polite" aria-atomic="true">{modelCount(filtered.length,ru)}</p>
               <label className="fs-sort">
                 <span className="fs-sr">{t('Сортировка', 'Sort by')}</span>
                 <select value={sort} onChange={(event) => setSort(event.target.value as SortOrder)}>
@@ -828,19 +837,13 @@ export default function FurnitureStore({
               </label>
             </div>
             {filtered.length ? (
-              <div className="fs-grid">
-                {filtered.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    favorite={favorites.includes(product.id)}
-                    onFavorite={() => toggleFavorite(product.id)}
-                    onOpen={() => openProduct(product)}
-                    compared={comparison.includes(product.id)}
-                    compareFull={comparison.length >= 3}
-                    onCompare={() => toggleComparison(product.id)}
-                  />
-                ))}
+              <div className="fs-grid fs-catalog-list">
+                {filtered.map(product => <CatalogProductRow key={product.id} product={product} ru={ru} interior={catalogPhoto===1}
+                  image={<ProductImage product={product} preferredPhoto={catalogPhoto}/>}
+                  favorite={favorites.includes(product.id)} compared={comparison.includes(product.id)} comparisonFull={comparison.length>=3}
+                  quantity={cart.find(line=>line.id===product.id)?.quantity || 0}
+                  onOpen={()=>openProduct(product, product.images[catalogPhoto] ? catalogPhoto : 0)} onAdd={()=>add(product,false)}
+                  onFavorite={()=>toggleFavorite(product.id)} onCompare={()=>toggleComparison(product.id)}/>)}
               </div>
             ) : (
               <div className="fs-empty">
@@ -974,7 +977,9 @@ export default function FurnitureStore({
                   <img
                     className="fs-gallery-main"
                     src={selected.images[photo]}
-                    alt={`${selected.name}, ${t('фотография', 'photo')} ${photo + 1} / ${selected.images.length}`}
+                    srcSet={studioSrcSet(selected.images[photo])}
+                    sizes="(min-width: 680px) 510px, 100vw"
+                    alt={`${selected.name} · ${studioAngleLabel(photo, ru)}`}
                     decoding="async"
                     draggable={false}
                     onError={() => setGalleryError(true)}
@@ -1007,7 +1012,7 @@ export default function FurnitureStore({
               )}
               {selected.images.length > 1 && (
                 <>
-                  <div className="fs-gallery-thumbs">
+                  <div className="fs-gallery-thumbs" role="group" aria-label={t('Ракурсы', 'Photo angles')}>
                     {selected.images.map((src, i) => (
                       <button
                         type="button"
@@ -1016,11 +1021,12 @@ export default function FurnitureStore({
                         aria-pressed={photo === i}
                         onClick={() => setPhoto(i)}
                       >
-                        <img src={src} alt="" loading="lazy" />
+                        <img src={studioThumbnail(src)} alt="" loading="lazy" />
                       </button>
                     ))}
                   </div>
                   <span className="fs-gallery-count">
+                    <span className="fs-gallery-angle" aria-live="polite">{studioAngleLabel(photo,ru)}</span>
                     {String(photo + 1).padStart(2, '0')} /{' '}
                     {String(selected.images.length).padStart(2, '0')}
                   </span>
@@ -1033,53 +1039,24 @@ export default function FurnitureStore({
                   onClick={() => transition({ viewing3D: true }, true)}
                   aria-pressed={viewing3D}
                 >
-                  {t('3D-обзор', '3D view')}
+                  <Box size={15} aria-hidden="true"/>{t('3D-обзор', '3D view')}
                 </button>
               )}
             </div>
             {viewing3D && render3D && render3D(selected, () => history.back(() => setViewing3D(false)), renderPlanner ? () => openPlanner(selected) : undefined)}
             <div className="fs-product-info">
-              <p className="fs-eyebrow">
-                {ru ? selected.category : englishCategory[selected.category] || selected.category} /{' '}
-                {selected.brand}
-              </p>
-              <div className="fs-product-top">
-                <h1>{selected.name}</h1>
-                {selected.priceLabel && <strong>{selected.priceLabel}</strong>}
-              </div>
-              {selected.dimensionsM&&<div className="product-measures">{[t('Ширина','Width'),t('Глубина','Depth'),t('Высота','Height')].map((label,i)=><span key={label}>{label}<b>{Math.round(selected.dimensionsM![i]*100)} {t('см','cm')}</b></span>)}</div>}
-              {selected.sourceNote&&<details><summary>{t('Точность размеров модели','Model accuracy')}</summary><p>{selected.sourceNote[ru?'ru':'en']}</p></details>}
-              <button type="button" className="fs-primary" onClick={()=>add(selected)}><ShoppingBag size={17}/>{t('Добавить в подборку','Add to selection')}<ArrowRight size={16}/></button>
-              {selected.description && (
-                <p className="fs-product-summary">{selected.description[ru ? 'ru' : 'en']}</p>
-              )}
-              {selected.dimensionsM&&<details className="product-drawing"><summary>{t('Габариты на плане','Footprint drawing')}</summary><figure><img loading="lazy" src={'/furniture/plans/'+selected.id+'.webp'} alt={t('Вид предмета сверху','Top-down view of this piece')}/><figcaption>{t('Ширина × глубина','Width × depth')} · {selected.dimensionsM.slice(0,2).map(m=>Math.round(m*100)).join(' × ')} {t('см','cm')}</figcaption></figure></details>}
-              {selected.facts?.filter(f=>f.label!=='Размер').map((fact) => (
-                <div className="fs-product-detail" key={fact.label}>
-                  <span>{ru ? fact.label : englishFact[fact.label] || fact.label}</span>
-                  <strong>
-                    {ru ? fact.value : englishFactValue[fact.value] || fact.value.replace(/(^|\s)см(?=\s|$)/g, '$1cm')}
-                  </strong>
-                </div>
-              ))}
-              {renderPlanner && selected.modelUrl && (
-                <button
-                  type="button"
-                  className="fs-product-planner"
-                  onClick={() => openPlanner(selected)}
-                >
-                  <Box size={18} aria-hidden="true" />
-                  <span>
-                    <strong>{t('Посмотреть в комнате', 'View in a room')}</strong>
-                    <small>
-                      {t('Разместите предмет в пространстве', 'Place this piece in a space')}
-                    </small>
-                  </span>
-                  <ArrowRight size={17} aria-hidden="true" />
-                </button>
-              )}
-              {renderPlanner&&selected.modelUrl&&<button type="button" className="fs-personal-piece" onClick={()=>openPlanner(selected,'custom')}><Plus size={16}/>{t('Добавить в мою комнату','Add to my room')}</button>}
-              {renderPlanner&&stories.some(s=>s.items.some(([id])=>id===selected.id))&&<div className="product-in-rooms"><h2>{t('В готовых комнатах','Styled in these rooms')}</h2>{stories.filter(s=>s.items.some(([id])=>id===selected.id)).map(s=><button key={s.key} onClick={()=>openPlanner(selected,s.key)}><img loading="lazy" src={'/furniture/scenes/'+s.key+'.webp'} alt=""/><span>{s.title[ru?0:1]}</span><ArrowRight size={16}/></button>)}</div>}
+              <p className="fs-item-brand">{selected.brand}<span aria-hidden="true">/</span>{typeLabel(selected.category, ru)}</p>
+              <div className="fs-product-top"><h1>{selected.name}</h1>{selected.priceLabel && <strong>{selected.priceLabel}</strong>}</div>
+              {selected.dimensionsM && <p className="fs-item-size">{selected.dimensionsM.map(n => Math.round(n * 100)).join(' × ')} {t('см', 'cm')}</p>}
+              <div className="fs-detail-links">{[['fs-details-title', t('О модели', 'About the piece')], ['fs-review-title', t('Отзывы', 'Reviews')]].map(([id, label]) => <button key={id} type="button" onClick={() => { const el = document.getElementById(id); el?.focus({ preventScroll: true }); el?.scrollIntoView({ block: 'start' }); }}>{label}<ChevronDown size={13}/></button>)}</div>
+              <button type="button" className="fs-primary fs-add-piece" onClick={() => add(selected)}><ShoppingBag size={17}/>{t('Добавить в подборку','Add to selection')}<ArrowRight size={16}/></button>
+              {renderPlanner && selected.modelUrl && <div className="fs-spatial-actions">
+                <button type="button" className="fs-product-planner" onClick={() => openPlanner(selected)}><Box size={17}/>{t('Посмотреть в комнате', 'View in a room')}</button>
+                <button type="button" className="fs-personal-piece" onClick={() => openPlanner(selected, 'custom')}><Plus size={17}/>{t('Добавить в мою комнату','Add to my room')}</button>
+              </div>}
+              <FurnitureDetails key={selected.id} product={selected} ru={ru}/>
+              <FurnitureReviews key={'reviews-' + selected.id} productId={selected.id} ru={ru}/>
+              {renderPlanner && stories.some(s => s.items.some(([id]) => id === selected.id)) && <div className="product-in-rooms"><h2>{t('В готовых комнатах','Styled in these rooms')}</h2>{stories.filter(s => s.items.some(([id]) => id === selected.id)).map(s => <button key={s.key} onClick={() => openPlanner(selected,s.key)}><img loading="lazy" src={'/furniture/scenes/'+s.key+'.webp'} alt=""/><span>{s.title[ru?0:1]}</span><ArrowUpRight size={16}/></button>)}</div>}
               <div className="fs-product-comparison">
                 <button type="button" aria-pressed={comparison.includes(selected.id)} disabled={comparison.length >= 3 && !comparison.includes(selected.id)} onClick={() => toggleComparison(selected.id)}>{comparison.includes(selected.id) ? <Check size={16} aria-hidden="true" /> : <Plus size={16} aria-hidden="true" />}{comparison.includes(selected.id) ? t('В сравнении', 'Comparing') : t('Сравнить', 'Compare')}</button>
                 {comparison.length>0&&<button type="button" onClick={openComparison}>{t('К сравнению', 'View comparison')} · {comparison.length} / 3 <ArrowRight size={15} aria-hidden="true" /></button>}
@@ -1095,50 +1072,8 @@ export default function FurnitureStore({
                   'Not an official store. Your demo bag is saved on this device.'
                 )}
               </p>
-              {selected.details && (
-                <section
-                  className="fs-product-story"
-                  aria-label={t('Описание и характеристики', 'Description and specifications')}
-                >
-                  <div className="fs-story-rule">
-                    <span>{t('О ПРЕДМЕТЕ', 'ABOUT THE PIECE')}</span>
-                    <span>{t('ДЕТАЛИ', 'DETAILS')}</span>
-                  </div>
-                  <h2>
-                    {t('ДЕТАЛИ', 'THE DETAILS')}
-                    <br />
-                    {t('МОДЕЛИ.', 'OF THE PIECE.')}
-                  </h2>
-                  <p className="fs-story-note">
-                    {t(
-                      'Габариты указаны: ширина × глубина × высота.',
-                      'Dimensions are shown as width × depth × height.'
-                    )}
-                  </p>
-                  <dl className="fs-specs">
-                    {selected.details.map((detail) => (
-                      <div key={detail.label.en}>
-                        <dt>{detail.label[ru ? 'ru' : 'en']}</dt>
-                        <dd>{detail.value[ru ? 'ru' : 'en']}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                  {selected.care && (
-                    <div className="fs-care">
-                      <strong>{t('Уход', 'Care')}</strong>
-                      <p>{selected.care[ru ? 'ru' : 'en']}</p>
-                    </div>
-                  )}
-                  <p className="fs-story-note">
-                    {selected.sourceDescription?.[ru ? 'ru' : 'en'] || t(
-                      'Сведения — из архивного описания Amazon Berkeley Objects. Актуальные характеристики и комплектацию уточняйте у продавца.',
-                      'Details are from the archived Amazon Berkeley Objects listing. Check current specifications and contents with the seller.'
-                    )}
-                  </p>
-
-                </section>
-              )}
-              <details className="atelier-sources"><summary>{t('Происхождение данных','Sources and attribution')}</summary>
+              <details className="atelier-sources fs-disclosure"><summary>{t('Происхождение данных','Sources and attribution')}<ChevronDown size={17}/></summary>
+              {selected.sourceDescription && <p>{selected.sourceDescription[ru ? 'ru' : 'en']}</p>}
               {selected.sourceUrl && (
                 <a
                   className="fs-source"
@@ -1177,17 +1112,12 @@ export default function FurnitureStore({
         )}
         {screen === 'planner' && selected && renderPlanner && (
           <section className="fs-planner" aria-label={t('Планировщик комнаты', 'Room planner')}>
-            {renderPlanner(selected,back,roomKey,roomKey==='shared'&&shared?{id:'shared',name:t('Полученная комната','Shared room'),date:'',scene:shared.scene,layout:shared.layout}:projects.find(p=>p.id===projectId),id=>{const p=products.find(p=>p.id===id);if(p)openProduct(p)},ids=>{setCart(lines=>{const next=lines.map(l=>({...l}));for(const id of ids){const found=next.find(l=>l.id===id);if(found)found.quantity=Math.min(99,found.quantity+1);else next.push({id,quantity:1})}return next});transition({screen:'catalog',sheet:'cart',viewing3D:false})},()=>{setRoomKey('transferred');setProjectId('')})}
+            {renderPlanner(selected,back,roomKey,roomKey==='shared'&&shared?{id:'shared',name:t('Полученная комната','Shared room'),date:'',scene:shared.scene,layout:shared.layout}:projects.find(p=>p.id===projectId),id=>{const p=products.find(p=>p.id===id);if(p)openProduct(p)},ids=>{setCart(lines=>{const next=lines.map(l=>({...l}));for(const id of ids){const found=next.find(l=>l.id===id);if(found)found.quantity=Math.min(10,found.quantity+1);else next.push({id,quantity:1})}return next});transition({screen:'catalog',sheet:'cart',viewing3D:false})},()=>{setRoomKey('transferred');setProjectId('')})}
           </section>
         )}
         {screen === 'account' && (
           <section className="fs-section fs-account">
-            <p className="fs-eyebrow">{t('ЛИЧНОЕ / ПРОФИЛЬ', 'PERSONAL / PROFILE')}</p>
-            <h1>
-              {t('ВАШЕ', 'YOUR')}
-              <br />
-              {t('ПРОСТРАНСТВО.', 'SPACE.')}
-            </h1>
+            <h1>{t('Профиль', 'Profile')}</h1>
             <p className="fs-lead">
               {t('Избранные модели и демо-заказы.', 'Saved pieces and demo orders.')}
             </p>
@@ -1506,7 +1436,7 @@ export default function FurnitureStore({
                 </div>
                 <FurniturePhotoSurface
                   src={selected.images[photo]}
-                  alt={`${selected.name}, ${t('фотография', 'photo')} ${photo + 1} / ${selected.images.length}`}
+                  alt={`${selected.name} · ${studioAngleLabel(photo, ru)}`}
                   ru={ru}
                   onPrevious={() => setPhoto(current => Math.max(0, current - 1))}
                   onNext={() => setPhoto(current => Math.min(selected.images.length - 1, current + 1))}

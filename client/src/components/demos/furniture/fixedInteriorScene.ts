@@ -85,7 +85,7 @@ export async function createFixedInteriorScene(canvas: HTMLCanvasElement, callba
     const product = item && state.products.find(p => p.id === item.productId);
     if (!item || !product || !models.has(item.id)) return;
     const x = product.widthM / 2 + .055, z = product.depthM / 2 + .055;
-    highlight = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-x, 0, -z), new THREE.Vector3(x, 0, -z), new THREE.Vector3(x, 0, z), new THREE.Vector3(-x, 0, z)]), new THREE.LineBasicMaterial({ color: '#33483f' }));
+    highlight = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-x, 0, -z), new THREE.Vector3(x, 0, -z), new THREE.Vector3(x, 0, z), new THREE.Vector3(-x, 0, z)]), new THREE.LineBasicMaterial({ color: '#252525' }));
     highlight.position.set(item.x, .045, item.z); highlight.rotation.y = -item.rotation; scene.add(highlight);
   }
   function add(item: PlannerItem, product: PlannerProduct) {

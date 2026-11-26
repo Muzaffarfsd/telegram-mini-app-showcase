@@ -1,27 +1,27 @@
-.fint { position:fixed; inset:0; z-index:9999; overflow:auto; overscroll-behavior:contain; background:#f7f6f3; color:#252824; font-family:inherit; -webkit-overflow-scrolling:touch; }
+.fint { position:fixed; inset:0; z-index:9999; overflow:auto; overscroll-behavior:contain; background:#f4f4f4; color:#262626; font-family:inherit; -webkit-overflow-scrolling:touch; }
 .fint * { box-sizing:border-box; }
 .fint button,.fint select { font:inherit; }
 .fint button { cursor:pointer; }
-.fint button:focus-visible,.fint select:focus-visible,.fint canvas:focus-visible { outline:2px solid #536b5c; outline-offset:2px; }
+.fint button:focus-visible,.fint select:focus-visible,.fint canvas:focus-visible { outline:2px solid #686868; outline-offset:2px; }
 .fint-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding:calc(16px + env(safe-area-inset-top)) 20px 10px; }
-.fint-header span { color:#74786f; font-size:10px; letter-spacing:.13em; font-weight:700; }
+.fint-header span { color:#777777; font-size:10px; letter-spacing:.13em; font-weight:700; }
 .fint-header h1 { font-size:23px; line-height:1.1; letter-spacing:-.04em; margin:5px 0 3px; }
-.fint-header p { margin:0; color:#777b73; font-size:11px; }
-.fint-close { width:44px; height:44px; border:0; border-radius:50%; background:#eceae6; display:grid; place-items:center; flex:none; }
+.fint-header p { margin:0; color:#777777; font-size:11px; }
+.fint-close { width:44px; height:44px; border:0; border-radius:50%; background:#e8e8e8; display:grid; place-items:center; flex:none; }
 .fint-views { display:flex; gap:5px; align-items:center; padding:0 20px 10px; }
-.fint-views button { border:0; border-radius:30px; background:#ebe9e4; color:#3c403b; padding:0 13px; height:42px; font-size:12px; font-weight:600; white-space:nowrap; }
-.fint-views button.active { background:#222a24; color:white; }
-.fint-views .fint-own { margin-left:auto; padding:0 5px; color:#355044; background:transparent; font-size:11px; }
-.fint-stage { position:relative; background:#d5cec5; height:clamp(300px,52dvh,570px); overflow:hidden; }
+.fint-views button { border:0; border-radius:30px; background:#e8e8e8; color:#464646; padding:0 13px; height:42px; font-size:12px; font-weight:600; white-space:nowrap; }
+.fint-views button.active { background:#262626; color:white; }
+.fint-views .fint-own { margin-left:auto; padding:0 5px; color:#464646; background:transparent; font-size:11px; }
+.fint-stage { position:relative; background:#cacaca; height:clamp(300px,52dvh,570px); overflow:hidden; }
 .fint-stage canvas { display:block; width:100%; height:100%; touch-action:none; }
-.fint-stage .fint-reset { position:absolute; top:12px; right:12px; width:42px; height:42px; padding:0; display:grid; place-items:center; border:0; border-radius:50%; background:#f8f7f3eb; color:#303630; }
-.fint-block { position:absolute; inset:0; background:#eeeae36b; }
-.fint-status,.fint-message { position:absolute; margin:0; left:50%; transform:translateX(-50%); border-radius:16px; background:#f8f7f3ee; box-shadow:0 3px 16px #21180d25; color:#292d28; padding:11px 15px; font-size:12px; text-align:center; width:max-content; max-width:90%; }
+.fint-stage .fint-reset { position:absolute; top:12px; right:12px; width:42px; height:42px; padding:0; display:grid; place-items:center; border:0; border-radius:50%; background:#f8f8f8eb; color:#343434; }
+.fint-block { position:absolute; inset:0; background:#e8e8e86b; }
+.fint-status,.fint-message { position:absolute; margin:0; left:50%; transform:translateX(-50%); border-radius:16px; background:#f8f8f8ee; box-shadow:0 3px 16px #1c1c1c25; color:#262626; padding:11px 15px; font-size:12px; text-align:center; width:max-content; max-width:90%; }
 .fint-status { top:50%; transform:translate(-50%,-50%); }.fint-message { bottom:14px; }
 .fint-content { padding:0 20px calc(24px + env(safe-area-inset-bottom)); }
-.fint-hint,.fint-note { color:#6c7269; font-size:11px; line-height:1.55; margin:12px 0; }
-.fint-selection { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; padding:10px 0; border-top:1px solid #dedfd9; border-bottom:1px solid #dedfd9; font-size:12px; font-weight:600; }
-.fint-selection div { display:flex; flex-wrap:wrap; gap:4px; }.fint-selection button { background:transparent; border:0; min-height:40px; padding:0 7px; font-size:11px; color:#556258; }.fint-selection button:disabled { opacity:.35; }
-.fint-add { margin:14px 0 10px; }.fint-add label { display:block; margin-bottom:7px; font-size:12px; font-weight:700; }.fint-add div { display:flex; gap:8px; }.fint-add select { flex:1; min-width:0; height:44px; border:1px solid #d7d8d2; background:white; border-radius:4px; padding:0 10px; color:#252824; }.fint-add button { height:44px; border:0; border-radius:4px; padding:0 17px; background:#222a24; color:#fff; font-size:12px; font-weight:700; }
-.fint-storage { padding:10px; background:#f5e9d8; color:#71452f; font-size:12px; line-height:1.5; }.fint-storage button { border:0; background:transparent; text-decoration:underline; color:inherit; min-height:40px; }
+.fint-hint,.fint-note { color:#777777; font-size:11px; line-height:1.55; margin:12px 0; }
+.fint-selection { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; padding:10px 0; border-top:1px solid #e0e0e0; border-bottom:1px solid #e0e0e0; font-size:12px; font-weight:600; }
+.fint-selection div { display:flex; flex-wrap:wrap; gap:4px; }.fint-selection button { background:transparent; border:0; min-height:40px; padding:0 7px; font-size:11px; color:#585858; }.fint-selection button:disabled { opacity:.35; }
+.fint-add { margin:14px 0 10px; }.fint-add label { display:block; margin-bottom:7px; font-size:12px; font-weight:700; }.fint-add div { display:flex; gap:8px; }.fint-add select { flex:1; min-width:0; height:44px; border:1px solid #d6d6d6; background:white; border-radius:4px; padding:0 10px; color:#262626; }.fint-add button { height:44px; border:0; border-radius:4px; padding:0 17px; background:#262626; color:#fff; font-size:12px; font-weight:700; }
+.fint-storage { padding:10px; background:#e8e8e8; color:#464646; font-size:12px; line-height:1.5; }.fint-storage button { border:0; background:transparent; text-decoration:underline; color:inherit; min-height:40px; }
 @media (max-height:650px) { .fint-stage { height:42dvh; min-height:240px; }.fint-header { padding-top:10px; }.fint-header h1 { font-size:20px; } }
