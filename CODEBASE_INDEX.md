@@ -4,6 +4,13 @@
 > AI assistants MUST read this file before starting any work.
 > Updated when files are added / removed / significantly refactored.
 
+## YANGBEN buyer demo
+
+- `client/src/components/demos/ChinaBuyer.tsx` connects the bureau, library, sample detail, comparison, brief and desk to the existing `china-buyer` route. `client/src/hooks/useDemoHistory.ts` manages browser navigation for the buyer and furniture demos. The furniture wrapper preserves its original history key.
+- `client/src/components/demos/buyer/` contains the bilingual sample library, views, responsive styles, photo preparation, session drafts and device-local records. The original favourite and request keys are retained.
+- `client/public/china-buyer/yangben/` contains the three new reference photographs and texture details. Showcase source images live under `client/public/showcase/`, and `scripts/build-showcase-art.cjs --id=china-buyer` rebuilds the handset art. The Telegram share picture is `client/public/share/demos/china-buyer-yangben.jpg`.
+- Buyer workflow, comparison, gallery, responsive layout, Telegram insets, localisation and storage regression tests are in `tests/china-buyer-*.e2e.cjs`. Set `BUYER_TEST_URL` for a deployment and `BUYER_ENGINE=webkit` for WebKit.
+
 ## Stack
 
 - **Frontend**: React 19 + Vite 6 + TypeScript + Wouter (routing) + TanStack Query + Tailwind + Radix UI + Framer Motion + Three.js + Zustand

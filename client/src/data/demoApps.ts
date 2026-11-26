@@ -52,10 +52,10 @@ export const demoApps: DemoApp[] = [
   },
   {
     id: 'china-buyer',
-    title: 'Бюро поиска — байер из Китая',
-    description: 'Поиск товаров, выкуп и сопровождение заказа из Китая',
+    title: 'YANGBEN — байер из Китая',
+    description: 'Бюро образцов. Поиск по фотографии или ссылке и сравнение предметов в одном запросе.',
     category: 'Электронная коммерция',
-    image: '/china-buyer/hero.webp',
+    image: '/china-buyer/yangben/fold-480.webp',
     creator: 'WEB4TG',
     likes: '0',
     badge: 'Демо',

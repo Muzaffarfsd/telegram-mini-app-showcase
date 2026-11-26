@@ -106,7 +106,8 @@ test('missing or unusable referral codes yield a general invitation, and databas
 test('each published demo gets its own server-chosen picture and Mini App deep link', async () => {
   for (const demoId of Object.keys(demoShareEntries)) {
     // Telegram needs an actual public image at the URL, not the SPA fallback.
-    const imageId = demoId === 'furniture-studio' ? 'furniture-studio-v3' : demoId;
+    const versionedPhotos: Record<string, string> = { 'furniture-studio': 'furniture-studio-v3', 'china-buyer': 'china-buyer-yangben' };
+    const imageId = versionedPhotos[demoId] ?? demoId;
     const photo = readFileSync(resolve('client/public/share/demos', `${imageId}.jpg`));
     assert.equal(photo.readUInt16BE(0), 0xffd8, `${demoId} share image must be a JPEG`);
     calls = [];

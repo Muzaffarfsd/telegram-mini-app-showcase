@@ -50,7 +50,7 @@ const projects: Project[] = [
   { id: 'medical-center', category: 'services', title: ['Медицинский центр', 'Medical center'],
     description: ['Пациент выбирает врача и время приёма.', 'Find a specialist and choose an appointment time.'] },
   { id: 'china-buyer', category: 'b2b', title: ['Байер из Китая', 'China sourcing'],
-    description: ['Клиент оставляет заявку на поиск и выкуп товара.', 'Request help sourcing and purchasing a product.'] },
+    description: ['В бюро YANGBEN сравнивают образцы и собирают запрос по фото или ссылке.', 'Compare samples and prepare a sourcing brief from a photo or link at YANGBEN.'] },
   { id: 'skincare-aura', category: 'shops', title: ['Магазин косметики', 'Skincare store'],
     description: ['Короткий тест ведёт к подходящим средствам ухода.', 'A short quiz leads shoppers to suitable skincare.'] },
 ];

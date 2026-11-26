@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../db';
 import { users } from '../../shared/schema';
-import { canonicalDemoShareId, demoShareEntries, demoShareStartParam } from '../../shared/demoShare';
+import { canonicalDemoShareId, demoShareEntries, demoShareStartParam, type DemoShareId } from '../../shared/demoShare';
 import { verifyTelegramUser } from './shared';
 
 const schema = z.object({
@@ -14,6 +14,10 @@ const schema = z.object({
 
 const miniAppUrl = 'https://t.me/w4tg_bot/w4tg';
 // Telegram downloads the JPEG itself. This is a fixed, public application asset.
+const demoPhotoIds: Partial<Record<DemoShareId, string>> = {
+  'furniture-studio': 'furniture-studio-v3',
+  'china-buyer': 'china-buyer-yangben',
+};
 const inviteImageUrl = 'https://w4tg.up.railway.app/share/invite-three-stores-v1.jpg';
 
 interface InviteDependencies {
@@ -62,7 +66,7 @@ export function createInviteRouter(dependencies: InviteDependencies = defaults) 
       }
 
       const ru = parsed.data.language === 'ru';
-      const photoUrl = demoId ? `https://w4tg.up.railway.app/share/demos/${demoId === 'furniture-studio' ? 'furniture-studio-v3' : demoId}.jpg` : inviteImageUrl;
+      const photoUrl = demoId ? `https://w4tg.up.railway.app/share/demos/${demoPhotoIds[demoId] ?? demoId}.jpg` : inviteImageUrl;
       const caption = demoId
         ? ru
           ? `<b>${demoShareEntries[demoId].ru}</b>\n\nПосмотри демо приложения для бизнеса в Telegram.`

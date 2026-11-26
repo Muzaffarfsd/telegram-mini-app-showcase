@@ -17,7 +17,7 @@ const scenes = {
   'opt-market': { handset: [62, 15, 139, 306], foreground: [[169, 287], [183, 279], [184, 271], [192, 260], [203, 256], [208, 224], [225, 220], [263, 247], [259, 345], [170, 345], [181, 315], [181, 299]] },
   'jewelry-store': { handset: [56, 8, 151, 330], foreground: [[132, 239], [142, 235], [153, 234], [159, 238], [160, 246], [176, 246], [193, 244], [214, 238], [251, 221], [263, 222], [261, 242], [217, 258], [238, 275], [238, 307], [207, 308], [205, 259], [160, 264], [160, 270], [141, 271], [141, 263], [134, 263]] },
   'medical-center': { handset: [60, 12, 141, 309], foreground: [[10, 284], [48, 281], [65, 284], [76, 290], [77, 304], [66, 315], [74, 328], [70, 343], [6, 347]] },
-  'china-buyer': { handset: [38, 25, 140, 305], foreground: [[102, 328], [136, 318], [149, 310], [158, 296], [168, 274], [174, 242], [184, 215], [206, 186], [254, 147], [264, 350], [93, 350]] },
+  'china-buyer': { cutout: true },
   'skincare-aura': { handset: [62, 26, 136, 297], foreground: [[111, 324], [143, 316], [159, 312], [174, 304], [191, 291], [209, 277], [240, 251], [259, 243], [260, 350], [104, 350]] },
 };
 const source = path.resolve(__dirname, '../client/public/showcase');
@@ -35,6 +35,10 @@ async function composition(id, scene) {
   const cover = await picture('covers', id);
   if (!scene) return '<img class="original" src="' + cover + '">';
   const screen = await picture('screens', id);
+  if (scene.cutout) {
+    return `<div class="ps-device-scene"><div class="ps-device"><div class="ps-device-display"><img src="${screen}"></div></div>
+      <img style="left:48%;bottom:0;width:52%;height:auto" src="${cover}"></div>`;
+  }
   const [x, y, w, h] = scene.handset;
   const scaleX = 152 / w;
   const scaleY = 310 / h;

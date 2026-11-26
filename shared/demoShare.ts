@@ -2,7 +2,7 @@
 export const demoShareEntries = {
   'furniture-studio': { ru: 'Мебельный салон', en: 'Furniture showroom' },
   'flower-store': { ru: 'Цветочный магазин', en: 'Flower shop' },
-  'china-buyer': { ru: 'Байер из Китая', en: 'China sourcing' },
+  'china-buyer': { ru: 'YANGBEN — байер из Китая', en: 'YANGBEN — China sourcing' },
   'medical-center': { ru: 'Медицинский центр', en: 'Medical center' },
   'lumi-studio': { ru: 'Студия красоты', en: 'Beauty studio' },
   'opt-market': { ru: 'Оптовый магазин', en: 'Wholesale store' },

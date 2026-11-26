@@ -4,6 +4,13 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 16:16 MSK — Relaunch the China buyer as YANGBEN sample bureau
+
+- Replaced the repeated wine-bag landing page and its stacked visual overrides with a bilingual sourcing bureau, a 24-sample library, sample details, a three-item comparison and a local desk. Three original studio photographs have responsive sizes and real texture crops. Existing archive IDs, favourites and requests remain readable.
+- Clients can start directly in their device photo picker or paste a source link, combine references in one brief, specify size, colour, quantity and budget, review and edit the saved result, and copy the brief text. Photos are validated, resized and saved on-device. Session drafts survive reload. Storage failures are visible to the client.
+- Refreshed the showcase screenshot, correctly scaled handset, transparent product foreground, and Telegram share image. The shared internal-history hook retains the furniture history key and preserves separate buyer and furniture navigation.
+- Checkpoint `refs/checkpoints/before-buyer-studio` at `61c3672a`. Compared 390px home screenshots (156,767 pixels changed). Chromium and WebKit checked the user flows, both languages, 320–1440px layouts, Telegram safe areas, and local-storage fallback. All 51 sample photos and gallery details returned WebP. Furniture Back and 11 invite/deep-link checks passed. Browser smoke recorded zero console errors, page errors or failed requests. Production build passed. TypeScript has the same 61 repository diagnostics.
+
 ## 2026-11-26 15:34 MSK — Match the furniture iPhone to the showcase series
 
 - The furniture preview and the generator for the clothing previews now use one handset template. The preview keeps the actual Russian or English store screen in its native proportions. The furniture photograph sits around the device, with the table in front of its lower corner.

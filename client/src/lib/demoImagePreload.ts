@@ -10,7 +10,6 @@ const firstImages: Record<string, string> = {
   'nike-sneakers': '/royal-step/jordan-cutout.webp',
   'royal-step': '/royal-step/jordan-cutout.webp',
   'lumi-studio': '/lumi/generated/lumi-v4-hero.webp',
-  'china-buyer': '/china-buyer/v5-feature-fast.webp',
   'medical-center': '/medical/generated/hero.webp',
   'opt-market': '/b2b/generated/partiya-v2-hero.webp',
   'skincare-aura': '/skincare-aura/hf_20260523_125330_45da8ca2-6d28-4d24-a5f3-8e072c82a44c_min.webp',
@@ -18,6 +17,11 @@ const firstImages: Record<string, string> = {
 
 export function warmDemoImage(id: string | undefined, priority: 'high' | 'low' = 'low'): void {
   if (!id) return;
+  if (id === 'china-buyer') {
+    const base = '/china-buyer/yangben/fold';
+    warmImage(base + '-480.webp', priority, { srcSet: base + '-480.webp 480w, ' + base + '-1200.webp 1200w', sizes: '(max-width: 760px) 100vw, 660px' });
+    return;
+  }
   if (id === 'flower-store') {
     const base = '/flower-store/flowers-v6/optimized/vase-roses';
     warmImage(`${base}-480.webp`, priority, {
