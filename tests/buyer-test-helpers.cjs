@@ -28,7 +28,13 @@ function run(name, fn, cases = [undefined]) {
 }
 async function open(
   browser,
-  { width = 390, ru = true, seed, blocked = false } = {},
+  {
+    width = 390,
+    ru = true,
+    seed,
+    blocked = false,
+    reducedMotion = 'reduce',
+  } = {},
 ) {
   const context = await browser.newContext({
     viewport: { width, height: 844 },
@@ -36,7 +42,7 @@ async function open(
     isMobile: width < 700,
     hasTouch: width < 700,
     locale: ru ? 'ru-RU' : 'en-GB',
-    reducedMotion: 'reduce',
+    reducedMotion,
     serviceWorkers: 'block',
   });
   await context.route('https://telegram.org/js/telegram-web-app.js', (r) =>

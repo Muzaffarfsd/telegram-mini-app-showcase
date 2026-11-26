@@ -114,6 +114,16 @@
   visibility: hidden;
   pointer-events: none;
 }
+/* The touch shell assigns a duration to every element. Switch chapter layers
+   together, including the visibility inherited by each title and paragraph. */
+.yb-journey-art,
+.yb-journey-art img,
+.yb-chapter-mark,
+.yb-chapter-mark::after,
+.yb-chapter-copy,
+.yb-chapter-copy * {
+  transition-property: none;
+}
 .yb-chapter-controls,
 .yb-chapter-tabs,
 .yb-chapter-arrows {

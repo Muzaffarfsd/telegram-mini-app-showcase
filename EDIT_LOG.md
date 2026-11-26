@@ -4,6 +4,12 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 18:42 MSK — Keep buyer banner text legible during swipes
+
+- Fixed the home journey in Yangben. The shared touch stylesheet gives every element a 150 ms transition duration. That also animated visibility on the stacked chapter panels, their descendants and the illustrations. Ink.css now switches those layers atomically while the active chapter indicator keeps its own width transition.
+- The browser helper can open the app with normal motion from first paint. tests/china-buyer-banner-motion.e2e.cjs records the active heading, description and image on animation frames during quick direction changes. The new check reproduced the previous release on touch screens. Reduced-motion navigation remains covered by the existing journey test.
+- Checkpoint refs/checkpoints/before-buyer-banner-motion at 15aeabf106a605df1fd6bf75a16f2fbf7e82a385. At 60 ms after the same chapter switch the mobile screenshots differ by 7,818 pixels. Verified both languages, direct and reverse touch swipes, keyboard navigation and the production build.
+
 ## 2026-11-26 18:16 MSK — An editorial shoot for every Yangben sample
 
 - Replaced every legacy product exposure and thumbnail. All 25 items now have four original photographs of the same object, including a reverse, construction detail and macro. Five separately art-directed editorial scenes and a transparent showcase cutout bring the catalogue into the reference palette. Existing public photographs retain their paths and the app uses revisioned image URLs.
