@@ -15,8 +15,6 @@
 .order-page button:focus-visible, .order-page input:focus-visible, .order-page summary:focus-visible { outline: 2px solid #25272a; outline-offset: 3px; }
 .order-shell { width: 100%; max-width: 390px; margin: 0 auto; }
 .order-heading { text-align: center; }
-.order-heading, .order-template-list, .order-features, .order-review { animation: order-step-enter .16s ease-out both; }
-@keyframes order-step-enter { from { opacity: .86; transform: translate3d(0, 4px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
 .order-progress { display: flex; align-items: center; justify-content: space-between; min-height: 44px; }
 .order-page[data-order-step="1"] .order-progress { min-height: 32px; }
 .order-page[data-order-step="1"] .order-progress-spacer { height: 32px; }
@@ -191,6 +189,7 @@ nav.order-nav[role="navigation"] { background: rgba(255,255,255,.48) !important;
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { nav.order-nav[role="navigation"] { background: rgba(255,255,255,.96) !important; } }
 @media (prefers-reduced-transparency: reduce) { nav.order-nav[role="navigation"] { background: #fff !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; } }
 
+.order-loading .profile-skeleton { animation: none; background: #e9edf1; }
 .order-loading-heading { display: grid; justify-items: center; padding-top: 14px; }
 .order-loading-step { width: 66px; height: 10px; border-radius: 6px; }
 .order-loading-title { width: 240px; max-width: 80%; height: 48px; margin-top: 34px; border-radius: 11px; }

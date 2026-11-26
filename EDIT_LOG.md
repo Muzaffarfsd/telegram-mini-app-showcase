@@ -4,6 +4,10 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-27 · Remove order page entrance flicker
+
+- Removed the fade and vertical entrance movement from the order heading and steps, and stopped the order loading placeholders from shimmering. Information sheets and action feedback remain unchanged.
+- Checkpoint `refs/checkpoints/before-order-card-flicker` at `7f7f6e41`. The existing mobile order suite passed at 320, 390 and 430 px, including feature selection, pricing, review and user-triggered Telegram draft. Verified normal-motion navigation separately in Chromium and WebKit.
 ## 2026-11-27 · Remove showcase entrance flicker
 
 - Removed the showcase loading shimmer and disabled inherited mobile transitions on the artwork layers, so the phone artwork no longer fades in when its decoded image replaces the preview. The card layout, lazy loading and navigation remain unchanged.
