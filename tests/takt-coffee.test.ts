@@ -160,3 +160,37 @@ test('bakery orders keep their weight, price and quantity apart from drink rewar
   assert.equal(availableDiscount({ orders: [t], bag: t.items }), 120);
   assert.equal(ticketTotal(t), 1125);
 });
+test('lemonades price only available changes and preserve legacy coffee keys', () => {
+  const originals = classic('cappuccino');
+  assert.equal(
+    recipeKey(originals),
+    'cappuccino/250/house/whole/silky/none/standard',
+  );
+  assert.equal(validRecipe(originals), true);
+  const lemonades = drinks.filter((d) => d.family === 'lemonade');
+  assert.equal(lemonades.length, 4);
+  for (const d of lemonades) {
+    const house = classic(d.id),
+      personalised = {
+        ...house,
+        ml: d.sizes[1],
+        water: 'still',
+        garnish: 'mint',
+        ice: 'no-ice',
+      };
+    assert.deepEqual(activeGroups(d.id).sort(), [
+      'garnish',
+      'ice',
+      'sugar',
+      'water',
+    ]);
+    assert.ok(validRecipe(personalised));
+    assert.notEqual(recipeKey(personalised), recipeKey(house));
+    assert.equal(price(personalised), d.price + d.sizePrices[1] + 10);
+    assert.equal(
+      price({ ...personalised, milk: 'oat', shot: 'extra' }),
+      price(personalised),
+    );
+    assert.match(recipeParts(personalised, 'en').join(' '), /Still water/);
+  }
+});

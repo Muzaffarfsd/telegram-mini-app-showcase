@@ -4,6 +4,13 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 21:34 MSK — Restore the photographic drink card and expand the coffee menu
+
+- Restored the ingredient map, native option sheets, cup-size selector and large photographic order portrait. The finished recipe lists choices and their total. Removed the ingredient animation and its rendering assets.
+- Generated new transparent product photographs for all 21 drinks, separate ingredient cutouts and the recipe cup. Added four lemonades, three specialty coffees and berry hibiscus to the café menu and seasonal carousel. The lemonade recipes carry water, garnish, sugar and ice selections through ordering.
+- Refreshed the bilingual gallery images and updated the automated recipe, presentation, checkout and Telegram dock checks.
+- Checkpoint `refs/checkpoints/before-coffee-paper-menu` points to `fca15201`. Verified the production build, 19 recipe and sharing tests, all 21 drink cards in Chromium and WebKit, the 11-slide carousel and native Telegram dock. The browser smoke test reported zero console errors, page errors or failed requests. All 51 release images matched their source bytes. The mobile recipe screenshot changed by 44.4% compared with the 3D editor. The project-wide TypeScript check matched the 61 existing diagnostics.
+
 ## 2026-11-26 21:10 MSK — Share the clothing-store dock and build an interactive coffee cup
 
 - Both clothing shops and the coffee shop now render `StoreNavigation`. The coffee demo follows the original dock's bottom inset when Telegram resizes. The guest header, projects card, profile, pickup, tickets, barista queue and share preview use the generic coffee-shop name and omit street addresses. Old demo links, saved recipes and order schedule IDs still resolve.

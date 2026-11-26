@@ -38,6 +38,62 @@ const collection = [
       'Iced black tea with sliced peach and fresh mint.',
     ],
   },
+  {
+    id: 'yuzu-lemonade',
+    description: [
+      'Юдзу, лимонная цедра и прозрачный лёд.',
+      'Fragrant yuzu, lemon zest and clear ice.',
+    ],
+  },
+  {
+    id: 'orange-bumble',
+    description: [
+      'Апельсиновый сок под слоем двойного эспрессо.',
+      'Orange juice beneath a layer of double espresso.',
+    ],
+  },
+  {
+    id: 'raspberry-lime',
+    description: [
+      'Размятая малина, свежий лайм и пузырьки.',
+      'Crushed raspberries, fresh lime and sparkling water.',
+    ],
+  },
+  {
+    id: 'pistachio-latte',
+    description: [
+      'Эспрессо, фисташковая паста и тонкая молочная пена.',
+      'Espresso, pistachio paste and silky milk foam.',
+    ],
+  },
+  {
+    id: 'passion-mango',
+    description: [
+      'Пюре манго с мякотью и семенами маракуйи.',
+      'Mango purée with passion fruit pulp and seeds.',
+    ],
+  },
+  {
+    id: 'espresso-tonic',
+    description: [
+      'Горьковатый тоник, эспрессо и цедра грейпфрута.',
+      'Bittersweet tonic, espresso and grapefruit peel.',
+    ],
+  },
+  {
+    id: 'cucumber-elderflower',
+    description: [
+      'Цветки бузины, лента огурца и минеральная вода.',
+      'Elderflower, a cucumber ribbon and mineral water.',
+    ],
+  },
+  {
+    id: 'hibiscus-berry',
+    description: [
+      'Холодный настой гибискуса и чёрная смородина.',
+      'Cold hibiscus tea and blackcurrants.',
+    ],
+  },
 ] as const;
 export type FeaturedDrink = (typeof collection)[number]['id'];
 export function Campaign({
@@ -63,6 +119,7 @@ export function Campaign({
   const previous =
     collection[(index + collection.length - 1) % collection.length];
   const next = collection[(index + 1) % collection.length];
+  const pageStart = Math.max(0, Math.min(collection.length - 5, index - 2));
   const touch = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
   const name = say(drink.name, lang);
@@ -71,6 +128,7 @@ export function Campaign({
     <section
       className="tk-campaign"
       data-featured={current.id}
+      data-long-title={name.length > 16 || undefined}
       aria-labelledby="tk-campaign-name"
     >
       <div className="tk-campaign-copy" aria-live="polite" aria-atomic="true">
@@ -134,6 +192,10 @@ export function Campaign({
               className="tk-hero-cutout"
               alt=""
               src={art(current.id, true)}
+              srcSet={
+                art(current.id) + ' 320w, ' + art(current.id, true) + ' 800w'
+              }
+              sizes="(min-width: 700px) 470px, 90vw"
               width="430"
               height="560"
               draggable={false}
@@ -180,7 +242,10 @@ export function Campaign({
           role="group"
           aria-label={ru ? 'Сезонные напитки' : 'Seasonal drinks'}
         >
-          {collection.map((item) => (
+          <small aria-hidden="true">
+            {String(index + 1).padStart(2, '0')} / {collection.length}
+          </small>
+          {collection.slice(pageStart, pageStart + 5).map((item) => (
             <button
               key={item.id}
               aria-pressed={item.id === current.id}

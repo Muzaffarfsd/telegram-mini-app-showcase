@@ -1,0 +1,218 @@
+.tk-recipe-map {
+  position: relative;
+  width: 100%;
+  height: clamp(290px, min(101vw, 51svh), 440px);
+  margin: 13px auto 4px;
+}
+.tk-thread {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: #d75257;
+  overflow: visible;
+  pointer-events: none;
+}
+.tk-app .tk-ingredient {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%);
+  width: clamp(76px, 26%, 119px);
+  height: clamp(76px, 24%, 110px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  isolation: isolate;
+}
+.tk-ingredient img {
+  display: block;
+  width: 98%;
+  height: 72%;
+  object-fit: contain;
+  transform: rotate(var(--tilt));
+  filter: drop-shadow(2px 0 white) drop-shadow(-2px 0 white)
+    drop-shadow(0 -2px white) drop-shadow(0 2px white);
+  pointer-events: none;
+}
+.tk-ingredient[data-group='latteArt'] img {
+  width: 116%;
+  height: 76%;
+}
+.tk-ingredient span {
+  position: relative;
+  max-width: 100%;
+  margin-top: -4px;
+  padding: 2px 5px 3px;
+  border-radius: 24% 17% 21% 12% / 16% 22% 15% 20%;
+  background: white;
+  font-weight: 815;
+  font-size: clamp(14px, 4.25vw, 19px);
+  letter-spacing: -0.045em;
+  line-height: 1;
+  transform: rotate(var(--tilt));
+  box-shadow: 0 0 0 2px white;
+  color: #191916;
+}
+.tk-brew-base {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin: 5px calc(-1 * var(--tk-side)) calc(-1 * var(--tk-foot));
+  height: clamp(
+    225px,
+    calc(
+      var(--tk-view) - var(--tk-top) - var(--tk-foot) - 85px -
+        clamp(290px, min(101vw, 51svh), 440px)
+    ),
+    435px
+  );
+}
+.tk-brew-base > .tk-cup {
+  position: absolute;
+  height: auto;
+  width: 83%;
+  max-width: 420px;
+  left: 50%;
+  top: 7%;
+  transform: translateX(-50%);
+  filter: drop-shadow(4px 5px 1px white) drop-shadow(-4px -3px 1px white);
+}
+.tk-brew-actions {
+  position: absolute;
+  left: 50%;
+  bottom: 19px;
+  transform: translateX(-50%);
+  display: flex;
+  white-space: nowrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.tk-ingredient .tk-changed-ingredient {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  line-height: 1.1;
+  font-size: 11px;
+  font-weight: 670;
+  white-space: nowrap;
+  color: #9b2930;
+  background: var(--tk-paper);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+.tk-brew-base {
+  margin-bottom: 0;
+}
+.tk-app .tk-flavour-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  max-width: 100%;
+  margin: 0 auto;
+  color: #655c54;
+  font-size: 13px;
+  font-weight: 550;
+  min-height: 32px;
+}
+.tk-order-slip {
+  margin: 16px 0 18px;
+  font-size: 14px;
+}
+.tk-order-slip div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 14px;
+  padding: 7px 0;
+  border-bottom: 1px solid #e8e5df;
+}
+.tk-order-slip dt {
+  color: #68625b;
+}
+.tk-order-slip dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 650;
+}
+.tk-order-slip div:last-child {
+  margin-top: 6px;
+  border-top: 1px dashed #bbb3aa;
+  border-bottom: 0;
+  padding-top: 12px;
+}
+.tk-order-slip div:last-child dt,
+.tk-order-slip div:last-child dd {
+  color: var(--tk-ink);
+  font-weight: 750;
+}
+@media (max-width: 799px) {
+  .tk-builder {
+    --tk-map-height: clamp(245px, min(94vw, 43svh), 396px);
+  }
+  .tk-recipe-map {
+    height: var(--tk-map-height);
+    margin: 2px auto 4px;
+  }
+  .tk-brew-base {
+    height: clamp(
+      148px,
+      calc(
+        var(--tk-view) - var(--tk-foot) - var(--tk-top) - var(--tk-map-height) -
+          117px
+      ),
+      360px
+    );
+  }
+  .tk-brew-actions {
+    bottom: 12px;
+  }
+}
+@media (max-width: 350px) {
+  .tk-ingredient span {
+    font-size: 14px;
+  }
+  .tk-brew-actions {
+    gap: 4px;
+  }
+}
+@media (min-width: 600px) {
+  .tk-brew-base {
+    margin-inline: 0;
+  }
+}
+@media (min-width: 800px) {
+  .tk-builder {
+    grid-template-rows: auto auto;
+    align-content: center;
+    row-gap: 0;
+  }
+  .tk-app .tk-flavour-note {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .tk-recipe-map {
+    height: 410px;
+    margin: 0;
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .tk-brew-base {
+    height: 450px;
+    margin: 0;
+    grid-column: 2;
+    grid-row: 1/3;
+  }
+  .tk-brew-base > .tk-cup {
+    width: 89%;
+    top: 1%;
+  }
+  .tk-brew-actions {
+    bottom: 11px;
+  }
+}

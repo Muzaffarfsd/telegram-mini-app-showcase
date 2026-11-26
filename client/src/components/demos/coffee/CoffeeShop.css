@@ -136,8 +136,8 @@
   top: 53%;
 }
 .tk-neighbour img {
-  width: 65%;
-  height: 65px;
+  width: 90%;
+  height: clamp(56px, 9svh, 79px);
   object-fit: contain;
   filter: drop-shadow(0 3px 2px #23191815);
 }
@@ -182,6 +182,14 @@
   height: 3px;
   border-radius: 50%;
   background: #868286;
+}
+.tk-edition-pages small {
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  color: #615b55;
+  margin-right: 6px;
 }
 .tk-edition-pages {
   display: flex;
@@ -591,6 +599,7 @@
 .tk-category-photo {
   position: relative;
   display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
   place-items: center;
   width: 55px;
   height: 55px;
@@ -598,8 +607,8 @@
   background: #f4f3f3;
 }
 .tk-category-photo .tk-cup {
-  width: 67%;
-  height: 78%;
+  width: 77%;
+  height: 84%;
   filter: drop-shadow(1px 2px 1px #3727181a);
 }
 .tk-category-photo img[data-cup='almond-croissant'] {
@@ -724,10 +733,10 @@
   object-position: center bottom;
 }
 .tk-catalogue .tk-product-image > .tk-cup[data-cup='espresso'] {
-  height: 72%;
+  height: 83%;
 }
 .tk-catalogue .tk-product-image > .tk-cup[data-cup='flat-white'] {
-  height: 84%;
+  height: 91%;
 }
 .tk-catalogue
   .tk-product-image
@@ -1083,5 +1092,28 @@
   .tk-dock * {
     animation: none !important;
     transition: none !important;
+  }
+}
+/* Reserve two lines of tasting notes so the shop action stays under the thumb. */
+.tk-campaign-copy {
+  min-width: 0;
+  width: 100%;
+}
+.tk-campaign-copy p {
+  min-height: 2.68em;
+}
+@media (max-width: 599px) {
+  .tk-app .tk-campaign[data-long-title] h1 {
+    font-size: clamp(24px, 7.55vw, 44px) !important;
+  }
+}
+@media (min-width: 600px) {
+  .tk-app .tk-campaign h1 {
+    display: grid;
+    align-content: center;
+    min-height: calc(clamp(52px, 6.7vw, 79px) * 1.98);
+  }
+  .tk-app .tk-campaign[data-long-title] h1 {
+    font-size: clamp(34px, 5.4vw, 72px) !important;
   }
 }

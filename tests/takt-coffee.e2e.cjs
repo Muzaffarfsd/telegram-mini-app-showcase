@@ -89,7 +89,10 @@ async function full(browser) {
       await p.locator('#tk-campaign-name').innerText(),
       'Карамельный фраппе',
     );
-    await p.locator('.tk-edition-pages button').last().click();
+    await p
+      .locator('.tk-edition-pages')
+      .getByRole('button', { name: 'Персиковый чай', exact: true })
+      .click();
     await p.locator('.tk-feature-detail').click();
     await screen(p, 'builder');
     assert.equal(await p.locator('[data-group=beans]').count(), 0);
@@ -125,11 +128,26 @@ async function full(browser) {
       ),
       'drink photographs fit inside their shelves without cropping',
     );
+    assert.ok(
+      await p.locator('.tk-category-photo:has(img)').evaluateAll((nodes) =>
+        nodes.every((node) => {
+          const frame = node.getBoundingClientRect(),
+            image = node.querySelector('img').getBoundingClientRect();
+          return (
+            image.top >= frame.top &&
+            image.bottom <= frame.bottom + 1 &&
+            image.left >= frame.left &&
+            image.right <= frame.right + 1
+          );
+        }),
+      ),
+      'category thumbnails stay inside their circles, above their labels',
+    );
     const closeSheet = async () => {
       await p.locator('dialog .tk-sheet-done').click();
       await p.locator('dialog').waitFor({ state: 'detached' });
     };
-    assert.equal(await p.locator('.tk-card').count(), 15);
+    assert.equal(await p.locator('.tk-card').count(), 23);
     const categories = p.locator('.tk-category-tabs');
     await categories
       .getByRole('button', { name: 'Выпечка', exact: true })
@@ -159,15 +177,15 @@ async function full(browser) {
     await categories
       .getByRole('button', { name: 'Чёрный', exact: true })
       .click();
-    assert.equal(await p.locator('.tk-card').count(), 3);
+    assert.equal(await p.locator('.tk-card').count(), 5);
     await categories
       .getByRole('button', { name: 'Со льдом', exact: true })
       .click();
-    assert.equal(await p.locator('.tk-card').count(), 5);
+    assert.equal(await p.locator('.tk-card').count(), 12);
     await categories
       .getByRole('button', { name: 'Без кофе', exact: true })
       .click();
-    assert.equal(await p.locator('.tk-card').count(), 3);
+    assert.equal(await p.locator('.tk-card').count(), 8);
     const search = p.getByRole('searchbox');
     await search.fill('матча');
     assert.equal(await p.locator('.tk-card').count(), 1);
@@ -179,8 +197,13 @@ async function full(browser) {
     await search.fill('нет такого вкуса');
     await p.getByRole('button', { name: 'Показать всё меню' }).click();
     await search.fill('апельсин');
+    assert.ok(
+      await p.locator('.tk-card[data-drink=orange-bumble]').isVisible(),
+    );
     assert.equal(
-      await p.locator('.tk-card').getAttribute('data-drink'),
+      await p
+        .locator('.tk-card[data-drink=cold-brew]')
+        .getAttribute('data-drink'),
       'cold-brew',
     );
     await p.getByRole('button', { name: 'Очистить поиск' }).click();
@@ -218,30 +241,34 @@ async function full(browser) {
     await screen(p, 'builder');
     await widthOK(p);
     await audit(p);
-    assert.equal(
-      await p.locator('.coffee-ingredients [data-group]').count(),
-      7,
+    assert.equal(await p.locator('.tk-recipe-map .tk-ingredient').count(), 6);
+    assert.ok(
+      await p.locator('.tk-recipe-map .tk-ingredient').evaluateAll((nodes) =>
+        nodes.every((el) => {
+          const box = el.getBoundingClientRect();
+          return el.contains(
+            document.elementFromPoint(
+              box.x + box.width / 2,
+              box.y + box.height / 2,
+            ),
+          );
+        }),
+      ),
+      'each photographic ingredient is a separate touch target',
     );
-    await p.locator('.coffee-stage .brew-preview[data-renderer]').waitFor();
     for (const [group, value] of [
       ['milk', 'oat'],
       ['beans', 'fruit'],
-      ['shot', 'extra'],
       ['syrup', 'vanilla'],
       ['foam', 'cloud'],
       ['latteArt', 'rosetta'],
       ['sugar', 'one'],
     ]) {
       await p.locator('[data-group=' + group + ']').click();
-      await p
-        .locator('.coffee-options button[data-value=' + value + ']')
-        .click();
-      assert.equal(
-        await p
-          .locator('.coffee-options [data-value=' + value + ']')
-          .getAttribute('aria-pressed'),
-        'true',
-      );
+      await p.locator('dialog button[data-value=' + value + ']').click();
+      if (group === 'beans')
+        await p.locator('dialog [data-value=extra]').click();
+      await closeSheet();
     }
     await p.locator('.tk-size-trigger').click();
     await p.locator('.tk-size button').last().click();
@@ -272,10 +299,10 @@ async function full(browser) {
       'true',
     );
     await p.locator('.tk-finish-detail').click();
-    assert.match(await p.locator('.tk-recipe-list').innerText(), /Розетта/);
+    assert.match(await p.locator('.tk-order-slip').innerText(), /Розетта/);
     assert.match(
-      await p.locator('.tk-recipe-list').innerText(),
-      /Кубик сахара/,
+      await p.locator('.tk-order-slip').innerText(),
+      /Один кубик|кубик/i,
     );
     await p.goBack();
     await p.locator('dialog').waitFor({ state: 'detached' });
@@ -381,6 +408,14 @@ async function layout(browser, width, lang) {
     await screen(p, 'menu');
     await widthOK(p);
     for (const id of [
+      'yuzu-lemonade',
+      'raspberry-lime',
+      'passion-mango',
+      'cucumber-elderflower',
+      'orange-bumble',
+      'espresso-tonic',
+      'pistachio-latte',
+      'hibiscus-berry',
       'peach-tea',
       'cherry-mocha',
       'caramel-frappe',
@@ -398,30 +433,38 @@ async function layout(browser, width, lang) {
       await p.locator('[data-drink="' + id + '"]').click();
       await screen(p, 'builder');
       await widthOK(p);
-      const groups = await p
-        .locator('.coffee-ingredients [data-group]')
-        .count();
+      const groups = await p.locator('.tk-recipe-map .tk-ingredient').count();
       assert.equal(
         groups,
         {
+          'yuzu-lemonade': 4,
+          'raspberry-lime': 4,
+          'passion-mango': 4,
+          'cucumber-elderflower': 4,
+          'orange-bumble': 4,
+          'espresso-tonic': 4,
+          'hibiscus-berry': 3,
           espresso: 3,
           americano: 4,
-          'iced-latte': 6,
+          'iced-latte': 5,
           'peach-tea': 3,
-          'cherry-mocha': 6,
-          'caramel-frappe': 6,
+          'cherry-mocha': 5,
+          'caramel-frappe': 5,
           'cold-brew': 3,
           'matcha-latte': 5,
           cocoa: 5,
-        }[id] || 7,
+        }[id] || 6,
       );
       await p.locator('.tk-brew-next').click();
       await screen(p, 'cup');
       await widthOK(p);
-      const finalCup = p.locator('.tk-poster-cup .brew-preview[data-renderer]');
+      const finalCup = p.locator('.tk-poster-cup img');
       await finalCup.waitFor();
       assert.ok(
-        (await finalCup.getAttribute('data-recipe')).startsWith(id + '/'),
+        (await finalCup.getAttribute('data-cup')) === id &&
+          (await finalCup.evaluate((img) =>
+            img.decode().then(() => img.naturalWidth > 0),
+          )),
       );
       await p.goBack();
       await screen(p, 'builder');
@@ -565,7 +608,7 @@ async function rewardsAndDock(browser) {
       layout(browser, 768, 'ru'),
       layout(browser, 1280, 'en'),
     ]);
-    console.log(engine + ' all thirteen drinks at 320/768/1280 px passed');
+    console.log(engine + ' all twenty-one drinks at 320/768/1280 px passed');
   } finally {
     await browser.close();
   }

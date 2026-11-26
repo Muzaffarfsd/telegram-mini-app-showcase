@@ -111,7 +111,10 @@ async function checkCoffeeHost(browser) {
     const campaign = await p.locator('.tk-campaign-stage').boundingBox();
     const middle = [campaign.x + campaign.width / 2, campaign.y + campaign.height / 2];
     await swipe(cdp, [middle[0] + 52, middle[1]], [middle[0] - 52, middle[1]]);
-    await p.waitForFunction(() => document.querySelector('.tk-edition-pages button:nth-child(2)')?.getAttribute('aria-pressed') === 'true');
+    await p.waitForFunction(() =>
+      document.querySelector('.tk-campaign')?.getAttribute('data-featured') === 'caramel-frappe' &&
+      document.querySelector('.tk-edition-pages [aria-pressed="true"]')?.getAttribute('aria-label') === document.getElementById('tk-campaign-name')?.textContent,
+    );
     assert.equal(await p.locator('.tk-app').getAttribute('data-screen'), 'home', 'swiping the campaign selects the next drink without opening it');
     await p.locator('.tk-rail').evaluate(el => el.scrollIntoView({block:'center'}));
     const hero = await p.locator('.tk-rail').boundingBox();
@@ -128,7 +131,7 @@ async function checkCoffeeHost(browser) {
     assert.ok(await edge()<=780,'sorting remains inside the resized viewport');
     await p.locator('dialog .tk-sheet-done').click();
     await p.locator('[data-drink=cappuccino]').click();
-    await p.locator('.coffee-stage canvas').first().waitFor();
+    await p.locator('.tk-recipe-map .tk-ingredient').first().waitFor();
     await p.locator('#root').evaluate(el=>el.scrollTo(0,el.scrollHeight));
     assert.ok(Math.abs(await dockEdge()-(await original.evaluate(geometry)).bottom)<0.5,'the builder stays anchored during scroll');
     await fashion.close();

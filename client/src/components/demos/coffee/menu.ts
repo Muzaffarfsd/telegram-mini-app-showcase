@@ -20,7 +20,15 @@ export type DrinkId =
   | 'cocoa'
   | 'cherry-mocha'
   | 'caramel-frappe'
-  | 'peach-tea';
+  | 'peach-tea'
+  | 'yuzu-lemonade'
+  | 'raspberry-lime'
+  | 'passion-mango'
+  | 'cucumber-elderflower'
+  | 'orange-bumble'
+  | 'espresso-tonic'
+  | 'pistachio-latte'
+  | 'hibiscus-berry';
 type Drink = {
   id: DrinkId;
   name: Copy;
@@ -31,6 +39,7 @@ type Drink = {
   sizePrices: number[];
   milk: boolean;
   foam: boolean;
+  family?: 'lemonade' | 'tea';
   iced?: boolean;
   withoutCoffee?: boolean;
 };
@@ -67,6 +76,7 @@ export const drinks: Drink[] = [
   },
   {
     id: 'peach-tea',
+    family: 'tea',
     name: ['Персиковый чай', 'Peach iced tea'],
     notes: ['Персик · мята', 'Peach · mint'],
     detail: [
@@ -182,6 +192,7 @@ export const drinks: Drink[] = [
   },
   {
     id: 'matcha-latte',
+    family: 'tea',
     name: ['Матча-латте', 'Matcha latte'],
     notes: ['Матча · сливки', 'Matcha · cream'],
     detail: [
@@ -224,6 +235,135 @@ export const drinks: Drink[] = [
     milk: false,
     foam: false,
     iced: true,
+  },
+  {
+    id: 'yuzu-lemonade',
+    name: ['Лимонад юдзу', 'Yuzu lemonade'],
+    notes: ['Юдзу · лимон · сода', 'Yuzu · lemon · soda'],
+    detail: [
+      'Сок юдзу и лимонная цедра придают лимонаду терпкий цитрусовый аромат. Подаём со льдом и тонким кружком лимона.',
+      'Yuzu juice and lemon zest lend this lemonade its citrus perfume. Served over ice with a thin lemon wheel.',
+    ],
+    price: 230,
+    sizes: [350, 450],
+    sizePrices: [0, 40],
+    milk: false,
+    foam: false,
+    iced: true,
+    withoutCoffee: true,
+    family: 'lemonade',
+  },
+  {
+    id: 'raspberry-lime',
+    name: ['Малина и лайм', 'Raspberry & lime'],
+    notes: ['Малина · лайм · сода', 'Raspberry · lime · soda'],
+    detail: [
+      'Размятая малина на дне, свежий лайм и прозрачная газировка сверху. Лимонад можно перемешать, чтобы ягоды распределились по стакану.',
+      'Crushed raspberries on the bottom, fresh lime and a clear sparkling finish. Stir to carry the berries through the lemonade.',
+    ],
+    price: 220,
+    sizes: [350, 450],
+    sizePrices: [0, 40],
+    milk: false,
+    foam: false,
+    iced: true,
+    withoutCoffee: true,
+    family: 'lemonade',
+  },
+  {
+    id: 'passion-mango',
+    name: ['Манго-маракуйя', 'Mango & passion fruit'],
+    notes: ['Манго · маракуйя · сода', 'Mango · passion fruit · soda'],
+    detail: [
+      'Мякоть маракуйи с хрустящими семенами смешиваем с пюре манго. Лёд и минеральная вода смягчают сладость лимонада.',
+      'Passion fruit pulp and crisp seeds meet mango purée. Ice and mineral water balance the sweetness of the lemonade.',
+    ],
+    price: 250,
+    sizes: [350, 450],
+    sizePrices: [0, 45],
+    milk: false,
+    foam: false,
+    iced: true,
+    withoutCoffee: true,
+    family: 'lemonade',
+  },
+  {
+    id: 'cucumber-elderflower',
+    name: ['Бузина и огурец', 'Elderflower & cucumber'],
+    notes: ['Бузина · огурец · сода', 'Elderflower · cucumber · soda'],
+    detail: [
+      'Цветочный кордиал из бузины, вода и лёд. Длинная лента свежего огурца даёт лимонаду прохладный травяной аромат.',
+      'Elderflower cordial, water and ice. A long cucumber ribbon gives this lemonade a cool, herbal finish.',
+    ],
+    price: 220,
+    sizes: [350, 450],
+    sizePrices: [0, 40],
+    milk: false,
+    foam: false,
+    iced: true,
+    withoutCoffee: true,
+    family: 'lemonade',
+  },
+  {
+    id: 'orange-bumble',
+    name: ['Апельсиновый бамбл', 'Orange bumble'],
+    notes: ['Апельсин · эспрессо · карамель', 'Orange · espresso · caramel'],
+    detail: [
+      'Наливаем апельсиновый сок на лёд, добавляем немного карамели и завершаем двойным эспрессо. Перед первым глотком слои можно перемешать.',
+      'Orange juice over ice with a little caramel, finished with a double espresso. Stir the layers together before the first sip.',
+    ],
+    price: 270,
+    sizes: [350, 450],
+    sizePrices: [0, 45],
+    milk: false,
+    foam: false,
+    iced: true,
+  },
+  {
+    id: 'espresso-tonic',
+    name: ['Эспрессо-тоник', 'Espresso tonic'],
+    notes: ['Тоник · грейпфрут · эспрессо', 'Tonic · grapefruit · espresso'],
+    detail: [
+      'Лёд, холодный тоник и эспрессо образуют два прозрачных слоя. Полоска грейпфрутовой цедры подчёркивает лёгкую горчинку тоника.',
+      'Ice, chilled tonic and espresso form two clear layers. A strip of grapefruit peel brings out the gentle bitterness of the tonic.',
+    ],
+    price: 250,
+    sizes: [350, 450],
+    sizePrices: [0, 40],
+    milk: false,
+    foam: false,
+    iced: true,
+  },
+  {
+    id: 'pistachio-latte',
+    name: ['Фисташковый латте', 'Pistachio latte'],
+    notes: ['Фисташка · эспрессо · молоко', 'Pistachio · espresso · milk'],
+    detail: [
+      'Эспрессо с фисташковой пастой и взбитым молоком. Завершаем тонкой молочной пеной и дроблёной фисташкой. Содержит фисташки.',
+      'Espresso with pistachio paste and steamed milk, finished with microfoam and crushed pistachios. Contains pistachios.',
+    ],
+    price: 270,
+    sizes: [300, 400],
+    sizePrices: [0, 45],
+    milk: true,
+    foam: true,
+  },
+  {
+    id: 'hibiscus-berry',
+    name: ['Ягодный каркаде', 'Berry hibiscus'],
+    notes: ['Каркаде · чёрная смородина', 'Hibiscus · blackcurrant'],
+    detail: [
+      'Охлаждённый настой гибискуса с чёрной смородиной. Глубокий рубиновый цвет, ягодная кислинка и крупный лёд.',
+      'Chilled hibiscus infused with blackcurrants. Deep ruby colour, bright berry acidity and large pieces of ice.',
+    ],
+    price: 190,
+    sizes: [350, 450],
+    sizePrices: [0, 30],
+    milk: false,
+    foam: false,
+    iced: true,
+    withoutCoffee: true,
+    family: 'tea',
   },
 ];
 export const drinkById = Object.fromEntries(
@@ -367,31 +507,52 @@ export const groups = {
       { id: 'two', name: ['Два кубика', 'Two cubes'], add: 0 },
     ],
   },
+  water: {
+    name: ['Вода', 'Water'],
+    image: 'water',
+    options: [
+      { id: 'sparkling', name: ['Газированная', 'Sparkling'], add: 0 },
+      { id: 'still', name: ['Без газа', 'Still'], add: 0 },
+    ],
+  },
+  garnish: {
+    name: ['Гарнир', 'Garnish'],
+    image: 'garnish',
+    options: [
+      { id: 'house-garnish', name: ['По рецепту', 'House garnish'], add: 0 },
+      { id: 'mint', name: ['Свежая мята', 'Fresh mint'], add: 10 },
+      { id: 'no-garnish', name: ['Без гарнира', 'No garnish'], add: 0 },
+    ],
+  },
 } satisfies Record<string, Group>;
 export type GroupId = keyof typeof groups;
 export const groupIds = Object.keys(groups) as GroupId[];
+const defaults = {
+  latteArt: 'plain',
+  sugar: 'unsweetened',
+  ice: 'regular',
+  water: 'sparkling',
+  garnish: 'house-garnish',
+} as const;
+type OptionalGroup = keyof typeof defaults;
 export type Recipe = { drink: DrinkId; ml: number } & Record<
-  Exclude<GroupId, 'latteArt' | 'sugar' | 'ice'>,
+  Exclude<GroupId, OptionalGroup>,
   string
 > &
-  Partial<Record<'latteArt' | 'sugar' | 'ice', string>>;
-// Recipes saved with the first menu used its five original fields.
+  Partial<Record<OptionalGroup, string>>;
+// Keep recipes saved before the later ingredient panels readable.
 export function selection(g: GroupId, r: Recipe) {
   return (
-    r[g] ??
-    (g === 'latteArt'
-      ? 'plain'
-      : g === 'sugar'
-        ? 'unsweetened'
-        : g === 'ice'
-          ? 'regular'
-          : '')
+    r[g] ?? (Object.hasOwn(defaults, g) ? defaults[g as OptionalGroup] : '')
   );
 }
 export function activeGroups(id: DrinkId) {
   const d = drinkById[id];
   return groupIds.filter(
     (g) =>
+      (g !== 'water' || d.family === 'lemonade') &&
+      (g !== 'garnish' || d.family === 'lemonade' || id === 'hibiscus-berry') &&
+      (g !== 'syrup' || (d.family !== 'lemonade' && id !== 'hibiscus-berry')) &&
       (g !== 'milk' || d.milk) &&
       (g !== 'foam' || d.foam) &&
       (g !== 'latteArt' || d.foam) &&
@@ -450,6 +611,9 @@ export function recipeParts(r: MenuSelection, lang: Locale) {
   if (isBakery(r))
     return [serving(r, lang), lang === 'ru' ? '1 шт.' : '1 piece'];
   const names: Partial<Record<string, Copy>> = {
+    sparkling: ['Газированная вода', 'Sparkling water'],
+    still: ['Вода без газа', 'Still water'],
+    'house-garnish': ['Гарнир по рецепту', 'House garnish'],
     whole: ['Цельное молоко', 'Whole milk'],
     oat: ['Овсяное молоко', 'Oat milk'],
     'lactose-free': ['Безлактозное молоко', 'Lactose-free milk'],
@@ -478,9 +642,12 @@ export function recipeParts(r: MenuSelection, lang: Locale) {
 }
 export const specials = [
   { recipe: classic('cappuccino') },
+  { recipe: classic('yuzu-lemonade') },
   { recipe: classic('espresso') },
+  { recipe: classic('orange-bumble') },
   { recipe: { ...classic('flat-white'), beans: 'fruit' } },
   { recipe: { ...classic('iced-latte'), milk: 'oat' } },
+  { recipe: classic('raspberry-lime') },
 ];
 export const art = (id: string, large = false) =>
-  '/takt-coffee/press/' + id + (large ? '-800' : '-320') + '.webp';
+  '/takt-coffee/press/' + id + (large ? '-800' : '-320') + '.webp?v=paper2';

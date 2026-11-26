@@ -262,14 +262,14 @@ body:has(#root.tk-scroll-root) {
   aspect-ratio: 1.1;
 }
 .tk-pick .tk-product-image > .tk-cup {
-  height: 77%;
+  height: 89%;
 }
 .tk-product-image > .tk-cup[data-cup='espresso'] {
-  height: 65%;
-  width: 66%;
+  height: 77%;
+  width: 73%;
 }
 .tk-product-image > .tk-cup[data-cup='flat-white'] {
-  height: 71%;
+  height: 84%;
 }
 .tk-product-copy {
   display: flex;

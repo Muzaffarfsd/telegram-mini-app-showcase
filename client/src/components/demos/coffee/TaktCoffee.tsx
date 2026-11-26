@@ -54,6 +54,7 @@ import { type FeaturedDrink } from './Campaign';
 import './TaktCoffee.css';
 import './CoffeeShop.css';
 import './CoffeeStudio.css';
+import './CoffeeRecipe.css';
 
 type Screen =
   | CoffeeTab

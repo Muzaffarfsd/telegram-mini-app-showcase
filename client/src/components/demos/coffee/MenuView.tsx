@@ -206,6 +206,7 @@ export function DailyShelf({
 
 export type Filter =
   | 'all'
+  | 'lemonade'
   | 'milk'
   | 'bakery'
   | 'ice'
@@ -216,6 +217,7 @@ export type Sort = 'house' | 'price-low' | 'price-high';
 const filters = [
   { id: 'all', name: ['Все', 'All'], image: null },
   { id: 'milk', name: ['С молоком', 'Milk coffee'], image: 'cappuccino' },
+  { id: 'lemonade', name: ['Лимонады', 'Lemonades'], image: 'yuzu-lemonade' },
   { id: 'bakery', name: ['Выпечка', 'Bakery'], image: 'almond-croissant' },
   { id: 'ice', name: ['Со льдом', 'Iced'], image: 'cherry-mocha' },
   { id: 'tea', name: ['Чай', 'Tea'], image: 'peach-tea' },
@@ -229,17 +231,25 @@ const sorts = [
 ] as const;
 const menuOrder: MenuSelection[] = [
   classic('cherry-mocha'),
+  classic('yuzu-lemonade'),
   classic('caramel-frappe'),
   { bakery: 'almond-croissant' },
   classic('peach-tea'),
   classic('cappuccino'),
+  classic('raspberry-lime'),
+  classic('orange-bumble'),
   classic('iced-latte'),
   classic('flat-white'),
+  classic('pistachio-latte'),
+  classic('passion-mango'),
   { bakery: 'chocolate-cookie' },
   classic('matcha-latte'),
   classic('americano'),
   classic('mocha'),
   classic('cold-brew'),
+  classic('cucumber-elderflower'),
+  classic('espresso-tonic'),
+  classic('hibiscus-berry'),
   classic('latte'),
   classic('cocoa'),
   classic('espresso'),
@@ -254,7 +264,9 @@ function inCategory(item: MenuSelection, filter: Filter) {
     case 'ice':
       return !!d.iced;
     case 'tea':
-      return d.id === 'peach-tea' || d.id === 'matcha-latte';
+      return d.family === 'tea';
+    case 'lemonade':
+      return d.family === 'lemonade';
     case 'black':
       return !d.milk && !d.withoutCoffee;
     case 'other':
