@@ -4,6 +4,10 @@
 > AI assistants MUST read this file before starting any work.
 > Updated when files are added / removed / significantly refactored.
 
+## Order cost review
+
+- `OrderExperience.tsx` computes the estimate from the existing template, included features and selected extras; `OrderReviewStep.tsx` and `OrderCostBreakdown.css` present the one-time development total, package, individual extras, separate support and terms to discuss. RUB is authoritative and the USD conversion is informational. No new prices or plan terms are defined in this presentation.
+- `tests/order-breakdown.mobile.e2e.cjs` covers empty and multiple extras, included items, editing, exchange-rate availability and separate monthly/yearly support in Chromium and WebKit; `ORDER_TEST_URL` selects a deployment.
 ## Project stories
 
 - `ProjectsPage.tsx` keeps the showcase filters and direct app actions; `#/projects?project=<id>` opens `ProjectStory.tsx` with the same showcase styling. The list position and selected filter survive returning from a story. `DemoReturnContext.ts` preserves the source story when returning from a project.

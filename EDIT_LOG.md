@@ -4,6 +4,11 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-27 · Clarify project cost and scope
+
+- Reworked the order review to present the one-time development estimate first, followed by the package, selected additional features and separately priced support. The included list opens by default; each selected feature keeps its existing price. Added the existing currency and exchange-rate explanation and a concise note that final scope, cost, timing and third-party conditions are discussed.
+- All amounts, included items, support plans and calculation rules come from the existing order data. No prices, terms or actual integrations were added.
+- Checkpoint `refs/checkpoints/before-order-cost-breakdown` at `5d7906e1`. Compared the 390 px review before/after and checked RU/EN at 320 px. `order-breakdown.mobile.e2e.cjs` exercises no extras, two priced extras, editing, rate available/unavailable and separate monthly/yearly support in Chromium/WebKit. Existing order flow, currency and redesign checks were run separately. Screenshots are in `work/order-cost-before.png`, `work/order-cost-after.png` and `work/order-cost-ru-320.png`.
 ## 2026-11-27 · Recapture project screens in high density
 
 - Re-captured all 48 real project screens at 780 × 1688 (2×), after visible images and fonts loaded, and increased WebP quality. Versioned the image URLs to avoid stale cached 1× files. The full set is 3.51 MiB and remains individually lazy-loaded. The gallery previews are larger and show the complete screen with its original proportions.
