@@ -29,7 +29,7 @@ export function BakeryDetail({
       </div>
       <div className="tk-bakery-info">
         <span className="tk-season-label">
-          {ru ? 'Пекарня TAKT' : 'TAKT Bakery'}
+          {ru ? 'Выпечка' : 'Bakery'}
         </span>
         <h1>{say(item.name, lang)}</h1>
         <p>{say(item.detail, lang)}</p>

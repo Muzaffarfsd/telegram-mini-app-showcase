@@ -52,7 +52,7 @@ export const demoApps: DemoApp[] = [
   },
   {
     id: 'takt-coffee',
-    title: 'TAKT — кофейня',
+    title: 'Кофейня',
     description: 'Сезонные напитки и выпечка. Соберите свой рецепт и выберите время самовывоза.',
     category: 'Еда и напитки',
     image: '/takt-coffee/editorial/cherry-mocha-480.webp',

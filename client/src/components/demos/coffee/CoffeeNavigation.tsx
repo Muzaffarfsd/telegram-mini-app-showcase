@@ -1,18 +1,11 @@
 import { useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { BookOpen, House, ShoppingBag, UserRound } from 'lucide-react';
-import { DemoHomeButton } from '../../DemoHomeButton';
-import { say, type Locale } from './menu';
+import { StoreNavigation, type StoreTab } from '../../StoreNavigation';
+import type { Locale } from './menu';
 
-const tabs = [
-  { id: 'home', label: ['Главная', 'Home'], icon: House },
-  { id: 'menu', label: ['Каталог', 'Menu'], icon: BookOpen },
-  { id: 'bag', label: ['Корзина', 'Bag'], icon: ShoppingBag },
-  { id: 'profile', label: ['Профиль', 'Profile'], icon: UserRound },
-] as const;
-export type CoffeeTab = (typeof tabs)[number]['id'];
+export type CoffeeTab = StoreTab;
 export const isCoffeeTab = (s: string): s is CoffeeTab =>
-  tabs.some((t) => t.id === s);
+  ['home', 'menu', 'bag', 'profile'].includes(s);
 export function CoffeeNavigation({
   lang,
   active,
@@ -32,7 +25,8 @@ export function CoffeeNavigation({
   } | null>(null);
   const activated = useRef<HTMLButtonElement | null>(null);
   return createPortal(
-    <nav
+    <div
+      className="coffee-navigation-portal"
       onPointerDown={(event) => {
         activated.current = null;
         const button =
@@ -88,35 +82,15 @@ export function CoffeeNavigation({
           activated.current = null;
         }
       }}
-      className="tk-dock"
-      lang={lang}
-      aria-label={
-        lang === 'ru' ? 'Нижняя навигация кофейни' : 'Coffee shop tabs'
-      }
     >
-      {tabs.map(({ id, label, icon: Icon }) => {
-        const name = say(label, lang);
-        return (
-          <button
-            type="button"
-            key={id}
-            data-tab={id}
-            aria-label={name + (id === 'bag' && count ? ' · ' + count : '')}
-            aria-current={id === active ? 'page' : undefined}
-            onClick={() => select(id)}
-          >
-            <span className="tk-dock-icon">
-              <Icon size={21} aria-hidden="true" />
-              {id === 'bag' && count > 0 && (
-                <b aria-hidden="true">{count > 99 ? '99+' : count}</b>
-              )}
-            </span>
-            <span className="tk-dock-label">{name}</span>
-          </button>
-        );
-      })}
-      <DemoHomeButton color="#242320" />
-    </nav>,
+      <StoreNavigation
+        className="tk-dock"
+        lang={lang}
+        active={active}
+        count={count}
+        select={select}
+      />
+    </div>,
     document.body,
   );
 }

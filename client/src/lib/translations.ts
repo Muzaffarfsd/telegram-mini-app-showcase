@@ -133,7 +133,7 @@ export const translations = {
       // Demo app descriptions for project cards
       appDescriptions: {
         'flower-store': 'Цветочная студия: букеты для каждого момента',
-        'takt-coffee': 'TAKT — кофейня с конструктором напитков и самовывозом',
+        'takt-coffee': 'Кофейня с конструктором напитков и самовывозом',
         'china-buyer': 'YANGBEN — закупки из Китая с доставкой по СНГ',
         'medical-center': 'Медицинский центр: специалисты, услуги и запись на приём',
         'lumi-studio': 'Студия красоты: услуги, мастера и запись',
@@ -1811,7 +1811,7 @@ export const translations = {
       // Demo app descriptions for project cards
       appDescriptions: {
         'flower-store': 'Flower studio: bouquets for every moment',
-        'takt-coffee': 'TAKT — build your own coffee and order for pickup',
+        'takt-coffee': 'Coffee bar — build your drink and order for pickup',
         'china-buyer': 'YANGBEN — source goods from China for delivery across the CIS',
         'medical-center': 'Medical center: specialists, services and appointments',
         'lumi-studio': 'Beauty studio: services, specialists and appointments',

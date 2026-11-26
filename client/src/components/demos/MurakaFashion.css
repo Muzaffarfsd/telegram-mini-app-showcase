@@ -137,13 +137,6 @@
 .mf-empty { display:flex; flex-direction:column; align-items:center; gap:12px; padding:38px 12px; color:#727272; text-align:center; font-size:13px; line-height:1.5; }
 .mf-empty h2, .mf-empty h3 { color:#1c1c1c; font-weight:850; }
 .mf-empty .mf-secondary { max-width:220px; }
-.mf-nav { position:fixed; z-index:80; left:0; right:0; bottom:calc(var(--mf-safe-bottom) + var(--mf-obscured)); margin:auto; width:max-content; max-width:calc(100vw - 24px); display:flex; align-items:center; gap:2px; padding:5px 6px; border:1px solid rgba(255,255,255,.85); border-radius:22px; background:rgba(255,255,255,.78); box-shadow:0 6px 22px #0002; backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px); }
-.mf-nav-button { display:flex; align-items:center; justify-content:center; gap:0; min-width:44px; height:44px; padding:0 12px; border:0; border-radius:14px; background:transparent; color:#666; font-size:11px!important; font-weight:700!important; }
-.mf-nav-button.is-active { gap:6px; color:#191919; background:rgba(255,255,255,.9); }
-.mf-nav-button > span:not(.mf-nav-bag) { max-width:0; overflow:hidden; opacity:0; white-space:nowrap; }
-.mf-nav-button.is-active > span:not(.mf-nav-bag) { max-width:80px; opacity:1; }
-.mf-nav-bag { position:relative; display:flex; }
-.mf-nav-bag i { position:absolute; top:-7px; right:-9px; display:grid; place-items:center; min-width:15px; height:15px; border-radius:50%; background:#1b1b1b; color:#fff; font-style:normal; font-size:9px; }
 .mf-overlay { position:fixed; z-index:10000; inset:0; bottom:var(--mf-obscured); display:flex; align-items:flex-end; justify-content:center; background:rgba(0,0,0,.42); }
 .mf-sheet { width:min(100%,448px); max-height:min(88svh, calc(var(--tg-viewport-height, 100dvh) - 24px), 760px); display:flex; flex-direction:column; background:#fff; color:#1b1b1b; border-radius:18px 18px 0 0; box-shadow:0 -10px 35px #0002; }
 /* Keep the photo viewer header below Telegram's top controls and the app bar. */
@@ -207,8 +200,7 @@
 .mf-review-form > strong { font-size:12px; }
 .mf-stars { display:flex; margin:5px 0; }
 .mf-stars button { display:grid; place-items:center; width:42px; height:42px; padding:0; border:0; background:none; color:#a46729; }
-@media (max-width:350px) { .mf-hero, .mf-section, .mf-product-info { padding-left:16px; padding-right:16px; } .mf-hero-headline { font-size:27px; } .mf-product-top h1 { font-size:20px; } .mf-grid { gap:20px 8px; } .mf-nav-button { padding-left:9px; padding-right:9px; } }
-@media (prefers-reduced-transparency:reduce) { .mf-nav { background:#fff; backdrop-filter:none; -webkit-backdrop-filter:none; } }
+@media (max-width:350px) { .mf-hero, .mf-section, .mf-product-info { padding-left:16px; padding-right:16px; } .mf-hero-headline { font-size:27px; } .mf-product-top h1 { font-size:20px; } .mf-grid { gap:20px 8px; } }
 
 .mf-field input, .mf-field textarea { scroll-margin-top:110px; scroll-margin-bottom:160px; }
 .mf-chip { min-height:44px; }
@@ -221,5 +213,3 @@
 
 .mf-gallery.is-zoomed{touch-action:pan-x pan-y}
 .mf-gallery-image-viewport .mf-gallery-main{transition:none!important}
-
-.mf-nav > .demo-home-button { color:#666; }

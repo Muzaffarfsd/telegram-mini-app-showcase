@@ -1,0 +1,353 @@
+/* The campaign and the floating store navigation share the same white background. */
+.tk-header.is-menu {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 45px;
+  border-bottom: 0;
+}
+.tk-header .tk-home-search {
+  justify-self: start;
+}
+.tk-home-page {
+  padding-top: 0;
+}
+.tk-header .tk-compact-logo {
+  color: #202022;
+}
+.coffee-edits {
+  display: grid;
+  gap: 25px;
+  margin: 10px 0 16px;
+}
+.coffee-edit-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 12px;
+}
+.tk-app .coffee-edit-heading h2 {
+  font-size: clamp(22px, 5.8vw, 32px);
+  font-weight: 720;
+  letter-spacing: -0.055em;
+  line-height: 1.04;
+}
+.coffee-pair-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.tk-app .coffee-pair-switch button {
+  min-height: 34px;
+  border-radius: 20px;
+  padding: 4px 9px;
+  font-size: 12px;
+  font-weight: 620;
+  color: #565257;
+  border: 1px solid #ece9e6;
+}
+.tk-app .coffee-pair-switch [aria-pressed='true'] {
+  background: #252427;
+  border-color: #252427;
+  color: white;
+}
+.coffee-pair-photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.85;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.coffee-pair-order {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 0 4px;
+}
+.coffee-pair-order h3 {
+  font-size: clamp(16px, 4.3vw, 23px);
+  font-weight: 660;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.coffee-pair-order h3 span {
+  color: #777377;
+}
+.coffee-pair-order b {
+  display: block;
+  margin-top: 5px;
+  font-size: 13px;
+}
+.tk-app .coffee-pair-order button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+  min-height: 44px;
+  padding: 5px 12px;
+  border-radius: 23px;
+  background: #242426;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 640;
+}
+.coffee-taste-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.coffee-taste-grid button {
+  text-align: left;
+}
+.coffee-taste-grid img {
+  width: 100%;
+  aspect-ratio: 1.12;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.coffee-taste-grid span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px;
+  padding: 6px 0;
+  font-size: clamp(11px, 3.3vw, 16px);
+  font-weight: 630;
+  letter-spacing: -0.03em;
+}
+.tk-home-extras {
+  max-width: 560px;
+}
+@media (min-width: 760px) {
+  .coffee-edits {
+    grid-template-columns: 1.35fr 1fr;
+    align-items: start;
+    gap: 30px;
+  }
+  .coffee-pair-photo {
+    aspect-ratio: 1.9;
+  }
+  .coffee-taste-grid img {
+    aspect-ratio: 0.71;
+  }
+  .coffee-edit-heading {
+    min-height: 36px;
+  }
+}
+.brew-preview {
+  position: relative;
+  display: block;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  color: #29221b;
+  background: #f0eae0;
+}
+.brew-preview canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.brew-preview .brew-gl {
+  visibility: hidden;
+}
+.brew-preview[data-renderer='webgl'] .brew-gl {
+  visibility: visible;
+}
+.tk-app .coffee-builder {
+  display: block;
+  width: 100%;
+  max-width: 575px;
+  margin: 9px auto 0;
+  padding: 0;
+}
+.coffee-stage {
+  position: relative;
+  height: clamp(200px, min(75vw, 37svh), 385px);
+  overflow: hidden;
+  border-radius: 14px;
+  background: #f1eadf;
+}
+.coffee-bench {
+  min-width: 0;
+  margin-top: 18px;
+}
+.coffee-bench-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.tk-app .coffee-bench-heading h2 {
+  font-size: clamp(23px, 6.3vw, 30px);
+  letter-spacing: -0.055em;
+  font-weight: 700;
+  line-height: 1.07;
+}
+.tk-app .coffee-bench .tk-size-trigger {
+  min-height: 39px;
+  border: 1px solid #dedbd5;
+  border-radius: 22px;
+  padding: 0 14px;
+  font-size: 13px;
+  gap: 6px;
+}
+.coffee-ingredients {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  margin: 9px 0 10px;
+  padding: 1px 0 3px;
+  position: relative;
+}
+.coffee-ingredients::-webkit-scrollbar {
+  display: none;
+}
+.tk-app .coffee-ingredients button {
+  flex: 0 0 auto;
+  min-width: 64px;
+  min-height: 67px;
+  padding: 3px 6px 5px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 2px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 585;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.tk-app .coffee-ingredients button[aria-pressed='true'] {
+  background: #f7f5f1;
+  border-color: #bbb5ab;
+}
+.coffee-ingredients img {
+  width: 49px;
+  height: 36px;
+  object-fit: contain;
+}
+.tk-app .coffee-options .tk-choice-list {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin: 0;
+  min-height: 44px;
+  align-content: start;
+}
+.tk-app .coffee-options button {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  min-height: 41px;
+  width: auto;
+  padding: 6px 12px;
+  border: 1px solid #d7d3cc;
+  border-radius: 22px;
+  font-size: 13px;
+  font-weight: 560;
+  text-align: center;
+  background: #fff;
+  color: #25221f;
+}
+.tk-app .coffee-options button[aria-pressed='true'] {
+  background: #2b2825;
+  border-color: #2b2825;
+  color: #fff;
+}
+.tk-app .coffee-options button svg {
+  width: 13px;
+  margin: 0;
+}
+.tk-app .coffee-options button small {
+  color: inherit;
+  opacity: 0.9;
+  font-size: 10px;
+}
+.tk-app .coffee-bench .tk-brew-next {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 24px;
+  margin-top: 19px;
+  padding: 0 16px;
+  background: #252326;
+  color: #fff;
+  gap: 8px;
+  font-size: 15px;
+}
+.coffee-bench .tk-brew-next b {
+  margin-left: auto;
+  font-size: 14px;
+}
+.tk-app .tk-poster-cup {
+  border-radius: 14px;
+  overflow: hidden;
+}
+.tk-poster-cup::before {
+  content: none;
+}
+@media (max-width: 420px) and (max-height: 710px) {
+  .coffee-stage {
+    height: clamp(158px, 32svh, 220px);
+  }
+  .coffee-bench {
+    margin-top: 10px;
+  }
+  .coffee-ingredients {
+    margin: 5px 0;
+  }
+  .tk-app .coffee-ingredients button {
+    min-height: 57px;
+  }
+  .coffee-ingredients img {
+    height: 29px;
+  }
+  .tk-app .coffee-bench .tk-brew-next {
+    margin-top: 12px;
+  }
+}
+@media (min-width: 760px) {
+  .tk-app .coffee-builder {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(22px, 4vw, 54px);
+    max-width: 1040px;
+    margin: 24px auto;
+  }
+  .coffee-stage {
+    height: clamp(320px, 49vw, 460px);
+  }
+  .coffee-bench {
+    margin: 0;
+  }
+  .coffee-ingredients {
+    flex-wrap: wrap;
+    overflow: visible;
+    margin: 16px 0;
+  }
+  .tk-app .coffee-bench .tk-brew-next {
+    margin-top: 25px;
+  }
+}
+.tk-app .coffee-options .tk-choice-list {
+  border: 0;
+  box-shadow: none;
+}
+.tk-app .coffee-options button[aria-pressed='true'] svg {
+  color: #fff;
+}

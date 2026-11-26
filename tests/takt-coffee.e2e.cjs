@@ -65,7 +65,9 @@ async function full(browser) {
   });
   try {
     await p.goto(base + '/#/projects');
-    await p.getByTestId('card-app-takt-coffee').click();
+    const card = p.getByTestId('card-app-takt-coffee');
+    assert.doesNotMatch(await card.innerText(), /\bTAKT\b|ТАКТ/i);
+    await card.click();
     await screen(p, 'home');
     await widthOK(p);
     await audit(p);
@@ -207,49 +209,39 @@ async function full(browser) {
     await p.getByRole('button', { name: /Какао.*210 сом/ }).waitFor();
     await p.getByRole('button', { name: 'Удалить из рецептов' }).click();
     await tab(p, 'menu');
-    const location = p.locator('.tk-bar-select');
-    await location.click();
-    await p.locator('.tk-bars button').nth(1).click();
-    await p.locator('.tk-action').click();
-    await screen(p, 'menu');
-    assert.match(await location.innerText(), /У парка/);
-    await location.click();
-    await p.locator('.tk-bars button').first().click();
-    await p.goBack();
-    await screen(p, 'menu');
-    assert.match(await location.innerText(), /У парка/);
+    assert.equal(await p.locator('.tk-bar-select').count(), 0);
+    assert.doesNotMatch(
+      await p.locator('.tk-app').innerText(),
+      /TAKT|ТАКТ|У парка/i,
+    );
     await p.locator('.tk-card[data-drink=cappuccino]').click();
     await screen(p, 'builder');
     await widthOK(p);
     await audit(p);
-    assert.equal(await p.locator('.tk-recipe-map .tk-ingredient').count(), 6);
-    assert.ok(
-      await p.locator('.tk-recipe-map .tk-ingredient').evaluateAll((nodes) =>
-        nodes.every((el) => {
-          const box = el.getBoundingClientRect();
-          return el.contains(
-            document.elementFromPoint(
-              box.x + box.width / 2,
-              box.y + box.height / 2,
-            ),
-          );
-        }),
-      ),
-      'each photographic ingredient is a separate touch target',
+    assert.equal(
+      await p.locator('.coffee-ingredients [data-group]').count(),
+      7,
     );
+    await p.locator('.coffee-stage .brew-preview[data-renderer]').waitFor();
     for (const [group, value] of [
       ['milk', 'oat'],
       ['beans', 'fruit'],
+      ['shot', 'extra'],
       ['syrup', 'vanilla'],
       ['foam', 'cloud'],
       ['latteArt', 'rosetta'],
       ['sugar', 'one'],
     ]) {
       await p.locator('[data-group=' + group + ']').click();
-      await p.locator('dialog button[data-value=' + value + ']').click();
-      if (group === 'beans')
-        await p.locator('dialog [data-value=extra]').click();
-      await closeSheet();
+      await p
+        .locator('.coffee-options button[data-value=' + value + ']')
+        .click();
+      assert.equal(
+        await p
+          .locator('.coffee-options [data-value=' + value + ']')
+          .getAttribute('aria-pressed'),
+        'true',
+      );
     }
     await p.locator('.tk-size-trigger').click();
     await p.locator('.tk-size button').last().click();
@@ -309,7 +301,10 @@ async function full(browser) {
     await screen(p, 'receipt');
     const receipt = await p.locator('.tk-ticket h2').innerText();
     assert.ok(receipt.length >= 8);
-    assert.match(await p.locator('.tk-ticket').innerText(), /У парка/);
+    assert.doesNotMatch(
+      await p.locator('.tk-ticket').innerText(),
+      /У парка|TAKT|ТАКТ/i,
+    );
     assert.match(await p.locator('.tk-ticket').innerText(), /Айдана/);
     assert.match(await p.locator('.tk-total').innerText(), /670/);
     await p.goBack();
@@ -403,33 +398,30 @@ async function layout(browser, width, lang) {
       await p.locator('[data-drink="' + id + '"]').click();
       await screen(p, 'builder');
       await widthOK(p);
-      const groups = await p.locator('.tk-ingredient').count();
+      const groups = await p
+        .locator('.coffee-ingredients [data-group]')
+        .count();
       assert.equal(
         groups,
         {
           espresso: 3,
           americano: 4,
-          'iced-latte': 5,
+          'iced-latte': 6,
           'peach-tea': 3,
-          'cherry-mocha': 5,
-          'caramel-frappe': 5,
+          'cherry-mocha': 6,
+          'caramel-frappe': 6,
           'cold-brew': 3,
           'matcha-latte': 5,
           cocoa: 5,
-        }[id] || 6,
+        }[id] || 7,
       );
       await p.locator('.tk-brew-next').click();
       await screen(p, 'cup');
       await widthOK(p);
-      assert.equal(
-        await p
-          .locator('.tk-poster-cup img')
-          .evaluate(
-            (i) =>
-              (i.complete && i.naturalWidth > 0) ||
-              i.decode().then(() => i.naturalWidth > 0),
-          ),
-        true,
+      const finalCup = p.locator('.tk-poster-cup .brew-preview[data-renderer]');
+      await finalCup.waitFor();
+      assert.ok(
+        (await finalCup.getAttribute('data-recipe')).startsWith(id + '/'),
       );
       await p.goBack();
       await screen(p, 'builder');
@@ -513,7 +505,7 @@ async function rewardsAndDock(browser) {
     await p.locator('.tk-buy').click();
     for (let i = 1; i < 5; i++)
       await p.getByRole('button', { name: 'Увеличить количество' }).click();
-    assert.equal(await nav.locator('.tk-dock-icon b').innerText(), '5');
+    assert.equal(await nav.locator('.mf-nav-bag i').innerText(), '5');
     await p.locator('.tk-action').click();
     await p.locator('.tk-action').click();
     await p.locator('.tk-status-line button').click();

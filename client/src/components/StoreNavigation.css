@@ -1,0 +1,111 @@
+/* Original floating navigation shared by the storefront demos. */
+.mf-nav {
+  --mf-safe-bottom: max(
+    12px,
+    env(safe-area-inset-bottom, 0px),
+    var(--sab, 0px),
+    var(--csab, 0px)
+  );
+  --mf-obscured: max(0px, calc(100dvh - var(--tg-viewport-height, 100dvh)));
+  color: #171717;
+  font-family: 'Google Sans App', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.mf-nav,
+.mf-nav * {
+  box-sizing: border-box;
+}
+.mf-nav button {
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.mf-nav button:focus-visible {
+  outline: 2px solid #242424;
+  outline-offset: 3px;
+}
+.mf-nav {
+  position: fixed;
+  z-index: 80;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--mf-safe-bottom) + var(--mf-obscured));
+  margin: auto;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 6px 22px #0002;
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+.mf-nav-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: #666;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}
+.mf-nav-button.is-active {
+  gap: 6px;
+  color: #191919;
+  background: rgba(255, 255, 255, 0.9);
+}
+.mf-nav-button > span:not(.mf-nav-bag) {
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  white-space: nowrap;
+}
+.mf-nav-button.is-active > span:not(.mf-nav-bag) {
+  max-width: 80px;
+  opacity: 1;
+}
+.mf-nav-bag {
+  position: relative;
+  display: flex;
+}
+.mf-nav-bag i {
+  position: absolute;
+  top: -7px;
+  right: -9px;
+  display: grid;
+  place-items: center;
+  min-width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #1b1b1b;
+  color: #fff;
+  font-style: normal;
+  font-size: 9px;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .mf-nav {
+    background: #fff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+.mf-nav > .demo-home-button {
+  color: #666;
+}
+@media (max-width: 350px) {
+  .mf-nav-button {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+}

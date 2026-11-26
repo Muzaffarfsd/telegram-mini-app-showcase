@@ -4,6 +4,7 @@ import {
   type Locale,
   type Recipe,
   type MenuSelection,
+  type BakerySelection,
   isBakery,
   validSelection,
   price,
@@ -11,26 +12,12 @@ import {
   validRecipe,
 } from './menu';
 
-export const bars = [
-  {
-    id: 'boulevard',
-    name: ['Бульвар', 'Boulevard'] as Copy,
-    location: [
-      'Бишкек · бульвар Эркиндик',
-      'Bishkek · Erkindik Boulevard',
-    ] as Copy,
-    open: 8,
-    close: 21,
-  },
-  {
-    id: 'park',
-    name: ['У парка', 'Parkside'] as Copy,
-    location: ['Бишкек · парк Ататюрка', 'Bishkek · Atatürk Park'] as Copy,
-    open: 9,
-    close: 20,
-  },
+// Keep the schedule IDs used in earlier local tickets and bags.
+const bars = [
+  { id: 'boulevard', open: 8, close: 21 },
+  { id: 'park', open: 9, close: 20 },
 ];
-export const barFor = (id: string) => bars.find((b) => b.id === id) ?? bars[0];
+const barFor = (id: string) => bars.find((b) => b.id === id) ?? bars[0];
 const zone = 'Asia/Bishkek';
 const clock = new Intl.DateTimeFormat('en-GB', {
   timeZone: zone,
@@ -205,6 +192,23 @@ export function addRecipe(recipe: MenuSelection, editing?: string) {
     return { ...s, bag: combine(rest, recipe, line ? line.qty : 1) };
   });
 }
+export function addPair(drink: Recipe, pastry: BakerySelection) {
+  let added = false;
+  update((s) => {
+    if (
+      [drink, pastry].some((item) =>
+        s.bag.some(
+          (line) =>
+            recipeKey(line.recipe) === recipeKey(item) && line.qty >= 99,
+        ),
+      )
+    )
+      return s;
+    added = true;
+    return { ...s, bag: combine(combine(s.bag, drink, 1), pastry, 1) };
+  });
+  return added;
+}
 export function changeQty(k: string, delta: number) {
   update((s) => ({
     ...s,
@@ -222,8 +226,6 @@ export const forgetLine = (k: string) =>
     ...s,
     bag: s.bag.filter((i) => recipeKey(i.recipe) !== k),
   }));
-export const chooseBar = (bar: string) =>
-  update((s) => ({ ...s, bar: barFor(bar).id }));
 export const savePickupName = (name: string) =>
   update((s) => ({ ...s, pickupName: name.trim().slice(0, 36) }));
 export const bagTotal = (items: Line[]) =>

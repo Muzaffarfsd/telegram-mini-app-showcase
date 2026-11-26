@@ -4,6 +4,13 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 21:10 MSK — Share the clothing-store dock and build an interactive coffee cup
+
+- Both clothing shops and the coffee shop now render `StoreNavigation`. The coffee demo follows the original dock's bottom inset when Telegram resizes. The guest header, projects card, profile, pickup, tickets, barista queue and share preview use the generic coffee-shop name and omit street addresses. Old demo links, saved recipes and order schedule IDs still resolve.
+- The existing seasonal carousel leads into two orderable coffee-and-pastry pairings and three photographic flavour selections. Each flavour opens matching menu items and each pairing adds both priced items in one basket update.
+- The recipe editor keeps an open modeled cup in view while a guest chooses ingredients. Ceramic, glass, liquid, ice, sugar, toppings and a tilting pitcher render on demand. The liquid surface and latte art carry through to the finished cup. Canvas animation covers browsers without WebGL and reduced motion shows the settled recipe immediately. The new assets and renderer load from the coffee demo.
+- Checkpoint `refs/checkpoints/before-coffee-live-studio` is at `09619936a159468b9904b28bf38d30ed1793e866`. Mobile comparisons changed 226,641 pixels in the editor and 170,429 on home. The release browser smoke reported zero console errors, page errors and request failures. The verification includes 18 unit tests, thirteen drinks at 320/768/1280 px, independent ingredient-frame comparisons in WebGL and Canvas, the Telegram viewport and the original clothing checkout. The TypeScript baseline contains its existing 61 diagnostics.
+
 ## 2026-11-26 20:33 MSK — Give TAKT a light fashion-store home and a photographic menu
 
 - The home opens on an original transparent cherry mocha portrait. Two preview drinks, swipe gestures and accessible selectors switch among three seasonal recipes. Size, price, customization and the menu action stay in place across selections. The WEB4TG dock clears the host actions at 320 × 640, including dark Telegram mode.

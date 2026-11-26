@@ -8,14 +8,13 @@ import {
 import {
   Bell,
   Bookmark,
-  ChevronDown,
   ChevronLeft,
-  MapPin,
+  Search,
+  Coffee,
   Info,
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useDemoHistory } from '@/hooks/useDemoHistory';
-import { useShowcaseViewport } from '@/hooks/useShowcaseViewport';
 import { scrollToTop } from '@/hooks/useScrollToTop';
 import {
   restoreTelegramChrome,
@@ -27,22 +26,12 @@ import {
   type CoffeeTab,
 } from './CoffeeNavigation';
 import { ClubRules, CoffeeHome, GuestProfile } from './GuestViews';
-import { Action, MenuView, type Filter, type Sort } from './MenuView';
+import { MenuView, type Filter, type Sort } from './MenuView';
 import { Builder, FinishCup, type RecipePanel } from './RecipeView';
-import {
-  Bag,
-  BarPicker,
-  Counter,
-  Orders,
-  Pickup,
-  Receipt,
-  Saved,
-} from './OrderViews';
+import { Bag, Counter, Orders, Pickup, Receipt, Saved } from './OrderViews';
 import {
   addRecipe,
   availableDiscount,
-  barFor,
-  chooseBar,
   repeatOrder,
   stageOf,
   temporaryStorage,
@@ -64,6 +53,7 @@ import { BakeryDetail } from './BakeryDetail';
 import { type FeaturedDrink } from './Campaign';
 import './TaktCoffee.css';
 import './CoffeeShop.css';
+import './CoffeeStudio.css';
 
 type Screen =
   | CoffeeTab
@@ -89,7 +79,6 @@ type Route = {
   bakeryId?: BakeryId;
   featured?: FeaturedDrink;
   orderId?: string;
-  station?: string;
   panel?: Panel;
 };
 const start: Route = { screen: 'home', filter: 'all', slide: 0, tab: 'home' };
@@ -102,7 +91,6 @@ function tabOf(route: Route): CoffeeTab {
     : 'profile';
 }
 export default function TaktCoffee() {
-  useShowcaseViewport(true, true);
   const { language: lang } = useLanguage(),
     ru = lang === 'ru',
     data = useCabinet();
@@ -120,6 +108,7 @@ export default function TaktCoffee() {
     restore: (entry) => {
       if (
         !entry ||
+        entry.screen === 'bars' ||
         (entry.screen === 'bakery' &&
           (!entry.bakeryId || !Object.hasOwn(bakery, entry.bakeryId))) ||
         (['builder', 'cup'].includes(entry.screen) &&
@@ -194,7 +183,6 @@ export default function TaktCoffee() {
       setRoute((v) => (v.slide === slide ? v : { ...v, slide })),
     [],
   );
-  const chooseLocation = () => go('bars', { station: data.bar });
   useEffect(() => {
     // Typing and scrolling a shelf can produce a burst of snapshots. Navigation
     // flushes the latest route through the history hook before switching views.
@@ -260,11 +248,18 @@ export default function TaktCoffee() {
         >
           {rootScreen ? (
             <button
-              className="tk-brand-trigger"
-              aria-label={ru ? 'На главную кофейни' : 'Coffee bar home'}
-              onClick={() => selectTab('home')}
+              className="tk-icon tk-home-search"
+              aria-label={ru ? 'Найти в каталоге' : 'Search menu'}
+              onClick={() => {
+                if (screen !== 'menu') go('menu');
+                requestAnimationFrame(() =>
+                  document
+                    .querySelector<HTMLInputElement>('.tk-search input')
+                    ?.focus(),
+                );
+              }}
             >
-              <span className="tk-wordmark">TAKT</span>
+              <Search size={21} />
             </button>
           ) : (
             <button
@@ -292,7 +287,7 @@ export default function TaktCoffee() {
               onClick={() => selectTab('home')}
               aria-label={ru ? 'На главную кофейни' : 'Coffee bar home'}
             >
-              TAKT
+              <Coffee size={21} />
             </button>
           )}
           {screen === 'builder' && (
@@ -315,17 +310,6 @@ export default function TaktCoffee() {
               <Bookmark size={21} fill={saved ? 'currentColor' : 'none'} />
             </button>
           )}
-          {rootScreen && (
-            <button className="tk-bar-select" onClick={chooseLocation}>
-              <MapPin size={16} />
-              <span>
-                <small>{ru ? 'Самовывоз' : 'Pickup at'}</small>
-                <strong>
-                  {say(barFor(data.bar).name, lang)} <ChevronDown size={13} />
-                </strong>
-              </span>
-            </button>
-          )}
           {!creative && (
             <button
               className="tk-icon tk-bell"
@@ -345,7 +329,10 @@ export default function TaktCoffee() {
               build={build}
               menu={menu}
               openClub={() => panel('club')}
-              openBar={chooseLocation}
+              browse={(query) =>
+                go('menu', { filter: 'all', query, sort: 'house' })
+              }
+              openBag={() => go('bag')}
               saved={() => go('saved')}
               openCup={(r) => go('cup', { recipe: r })}
               receipt={(t) => go('receipt', { orderId: t.id })}
@@ -384,7 +371,6 @@ export default function TaktCoffee() {
               panel={route.panel}
               saved={() => go('saved')}
               orders={() => go('orders')}
-              bar={chooseLocation}
               counter={() => go('counter')}
               editName={() => panel('name')}
               club={() => panel('club')}
@@ -437,25 +423,6 @@ export default function TaktCoffee() {
               menu={menu}
               pickup={() => go('pickup')}
             />
-          )}
-          {screen === 'bars' && (
-            <section className="tk-standard">
-              <h1 className="tk-display">{ru ? 'Кофейни' : 'Coffee bars'}</h1>
-              <BarPicker
-                illustrated
-                lang={lang}
-                selected={route.station ?? data.bar}
-                change={(station) => setRoute((v) => ({ ...v, station }))}
-              />
-              <Action
-                onClick={() => {
-                  chooseBar(route.station ?? data.bar);
-                  back();
-                }}
-              >
-                {ru ? 'Сохранить выбор' : 'Confirm coffee bar'}
-              </Action>
-            </section>
           )}
           {screen === 'pickup' && (
             <Pickup

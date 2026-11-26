@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { HomeEdit } from './HomeEdit';
 import {
   ArrowRight,
   Bookmark,
   ChevronRight,
-  Clock3,
   Coffee,
-  MapPin,
   Pencil,
   ReceiptText,
   RotateCcw,
@@ -15,10 +14,8 @@ import {
 } from 'lucide-react';
 import { drinkById, money, price, say, type Locale, type Recipe } from './menu';
 import {
-  barFor,
   clubBalance,
   dateOf,
-  pickupTimes,
   rewardLimit,
   savePickupName,
   stageName,
@@ -33,64 +30,6 @@ import { Cup, DailyShelf, Sheet } from './MenuView';
 
 import { Campaign, type FeaturedDrink } from './Campaign';
 type GuestProps = { lang: Locale; data: Cabinet };
-const hours = (n: number) => String(n).padStart(2, '0') + ':00';
-
-function PickupFeature({
-  lang,
-  barId,
-  onClick,
-}: {
-  lang: Locale;
-  barId: string;
-  onClick: () => void;
-}) {
-  const ru = lang === 'ru',
-    bar = barFor(barId);
-  const [now, setNow] = useState(Date.now);
-  useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 30000);
-    return () => clearInterval(id);
-  }, []);
-  const earliest = pickupTimes(bar.id, now)[0];
-  const today = dateOf(now, lang) === dateOf(earliest, lang);
-  return (
-    <section className="tk-pickup-feature">
-      <div className="tk-section-title">
-        <h2>{ru ? 'Ваша кофейня' : 'Your coffee bar'}</h2>
-        <button onClick={onClick}>
-          {ru ? 'Сменить' : 'Change'} <ChevronRight size={16} />
-        </button>
-      </div>
-      <button className="tk-place-card" onClick={onClick}>
-        <img
-          loading="lazy"
-          alt=""
-          src={'/takt-coffee/editorial/' + bar.id + '-640.webp'}
-          width="320"
-          height="170"
-        />
-        <span className="tk-place-copy">
-          <strong>{say(bar.name, lang)}</strong>
-          <span>
-            <MapPin size={15} />
-            {say(bar.location, lang)}
-          </span>
-          <span>
-            <Clock3 size={15} />
-            {hours(bar.open)}–{hours(bar.close)}
-          </span>
-          <small>
-            {(ru ? 'Самовывоз · ' : 'Pickup · ') +
-              (today ? (ru ? 'сегодня' : 'today') : dateOf(earliest, lang)) +
-              ' ' +
-              timeOf(earliest)}
-          </small>
-        </span>
-      </button>
-    </section>
-  );
-}
-
 function StampRow({ stamps, reward }: { stamps: number; reward: boolean }) {
   return (
     <div aria-hidden="true" className="tk-stamps">
@@ -118,7 +57,7 @@ export function ClubCard({
       <div className="tk-club-heading">
         <span>
           <Stamp size={17} />
-          {ru ? 'Клуб TAKT' : 'TAKT Club'}
+          {ru ? 'Клуб гостей' : 'Coffee club'}
         </span>
         {open && <ChevronRight size={19} />}
       </div>
@@ -153,7 +92,8 @@ export function CoffeeHome({
   build,
   menu,
   openClub,
-  openBar,
+  browse,
+  openBag,
   saved,
   openCup,
   receipt,
@@ -166,7 +106,8 @@ export function CoffeeHome({
   build: (r: Recipe) => void;
   menu: () => void;
   openClub: () => void;
-  openBar: () => void;
+  browse: (query: string) => void;
+  openBag: () => void;
   saved: () => void;
   openCup: (r: Recipe) => void;
   receipt: (t: CoffeeTicket) => void;
@@ -192,7 +133,6 @@ export function CoffeeHome({
               {say(stageName[stageOf(active)], lang)} · № {ticketNumber(active)}
             </b>
             <small>
-              {say(barFor(active.bar).name, lang)} ·{' '}
               {dateOf(active.pickup, lang)} · {timeOf(active.pickup)}
             </small>
           </span>
@@ -206,6 +146,7 @@ export function CoffeeHome({
         build={build}
         menu={menu}
       />
+      <HomeEdit lang={lang} browse={browse} openBag={openBag} />
       <DailyShelf
         lang={lang}
         build={build}
@@ -253,7 +194,6 @@ export function CoffeeHome({
       )}
       <div className="tk-home-extras">
         <ClubCard lang={lang} data={data} open={openClub} />
-        <PickupFeature lang={lang} barId={data.bar} onClick={openBar} />
       </div>
     </div>
   );
@@ -263,7 +203,6 @@ export function GuestProfile({
   data,
   saved,
   orders,
-  bar,
   counter,
   editName,
   club,
@@ -272,7 +211,6 @@ export function GuestProfile({
 }: GuestProps & {
   saved: () => void;
   orders: () => void;
-  bar: () => void;
   counter: () => void;
   editName: () => void;
   club: () => void;
@@ -292,9 +230,7 @@ export function GuestProfile({
           )}
         </span>
         <span>
-          <strong>
-            {data.pickupName || (ru ? 'Гость TAKT' : 'TAKT guest')}
-          </strong>
+          <strong>{data.pickupName || (ru ? 'Гость' : 'Guest')}</strong>
           <small>
             {data.pickupName
               ? ru
@@ -319,12 +255,6 @@ export function GuestProfile({
           <ReceiptText size={21} />
           <span>{ru ? 'История заказов' : 'Order history'}</span>
           <small>{data.orders.length}</small>
-          <ChevronRight size={15} />
-        </button>
-        <button onClick={bar}>
-          <MapPin size={21} />
-          <span>{ru ? 'Моя кофейня' : 'Pickup bar'}</span>
-          <small>{say(barFor(data.bar).name, lang)}</small>
           <ChevronRight size={15} />
         </button>
         <button onClick={counter}>

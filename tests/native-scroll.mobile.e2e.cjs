@@ -85,17 +85,21 @@ async function checkCoffeeHost(browser) {
   try {
     await installShowcaseTelegramHost(ctx, 844);
     const p = await ctx.newPage();
+    const fashion=await ctx.newPage();
+    await fashion.goto(new URL('#/demos/muraka-fashion/app',site).href);
+    const original=fashion.locator('.mf-nav');await original.waitFor();
+    const geometry=el=>{const r=el.getBoundingClientRect();return {bottom:r.bottom,height:r.height,width:r.width}};
+    await fashion.evaluate(()=>document.fonts.ready);const originalHome=await original.evaluate(geometry);
     await p.goto(new URL('#/demos/takt-coffee/app', site).href);
-    await p.waitForFunction(() => document.documentElement.hasAttribute('data-projects-ios-actions') && document.querySelector('.tk-rail'));
-    const dock = p.locator('.tk-dock');
-    const dockEdge = () => dock.evaluate(el => el.getBoundingClientRect().bottom);
-    assert.ok(844 - await dockEdge() >= 98, 'the coffee tabs clear the overlaid Telegram buttons');
+    const dock=p.locator('.mf-nav.tk-dock');await dock.waitFor();
+    const dockEdge=()=>dock.evaluate(el=>el.getBoundingClientRect().bottom);
+    await p.evaluate(()=>document.fonts.ready);const coffeeHome=await dock.evaluate(geometry);assert.equal(coffeeHome.bottom,originalHome.bottom);assert.equal(coffeeHome.height,originalHome.height);assert.ok(Math.abs(coffeeHome.width-originalHome.width)<1.5,'the original compact footprint is preserved');
     const initialHistory = await p.evaluate(() => history.length);
     await dock.locator('[data-tab=menu]').tap();
     await p.locator('.tk-filter-trigger').click();
     assert.equal(await p.evaluate(() => history.length), initialHistory + 2, 'a touch activation creates one entry for the catalogue and one for sorting');
     const edge = () => p.locator('dialog[open]').evaluate(el => el.getBoundingClientRect().bottom);
-    assert.ok(844 - await edge() >= 98, 'the coffee picker clears the overlaid Telegram buttons');
+    assert.ok(await edge() <= 844, 'the picker stays inside the native viewport');
     await p.locator('dialog .tk-sheet-done').click();
     await p.locator('dialog').waitFor({state:'detached'});
     await dock.locator('[data-tab=home]').tap();
@@ -117,11 +121,17 @@ async function checkCoffeeHost(browser) {
     await dock.locator('[data-tab=menu]').tap();
     await p.locator('.tk-filter-trigger').click();
     await p.evaluate(() => window.Telegram.WebView.receiveEvent('viewport_changed', { height: 780, is_expanded: true, is_state_stable: true }));
-    await p.waitForFunction(() => document.documentElement.style.getPropertyValue('--projects-visual-bottom') === '780px');
-    const dockGap = 746 - await dockEdge();
-    assert.ok(dockGap >= 0 && dockGap < 35, 'coffee tabs follow the settled viewport: ' + dockGap);
-    const gap = 746 - await edge();
-    assert.ok(gap >= 0 && gap < 35, 'viewport shrink and overlay are counted once: ' + gap);
+    await fashion.evaluate(()=>window.Telegram.WebView.receiveEvent('viewport_changed',{height:780,is_expanded:true,is_state_stable:true}));
+    await Promise.all([p,fashion].map(page=>page.waitForFunction(()=>getComputedStyle(document.documentElement).getPropertyValue('--tg-viewport-height').trim()==='780px')));
+    const resizedEdge=await dockEdge();await fashion.waitForFunction(edge=>Math.abs(document.querySelector('.mf-nav').getBoundingClientRect().bottom-edge)<0.1,resizedEdge);
+    assert.ok(Math.abs(await dockEdge()-(await original.evaluate(geometry)).bottom)<0.5,'the dock follows the same resized viewport as the original');
+    assert.ok(await edge()<=780,'sorting remains inside the resized viewport');
+    await p.locator('dialog .tk-sheet-done').click();
+    await p.locator('[data-drink=cappuccino]').click();
+    await p.locator('.coffee-stage canvas').first().waitFor();
+    await p.locator('#root').evaluate(el=>el.scrollTo(0,el.scrollHeight));
+    assert.ok(Math.abs(await dockEdge()-(await original.evaluate(geometry)).bottom)<0.5,'the builder stays anchored during scroll');
+    await fashion.close();
   } finally { await ctx.close(); }
 }
 
@@ -131,7 +141,7 @@ async function checkCompactCoffee(browser) {
     await installShowcaseTelegramHost(ctx, 640);
     const p = await ctx.newPage();
     await p.goto(new URL('#/demos/takt-coffee/app', site).href);
-    await p.waitForFunction(() => document.documentElement.hasAttribute('data-projects-ios-actions') && document.querySelector('.tk-campaign-link'));
+    await p.locator('.tk-campaign-link').waitFor();
     await p.evaluate(() => document.fonts.ready);
     const action = await p.locator('.tk-campaign-link').boundingBox();
     const dock = await p.locator('.tk-dock').boundingBox();

@@ -11,6 +11,7 @@ import {
   Check,
   ChevronRight,
   ShoppingBag,
+  LayoutGrid,
   Plus,
   Search,
   SlidersHorizontal,
@@ -392,7 +393,7 @@ export function MenuView({
             onClick={() => setFilter(f.id)}
           >
             <span className="tk-category-photo" aria-hidden="true">
-              {f.image ? <Cup id={f.image} eager /> : <b>TAKT</b>}
+              {f.image ? <Cup id={f.image} eager /> : <LayoutGrid size={21} />}
             </span>
             {say(f.name, lang)}
           </button>

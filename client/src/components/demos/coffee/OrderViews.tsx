@@ -5,7 +5,6 @@ import {
   Check,
   ChevronRight,
   Clock3,
-  MapPin,
   Minus,
   Plus,
   ReceiptText,
@@ -31,11 +30,8 @@ import {
 import { Action, Cup } from './MenuView';
 import {
   bagTotal,
-  barFor,
-  bars,
   changeQty,
   checkout,
-  chooseBar,
   dateOf,
   forgetLine,
   pickupTimes,
@@ -178,53 +174,6 @@ export function Bag({
     </section>
   );
 }
-export function BarPicker({
-  lang,
-  selected,
-  change,
-  illustrated = false,
-}: Local & {
-  selected: string;
-  change: (id: string) => void;
-  illustrated?: boolean;
-}) {
-  return (
-    <div
-      className={illustrated ? 'tk-bars tk-bars-illustrated' : 'tk-bars'}
-      role="group"
-      aria-label={lang === 'ru' ? 'Кофейня' : 'Coffee bar'}
-    >
-      {bars.map((b) => (
-        <button
-          key={b.id}
-          aria-pressed={b.id === selected}
-          onClick={() => change(b.id)}
-        >
-          {illustrated ? (
-            <img
-              className="tk-bar-photo"
-              alt=""
-              src={`/takt-coffee/editorial/${b.id}-640.webp`}
-              width="320"
-              height="180"
-            />
-          ) : (
-            <MapPin size={18} />
-          )}
-          <span>
-            <b>{say(b.name, lang)}</b>
-            <small>
-              {say(b.location, lang)}
-              <br />
-              {String(b.open).padStart(2, '0')}:00–{b.close}:00
-            </small>
-          </span>
-          <i>{b.id === selected && <Check size={13} />}</i>
-        </button>
-      ))}
-    </div>
-  );
-}
 export function Pickup({
   lang,
   bag,
@@ -255,11 +204,6 @@ export function Pickup({
   const slots = pickupTimes(bar, now);
   const slot = slots.includes(choice) ? choice : slots[0];
   const needsChoice = expired || (choice !== 0 && !slots.includes(choice));
-  const choose = (id: string) => {
-    chooseBar(id);
-    setChoice(0);
-    setExpired(false);
-  };
   const submit = async () => {
     if (submitting || (redeem && !discount)) return;
     setSubmitting(true);
@@ -294,8 +238,6 @@ export function Pickup({
         />
       ) : (
         <>
-          <h2>{ru ? 'Кофейня' : 'Coffee bar'}</h2>
-          <BarPicker lang={lang} selected={bar} change={choose} />
           <h2>{ru ? 'Когда заберёте?' : 'Pickup time'}</h2>
           <div
             className="tk-times"
@@ -490,15 +432,14 @@ export function Receipt({
   menu: () => void;
   counter: () => void;
 }) {
-  const ru = lang === 'ru',
-    b = barFor(ticket.bar);
+  const ru = lang === 'ru';
   const [confirmCancel, setConfirmCancel] = useState(false);
   return (
     <section className="tk-standard tk-receipt-page">
       <h1 className="tk-display">{ru ? 'Ваш чек' : 'Your receipt'}</h1>
       <div className="tk-ticket">
         <div className="tk-ticket-head">
-          <span className="tk-wordmark">TAKT</span>
+          <span>{ru ? 'Самовывоз' : 'Pickup'}</span>
           <ReceiptText size={27} />
         </div>
         <small>{ru ? 'ДЕМО-ЗАКАЗ' : 'DEMO ORDER'}</small>
@@ -512,13 +453,6 @@ export function Receipt({
             {ru ? 'Пульт бариста' : 'Barista counter'}
             <ArrowUpRight size={13} />
           </button>
-        </div>
-        <div className="tk-location-line">
-          <MapPin size={18} />
-          <span>
-            <strong>{say(b.name, lang)}</strong>
-            <small>{say(b.location, lang)}</small>
-          </span>
         </div>
         <div className="tk-location-line">
           <Clock3 size={18} />
@@ -601,13 +535,8 @@ export function Receipt({
 
 export function Counter({ lang, orders }: Local & { orders: Ticket[] }) {
   const ru = lang === 'ru';
-  const [bar, setBar] = useState('all');
   const queue = orders
-    .filter(
-      (t) =>
-        !['collected', 'cancelled'].includes(stageOf(t)) &&
-        (bar === 'all' || t.bar === bar),
-    )
+    .filter((t) => !['collected', 'cancelled'].includes(stageOf(t)))
     .sort((a, b) => a.pickup - b.pickup);
   return (
     <section className="tk-standard">
@@ -617,20 +546,6 @@ export function Counter({ lang, orders }: Local & { orders: Ticket[] }) {
           ? 'Здесь можно провести демо-заказ на этом устройстве от принятия до выдачи. Статус появится в чеке гостя.'
           : 'Move orders on this device from received to collected. The guest receipt shows each update.'}
       </p>
-      <div className="tk-filters">
-        <button aria-pressed={bar === 'all'} onClick={() => setBar('all')}>
-          {ru ? 'Все' : 'All'}
-        </button>
-        {bars.map((b) => (
-          <button
-            key={b.id}
-            aria-pressed={bar === b.id}
-            onClick={() => setBar(b.id)}
-          >
-            {say(b.name, lang)}
-          </button>
-        ))}
-      </div>
       {queue.length ? (
         queue.map((t) => (
           <article className="tk-barista-order" key={t.id}>
@@ -642,8 +557,7 @@ export function Counter({ lang, orders }: Local & { orders: Ticket[] }) {
               <b>{timeOf(t.pickup)}</b>
             </div>
             <p>
-              {say(barFor(t.bar).name, lang)} · {dateOf(t.pickup, lang)} ·{' '}
-              {say(stageName[stageOf(t)], lang)}
+              {dateOf(t.pickup, lang)} · {say(stageName[stageOf(t)], lang)}
             </p>
             <ul>
               {t.items.map((i) => (
