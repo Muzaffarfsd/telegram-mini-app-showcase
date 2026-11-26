@@ -1243,6 +1243,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Checkpoint:** previous commit `4eb8fe3d`.
 **Verification:** Production build; planner Chromium mobile 320/390 including touch, collision, persistence and fallback; store Chromium 390 WebGL and WebKit 320 fallback; 13 share and planner unit tests. Room captures: `work/scene-final2026-390.png` and `work/scene-final2026-390-side.png`. Physical phones not tested; project-wide TypeScript check has existing errors outside the furniture files.
 
+## 2026-11-26 · Allow furniture 3D in production CSP
+
+**What:** Allowed WebAssembly compilation and local blob fetches required by the furniture GLB decoder and embedded textures, without enabling general JavaScript eval or arbitrary inline scripts.
+**Why:** The published build blocked 3D model loading under the production Content Security Policy.
+**Files:** `server/security.ts`, `tests/security-boundary.test.ts`.
+**Checkpoint:** previous commit `8ea63a2a`.
+**Verification:** Security boundary tests and browser check against the production page with the corrected CSP; repeat verification against the deployed version follows publication.
+
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description

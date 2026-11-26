@@ -100,13 +100,16 @@ export function contentSecurityDirectives(indexPath: string, production = proces
   const hashes = fs.existsSync(indexPath) ? inlineScriptHashes(fs.readFileSync(indexPath, 'utf8')) : [];
   return {
     defaultSrc: ["'self'"],
-    scriptSrc: production ? ["'self'", 'https://telegram.org', 'https://js.stripe.com', ...hashes] : ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://telegram.org', 'https://js.stripe.com'],
+    // Meshopt decodes compressed 3D geometry with WebAssembly. Permit WASM
+    // compilation without permitting general JavaScript eval or inline scripts.
+    scriptSrc: production ? ["'self'", "'wasm-unsafe-eval'", 'https://telegram.org', 'https://js.stripe.com', ...hashes] : ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://telegram.org', 'https://js.stripe.com'],
     scriptSrcAttr: ["'none'"],
     styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
     fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
     imgSrc: ["'self'", 'https:', 'data:', 'blob:'],
     mediaSrc: ["'self'", 'https:', 'blob:', 'data:'],
-    connectSrc: production ? ["'self'", 'https://*.ingest.sentry.io', 'https://*.ingest.us.sentry.io', 'https://*.ingest.de.sentry.io', 'https://prod.spline.design', 'https://api.stripe.com', 'https://m.stripe.network'] : ["'self'", 'https:', 'ws:', 'wss:'],
+    // GLTFLoader reads embedded model textures via local blob URLs.
+    connectSrc: production ? ["'self'", 'blob:', 'https://*.ingest.sentry.io', 'https://*.ingest.us.sentry.io', 'https://*.ingest.de.sentry.io', 'https://prod.spline.design', 'https://api.stripe.com', 'https://m.stripe.network'] : ["'self'", 'blob:', 'https:', 'ws:', 'wss:'],
     frameSrc: ["'self'", 'https://www.youtube.com', 'https://www.youtube-nocookie.com', 'https://prod.spline.design', 'https://my.spline.design', 'https://js.stripe.com', 'https://hooks.stripe.com'],
     frameAncestors: production ? ["'self'", 'https://web.telegram.org', 'https://*.telegram.org'] : ["'self'", 'http://localhost:*', 'http://127.0.0.1:*'],
     workerSrc: ["'self'", 'blob:'],

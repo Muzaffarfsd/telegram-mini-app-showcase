@@ -71,6 +71,8 @@ test('production CSP authorizes exact bootstrap hashes and forbids arbitrary inl
   const policy = contentSecurityDirectives('nonexistent-test-file', true);
   assert.ok(!policy.scriptSrc.includes("'unsafe-inline'"));
   assert.ok(!policy.scriptSrc.includes("'unsafe-eval'"));
+  assert.ok(policy.scriptSrc.includes("'wasm-unsafe-eval'"), 'compressed 3D geometry can use WebAssembly without JavaScript eval');
+  assert.ok(policy.connectSrc.includes('blob:'), 'embedded 3D textures can be read from local blob URLs');
   assert.deepEqual(policy.scriptSrcAttr, ["'none'"]);
   assert.deepEqual(policy.objectSrc, ["'none'"]);
   assert.deepEqual(policy.baseUri, ["'none'"]);
