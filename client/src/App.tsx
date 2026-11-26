@@ -24,6 +24,7 @@ import { backgroundPrefetchWait, canSpeculate, pauseBackgroundPrefetch } from ".
 import { isProfileRoute } from "./lib/profileRoutes";
 import { useScrollHaptic } from "./hooks/useScrollHaptic";
 import { LanguageProvider, useLanguage } from "./contexts/LanguageContext";
+import { DemoReturnContext } from './contexts/DemoReturnContext';
 import { useNavigationTracking } from "./hooks/usePredictivePrefetch";
 import { usePerformanceClass } from "./hooks/usePerformanceClass";
 import { LazyMotionProvider } from "./utils/LazyMotionProvider";
@@ -294,6 +295,7 @@ const NonCachedRoute = memo(({
   route, 
   handleNavigate, 
   handleCloseDemo, 
+  returnToStory,
   handleCheckoutBack, 
   handlePaymentSuccess, 
   orderData 
@@ -301,6 +303,7 @@ const NonCachedRoute = memo(({
   route: any;
   handleNavigate: (section: string, data?: any) => void;
   handleCloseDemo: () => void;
+  returnToStory: boolean;
   handleCheckoutBack: () => void;
   handlePaymentSuccess: () => void;
   orderData: any;
@@ -322,7 +325,7 @@ const NonCachedRoute = memo(({
       return <DemoAppLanding demoId={demoId} />;
     }
     case 'demoApp':
-      return <DemoAppShell demoId={route.params?.id!} onClose={handleCloseDemo} />;
+      return <DemoReturnContext.Provider value={returnToStory ? handleCloseDemo : null}><DemoAppShell demoId={route.params?.id!} onClose={handleCloseDemo} /></DemoReturnContext.Provider>;
     case 'help':
       return <HelpPage onBack={() => navigate('/profile')} />;
     case 'review':
@@ -370,7 +373,7 @@ function AppContent() {
   useLayoutEffect(() => {
     if (route.component === 'demoApp') pauseBackgroundPrefetch();
   }, [route.component, route.params?.id]);
-  const demoReturnPath = useRef<'/' | '/projects'>('/');
+  const demoReturnPath = useRef<string>('/');
   const projectsReturnScroll = useRef<number | null>(null);
   const pendingDemoHash = useRef<string | null>(null);
   const isProfile = isProfileRoute(route.component);
@@ -460,7 +463,7 @@ function AppContent() {
 
   const handleOpenDemo = useCallback((demoId: string) => {
     projectsReturnScroll.current = route.component === 'projects' ? document.getElementById('root')?.scrollTop ?? 0 : null;
-    demoReturnPath.current = route.component === 'projects' ? '/projects' : '/';
+    demoReturnPath.current = route.component === 'projects' ? window.location.hash.slice(1) || '/projects' : '/';
     pendingDemoHash.current = `#/demos/${demoId}/app`;
     navigate(`/demos/${demoId}/app`);
     queueMicrotask(() => hapticFeedback.medium());
@@ -600,6 +603,7 @@ function AppContent() {
                             route={route}
                             handleNavigate={handleNavigate}
                             handleCloseDemo={handleCloseDemo}
+                            returnToStory={demoReturnPath.current.startsWith('/projects?project=')}
                             handleCheckoutBack={handleCheckoutBack}
                             handlePaymentSuccess={handlePaymentSuccess}
                             orderData={orderData}

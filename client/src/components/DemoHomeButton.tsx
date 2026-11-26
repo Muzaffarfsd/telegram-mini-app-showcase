@@ -1,4 +1,6 @@
 import { ArrowLeft } from 'lucide-react';
+import { useContext } from 'react';
+import { DemoReturnContext } from '../contexts/DemoReturnContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { navigate } from '../hooks/useRouting';
 import { BrandMark } from './BrandMark';
@@ -7,6 +9,7 @@ import './DemoHomeButton.css';
 /** Returns to the WEB4TG showcase, not the current demo's home screen. */
 export function DemoHomeButton({ color, onReturn }: { color?: string; onReturn?: () => void }) {
   const { language } = useLanguage();
+  const returnToSource = useContext(DemoReturnContext);
   const label = language === 'ru' ? 'Вернуться в WEB4TG' : 'Back to WEB4TG';
 
   return (
@@ -16,7 +19,7 @@ export function DemoHomeButton({ color, onReturn }: { color?: string; onReturn?:
       aria-label={label}
       title={label}
       data-testid="demo-return-web4tg"
-      onClick={onReturn ?? (() => navigate('/'))}
+      onClick={onReturn ?? returnToSource ?? (() => navigate('/'))}
       style={color ? { color } : undefined}
     >
       <span className="demo-home-button__mark" data-testid="demo-return-brand" aria-hidden="true">

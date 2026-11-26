@@ -190,6 +190,12 @@ nav.order-nav[role="navigation"] { background: rgba(255,255,255,.48) !important;
 @media (prefers-reduced-transparency: reduce) { nav.order-nav[role="navigation"] { background: #fff !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; } }
 
 .order-loading .profile-skeleton { animation: none; background: #e9edf1; }
+.order-reference { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; margin:12px 0 18px; border:1px solid #e2e3e1; border-radius:18px; background:#f5f5f3; }
+.order-reference > div { display:grid; gap:4px; min-width:0; }
+.order-reference small { color:#65686c; font-size:11px; }
+.order-reference strong { color:#191a1c; font-size:14px; }
+.order-reference span { color:#65686c; font-size:12px; line-height:1.35; }
+.order-reference button { flex:none; display:flex; align-items:center; gap:6px; min-height:44px; padding:0 14px; border:0; border-radius:99px; color:#fff; background:#191a1c; font-size:12px; cursor:pointer; }
 .order-loading-heading { display: grid; justify-items: center; padding-top: 14px; }
 .order-loading-step { width: 66px; height: 10px; border-radius: 6px; }
 .order-loading-title { width: 240px; max-width: 80%; height: 48px; margin-top: 34px; border-radius: 11px; }

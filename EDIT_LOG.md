@@ -4,6 +4,11 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-27 · Tell the story of each showcase project
+
+- Added a portfolio page for every one of the 13 projects, using the existing showcase visual language, real screen captures, working flows and project-specific capabilities. Each gallery has three Russian captures, and the coffee, furniture and buyer projects also have English captures; viewers can swipe and enlarge screens. Captures are local, WebP and lazily loaded.
+- Kept direct project access and added a separate story link. Back navigation retains filters and list position, and the project return button goes back to the story when opened there. Project-to-order links carry the reference into the draft and Telegram message; matching directions are preselected for a new order, while existing orders require a choice and remain intact.
+- Checkpoint `refs/checkpoints/before-project-portfolio` at `2c5260c6`. Verified mobile Chromium 320 and WebKit 390 across all 13 stories and screen decoding, gallery enlargement, navigation and order handoff; order reference/draft conflict tests passed on both engines. The existing order flow passed at 320/390/430, and cold-start navigation passed in both engines. Checked showcase card layout at 320 px and inspected the story and zoom screenshots in `work/`. The repository-wide TypeScript check retains 61 existing diagnostics.
 ## 2026-11-27 · Remove order page entrance flicker
 
 - Removed the fade and vertical entrance movement from the order heading and steps, and stopped the order loading placeholders from shimmering. Information sheets and action feedback remain unchanged.

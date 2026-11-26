@@ -23,6 +23,7 @@ import { OrderReviewStep } from './OrderReviewStep';
 import { OrderDecisionDialog } from './OrderDecisionDialog';
 import { useOrderDraft } from './useOrderDraft';
 import { rubWithUsd } from './orderPrice';
+import { projectStories } from '../data/projectStories';
 import { featureInfo, supportBenefitDetails, supportBenefitsByPlan, supportInfo, templateInfo } from './orderInfo';
 import './OrderExperience.css';
 
@@ -59,6 +60,24 @@ const directionDescriptions: Record<string, { ru: string; en: string }> = {
   services: { ru: 'Каталог услуг и онлайн-запись', en: 'Service catalog and bookings' },
 };
 
+// Only unambiguous matches are preselected; other projects remain a reference.
+const projectDirections: Record<string, { templateId: string; category?: StoreCategoryId }> = {
+  'muraka-fashion': { templateId: 'ecommerce-basic', category: 'clothes' },
+  'women-fashion': { templateId: 'ecommerce-basic', category: 'clothes' },
+  'nike-sneakers': { templateId: 'ecommerce-basic', category: 'sneakers' },
+  'apple-store': { templateId: 'ecommerce-basic', category: 'tech' },
+  'flower-store': { templateId: 'ecommerce-basic', category: 'flowers' },
+  'takt-coffee': { templateId: 'restaurant' },
+  'lumi-studio': { templateId: 'services' },
+  'medical-center': { templateId: 'services' },
+};
+function projectFromHash(): string | null {
+  const [path, query = ''] = window.location.hash.slice(1).split('?', 2);
+  if (path !== '/constructor') return null;
+  const id = new URLSearchParams(query).get('project');
+  return id && Object.hasOwn(projectStories, id) ? id : null;
+}
+
 export default function OrderExperience(_props: { onNavigate: (section: string, data?: any) => void }) {
   const { language, t } = useLanguage();
   const ru = language === 'ru';
@@ -69,6 +88,13 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   const [projectName, setProjectName] = useState('');
   const [planId, setPlanId] = useState<string | null>(null);
   const [annual, setAnnual] = useState(false);
+  const [referenceProject, setReferenceProject] = useState<string | null>(null);
+  const [pendingReference, setPendingReference] = useState<string | null>(null);
+  const [projectRequest, setProjectRequest] = useState<{ id: string } | null>(() => {
+    const id = projectFromHash();
+    return id ? { id } : null;
+  });
+  const handledProjectRequest = useRef<{ id: string } | null>(null);
   const [notice, setNotice] = useState('');
   const [exchangeRate, setExchangeRate] = useState<ExchangeRate | null>(null);
   const [rateStatus, setRateStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading');
@@ -82,7 +108,29 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   }, [exchangeRate, rateStatus, ru]);
   const [info, setInfo] = useState<{ kind: 'template' | 'feature' | 'plan'; id: string; storeCategory?: StoreCategoryId } | null>(null);
   const [pendingTemplate, setPendingTemplate] = useState<{ item: Template; category: StoreCategoryId | null } | null>(null);
-  const draft = useOrderDraft({ step, templateId, storeCategory, extras, projectName, planId, annual });
+  const draft = useOrderDraft({ step, templateId, storeCategory, extras, projectName, planId, annual, referenceProject });
+  // The order tab stays mounted across navigation, so receive subsequent links too.
+  useEffect(() => {
+    const read = () => { const id = projectFromHash(); if (id) setProjectRequest({ id }); };
+    window.addEventListener('hashchange', read);
+    return () => window.removeEventListener('hashchange', read);
+  }, []);
+  useEffect(() => {
+    if (!draft.ready || draft.pendingDraft || !projectRequest || handledProjectRequest.current === projectRequest) return;
+    handledProjectRequest.current = projectRequest;
+    const id = projectRequest.id;
+    if (referenceProject === id) return;
+    if (templateId || projectName || extras.length || planId || annual) {
+      setPendingReference(id);
+      return;
+    }
+    setReferenceProject(id);
+    const direction = projectDirections[id];
+    if (direction) {
+      setTemplateId(direction.templateId);
+      setStoreCategory(direction.category ?? null);
+    }
+  }, [draft.ready, draft.pendingDraft, projectRequest, templateId, projectName, extras, planId, annual, referenceProject]);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const previousStep = useRef(step);
   useEffect(() => {
@@ -150,9 +198,12 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
     const planLine = plan
       ? `${t(plan.nameKey)} — ${money(annual ? yearlyPrices[plan.id] : plan.price)}${annual ? (ru ? '/год' : '/year') : (ru ? '/мес' : '/month')}`
       : (ru ? 'Выбрать после запуска' : 'Choose after launch');
+    const referenceLine = referenceProject ? (ru
+      ? `Ориентир: ${projectStories[referenceProject].title[0]}\n`
+      : `Reference project: ${projectStories[referenceProject].title[1]}\n`) : '';
     const message = ru
-      ? `Здравствуйте! Хочу обсудить разработку приложения.\n\n📱 ПРОЕКТ\nНаправление: ${directionLabel}\nНазвание: ${projectName.trim() || 'Обсудим позже'}\nОриентировочный срок: ${t(template.developmentTimeKey)}\n\n✓ ВКЛЮЧЕНО В ОСНОВУ\n${includedNames}\n\n＋ ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ\n${extraLines}\n\n💰 СТОИМОСТЬ РАЗРАБОТКИ\nОснова: ${money(template.estimatedPrice)}\nДополнительные функции: ${money(extraTotal)}\nИтого ориентировочно: ${money(total)}\n\n🛠 ПОДДЕРЖКА ПОСЛЕ ЗАПУСКА\n${planLine}\n\nБуду рад(а) обсудить детали проекта.`
-      : `Hello! I would like to discuss app development.\n\n📱 PROJECT\nCategory: ${directionLabel}\nProject name: ${projectName.trim() || 'To be discussed'}\nEstimated time: ${t(template.developmentTimeKey)}\n\n✓ INCLUDED IN THE PACKAGE\n${includedNames}\n\n＋ ADDITIONAL FEATURES\n${extraLines}\n\n💰 DEVELOPMENT ESTIMATE\nBase: ${money(template.estimatedPrice)}\nAdditional features: ${money(extraTotal)}\nEstimated total: ${money(total)}\n\n🛠 SUPPORT AFTER LAUNCH\n${planLine}\n\nI would be happy to discuss the details.`;
+      ? `Здравствуйте! Хочу обсудить разработку приложения.\n\n📱 ПРОЕКТ\nНаправление: ${directionLabel}\n${referenceLine}Название: ${projectName.trim() || 'Обсудим позже'}\nОриентировочный срок: ${t(template.developmentTimeKey)}\n\n✓ ВКЛЮЧЕНО В ОСНОВУ\n${includedNames}\n\n＋ ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ\n${extraLines}\n\n💰 СТОИМОСТЬ РАЗРАБОТКИ\nОснова: ${money(template.estimatedPrice)}\nДополнительные функции: ${money(extraTotal)}\nИтого ориентировочно: ${money(total)}\n\n🛠 ПОДДЕРЖКА ПОСЛЕ ЗАПУСКА\n${planLine}\n\nБуду рад(а) обсудить детали проекта.`
+      : `Hello! I would like to discuss app development.\n\n📱 PROJECT\nCategory: ${directionLabel}\n${referenceLine}Project name: ${projectName.trim() || 'To be discussed'}\nEstimated time: ${t(template.developmentTimeKey)}\n\n✓ INCLUDED IN THE PACKAGE\n${includedNames}\n\n＋ ADDITIONAL FEATURES\n${extraLines}\n\n💰 DEVELOPMENT ESTIMATE\nBase: ${money(template.estimatedPrice)}\nAdditional features: ${money(extraTotal)}\nEstimated total: ${money(total)}\n\n🛠 SUPPORT AFTER LAUNCH\n${planLine}\n\nI would be happy to discuss the details.`;
     const url = `https://t.me/web4tgs?text=${encodeURIComponent(message)}`;
     try {
       if (window.Telegram?.WebApp?.openTelegramLink) window.Telegram.WebApp.openTelegramLink(url);
@@ -160,17 +211,17 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
     } catch {
       window.open(url, '_blank', 'noopener,noreferrer');
     }
-  }, [annual, directionLabel, extraTotal, includedIds, plan, projectName, ru, selectedExtras, t, template, total]);
+  }, [annual, directionLabel, extraTotal, includedIds, plan, projectName, referenceProject, ru, selectedExtras, t, template, total]);
 
   const continueOrder = useCallback(() => {
-    if (info || pendingTemplate || draft.pendingDraft) return;
+    if (info || pendingTemplate || pendingReference || draft.pendingDraft) return;
     if (step === 1 && !template) {
       setNotice(ru ? 'Выберите направление приложения' : 'Choose an app type');
       return;
     }
     if (step < 3) moveTo(step + 1);
     else openRequest();
-  }, [info, pendingTemplate, draft.pendingDraft, moveTo, openRequest, ru, step, template]);
+  }, [info, pendingTemplate, pendingReference, draft.pendingDraft, moveTo, openRequest, ru, step, template]);
 
   useEffect(() => {
     window.addEventListener('web4tg:order-continue', continueOrder);
@@ -230,6 +281,11 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
           <p>{step === 1 ? (ru ? 'Выберите тип приложения, чтобы узнать примерную стоимость.' : 'Choose an app type to see an estimated price.') : step === 2 ? (ru ? 'Основное уже включено. Остальное — на ваш выбор.' : 'The essentials are included. Add anything else you need.') : (ru ? 'Проверьте детали — мы подготовим заявку в Telegram.' : 'Check the details and we’ll prepare a Telegram message.')}</p>
         </header>
 
+        {referenceProject && <div className="order-reference" data-testid="order-project-reference">
+          <div><small>{ru ? 'Ориентир для проекта' : 'Project reference'}</small><strong>{projectStories[referenceProject].title[ru ? 0 : 1]}</strong>
+            {step === 1 && <span>{template ? (ru ? 'Выбранное направление можно изменить.' : 'You can change the selected direction.') : (ru ? 'Выберите подходящее направление ниже.' : 'Choose a suitable direction below.')}</span>}</div>
+          {step === 1 && template && <button type="button" onClick={() => moveTo(2)} data-testid="order-reference-continue">{ru ? 'Продолжить' : 'Continue'} <ArrowRight size={16} /></button>}
+        </div>}
         {step === 1 && <section className="order-template-list" aria-label={ru ? 'Направление приложения' : 'App type'}>
           {template && (template.id === 'fitness-center' || (template.id === 'ecommerce-basic' && (!storeCategory || storeCategory === 'shoes'))) && <div className="order-legacy-choice"><span>{ru ? 'Сохранённое направление' : 'Saved direction'}: {directionLabel}</span><button type="button" onClick={() => moveTo(2)} data-testid="continue-legacy-order">{ru ? 'Продолжить' : 'Continue'}</button></div>}
           <h2 className="order-direction-heading"><span>{ru ? 'Интернет-магазин' : 'Online store'}</span><small className="order-rate-note" aria-live="polite">{rateLabel}</small></h2>
@@ -262,7 +318,12 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
         onClose={() => setInfo(null)}
         onAction={() => { if (infoTemplate) chooseTemplate(infoTemplate, info.storeCategory ?? null); if (infoFeature && !infoIncluded) toggleFeature(infoFeature.id); if (infoPlan) setPlanId(infoPlan.id); }}
       />}
-      {draft.pendingDraft && <OrderDecisionDialog testId="order-draft-dialog" title={ru ? 'Продолжить заказ?' : 'Continue your order?'} description={ru ? 'На этом устройстве сохранён черновик. Он хранится здесь до 30 дней и не отправляется автоматически.' : 'A draft is saved on this device for up to 30 days. It is not sent automatically.'} primary={ru ? 'Восстановить' : 'Restore'} secondary={ru ? 'Начать заново' : 'Start over'} onPrimary={() => draft.restoreDraft((saved) => { setTemplateId(saved.templateId); setStoreCategory(saved.storeCategory); setExtras(saved.extras); setProjectName(saved.projectName); setPlanId(saved.planId); setAnnual(saved.annual); moveTo(saved.step); })} onSecondary={() => draft.startNew(() => { setTemplateId(null); setStoreCategory(null); setExtras([]); setProjectName(''); setPlanId(null); setAnnual(false); moveTo(1); })} />}
+      {draft.pendingDraft && <OrderDecisionDialog testId="order-draft-dialog" title={ru ? 'Продолжить заказ?' : 'Continue your order?'} description={ru ? 'На этом устройстве сохранён черновик. Он хранится здесь до 30 дней и не отправляется автоматически.' : 'A draft is saved on this device for up to 30 days. It is not sent automatically.'} primary={ru ? 'Восстановить' : 'Restore'} secondary={ru ? 'Начать заново' : 'Start over'} onPrimary={() => draft.restoreDraft((saved) => { setTemplateId(saved.templateId); setStoreCategory(saved.storeCategory); setExtras(saved.extras); setProjectName(saved.projectName); setPlanId(saved.planId); setAnnual(saved.annual); setReferenceProject(saved.referenceProject ?? null); moveTo(saved.step); })} onSecondary={() => draft.startNew(() => { setTemplateId(null); setStoreCategory(null); setExtras([]); setProjectName(''); setPlanId(null); setAnnual(false); setReferenceProject(null); moveTo(1); })} />}
+      {pendingReference && !draft.pendingDraft && <OrderDecisionDialog testId="order-reference-dialog"
+        title={ru ? 'Добавить проект как ориентир?' : 'Add this project as a reference?'}
+        description={ru ? `Вы уже начали заказ. Добавить «${projectStories[pendingReference].title[0]}» как ориентир? Выбранное направление и функции сохранятся.` : `You already have an order in progress. Add “${projectStories[pendingReference].title[1]}” as a reference? Your selected direction and features will remain.`}
+        primary={ru ? 'Добавить' : 'Add reference'} secondary={ru ? 'Оставить как есть' : 'Keep current order'}
+        onPrimary={() => { setReferenceProject(pendingReference); setPendingReference(null); }} onSecondary={() => setPendingReference(null)} onCancel={() => setPendingReference(null)} />}
       {pendingTemplate && !draft.pendingDraft && <OrderDecisionDialog testId="order-switch-dialog" title={ru ? 'Сменить направление?' : 'Change direction?'} description={ru ? 'Дополнительные функции будут сброшены. Название и выбранная поддержка сохранятся.' : 'Additional features will be reset. Your project name and selected support will stay.'} primary={ru ? 'Сменить направление' : 'Change direction'} secondary={ru ? 'Оставить прежнее' : 'Keep current'} onPrimary={() => { const next = pendingTemplate; setPendingTemplate(null); applyTemplate(next.item, next.category); }} onSecondary={() => setPendingTemplate(null)} onCancel={() => setPendingTemplate(null)} />}
     </main>
   );

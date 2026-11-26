@@ -4,6 +4,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { hintRoute } from '../lib/routeModules';
 import { ShowcaseArtwork } from './ShowcaseArtwork';
 import { showcaseActions } from '../data/showcaseActions';
+import { navigate } from '../hooks/useRouting';
+import { ProjectStory } from './ProjectStory';
 import { useFavoritesStore } from '../stores/favoritesStore';
 import './ProjectsShowcase.css';
 import './CategorySegments.css';
@@ -57,9 +59,9 @@ const projects: Project[] = [
     description: ['Короткий тест ведёт к подходящим средствам ухода.', 'A short quiz leads shoppers to suitable skincare.'] },
 ];
 
-const ProjectCard = memo(function ProjectCard({ project, ru, index, saved, onSave, onOpenDemo }: {
+const ProjectCard = memo(function ProjectCard({ project, ru, index, saved, onSave, onOpenDemo, onOpenStory }: {
   project: Project; ru: boolean; index: number; onOpenDemo: ProjectsPageProps['onOpenDemo'];
-  saved: boolean; onSave: (id: string) => void;
+  saved: boolean; onSave: (id: string) => void; onOpenStory: (id: string) => void;
 }) {
   const languageIndex = ru ? 0 : 1;
   const title = project.title[languageIndex];
@@ -79,6 +81,9 @@ const ProjectCard = memo(function ProjectCard({ project, ru, index, saved, onSav
     </span>
     <span className="ps-card-footer" aria-hidden="true"><span className="ps-open">{action}<ArrowUpRight size={16}/></span></span>
   </button>
+    <button type="button" className="ps-story-link" data-testid={`story-${project.id}`}
+      aria-label={`${ru ? 'О проекте' : 'About project'} · ${title}`}
+      onClick={() => onOpenStory(project.id)}>{ru ? 'О проекте' : 'About'} <ArrowRight size={14}/></button>
     <button type="button" className="ps-save" data-testid={`save-${project.id}`}
       aria-label={`${ru ? 'Сохранить' : 'Save'} · ${title}`} aria-pressed={saved}
       onClick={() => onSave(project.id)}><Bookmark size={19} fill={saved ? 'currentColor' : 'none'}/></button>
@@ -98,7 +103,32 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
   const visible = savedOnly ? savedProjects : category === 'all' ? projects : projects.filter(project => project.category === category);
   const touch = useRef<{ id: number; x: number; y: number } | null>(null);
   const pendingTap = useRef(0);
+  const listScroll = useRef(0);
+  const openedFromList = useRef(false);
+  const getStoryId = () => {
+    const [path, query = ''] = window.location.hash.slice(1).split('?');
+    const id = path === '/projects' ? new URLSearchParams(query).get('project') : null;
+    return projects.some(project => project.id === id) ? id : null;
+  };
+  const [storyId, setStoryId] = useState<string | null>(getStoryId);
+  useEffect(() => {
+    const updateStory = (event: HashChangeEvent) => {
+      const old = new URL(event.oldURL).hash;
+      const next = getStoryId();
+      setStoryId(next);
+      if (old.startsWith('#/projects?') && old.includes('project=') && window.location.hash === '#/projects') {
+        requestAnimationFrame(() => requestAnimationFrame(() => document.getElementById('root')?.scrollTo({ top: listScroll.current, behavior: 'instant' })));
+        openedFromList.current = false;
+      }
+    };
+    window.addEventListener('hashchange', updateStory);
+    return () => window.removeEventListener('hashchange', updateStory);
+  }, []);
   useEffect(() => () => cancelAnimationFrame(pendingTap.current), []);
+  if (storyId) return <ProjectStory id={storyId} ru={ru}
+    onBack={() => openedFromList.current ? window.history.back() : navigate('/projects')}
+    onOpenProject={() => { openedFromList.current = false; onOpenDemo(storyId); }}
+    onOrder={() => onNavigate(`constructor?project=${encodeURIComponent(storyId)}`)} />;
   return <main className="projects-showcase" data-testid="projects-showcase">
     <div className="ps-inner projects-page-frame">
       <header className="ps-header">
@@ -107,18 +137,22 @@ export default memo(function ProjectsPage({ onNavigate, onOpenDemo }: ProjectsPa
           <Bookmark size={16} fill={savedOnly ? 'currentColor' : 'none'}/>{ru ? 'Подборка' : 'Saved'}<span>{savedProjects.length}</span>
         </button>
       </header>
-      <p className="ps-intro projects-intro-slot">{ru ? 'Выберите демо и пройдите путь своего клиента.' : 'Choose a demo and try it as a customer.'}</p>
+      <p className="ps-intro projects-intro-slot">{ru ? 'Выберите проект и пройдите путь своего клиента.' : 'Choose a project and try it as a customer.'}</p>
       <div className="ps-filters category-segments" role="group" aria-label={ru ? 'Направления' : 'Categories'}>
         {filters.map(filter => <button key={filter.id} type="button" aria-pressed={!savedOnly && category === filter.id} onClick={() => { setSavedOnly(false); setCategory(filter.id); }}>{ru ? filter.ru : filter.en}{filter.id === 'all' && <span>{projects.length}</span>}</button>)}
       </div>
       {savedOnly && <h2 className="ps-section-title">{ru ? 'Ваша подборка' : 'Your shortlist'}</h2>}
-      <ul className="ps-collection" aria-label={ru ? 'Примеры приложений' : 'Demo apps'}>
+      <ul className="ps-collection" aria-label={ru ? 'Проекты' : 'Projects'}>
         {visible.map((project, index) => <ProjectCard key={project.id} project={project} ru={ru} index={index}
-          saved={favorites.includes(project.id)} onSave={toggle} onOpenDemo={onOpenDemo} />)}
+          saved={favorites.includes(project.id)} onSave={toggle} onOpenDemo={onOpenDemo} onOpenStory={id => {
+            listScroll.current = document.getElementById('root')?.scrollTop ?? 0;
+            openedFromList.current = true;
+            navigate(`/projects?project=${encodeURIComponent(id)}`);
+          }} />)}
       </ul>
       {savedOnly && !visible.length && <div className="ps-empty">
-        <Bookmark size={24}/><p>{ru ? 'Нажмите на закладку у понравившегося демо. Здесь можно будет вернуться к нему позже.' : 'Tap the bookmark on a demo to keep it here for later.'}</p>
-        <button type="button" onClick={() => { setSavedOnly(false); setCategory('all'); }}>{ru ? 'Ко всем демо' : 'Browse all demos'} <ArrowRight size={16}/></button>
+        <Bookmark size={24}/><p>{ru ? 'Нажмите на закладку у понравившегося проекта. Здесь можно будет вернуться к нему позже.' : 'Tap the bookmark on a project to keep it here for later.'}</p>
+        <button type="button" onClick={() => { setSavedOnly(false); setCategory('all'); }}>{ru ? 'Ко всем проектам' : 'Browse all projects'} <ArrowRight size={16}/></button>
       </div>}
       <div className="ps-brief">
       <h2>{ru ? 'Соберите своё приложение' : 'Build your own app'}</h2>

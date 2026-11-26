@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { appTemplatesBase, availableFeaturesBase, storeCategories, subscriptionPlansBase, type StoreCategoryId } from './orderCatalog';
+import { projectStories } from '../data/projectStories';
 
 /** Drafts remain on this device until replaced, removed, or expired. */
 export type OrderDraft = {
@@ -10,6 +11,7 @@ export type OrderDraft = {
   projectName: string;
   planId: string | null;
   annual: boolean;
+  referenceProject?: string | null;
 };
 
 const STORAGE_KEY = 'web4tg:order-draft:v1';
@@ -36,6 +38,7 @@ function normalizeDraft(value: unknown): OrderDraft | null {
     projectName: raw.projectName.slice(0, 80),
     planId: raw.planId as string | null,
     annual: raw.annual,
+    referenceProject: typeof raw.referenceProject === 'string' && Object.hasOwn(projectStories, raw.referenceProject) ? raw.referenceProject : null,
   };
 }
 
@@ -95,7 +98,7 @@ export function useOrderDraft(current: OrderDraft) {
       // The current order still works even if local storage is blocked or full.
       setStorageAvailable(false);
     }
-  }, [ready, pendingDraft, saveGeneration, current.step, current.templateId, current.storeCategory, current.extras, current.projectName, current.planId, current.annual]);
+  }, [ready, pendingDraft, saveGeneration, current.step, current.templateId, current.storeCategory, current.extras, current.projectName, current.planId, current.annual, current.referenceProject]);
 
   const restoreDraft = useCallback((apply: (draft: OrderDraft) => void) => {
     if (!pendingDraft) return;
