@@ -40,6 +40,8 @@ async function check(engine, width) {
       await page.waitForFunction(expected => document.querySelector('[data-testid="project-story"]')?.getAttribute('data-project') === expected, id);
       assert.equal(await story.getAttribute('data-project'), id);
       assert.ok(await story.locator('h1').innerText());
+      assert.ok(await story.locator('.project-story-hero-copy p').innerText(), id + ' business need');
+      assert.ok(await story.locator('.project-story-value-list li').count() >= 3, id + ' business value');
       assert.ok(await story.locator('.project-story-steps li').count() >= 2);
       assert.ok(await story.locator('.project-story-features li').count() >= 2);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, id + ' horizontal overflow');

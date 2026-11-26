@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, ArrowUpRight, Check, X, ZoomIn } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check, ZoomIn } from 'lucide-react';
 import { ShowcaseArtwork } from './ShowcaseArtwork';
+import { ProjectScreenViewer } from './ProjectScreenViewer';
 import { projectStories } from '../data/projectStories';
 import { projectStoryScreens, type ProjectStoryScreen } from '../data/projectStoryScreens';
 import './ProjectStory.css';
@@ -19,11 +20,6 @@ export function ProjectStory({ id, ru, onBack, onOpenProject, onOrder }: Project
   const [selection, setSelection] = useState<{ id: string; screen: ProjectStoryScreen } | null>(null);
   const activeScreen = selection?.id === id ? selection.screen : null;
   useEffect(() => { setSelection(null); }, [id]);
-  const dialog = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const element = dialog.current;
-    if (activeScreen && element && !element.open) element.showModal();
-  }, [activeScreen]);
   if (!story) return null;
   const locale = ru ? 0 : 1;
   const title = story.title[locale];
@@ -34,11 +30,20 @@ export function ProjectStory({ id, ru, onBack, onOpenProject, onOrder }: Project
   return <main className="projects-showcase project-story" data-testid="project-story" data-project={id}>
     <div className="projects-page-frame project-story-inner">
       <button className="project-story-back" type="button" onClick={onBack} data-testid="project-story-back"><ArrowLeft size={19}/><span>{ru ? 'Витрина' : 'Showcase'}</span></button>
-      <div className="project-story-topline"><span>{ru ? 'ПРОЕКТ WEB4TG' : 'A WEB4TG PROJECT'}</span></div>
-      <section className="project-story-hero" aria-labelledby="project-story-title">
-        <div className="project-story-hero-copy"><h1 id="project-story-title">{title}</h1><p>{story.intro[locale]}</p></div>
+      <div className="project-story-topline"><span>{ru ? 'ПРОЕКТ WEB4TG' : 'A WEB4TG PROJECT'}</span><span aria-hidden="true"> / </span><span>{title}</span></div>
+      <header className="project-story-intro">
+        <h1 id="project-story-title">{story.headline[locale]}</h1>
+        <p>{story.audience[locale]}</p>
+      </header>
+      <section className="project-story-hero" aria-label={title}>
+        <div className="project-story-hero-copy"><span className="project-story-eyebrow">{ru ? 'ЗАДАЧА БИЗНЕСА' : 'THE BUSINESS NEED'}</span><p>{story.businessProblem[locale]}</p></div>
         <div className="project-story-hero-art" aria-hidden="true"><ShowcaseArtwork id={id} index={0} ru={ru}/></div>
-        <div className="project-story-hero-footer"><button className="project-story-open" type="button" onClick={onOpenProject} data-testid="project-story-open">{ru ? 'Открыть приложение' : 'Open app'}<ArrowUpRight size={17}/></button></div>
+        <div className="project-story-hero-footer"><button className="project-story-open" type="button" onClick={onOpenProject} data-testid="project-story-open">{ru ? 'Открыть проект' : 'Open app'}<ArrowUpRight size={17}/></button><button className="project-story-hero-order" type="button" onClick={onOrder} data-testid="project-story-order-intro">{ru ? 'Хочу такое' : 'Get similar'}<ArrowRight size={15}/></button></div>
+      </section>
+      <section className="project-story-value" aria-labelledby="project-story-value-title">
+        <span className="project-story-eyebrow">{ru ? 'РЕШЕНИЕ В ПРОЕКТЕ' : 'THE SOLUTION'}</span>
+        <h2 id="project-story-value-title">{ru ? 'Как это работает для бизнеса' : 'How it works for the business'}</h2>
+        <ol className="project-story-value-list">{story.businessValue.map((item, index) => <li key={item.title[0]}><span className="project-story-value-number">{String(index + 1).padStart(2, '0')}</span><div><h3>{item.title[locale]}</h3><p>{item.description[locale]}</p></div></li>)}</ol>
       </section>
       <section className="project-story-flow" aria-labelledby="project-story-flow-title">
         <div className="project-story-section-heading"><div><span className="project-story-eyebrow">{ru ? 'ВНУТРИ ПРОЕКТА' : 'INSIDE THE PROJECT'}</span><h2 id="project-story-flow-title">{ru ? 'Путь клиента' : 'The customer journey'}</h2></div></div>
@@ -56,9 +61,6 @@ export function ProjectStory({ id, ru, onBack, onOpenProject, onOrder }: Project
       <section className="project-story-features" aria-labelledby="project-story-features-title"><span className="project-story-eyebrow">{ru ? 'ВОЗМОЖНОСТИ' : 'FEATURES'}</span><h2 id="project-story-features-title">{ru ? 'Что умеет приложение' : 'What the app can do'}</h2><ul>{story.features.map(feature => <li key={feature[0]}><span><Check size={15}/></span>{feature[locale]}</li>)}</ul></section>
       <section className="project-story-contact"><h2>{ru ? 'Создадим приложение для вашего бизнеса' : 'Build an app for your business'}</h2><p>{ru ? 'Выберите направление и функции — подготовим проект к обсуждению.' : 'Choose a direction and features to start discussing your project.'}</p><button type="button" onClick={onOrder} data-testid="project-story-order">{ru ? 'Хочу похожее приложение' : 'I want a similar app'}<ArrowRight size={18}/></button></section>
     </div>
-    {activeScreen && <dialog ref={dialog} className="project-story-dialog" aria-label={`${ru ? 'Экран проекта' : 'Project screen'}: ${activeScreen.caption[locale]}`} onClose={() => setSelection(null)}>
-      <div className="project-story-dialog-head"><span>{activeScreen.caption[locale]}</span><button type="button" onClick={() => dialog.current?.close()} aria-label={ru ? 'Закрыть' : 'Close'}><X size={20}/></button></div>
-      <div className="project-story-dialog-image"><img src={activeScreen.src} alt={activeScreen.caption[locale]} /></div>
-    </dialog>}
+    {activeScreen && <ProjectScreenViewer screen={activeScreen} ru={ru} onClose={() => setSelection(null)} />}
   </main>;
 }

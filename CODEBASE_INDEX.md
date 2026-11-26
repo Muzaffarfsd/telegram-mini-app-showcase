@@ -7,9 +7,9 @@
 ## Project stories
 
 - `ProjectsPage.tsx` keeps the showcase filters and direct app actions; `#/projects?project=<id>` opens `ProjectStory.tsx` with the same showcase styling. The list position and selected filter survive returning from a story. `DemoReturnContext.ts` preserves the source story when returning from a project.
-- `projectStories.ts` holds the bilingual descriptions and `projectStoryScreens.ts` maps actual captured screens in `client/public/project-stories/`. Each of 13 projects has three Russian screens; coffee, furniture and China buyer also have English captures. The gallery supports horizontal scrolling and native enlarged viewing.
+- `projectStories.ts` holds bilingual business audiences, needs, practical benefits and journeys; `projectStoryScreens.ts` maps real captures in `client/public/project-stories/`. Each of 13 projects has three Russian screens; coffee, furniture and China buyer also have English captures. `ProjectScreenViewer.tsx` and its CSS present enlarged screens with a bottom close action within Telegram-safe viewport insets.
 - Project-story order links carry the reference in the order draft and Telegram message. Exact available categories are preselected only when the order is empty; an existing order is preserved and asks before adding the reference. Projects without an exact direction let the customer choose.
-- `tests/project-stories.mobile.e2e.cjs` covers project pages, decoded screenshots, scroll, return and order handoff; `tests/project-story-order.mobile.e2e.cjs` covers the reference, drafts and Telegram message. Set `PROJECT_STORY_TEST_URL` for another deployment.
+- `tests/project-stories.mobile.e2e.cjs` covers project pages, decoded screenshots, scroll, return and order handoff; `tests/project-story-order.mobile.e2e.cjs` covers the reference, drafts and Telegram message; `tests/project-screen-viewer.mobile.e2e.cjs` checks simulated Telegram safe-area geometry and closing. Set `PROJECT_STORY_TEST_URL` for another deployment.
 ## Coffee shop
 
 - The public `takt-coffee` demo opens from Projects and Telegram share links. `client/src/components/demos/coffee/TaktCoffee.tsx` owns navigation, dialogs and browser history. `CoffeeNavigation.tsx` uses `StoreNavigation.tsx`, the same bottom dock and safe-area geometry as both clothing demos.

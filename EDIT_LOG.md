@@ -4,6 +4,11 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-27 · Explain the business value of portfolio projects
+
+- Reworked all 13 project stories around the user’s feedback: a business-specific headline, audience and need appear first, followed by concrete benefits tied to each actual project’s features. Real customer results and integrations are not invented; the existing showcase design and project/order actions remain.
+- Replaced the oversized viewer with `ProjectScreenViewer`, a scrollable image, accessible bottom close button and Telegram-aware viewport and safe-area constraints. Capture and close remain available in the original project gallery.
+- Checkpoint `refs/checkpoints/before-portfolio-business-story` at `1db9ba3c`. Verified RU/EN 13-story mobile geometry and actions in Chromium and WebKit, all project navigation and order links, and the viewer at simulated native insets, small portrait/landscape heights, tap and Escape. Real Telegram devices have not been tested. Reviewed screenshots `work/project-story-review.png`, `work/project-business-review.png`, and `work/viewer-native-review.png`.
 ## 2026-11-27 · Tell the story of each showcase project
 
 - Added a portfolio page for every one of the 13 projects, using the existing showcase visual language, real screen captures, working flows and project-specific capabilities. Each gallery has three Russian captures, and the coffee, furniture and buyer projects also have English captures; viewers can swipe and enlarge screens. Captures are local, WebP and lazily loaded.
