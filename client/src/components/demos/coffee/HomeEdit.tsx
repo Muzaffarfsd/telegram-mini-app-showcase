@@ -296,7 +296,7 @@ export function HomeEdit({
               <path
                 d="M0 95 Q50 8 100 5"
                 fill="none"
-                stroke="#ba9696"
+                stroke="#a47f61"
                 strokeWidth="1"
                 strokeDasharray="3 6"
                 vectorEffect="non-scaling-stroke"

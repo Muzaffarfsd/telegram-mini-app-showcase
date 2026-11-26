@@ -269,9 +269,8 @@ async function check(browser, width, lang) {
         }),
       );
     });
-    const pixelWidth = width >= 650 ? 1280 : 640;
     assert.deepEqual(surfaces, [
-      ['/takt-coffee/editorial/opal-arc-' + pixelWidth + '.webp', pixelWidth],
+      ['/takt-coffee/editorial/espresso-marble.webp', 1122],
       ['/takt-coffee/editorial/opal-wash-320.webp', 320],
     ]);
     await arc.press('ArrowRight');

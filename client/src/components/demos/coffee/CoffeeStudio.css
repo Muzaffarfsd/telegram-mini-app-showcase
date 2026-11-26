@@ -290,25 +290,20 @@
   font-weight: 640;
 }
 .coffee-arc {
-  --arc-sky: #fcf7f3;
+  --arc-sky: #fffaf3;
   --arc-ink: #2b232b;
   --sky: clamp(83px, 23vw, 136px);
   --depth: clamp(135px, 42vw, 205px);
   --arc-cup: clamp(104px, 31vw, 183px);
   color: var(--arc-ink);
-  background-color: #f4d5cc;
-  background-image: url('/takt-coffee/editorial/opal-arc-640.webp');
-  background-size: cover;
-  background-position: center 65%;
+  background-color: #f5e8d8;
+  background-image: url('/takt-coffee/editorial/espresso-marble.webp');
+  background-size: auto 150%;
+  background-position: center top;
   border-radius: 26px;
-  box-shadow: inset 0 0 0 1px #a583811c;
+  box-shadow: inset 0 0 0 1px #9a775c20;
   overflow: hidden;
   isolation: isolate;
-}
-@media (min-width: 650px), (min-resolution: 1.5dppx) {
-  .coffee-arc {
-    background-image: url('/takt-coffee/editorial/opal-arc-1280.webp');
-  }
 }
 .coffee-arc-window {
   position: relative;
@@ -366,24 +361,24 @@
   height: 29%;
   border-radius: 50%;
   background:
-    radial-gradient(ellipse at 51% 37%, #4d374b50, transparent 44%),
+    radial-gradient(ellipse at 51% 37%, #59483b4a, transparent 44%),
     linear-gradient(
       153deg,
       #fffcfaed 8%,
-      #edc0bdbb 45%,
-      #f9dfc6b5 68%,
-      #e5d5edbd
+      #e2c5a8bb 45%,
+      #f8e1c5b5 68%,
+      #d9c5b2bd
     );
   box-shadow:
     inset 0 1.5px 1px #fffdf9,
-    inset 1px -2px 2px #a17b9c66,
-    0 3px 1px #bb98a345,
-    1px 7px 9px -4px #53384c48;
+    inset 1px -2px 2px #9d7c6266,
+    0 3px 1px #ad8b7045,
+    1px 7px 9px -4px #533d2c48;
 }
 .coffee-arc-drink[aria-pressed='true'] .coffee-arc-seat {
   background:
-    radial-gradient(ellipse at 50% 35%, #49364d76, transparent 46%),
-    linear-gradient(148deg, #fff5ef, #edb3ad 47%, #f6d7a9 72%, #ded0f0);
+    radial-gradient(ellipse at 50% 35%, #493c3276, transparent 46%),
+    linear-gradient(148deg, #fffaf0, #ddc3a8 47%, #f4dec2 72%, #dfd1c0);
 }
 .coffee-arc-seat::after {
   content: '';
@@ -394,7 +389,7 @@
 }
 .coffee-arc-drink[aria-pressed='true'] .coffee-arc-seat::after {
   inset: -5px;
-  border: 1px dashed #9c7580;
+  border: 1px dashed #9b806a;
 }
 .coffee-arc-drink .tk-cup {
   position: relative;
@@ -411,7 +406,7 @@
   position: relative;
   color: var(--arc-ink);
   padding: 1px clamp(14px, 4vw, 26px) clamp(17px, 4.5vw, 26px);
-  background: linear-gradient(to bottom, transparent, #fff5f050);
+  background: linear-gradient(to bottom, transparent, #fffaf250);
   isolation: isolate;
 }
 .coffee-arc-info::before {
@@ -421,8 +416,8 @@
   inset: -29px 10% 0 -10px;
   background: radial-gradient(
     ellipse at 20% 45%,
-    #fff6eedb,
-    #fff6ef8f 30%,
+    #fff9efdb,
+    #fff9ef8f 30%,
     transparent 69%
   );
   pointer-events: none;

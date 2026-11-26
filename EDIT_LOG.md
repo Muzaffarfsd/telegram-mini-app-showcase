@@ -4,6 +4,16 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 · Update the furniture gesture regression
+
+- Updated the fixed-room gesture test to follow the current room entry and measured plan while retaining drag, rotation, undo and cancellation checks. The test passed locally and on the current production version.
+
+## 2026-11-26 · Coffee-themed arrivals background
+
+- Replaced the pink opal surface in the new-arrivals carousel with a generated milk-and-espresso texture and coordinated the arc and cup stands, without changing the carousel interactions or layout.
+- Files: `CoffeeStudio.css`, `HomeEdit.tsx`, `espresso-marble.webp`, `tests/takt-coffee-paper.e2e.cjs`. The original asset and exact generation prompt are recorded in `work/coffee-arrivals-espresso-prompt.md`.
+- Checkpoint: `9454acee`. Inspected the live page at 320/390/430 px; the focused arrivals smoke passed Chromium 390 and WebKit 320, including background decoding, carousel, quantities and bag. The full Chromium coffee order flow passed. The broader paper suite failed in the pre-existing seasonal hero carousel assertions before it reached this block; that issue was not changed by the background edit.
+
 ## 2026-11-26 22:05 MSK — Rebuild the coffee home shelves around swipeable drinks and an opal-glass counter
 
 - Retained the seasonal campaign and guest club. The house-specials shelf opens a recipe or adds one drink with the plus button. The new-arrivals display moves the drinks along a curved counter, quotes the total for the chosen quantity and adds those portions to the bag. Photos, prices and saved carousel positions connect both shelves to the existing shop.
