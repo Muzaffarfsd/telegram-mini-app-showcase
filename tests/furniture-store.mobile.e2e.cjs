@@ -71,7 +71,7 @@ async function exercise(engine, live3D, width) {
     await page.getByTestId('card-app-furniture-studio').tap();
     const store = page.getByTestId('furniture-store');
     await store.waitFor();
-    assert(await store.getByRole('heading', { name: 'Adrienne' }).isVisible());
+    await store.getByRole('heading', { name: 'Sofas', exact: true }).waitFor();
     await noHorizontalOverflow('store home');
 
     await page.getByRole('button', { name: 'Каталог', exact: true }).tap();

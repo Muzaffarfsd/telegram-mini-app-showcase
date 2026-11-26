@@ -7,7 +7,7 @@
   overflow: hidden;
   background: #f4f4f4;
   color: #1c1c1c;
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--fs-font);
   padding: max(12px, env(safe-area-inset-top, 0px), var(--tg-content-safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(14px, env(safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
 }
 .rfv *, .rfv *::before, .rfv *::after { box-sizing: border-box; }

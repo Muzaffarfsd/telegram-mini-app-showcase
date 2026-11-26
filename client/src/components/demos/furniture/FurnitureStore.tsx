@@ -54,6 +54,7 @@ type Snapshot = {
   sheet: Sheet;
   selectedId: string;
   category: string;
+  homeCategory?: string;
   query: string;
   sort: SortOrder;
   maxWidth: string;
@@ -222,14 +223,37 @@ function ProductCard({
   favorite,
   onOpen,
   onFavorite,
+  compact = false,
+  displayLanguage,
 }: {
   product: FurnitureProduct;
   favorite: boolean;
   onOpen: () => void;
   onFavorite: () => void;
+  compact?: boolean;
+  displayLanguage?: 'ru' | 'en';
 }) {
-  const { language } = useLanguage();
+  const { language: storeLanguage } = useLanguage();
+  const language = displayLanguage ?? storeLanguage;
   const t = (r: string, e: string) => (language === 'ru' ? r : e);
+  if (compact) {
+    const size = product.dimensionsM && Math.round(product.dimensionsM[0] * 100) + t(' см', ' cm');
+    const kind = typeLabel(product.category, language === 'ru');
+    return (
+      <article className="fhome-piece">
+        <button type="button" className="fhome-piece-open" onClick={onOpen}
+          aria-label={t('Открыть', 'Open') + ' ' + product.name + ', ' + kind}>
+          <span className="fhome-piece-photo"><ProductImage product={product} /></span>
+          <strong>{product.name}</strong>
+          <small>{product.priceLabel || (size ? kind + ' · ' + size : product.brand)}</small>
+        </button>
+        <button type="button" className="fhome-piece-save" onClick={onFavorite} aria-pressed={favorite}
+          aria-label={t(favorite ? 'Убрать из избранного' : 'В избранное', favorite ? 'Remove from favourites' : 'Add to favourites') + ': ' + product.name}>
+          <Heart size={16} strokeWidth={1.5} fill={favorite ? 'currentColor' : 'none'} />
+        </button>
+      </article>
+    );
+  }
   return (
     <article className="fs-card">
       <div className="fs-card-image">
@@ -290,6 +314,7 @@ export default function FurnitureStore({
   const [sheet, setSheet] = useState<Sheet>(null);
   const [selectedId, setSelectedId] = useState(shared?(shared.layout.items[0]?.productId||products[0]?.id||''):'');
   const [category, setCategory] = useState('Все');
+  const [homeCategory, setHomeCategory] = useState('Диваны');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortOrder>('featured');
   const [maxWidth, setMaxWidth] = useState('');
@@ -357,6 +382,7 @@ export default function FurnitureStore({
     sheet,
     selectedId,
     category,
+    homeCategory,
     query,
     sort,
     maxWidth,
@@ -371,6 +397,7 @@ export default function FurnitureStore({
     setSheet(next.sheet);
     setSelectedId(next.selectedId);
     setCategory(next.category);
+    setHomeCategory(next.homeCategory ?? 'Диваны');
     setQuery(next.query);
     setSort(next.sort ?? 'featured');
     setMaxWidth(next.maxWidth ?? '');
@@ -388,6 +415,7 @@ export default function FurnitureStore({
     sheet,
     selectedId,
     category,
+    homeCategory,
     query,
     sort,
     maxWidth,
@@ -602,8 +630,8 @@ export default function FurnitureStore({
     if (!preserveScroll) scrollToTop();
   }
   const go = (next: Screen) => transition({ screen: next, sheet: null, viewing3D: false });
-  const openCatalog = (next = 'Все') =>
-    transition({ screen: 'catalog', sheet: null, category: next, query: '', maxWidth: '', material: 'all', viewing3D: false });
+  const openCatalog = (next = 'Все', search = '') =>
+    transition({ screen: 'catalog', sheet: null, category: next, query: search, maxWidth: '', material: 'all', viewing3D: false });
   const openComparison = () => transition({ screen: 'compare', previous: screen, sheet: null, viewing3D: false });
   const openProduct = (product: FurnitureProduct, initialPhoto=0) =>
     transition({
@@ -749,12 +777,16 @@ export default function FurnitureStore({
           <FurnitureHome
             products={products}
             ru={ru}
+            category={homeCategory}
+            onCategoryChange={setHomeCategory}
             plannerAvailable={!!renderPlanner}
             onOpenProduct={openProduct}
             onOpenPlanner={openPlanner}
             onOpenCatalog={openCatalog}
-            renderCard={(product) => (
+            renderCard={(product, displayLanguage) => (
               <ProductCard
+                compact
+                displayLanguage={displayLanguage}
                 product={product}
                 favorite={favorites.includes(product.id)}
                 onFavorite={() => toggleFavorite(product.id)}

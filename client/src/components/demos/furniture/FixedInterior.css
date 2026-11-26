@@ -1,4 +1,4 @@
-.fint { position:fixed; inset:0; z-index:9999; overflow:auto; overscroll-behavior:contain; background:#f4f4f4; color:#262626; font-family:inherit; -webkit-overflow-scrolling:touch; }
+.fint { position:fixed; inset:0; z-index:9999; overflow:auto; overscroll-behavior:contain; background:#f4f4f4; color:#262626; font-family:var(--fs-font); -webkit-overflow-scrolling:touch; }
 .fint * { box-sizing:border-box; }
 .fint button,.fint select { font:inherit; }
 .fint button { cursor:pointer; }

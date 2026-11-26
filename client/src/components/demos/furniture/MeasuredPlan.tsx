@@ -41,6 +41,8 @@ const colors: Record<string, string> = {
   Свет: '#cacaca',
 };
 const spriteCache = new Map<string, HTMLImageElement>();
+const planFont = '"Google Sans App", sans-serif';
+const loadPlanFont = () => document.fonts.load('600 13px "Google Sans App"', 'Floor plan Вид сверху 0123456789');
 function loadSilhouette(id: string) {
   let image = spriteCache.get(id);
   if (!image) {
@@ -205,7 +207,7 @@ export function drawMeasuredPlan(
       c.lineTo(x1, y1);
       c.stroke();
       c.setLineDash([]);
-      c.font = '600 10px system-ui';
+      c.font = '600 10px ' + planFont;
       c.fillStyle = '#464646';
       c.textAlign = vertical ? 'left' : 'center';
       c.fillText(
@@ -216,7 +218,7 @@ export function drawMeasuredPlan(
     }
   }
   c.fillStyle = '#464646';
-  c.font = '600 13px system-ui';
+  c.font = '600 13px ' + planFont;
   c.textAlign = 'center';
   c.fillText(room.width.toLocaleString(ru ? 'ru' : 'en') + ' ' + (ru ? 'м' : 'm'), a.x + rw / 2, a.y - 10);
   c.save();
@@ -224,7 +226,7 @@ export function drawMeasuredPlan(
   c.rotate(-Math.PI / 2);
   c.fillText(room.depth.toLocaleString(ru ? 'ru' : 'en') + ' ' + (ru ? 'м' : 'm'), 0, 0);
   c.restore();
-  c.font = '12px system-ui';
+  c.font = '12px ' + planFont;
   c.textAlign = 'left';
   c.fillText(ru ? 'Вид сверху' : 'Floor plan', 12, h - 14);
 }
@@ -263,7 +265,7 @@ export default function MeasuredPlan(props: Props) {
   useEffect(() => {
     let live = true;
     const pics = Array.from(new Set(assetKey.split('|').filter(Boolean))).map(loadSilhouette);
-    Promise.allSettled(pics.map((p) => p.decode())).then(() => {
+    Promise.allSettled([loadPlanFont(), ...pics.map((p) => p.decode())]).then(() => {
       if (live) redraw((v) => v + 1);
     });
     return () => {
@@ -428,9 +430,10 @@ export default function MeasuredPlan(props: Props) {
   );
 }
 export async function downloadPlan(layout: PlannerLayout, products: readonly PlannerProduct[], ru: boolean) {
-  await Promise.allSettled(
-    Array.from(new Set(layout.items.map((i) => i.productId))).map((id) => loadSilhouette(id).decode())
-  );
+  await Promise.allSettled([
+    loadPlanFont(),
+    ...Array.from(new Set(layout.items.map((i) => i.productId))).map((id) => loadSilhouette(id).decode()),
+  ]);
   const canvas = document.createElement('canvas');
   canvas.width = 1000;
   canvas.height = 900;

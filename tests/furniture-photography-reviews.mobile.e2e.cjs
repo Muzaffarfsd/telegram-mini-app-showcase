@@ -22,11 +22,12 @@ async function exercise(engine, width, ru) {
   page.on('pageerror', (err) => errors.push(err.message));
   try {
     await page.goto(url);
-    await page.getByRole('heading', { name: 'Adrienne', exact: true }).waitFor();
-    await page.locator('.fhome-hero-image').evaluate((e) => e.decode());
+    await page.getByRole('heading', { name: 'Sofas', exact: true }).waitFor();
+    const cover = page.locator('.fhome-slide[aria-hidden=false] .fhome-hero-image');
+    await cover.evaluate((e) => e.decode());
     assert.match(
-      await page.locator('.fhome-hero-image').getAttribute('src'),
-      /rivet-adrienne-chair\/interior\.webp$/
+      await cover.getAttribute('src'),
+      /home\/sloane-1440\.webp$/
     );
     const active = page.locator('.fs-nav-button.is-active');
     const contrast = await active.evaluate((el) => [
@@ -125,7 +126,7 @@ async function exercise(engine, width, ru) {
     await page.locator('.fs-review-list').getByText(feedback).waitFor();
     const other = await context.newPage();
     await other.goto(url);
-    await other.locator('.fhome-cover-link').click();
+    await other.locator('.fhome-slide[aria-hidden=false] .fhome-cover-link').click();
     await other.locator('#fs-details-title').waitFor();
     assert.equal(
       await other.locator('.fs-review-list article').count(),

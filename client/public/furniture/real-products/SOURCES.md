@@ -10,6 +10,8 @@ The November room collection adds twenty archived products and eighty photograph
 
 ## Current showroom images
 
+The two responsive Sloane images in `/furniture/home/` are new transparent renders of the Rivet Sloane sofa, archive ID B07P5LMN2C. The homepage uses a three-quarter camera angle and studio lighting. Amazon.com supplied the geometry and material maps through Amazon Berkeley Objects. [Product record](https://huggingface.co/datasets/codepawl/abo-glb/tree/main/objects/B07P5LMN2C) · [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
 The furniture storefront uses a new series of 124 images for 30 products. Studio angles and details were rendered from the credited product geometry. Each main product view and its mobile preview is encoded with a transparent WebP alpha channel. The interior photographs are newly staged visualisations. Twenty-nine use generated interiors guided by the original product appearance. The Scarlett chair was rendered from its licensed mesh on a limestone set. The original image and model records remain below and in the [collection credits](../collection/SOURCES.md). The room diagrams use the same models.
 
 ## Added products and photographs

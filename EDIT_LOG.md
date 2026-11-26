@@ -4,6 +4,13 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 14:57 MSK — Furniture home collections and Google Sans
+
+- Built a bidirectional, looping home carousel for all eleven stocked categories. The first slide is Sofas in both store languages. Each slide links to the featured product and its filtered catalogue. The same home includes shopping by category, search, a lighting story, new arrivals, interiors and the room planner.
+- Rendered the Sloane sofa from its source model at a three-quarter angle with transparent surroundings. Added two responsive WebPs and refreshed the Russian and English showroom previews. The separate catalogue keeps its horizontal product rows.
+- Applied the bundled Google Sans typeface to the store, controls, overlays, 3D viewer, room editor and exported floor plans. Added screen-language, gesture, font, navigation and reduced-motion coverage in the furniture mobile tests.
+- Checkpoint `refs/checkpoints/furniture-home-before-carousel` at `b4b93511`. Verified mobile Chromium and WebKit flows, swipe in both directions, all eleven slides, the 320–1440px layouts, 3D, checkout and drawing export. Chromium reported Google Sans for the rendered Latin and Cyrillic glyphs. The browser smoke test reported zero console errors, page errors or failed requests.
+
 ## 2026-11-26 — Monochrome furniture store, catalogue rows and transparent product covers
 
 - Rebuilt the home, independent catalogue and product page. The catalogue uses horizontal rows with quick add, favourites and comparison. Product pages have sourced measurements, materials, model-specific care and locally saved reviews in Russian and English.

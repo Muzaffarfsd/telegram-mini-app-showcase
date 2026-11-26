@@ -2918,15 +2918,19 @@ html.light :root,
   *, *::before, *::after { 
     animation: none !important; 
     transition: none !important; 
+  }
+
+  /* A carousel still needs to position its selected page with reduced motion. */
+  :where(:not([data-layout-transform])), *::before, *::after {
     transform: none !important; 
   }
   
-  [style*="transition"], 
-  [style*="animation"], 
-  [style*="transform"] { 
+  [style*="transition"]:where(:not([data-layout-transform])),
+  [style*="animation"]:where(:not([data-layout-transform])),
+  [style*="transform"]:where(:not([data-layout-transform])) {
     transition: none !important; 
     animation: none !important; 
-    transform: none !important; 
+    transform: none !important;
   }
   
   .wow-bg-animated, 

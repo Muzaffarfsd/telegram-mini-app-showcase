@@ -29,10 +29,10 @@ async function check(width, blocked, language = 'ru') {
       const screen = art.locator('.ps-furniture-screen img');
       assert.ok(await screen.isVisible());
       assert.ok(await screen.evaluate(image => image.complete && image.naturalWidth === 390 && image.naturalHeight === 844));
-      assert.match(await screen.getAttribute('src'), language === 'ru' ? /furniture-studio-v7\.png$/ : /furniture-studio-v7-en\.png$/);
+      assert.match(await screen.getAttribute('src'), language === 'ru' ? /furniture-studio-v8\.png$/ : /furniture-studio-v8-en\.png$/);
       await card.click();
       await page.locator('[data-testid=furniture-store]').waitFor({ timeout: 30000 });
-      await page.getByRole('heading', { name: 'Adrienne' }).waitFor();
+      await page.getByRole('heading', { name: 'Sofas', exact: true }).waitFor();
     } else if (blocked.endsWith('.webp')) {
       assert.ok(await art.evaluate(element => element.classList.contains('ps-furniture-no-cover')));
       assert.ok(await art.locator('.ps-furniture-screen img').isVisible());
@@ -47,4 +47,4 @@ async function check(width, blocked, language = 'ru') {
     console.log(`PASS furniture showcase ${width}px ${blocked ? 'fallback ' + blocked : 'real screen and navigation'}`);
   } finally { await browser.close(); }
 }
-(async () => { await check(320); await check(390); await check(390, undefined, 'en'); await check(390, 'furniture-studio-v4.webp'); await check(390, 'furniture-studio-v7.png'); })().catch(error => { console.error(error); process.exit(1); });
+(async () => { await check(320); await check(390); await check(390, undefined, 'en'); await check(390, 'furniture-studio-v4.webp'); await check(390, 'furniture-studio-v8.png'); })().catch(error => { console.error(error); process.exit(1); });

@@ -10,7 +10,7 @@
   --fs-safe-bottom: max(12px, env(safe-area-inset-bottom, 0px), var(--sab, 0px), var(--csab, 0px));
   --fs-obscured: max(0px, calc(100dvh - var(--tg-viewport-height, 100dvh)));
   color: #171717;
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--fs-font);
   -webkit-font-smoothing: antialiased;
 }
 .fs-store {
@@ -333,7 +333,7 @@ body:has(.fs-planner) .fs-nav {
   margin-bottom: 16px;
 }
 .fs-section-head h2 {
-  font-family: 'Arial Black', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--fs-font);
   font-size: clamp(20px, 5.5vw, 25px);
   line-height: 0.98;
   font-weight: 900;
