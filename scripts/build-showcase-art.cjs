@@ -31,13 +31,13 @@ async function picture(folder, id) {
   return 'data:image/webp;base64,' + bytes.toString('base64');
 }
 
-async function composition(id, scene) {
+async function composition(id, scene, screenId = id) {
   const cover = await picture('covers', id);
   if (!scene) return '<img class="original" src="' + cover + '">';
-  const screen = await picture('screens', id);
+  const screen = await picture('screens', screenId);
   if (scene.cutout) {
     return `<div class="ps-device-scene"><div class="ps-device"><div class="ps-device-display"><img src="${screen}"></div></div>
-      <img style="right:0;bottom:0;width:42%;height:43%;object-fit:contain;object-position:right bottom" src="${cover}"></div>`;
+      <img style="right:0;bottom:1.5%;width:75%;height:32%;object-fit:contain;object-position:right bottom" src="${cover}"></div>`;
   }
   const [x, y, w, h] = scene.handset;
   const scaleX = 152 / w;
@@ -64,6 +64,17 @@ async function buildPreviewSheet() {
     .toFile(path.join(output, '../showcase-preview-sheet.webp'));
 }
 
+async function render(page, markup, handsetStyles) {
+  await page.setContent(`<style>
+    *{box-sizing:border-box} body{margin:0}
+    .original{position:absolute;inset:0;width:100%;height:100%}
+    img{display:block;position:absolute}
+    ${handsetStyles}
+  </style><div class="ps-composition">${markup}</div>`);
+  await page.evaluate(() => Promise.all(Array.from(document.images, image => image.decode())));
+  return page.screenshot({omitBackground:true});
+}
+
 async function main() {
   await fs.mkdir(output, { recursive: true });
   const handsetStyles = await fs.readFile(path.join(__dirname, '../client/src/components/ShowcaseHandset.css'), 'utf8');
@@ -74,14 +85,13 @@ async function main() {
       const only = process.argv.find(arg => arg.startsWith('--id='));
       if (only && id !== only.slice(5)) continue;
       const html = await composition(id, scene);
-      await page.setContent(`<style>
-        *{box-sizing:border-box} body{margin:0}
-        .original{position:absolute;inset:0;width:100%;height:100%}
-        img{display:block;position:absolute}
-        ${handsetStyles}
-      </style><div class="ps-composition">${html}</div>`);
-      await page.evaluate(() => Promise.all(Array.from(document.images, image => image.decode())));
-      const rendered = await page.screenshot({ omitBackground: true });
+      const rendered = await render(page, html, handsetStyles);
+      if (id === 'china-buyer') {
+        const variant = path.join(output, '../showcase-localized');
+        await fs.mkdir(variant, {recursive:true});
+        const english = await render(page, await composition(id, scene, id + '-en'), handsetStyles);
+        await sharp(english).webp({quality:86,alphaQuality:82,effort:5}).toFile(path.join(variant, 'china-buyer-en.webp'));
+      }
       await sharp(rendered).webp({ quality: 86, alphaQuality: 82, effort: 5 }).toFile(path.join(output, id + '.webp'));
       await sharp(rendered).resize({ width: 144 }).webp({ quality: 63, alphaQuality: 50, effort: 5 }).toFile(path.join(output, id + '.preview.webp'));
     }

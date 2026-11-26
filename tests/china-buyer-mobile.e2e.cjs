@@ -73,7 +73,7 @@ run(
           dock.y + dock.height <= 715,
           'Telegram content and bottom safe area',
         );
-        const guide = await btn(p, 'От запроса до выкупа').boundingBox();
+        const guide = await btn(p, 'Как работает байер').boundingBox();
         assert.ok(
           guide.y + guide.height <= dock.y,
           'Last action clears the dock',

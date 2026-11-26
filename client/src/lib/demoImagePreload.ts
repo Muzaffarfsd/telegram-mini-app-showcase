@@ -18,8 +18,8 @@ const firstImages: Record<string, string> = {
 export function warmDemoImage(id: string | undefined, priority: 'high' | 'low' = 'low'): void {
   if (!id) return;
   if (id === 'china-buyer') {
-    const base = '/china-buyer/sourcing/inspection';
-    warmImage(base + '-480.webp', priority, { srcSet: base + '-480.webp 480w, ' + base + '-1200.webp 1200w', sizes: '(max-width: 759px) 100vw, 560px' });
+    const base = '/china-buyer/ink/dragon';
+    warmImage(base + '-640.webp', priority, { srcSet: base + '-640.webp 640w, ' + base + '-1280.webp 1280w', sizes: '(min-width: 760px) 570px, 100vw' });
     return;
   }
   if (id === 'flower-store') {

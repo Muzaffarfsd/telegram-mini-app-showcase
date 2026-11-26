@@ -69,7 +69,7 @@ run(
       );
       await p.locator('.yb-related .yb-image-link').first().click();
       assert.ok(
-        !(await p.locator('.yb-detail-copy h1').innerText()).includes('бордо'),
+        !(await p.locator('.yb-product-intro h1').innerText()).includes('бордо'),
       );
       await widthOK(p);
       assert.deepEqual(errors, []);

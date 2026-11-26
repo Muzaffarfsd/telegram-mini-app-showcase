@@ -1,7 +1,6 @@
 import {
   ArrowRight,
   ArrowUpRight,
-  Bookmark,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -15,8 +14,8 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useGalleryPan } from '../useGalleryPan';
+import { InkArt, InkHeading } from './InkJourney';
 import {
-  Back,
   SampleCard,
   SamplePhoto,
   SectionTitle,
@@ -38,14 +37,12 @@ export function SampleDetail({
   item,
   actions,
   begin,
-  back,
 }: {
   item: Sample;
   actions: LibraryActions;
   begin: (ids: string[]) => void;
-  back: () => void;
 }) {
-  const { ru, selection, select, favorites, favorite, compare } = actions;
+  const { ru, selection, select, compare } = actions;
   const [index, setIndex] = useState(0);
   const [zoom, setZoom] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -54,8 +51,7 @@ export function SampleDetail({
   const pictures = [largeImage(item), ...(item.gallery ?? [])];
   const name = local(item.title, ru);
   const pan = useGalleryPan(zoom, zoomFrame, 1.8, pictures[index]);
-  const seen = selection.includes(item.id),
-    saved = favorites.includes(item.id);
+  const seen = selection.includes(item.id);
   const label = (index: number) => shotName(item, index, ru);
   function enlarge() {
     setZoom(false);
@@ -71,8 +67,12 @@ export function SampleDetail({
   }, []);
   return (
     <section>
-      <Back ru={ru} action={back} />
       <div className="yb-detail">
+        <div className="yb-product-intro">
+          <small>{categoryName(item.category, ru)}</small>
+          <h1>{name}</h1>
+          <p className="yb-lead-text">{local(item.shape, ru)}.</p>
+        </div>
         <div className="yb-gallery">
           <button
             ref={zoomButton}
@@ -111,9 +111,6 @@ export function SampleDetail({
           )}
         </div>
         <div className="yb-detail-copy">
-          <small>{categoryName(item.category, ru)}</small>
-          <h1>{name}</h1>
-          <p className="yb-lead-text">{local(item.shape, ru)}.</p>
           <button
             type="button"
             className="yb-primary yb-wide"
@@ -122,16 +119,7 @@ export function SampleDetail({
             {ru ? 'Найти похожее' : 'Source something similar'}
             <ArrowRight size={18} />
           </button>
-          <div className="yb-duo">
-            <button
-              className="yb-secondary"
-              type="button"
-              aria-pressed={saved}
-              onClick={() => favorite(item.id)}
-            >
-              <Bookmark size={17} fill={saved ? 'currentColor' : 'none'} />
-              {ru ? 'Избранное' : 'Saved'}
-            </button>
+          <div className="yb-detail-tools">
             <button
               className="yb-secondary"
               type="button"
@@ -277,12 +265,10 @@ export function SampleDetail({
 }
 export function Compare({
   actions,
-  back,
   library,
   begin,
 }: {
   actions: LibraryActions;
-  back: () => void;
   library: () => void;
   begin: (ids: string[]) => void;
 }) {
@@ -290,11 +276,9 @@ export function Compare({
   const items = selection.flatMap((id) => sampleById(id) ?? []);
   return (
     <section>
-      <Back ru={ru} action={back} />
-      <div className="yb-page-title">
-        <h1>{ru ? 'Сравнение' : 'Compare'}</h1>
+      <InkHeading mark="图鉴" title={ru ? 'Сравнение' : 'Compare'}>
         <span className="yb-count">{items.length} / 3</span>
-      </div>
+      </InkHeading>
       {!items.length ? (
         <div className="yb-empty">
           <Columns2 />
@@ -407,30 +391,35 @@ export function Compare({
 }
 export function Guide({
   ru,
-  back,
   begin,
   library,
 }: {
   ru: boolean;
-  back: () => void;
   begin: () => void;
   library: () => void;
 }) {
   return (
     <section className="yb-guide">
-      <Back ru={ru} action={back} />
-      <h1>{ru ? 'Что делает байер' : 'What your buyer does'}</h1>
+      <InkHeading
+        mark="指南"
+        title={ru ? 'Что делает байер' : 'What your buyer does'}
+      />
       <div className="yb-guide-layout">
-        <img
-          src="/china-buyer/sourcing/inspection-480.webp"
-          srcSet="/china-buyer/sourcing/inspection-480.webp 480w, /china-buyer/sourcing/inspection-1200.webp 1200w"
-          sizes="(max-width:650px) 95vw, 490px"
-          alt={
-            ru
-              ? 'Проверка образца рюкзака перед выкупом партии'
-              : 'Inspecting a backpack sample before purchasing a batch'
-          }
-        />
+        <div className="yb-guide-poster">
+          <InkArt
+            name="river"
+            eager
+            alt={
+              ru
+                ? 'Лодка с посылками у речной пристани'
+                : 'A boat carrying parcels near a river wharf'
+            }
+          />
+          <button type="button" onClick={begin}>
+            <span>{ru ? 'Начать запрос' : 'Start a brief'}</span>
+            <ArrowRight size={19} />
+          </button>
+        </div>
         <div>
           {(
             [
@@ -468,10 +457,6 @@ export function Guide({
         </div>
       </div>
       <div className="yb-flow-actions">
-        <button className="yb-primary" type="button" onClick={begin}>
-          {ru ? 'Начать запрос' : 'Start a brief'}
-          <ArrowRight size={17} />
-        </button>
         <button className="yb-secondary" type="button" onClick={library}>
           {ru ? 'Посмотреть образцы' : 'Browse samples'}
         </button>

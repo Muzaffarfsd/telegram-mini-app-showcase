@@ -4,6 +4,13 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 17:50 MSK — The blue-ink visual system for Yangben
+
+- Rebuilt the buyer app around the supplied art direction. White surfaces, black text and icon actions, a vermilion seal and blue ink illustrations carry through the bureau, sample library, detail, comparison, brief editor, review, saved requests and supplier quotes. Chapter tabs support touch, keyboard, reduced motion and both interface languages.
+- Added four original local illustrations in two resolutions and a licensed Chinese type subset. Updated the bilingual showcase card, its shared preview sheet and the Telegram share poster. Handset geometry still comes from ShowcaseHandset.css. The other store layouts retain their existing source assets.
+- Checkpoints before the reference redesign and the palette correction are refs/checkpoints/before-buyer-ink (3adaddbbdc251e69cae53f4b533de289fdeb532e) and refs/checkpoints/before-buyer-reference-palette (32526fe65c0f09ddd18d55ae77b25af862174869). The mobile home comparison changed 119,203 pixels from the previous release and 71,230 from the interim palette.
+- Production build and Telegram unit tests passed. Desktop and mobile screens were inspected, including gallery, guide, editor and desk. Browser smoke reported zero console errors, page errors and failed requests. The sourcing and visual-state checks cover both Chromium and WebKit. Local release assets were checked against SHA-256. TypeScript still reports the same 61 unrelated diagnostics as the previous baseline.
+
 ## 2026-11-26 16:47 MSK — Source from China for clients across the CIS
 
 - The new home introduces a buyer's work in China, offers photo, link and written requests, and opens an editable example for a wholesale batch of backpacks. The client selects one of ten delivery countries, a city, a personal or business order, a quantity, and a budget with an explicit currency.

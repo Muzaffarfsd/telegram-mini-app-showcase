@@ -1,6 +1,14 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal, flushSync } from 'react-dom';
-import { BookOpen, FolderClosed, Grid2X2, Plus, Search, X } from 'lucide-react';
+import {
+  BookOpen,
+  FolderClosed,
+  Grid2X2,
+  Heart,
+  Plus,
+  Search,
+  X,
+} from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useDemoHistory } from '@/hooks/useDemoHistory';
 import { scrollToTop } from '@/hooks/useScrollToTop';
@@ -8,6 +16,7 @@ import { restoreTelegramChrome } from '@/lib/telegramChrome';
 import { DemoHomeButton } from '../DemoHomeButton';
 import {
   allSamples,
+  Back,
   BureauHome,
   Library,
   type CatalogState,
@@ -33,6 +42,7 @@ import {
 import { marketCode, type MarketCode } from './buyer/markets';
 import { backpackExample } from './buyer/quoteMessage';
 import './buyer/Bureau.css';
+import './buyer/Ink.css';
 
 type Screen =
   | 'home'
@@ -61,10 +71,8 @@ const uid = () =>
 const favoriteKey = 'china-buyer-favorites-v1';
 function BureauMark() {
   return (
-    <span className="yb-mark" aria-hidden="true">
-      <i />
-      <i />
-      <i />
+    <span className="yb-mark" lang="zh-Hans" aria-hidden="true">
+      样本
     </span>
   );
 }
@@ -163,7 +171,7 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
       document.getElementById('root'),
     ].filter((node): node is HTMLElement => !!node);
     const oldColors = nodes.map((n) => n.style.backgroundColor);
-    nodes.forEach((n) => (n.style.backgroundColor = '#ffffff'));
+    nodes.forEach((n) => (n.style.backgroundColor = '#e5f4ff'));
     const root = document.getElementById('root');
     root?.classList.add('china-buyer-scroll-root');
     const tg = (window as any).Telegram?.WebApp;
@@ -308,6 +316,13 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
         : route.screen === 'record' || route.screen === 'desk'
           ? 'desk'
           : 'library';
+  const detailScreen = !['home', 'library', 'desk'].includes(route.screen);
+  function toolbarBack() {
+    if (route.screen === 'review' && !validate(fields)) editReview();
+    else if (route.screen === 'record')
+      history.back(() => go('desk', { tab: 'briefs' }));
+    else back();
+  }
   const temporary =
     workflow.temporary ||
     favorites.temporary ||
@@ -322,23 +337,41 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
       <header
         className={'yb-mast' + (route.screen === 'home' ? ' is-home' : '')}
       >
-        <div className="yb-brand">
-          <BureauMark />
-          {route.screen === 'home' ? (
-            <span className="yb-wordmark">YANGBEN</span>
-          ) : (
-            <button
-              type="button"
-              onClick={() => go('home')}
-              aria-label={ru ? 'Главная YANGBEN' : 'YANGBEN home'}
-            >
-              YANGBEN
-            </button>
-          )}
-        </div>
+        {detailScreen ? (
+          <Back ru={ru} action={toolbarBack} />
+        ) : (
+          <div className="yb-brand">
+            <BureauMark />
+            {route.screen === 'home' ? (
+              <span className="yb-wordmark">Yangben</span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => go('home')}
+                aria-label={ru ? 'Главная YANGBEN' : 'YANGBEN home'}
+              >
+                Yangben
+              </button>
+            )}
+          </div>
+        )}
         <div className="yb-mast-end">
           {route.screen === 'home' && (
-            <span>{ru ? 'Бюро закупок' : 'Sourcing office'}</span>
+            <span>{ru ? 'Китай → СНГ' : 'China → CIS'}</span>
+          )}
+          {route.screen === 'sample' && item && (
+            <button
+              type="button"
+              className="yb-icon yb-heart"
+              aria-label={ru ? 'Избранное' : 'Saved'}
+              aria-pressed={favorites.ids.includes(item.id)}
+              onClick={() => actions.favorite(item.id)}
+            >
+              <Heart
+                size={19}
+                fill={favorites.ids.includes(item.id) ? 'currentColor' : 'none'}
+              />
+            </button>
           )}
           <button
             type="button"
@@ -388,13 +421,11 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
             item={item}
             actions={actions}
             begin={startBrief}
-            back={back}
           />
         )}
         {route.screen === 'compare' && (
           <Compare
             actions={actions}
-            back={back}
             library={() => openLibrary()}
             begin={startBrief}
           />
@@ -402,7 +433,6 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
         {route.screen === 'guide' && (
           <Guide
             ru={ru}
-            back={back}
             begin={() => startBrief()}
             library={() => openLibrary()}
           />
@@ -417,7 +447,6 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
             fileInput={photoInput}
             onUpdate={(f) => drafts.put(slot, f)}
             onReview={review}
-            back={back}
           />
         )}
         {route.screen === 'review' && !validate(fields) && (
@@ -436,7 +465,6 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
             b={record}
             ru={ru}
             open={open}
-            back={() => history.back(() => go('desk', { tab: 'briefs' }))}
             edit={() => startBrief([], 'any', 'edit:' + record.id, record.id)}
             temporary={workflow.temporary}
             onOffer={(change) => workflow.updateOffer(record.id, change)}

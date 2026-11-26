@@ -3,7 +3,7 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
-  Bookmark,
+  Heart,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -11,11 +11,13 @@ import {
   FolderOpen,
   ImagePlus,
   Link2,
+  PencilLine,
   Search,
   X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Destination } from './Destination';
+import { InkHeading, InkJourney, InkArt } from './InkJourney';
 import type { MarketCode } from './markets';
 import {
   categories,
@@ -133,7 +135,7 @@ export function SampleCard({
           aria-pressed={saved}
           onClick={() => favorite(item.id)}
         >
-          <Bookmark size={18} fill={saved ? 'currentColor' : 'none'} />
+          <Heart size={18} fill={saved ? 'currentColor' : 'none'} />
         </button>
       </div>
       <div className="yb-card-caption">
@@ -272,87 +274,69 @@ export function BureauHome({
   const { ru } = actions;
   return (
     <>
-      <div className="yb-service-lead">
-        <section className="yb-service-intro">
-          <h1>{ru ? 'Ваш закупщик в Китае' : 'Your buyer in China'}</h1>
-          <p>
-            {ru
-              ? 'Для личных заказов и бизнеса в СНГ. Байер найдёт поставщика, проверит образец и уточнит цену с доставкой в ваш город. Вы решаете, выкупать ли товар.'
-              : 'For individuals and businesses across the CIS. Your buyer finds a supplier, checks the sample and quotes delivery to your city. You approve the purchase.'}
-          </p>
-          <Destination compact ru={ru} value={market} onChange={chooseMarket} />
-          <div
-            className="yb-start-actions"
-            aria-label={ru ? 'Начать запрос' : 'Start a request'}
-          >
-            <button
-              type="button"
-              className="yb-primary"
-              onClick={() => begin('photo')}
-            >
-              <ImagePlus size={18} />
+      <InkJourney ru={ru}>
+        <section
+          className="yb-request-entries"
+          aria-label={ru ? 'Начать запрос' : 'Start a request'}
+        >
+          <h2>{ru ? 'Начать запрос' : 'Start a request'}</h2>
+          <div className="yb-start-actions">
+            <button type="button" onClick={() => begin('photo')}>
+              <ImagePlus size={19} />
               {ru ? 'По фото' : 'Use a photo'}
             </button>
-            <button
-              type="button"
-              className="yb-secondary"
-              onClick={() => begin('link')}
-            >
-              <Link2 size={18} />
+            <button type="button" onClick={() => begin('link')}>
+              <Link2 size={19} />
               {ru ? 'По ссылке' : 'Use a link'}
             </button>
-          </div>
-          <div className="yb-intro-links">
             <button type="button" onClick={() => begin('any')}>
+              <PencilLine size={18} />
               {ru ? 'Описать товар' : 'Describe an item'}
-            </button>
-            <button type="button" onClick={guide}>
-              {ru ? 'Как работает байер' : 'How sourcing works'}
-              <ArrowUpRight size={14} />
             </button>
           </div>
         </section>
-        <button
-          type="button"
-          className="yb-case"
-          onClick={example}
-          aria-label={
-            ru
-              ? 'Открыть пример запроса на 30 рюкзаков'
-              : 'Open the 30-backpack example'
-          }
-        >
-          <div className="yb-case-image">
-            <img
-              src="/china-buyer/sourcing/inspection-480.webp"
-              srcSet="/china-buyer/sourcing/inspection-480.webp 480w, /china-buyer/sourcing/inspection-1200.webp 1200w"
-              sizes="(max-width: 759px) 100vw, 560px"
-              fetchPriority="high"
-              alt={
-                ru
-                  ? 'Байер проверяет молнию рюкзака перед отправкой партии'
-                  : 'A buyer checks the zip on a backpack before dispatch'
-              }
-            />
-            <span>{ru ? 'Пример закупки' : 'Example brief'}</span>
+        <Destination compact ru={ru} value={market} onChange={chooseMarket} />
+      </InkJourney>
+      <button
+        type="button"
+        className="yb-case"
+        onClick={example}
+        aria-label={
+          ru
+            ? 'Открыть пример запроса на 30 рюкзаков'
+            : 'Open the 30-backpack example'
+        }
+      >
+        <div className="yb-case-image">
+          <img
+            src="/china-buyer/sourcing/inspection-480.webp"
+            srcSet="/china-buyer/sourcing/inspection-480.webp 480w, /china-buyer/sourcing/inspection-1200.webp 1200w"
+            sizes="(max-width: 759px) 100vw, 560px"
+            fetchPriority="high"
+            alt={
+              ru
+                ? 'Байер проверяет молнию рюкзака перед отправкой партии'
+                : 'A buyer checks the zip on a backpack before dispatch'
+            }
+          />
+          <span>{ru ? 'Пример закупки' : 'Example brief'}</span>
+        </div>
+        <div className="yb-case-caption">
+          <div>
+            <strong>
+              {ru ? '30 рюкзаков для магазина' : '30 backpacks for a shop'}
+            </strong>
+            <small>
+              {ru
+                ? 'Проверка образца и расчёт партии'
+                : 'Sample inspection and a batch quote'}
+            </small>
           </div>
-          <div className="yb-case-caption">
-            <div>
-              <strong>
-                {ru ? '30 рюкзаков для магазина' : '30 backpacks for a shop'}
-              </strong>
-              <small>
-                {ru
-                  ? 'Проверка образца и расчёт партии'
-                  : 'Sample inspection and a batch quote'}
-              </small>
-            </div>
-            <i>
-              <ArrowUpRight size={21} />
-            </i>
-          </div>
-        </button>
-      </div>
+          <i>
+            <ArrowUpRight size={21} />
+          </i>
+        </div>
+      </button>
       <section className="yb-section">
         <SectionTitle
           title={ru ? 'Что хотите закупить?' : 'What would you like to source?'}
@@ -385,7 +369,8 @@ export function BureauHome({
         </div>
       </section>
       <button type="button" className="yb-guide-link" onClick={guide}>
-        <span>{ru ? 'От запроса до выкупа' : 'From request to purchase'}</span>
+        <InkArt name="river" />
+        <span>{ru ? 'Как работает байер' : 'How sourcing works'}</span>
         <ArrowUpRight />
       </button>
     </>
@@ -429,10 +414,9 @@ export function Library({
     );
   return (
     <section>
-      <div className="yb-page-title">
-        <h1>{ru ? 'Образцы' : 'Samples'}</h1>
+      <InkHeading mark="图鉴" title={ru ? 'Образцы' : 'Sample library'}>
         <span className="yb-count">{samples.length}</span>
-      </div>
+      </InkHeading>
       <div className="yb-search">
         <Search size={19} />
         <input
@@ -478,7 +462,7 @@ export function Library({
           aria-pressed={filter.saved}
           onClick={() => change({ ...filter, saved: !filter.saved })}
         >
-          <Bookmark size={16} />
+          <Heart size={16} />
           {ru ? 'Избранное' : 'Saved'}
         </button>
         <label>

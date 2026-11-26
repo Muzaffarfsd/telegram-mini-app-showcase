@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Check, Pencil, Plus, Trash2 } from 'lucide-react';
 import { currencies, currencyCode, money, type Currency } from './markets';
 import { offerTotals, type Offer, type ChangeOffer } from './offers';
 import { type SavedBrief } from './records';
@@ -307,6 +307,7 @@ export function OfferPanel({
           <div className="yb-flow-actions">
             <button type="submit" className="yb-primary">
               {ru ? 'Сохранить предложение' : 'Save offer'}
+              <Check size={17} />
             </button>
             <button
               type="button"

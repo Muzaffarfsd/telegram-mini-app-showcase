@@ -1,7 +1,7 @@
 import {
   ArrowRight,
   ArrowUpRight,
-  Bookmark,
+  Heart,
   Check,
   Share2,
   FileText,
@@ -21,7 +21,7 @@ import {
   type FormEvent,
   type RefObject,
 } from 'react';
-import { Back, SampleCard, SectionTitle, type LibraryActions } from './Library';
+import { SampleCard, SectionTitle, type LibraryActions } from './Library';
 import {
   categories,
   categoryName,
@@ -32,6 +32,7 @@ import {
 } from './samples';
 import { preparePhoto, validate, type Brief, type SavedBrief } from './records';
 import { Destination } from './Destination';
+import { InkHeading } from './InkJourney';
 import {
   currencies,
   currencyCode,
@@ -109,7 +110,6 @@ export function BriefEditor({
   fileInput,
   onUpdate,
   onReview,
-  back,
 }: {
   ru: boolean;
   initial: Brief;
@@ -117,7 +117,6 @@ export function BriefEditor({
   fileInput: RefObject<HTMLInputElement | null>;
   onUpdate: (b: Brief) => void;
   onReview: (b: Brief) => void;
-  back: () => void;
 }) {
   const [fields, setFields] = useState(initial);
   const current = useRef(fields);
@@ -168,8 +167,10 @@ export function BriefEditor({
   }
   return (
     <section className="yb-form-page">
-      <Back ru={ru} action={back} />
-      <h1>{ru ? 'Запрос на закупку' : 'Sourcing request'}</h1>
+      <InkHeading
+        mark="委托"
+        title={ru ? 'Запрос на закупку' : 'Sourcing request'}
+      />
       <form className="yb-form" onSubmit={review} noValidate>
         <div className="yb-form-col">
           <h2>{ru ? 'Что нужно найти?' : 'What should we find?'}</h2>
@@ -516,8 +517,10 @@ export function Review({
 }) {
   return (
     <section className="yb-narrow">
-      <Back ru={ru} action={edit} />
-      <h1>{ru ? 'Проверка запроса' : 'Review your brief'}</h1>
+      <InkHeading
+        mark="委托"
+        title={ru ? 'Проверка запроса' : 'Review your brief'}
+      />
       <BriefFacts b={b} ru={ru} open={open} />
       {error && (
         <p role="alert" className="yb-error">
@@ -546,7 +549,6 @@ export function SavedView({
   b,
   ru,
   open,
-  back,
   edit,
   remove,
   temporary,
@@ -555,7 +557,6 @@ export function SavedView({
   b: SavedBrief;
   ru: boolean;
   open: (id: string) => void;
-  back: () => void;
   edit: () => void;
   remove: () => void;
   temporary: boolean;
@@ -565,7 +566,6 @@ export function SavedView({
   const [sharing, setSharing] = useState(false);
   return (
     <section className="yb-narrow">
-      <Back ru={ru} action={back} />
       <div className="yb-saved-label">
         <Check size={15} />
         {temporary
@@ -650,8 +650,7 @@ export function Desk({
   const { ru, favorites, selection } = actions;
   return (
     <section>
-      <div className="yb-page-title">
-        <h1>{ru ? 'Моё бюро' : 'My desk'}</h1>
+      <InkHeading mark="手记" title={ru ? 'Моё бюро' : 'My desk'}>
         <button
           type="button"
           className="yb-round"
@@ -660,7 +659,7 @@ export function Desk({
         >
           <Plus />
         </button>
-      </div>
+      </InkHeading>
       <div className="yb-desk-tabs">
         {(['briefs', 'saved'] as const).map((t) => (
           <button
@@ -669,7 +668,7 @@ export function Desk({
             aria-pressed={tab === t}
             onClick={() => change(t)}
           >
-            {t === 'briefs' ? <FileText size={17} /> : <Bookmark size={17} />}{' '}
+            {t === 'briefs' ? <FileText size={17} /> : <Heart size={17} />}{' '}
             {t === 'briefs'
               ? ru
                 ? 'Запросы'
@@ -739,7 +738,7 @@ export function Desk({
         </div>
       ) : (
         <div className="yb-empty">
-          <Bookmark />
+          <Heart />
           <h2>{ru ? 'Сохраните первый образец' : 'Save your first sample'}</h2>
           <button type="button" className="yb-secondary" onClick={library}>
             {ru ? 'Открыть библиотеку' : 'Browse library'}

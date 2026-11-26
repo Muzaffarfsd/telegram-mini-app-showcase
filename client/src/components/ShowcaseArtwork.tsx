@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import buyerEnglish from '../assets/showcase-localized/china-buyer-en.webp?no-inline';
 import './ShowcaseHandset.css';
 
 const images = import.meta.glob<string>(['../assets/showcase-art/*.webp', '!../assets/showcase-art/*.preview.webp'], {
@@ -41,11 +42,12 @@ export function ShowcaseArtwork({ id, index, ru }: { id: string; index: number; 
   const screenSource = `/showcase/screens/furniture-studio-v9${ru ? '' : '-en'}.png`;
   const screenFailed = screenFailure === screenSource;
   const ready = (coverReady || coverFailed) && (!furniture || screenReady === screenSource || screenFailed);
-  const source = furniture ? '/showcase/covers/furniture-studio-v4.webp' : art.src;
+  const localizedArt = id === 'china-buyer' && !ru ? buyerEnglish : art.src;
+  const source = furniture ? '/showcase/covers/furniture-studio-v4.webp' : localizedArt;
   const eager = index < 2 || coverReady || coverFailed;
   useEffect(() => {
     if (!eager && image.current) return watchDetail(image.current);
-  }, [eager, id]);
+  }, [eager, id, source]);
   return <span className={`ps-art${ready ? ' ps-art-ready' : ''}${furniture ? ' ps-art-furniture' : ''}${coverFailed ? ' ps-furniture-no-cover' : ''}${screenFailed ? ' ps-furniture-no-screen' : ''}`} aria-hidden="true"
     style={{ backgroundPosition: art.position, backgroundSize: `400% ${rows * 100}%` }}>
     {furniture ? <span className="ps-composition">
