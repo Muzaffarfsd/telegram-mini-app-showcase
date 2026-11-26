@@ -41,7 +41,7 @@ run(
       await p.locator('#cbw-quantity').fill('1');
       await p.locator('#cbw-budget').fill('0');
       await btn(p, 'Review brief').click();
-      assert.match(await p.getByRole('alert').innerText(), /rouble/);
+      assert.match(await p.getByRole('alert').innerText(), /positive whole number/);
       await p.locator('#cbw-budget').fill('');
       await btn(p, 'Review brief').click();
       await p.locator('.yb-source').waitFor();

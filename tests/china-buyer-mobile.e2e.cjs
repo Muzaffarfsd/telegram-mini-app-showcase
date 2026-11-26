@@ -19,10 +19,7 @@ run(
       assert.match(await title.innerText(), /Arc/);
       await btn(p, ru ? 'Предыдущий образец' : 'Previous sample').click();
       assert.match(await title.innerText(), /Fold/);
-      await btn(
-        p,
-        ru ? 'Как составить запрос' : 'How to prepare a brief',
-      ).click();
+      await btn(p, ru ? 'Как работает байер' : 'How sourcing works').click();
       await p.locator('.yb-guide article').first().waitFor();
       assert.equal(await p.locator('.yb-guide article').count(), 3);
       await btn(p, ru ? 'Назад' : 'Back').click();
@@ -31,7 +28,7 @@ run(
       const query = p.getByRole('searchbox');
       await query.waitFor();
       assert.ok(await query.evaluate((el) => el === document.activeElement));
-      assert.equal(await p.locator('.yb-grid article').count(), 24);
+      assert.equal(await p.locator('.yb-grid article').count(), 25);
       await query.fill('clay');
       assert.equal(await p.locator('.yb-grid article').count(), 1);
       await p.getByTestId('buyer-item-clay').waitFor();
@@ -76,7 +73,7 @@ run(
           dock.y + dock.height <= 715,
           'Telegram content and bottom safe area',
         );
-        const guide = await btn(p, 'Как составить запрос').boundingBox();
+        const guide = await btn(p, 'От запроса до выкупа').boundingBox();
         assert.ok(
           guide.y + guide.height <= dock.y,
           'Last action clears the dock',

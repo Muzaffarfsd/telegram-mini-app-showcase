@@ -53,9 +53,9 @@ export const demoApps: DemoApp[] = [
   {
     id: 'china-buyer',
     title: 'YANGBEN — байер из Китая',
-    description: 'Бюро образцов. Поиск по фотографии или ссылке и сравнение предметов в одном запросе.',
+    description: 'Закупки из Китая для клиентов в СНГ. Запрос байеру, выбор страны и сравнение предложений с доставкой.',
     category: 'Электронная коммерция',
-    image: '/china-buyer/yangben/fold-480.webp',
+    image: '/china-buyer/sourcing/inspection-480.webp',
     creator: 'WEB4TG',
     likes: '0',
     badge: 'Демо',

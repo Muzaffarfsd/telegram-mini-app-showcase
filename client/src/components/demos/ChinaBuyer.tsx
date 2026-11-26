@@ -30,6 +30,8 @@ import {
   type Category,
   type Copy,
 } from './buyer/samples';
+import { marketCode, type MarketCode } from './buyer/markets';
+import { backpackExample } from './buyer/quoteMessage';
 import './buyer/Bureau.css';
 
 type Screen =
@@ -78,6 +80,19 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
     drafts = useDrafts();
   const submitted = useRef(new Map<string, string>());
   const lastSlot = useRef('new');
+  const [market, setMarket] = useState<MarketCode | ''>(() => {
+    try {
+      return marketCode(localStorage.getItem('yangben-destination'));
+    } catch {
+      return '';
+    }
+  });
+  function chooseMarket(value: MarketCode | '') {
+    setMarket(value);
+    try {
+      localStorage.setItem('yangben-destination', value);
+    } catch {}
+  }
   const main = useRef<HTMLElement>(null);
   const photoInput = useRef<HTMLInputElement>(null);
   const previousScreen = useRef<Screen>('home');
@@ -199,7 +214,9 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
     editingId?: string,
   ) {
     const slot =
-      slotOverride ?? (ids.length ? 'samples:' + ids.join(',') : 'new');
+      slotOverride ??
+      (ids.length ? 'samples:' + ids.join(',') : 'new') +
+        (market ? '@' + market : '');
     const record = workflow.records.find((b) => b.id === editingId);
     if (!drafts.get(slot))
       drafts.put(
@@ -214,6 +231,7 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
               )
               ? sampleById(ids[0])?.category
               : 'Другое',
+            market,
           ),
       );
     lastSlot.current = slot;
@@ -222,7 +240,12 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
     } catch {}
     go('editor', { slot, mode, intent: uid() });
   }
-  function beginFromHome(mode: 'photo' | 'link') {
+  function beginExample() {
+    const key = 'example-backpacks@' + market;
+    if (!drafts.get(key)) drafts.put(key, backpackExample(ru, market));
+    startBrief([], 'any', key);
+  }
+  function beginFromHome(mode: 'photo' | 'link' | 'any') {
     if (mode === 'photo') {
       // Open the native picker in the originating tap, including on iOS.
       flushSync(() => startBrief([], mode));
@@ -302,7 +325,7 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
         <div className="yb-brand">
           <BureauMark />
           {route.screen === 'home' ? (
-            <h1>YANGBEN</h1>
+            <span className="yb-wordmark">YANGBEN</span>
           ) : (
             <button
               type="button"
@@ -315,11 +338,7 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
         </div>
         <div className="yb-mast-end">
           {route.screen === 'home' && (
-            <span>
-              {ru ? 'Бюро образцов' : 'Sample bureau'}
-              <br />
-              {ru ? 'Китай' : 'China'}
-            </span>
+            <span>{ru ? 'Бюро закупок' : 'Sourcing office'}</span>
           )}
           <button
             type="button"
@@ -349,6 +368,9 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
             actions={actions}
             catalog={openLibrary}
             begin={beginFromHome}
+            market={market}
+            chooseMarket={chooseMarket}
+            example={beginExample}
             guide={() => go('guide')}
           />
         )}
@@ -417,6 +439,7 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
             back={() => history.back(() => go('desk', { tab: 'briefs' }))}
             edit={() => startBrief([], 'any', 'edit:' + record.id, record.id)}
             temporary={workflow.temporary}
+            onOffer={(change) => workflow.updateOffer(record.id, change)}
             remove={() => {
               workflow.remove(record.id);
               drafts.clear('edit:' + record.id);

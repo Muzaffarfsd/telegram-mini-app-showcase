@@ -37,7 +37,7 @@ async function composition(id, scene) {
   const screen = await picture('screens', id);
   if (scene.cutout) {
     return `<div class="ps-device-scene"><div class="ps-device"><div class="ps-device-display"><img src="${screen}"></div></div>
-      <img style="left:48%;bottom:0;width:52%;height:auto" src="${cover}"></div>`;
+      <img style="right:0;bottom:0;width:42%;height:43%;object-fit:contain;object-position:right bottom" src="${cover}"></div>`;
   }
   const [x, y, w, h] = scene.handset;
   const scaleX = 152 / w;

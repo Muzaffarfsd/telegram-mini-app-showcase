@@ -15,6 +15,8 @@ import {
   X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { Destination } from './Destination';
+import type { MarketCode } from './markets';
 import {
   categories,
   categoryName,
@@ -64,17 +66,8 @@ export function SamplePhoto({
     <img
       className={className}
       src={item.image}
-      srcSet={
-        item.feature
-          ? item.image +
-            ' 480w, ' +
-            largeImage(item) +
-            ' ' +
-            (item.id === 'fold' ? 1200 : 1122) +
-            'w'
-          : undefined
-      }
-      sizes={item.feature ? sizes : undefined}
+      srcSet={item.image + ' 320w, ' + largeImage(item) + ' 600w'}
+      sizes={sizes}
       alt={alt}
       loading={priority ? 'eager' : 'lazy'}
       fetchPriority={priority ? 'high' : undefined}
@@ -213,11 +206,7 @@ function Feature({ actions }: { actions: LibraryActions }) {
         }}
         aria-label={(ru ? 'Открыть ' : 'Open ') + local(item.title, ru)}
       >
-        <SamplePhoto
-          item={item}
-          priority
-          sizes="(max-width: 760px) 100vw, 660px"
-        />
+        <SamplePhoto item={item} sizes="(max-width: 760px) 95vw, 490px" />
         {index > 0 && (
           <img
             className="yb-feature-detail"
@@ -226,9 +215,7 @@ function Feature({ actions }: { actions: LibraryActions }) {
             decoding="async"
           />
         )}
-        <span className="yb-picture-label">
-          {ru ? 'Выбор бюро' : 'Bureau edit'}
-        </span>
+        <span className="yb-picture-label">{ru ? 'Образец' : 'Sample'}</span>
         <span className="yb-picture-open">
           <ArrowUpRight size={21} />
         </span>
@@ -270,37 +257,40 @@ export function BureauHome({
   catalog,
   begin,
   guide,
+  market,
+  chooseMarket,
+  example,
 }: {
   actions: LibraryActions;
   catalog: (category?: Category) => void;
-  begin: (mode: 'photo' | 'link') => void;
+  begin: (mode: 'photo' | 'link' | 'any') => void;
   guide: () => void;
+  market: MarketCode | '';
+  chooseMarket: (value: MarketCode | '') => void;
+  example: () => void;
 }) {
   const { ru } = actions;
   return (
     <>
-      <div className="yb-home-lead">
-        <Feature actions={actions} />
-        <section className="yb-start">
-          <div className="yb-start-body">
-            <div className="yb-start-icon" aria-hidden="true">
-              <span />
-              <i />
-            </div>
-            <h2>{ru ? 'Что ищем?' : 'What are you looking for?'}</h2>
-            <p>
-              {ru
-                ? 'Покажите байеру вещь, которую хотите найти в Китае.'
-                : 'Show your buyer what you’d like to find in China.'}
-            </p>
-          </div>
-          <div className="yb-start-actions">
+      <div className="yb-service-lead">
+        <section className="yb-service-intro">
+          <h1>{ru ? 'Ваш закупщик в Китае' : 'Your buyer in China'}</h1>
+          <p>
+            {ru
+              ? 'Для личных заказов и бизнеса в СНГ. Байер найдёт поставщика, проверит образец и уточнит цену с доставкой в ваш город. Вы решаете, выкупать ли товар.'
+              : 'For individuals and businesses across the CIS. Your buyer finds a supplier, checks the sample and quotes delivery to your city. You approve the purchase.'}
+          </p>
+          <Destination compact ru={ru} value={market} onChange={chooseMarket} />
+          <div
+            className="yb-start-actions"
+            aria-label={ru ? 'Начать запрос' : 'Start a request'}
+          >
             <button
               type="button"
               className="yb-primary"
               onClick={() => begin('photo')}
             >
-              <ImagePlus size={19} />
+              <ImagePlus size={18} />
               {ru ? 'По фото' : 'Use a photo'}
             </button>
             <button
@@ -308,26 +298,80 @@ export function BureauHome({
               className="yb-secondary"
               onClick={() => begin('link')}
             >
-              <Link2 size={19} />
+              <Link2 size={18} />
               {ru ? 'По ссылке' : 'Use a link'}
             </button>
           </div>
+          <div className="yb-intro-links">
+            <button type="button" onClick={() => begin('any')}>
+              {ru ? 'Описать товар' : 'Describe an item'}
+            </button>
+            <button type="button" onClick={guide}>
+              {ru ? 'Как работает байер' : 'How sourcing works'}
+              <ArrowUpRight size={14} />
+            </button>
+          </div>
         </section>
+        <button
+          type="button"
+          className="yb-case"
+          onClick={example}
+          aria-label={
+            ru
+              ? 'Открыть пример запроса на 30 рюкзаков'
+              : 'Open the 30-backpack example'
+          }
+        >
+          <div className="yb-case-image">
+            <img
+              src="/china-buyer/sourcing/inspection-480.webp"
+              srcSet="/china-buyer/sourcing/inspection-480.webp 480w, /china-buyer/sourcing/inspection-1200.webp 1200w"
+              sizes="(max-width: 759px) 100vw, 560px"
+              fetchPriority="high"
+              alt={
+                ru
+                  ? 'Байер проверяет молнию рюкзака перед отправкой партии'
+                  : 'A buyer checks the zip on a backpack before dispatch'
+              }
+            />
+            <span>{ru ? 'Пример закупки' : 'Example brief'}</span>
+          </div>
+          <div className="yb-case-caption">
+            <div>
+              <strong>
+                {ru ? '30 рюкзаков для магазина' : '30 backpacks for a shop'}
+              </strong>
+              <small>
+                {ru
+                  ? 'Проверка образца и расчёт партии'
+                  : 'Sample inspection and a batch quote'}
+              </small>
+            </div>
+            <i>
+              <ArrowUpRight size={21} />
+            </i>
+          </div>
+        </button>
       </div>
       <section className="yb-section">
         <SectionTitle
-          title={ru ? 'На столе бюро' : 'On the sample table'}
+          title={ru ? 'Что хотите закупить?' : 'What would you like to source?'}
           action={() => catalog()}
           label={ru ? 'Все образцы' : 'All samples'}
         />
-        <div className="yb-home-samples">
-          {[samples[1], samples[2], samples[6]].map((item) => (
-            <SampleCard key={item.id} item={item} actions={actions} />
-          ))}
+        <div className="yb-sourcing-shelf">
+          <Feature actions={actions} />
+          <div className="yb-home-samples">
+            {samples
+              .filter((item) => item.id === 'sneaker' || item.id === 'home')
+              .map((item) => (
+                <SampleCard key={item.id} item={item} actions={actions} />
+              ))}
+          </div>
         </div>
       </section>
       <section className="yb-section yb-index">
-        <SectionTitle title={ru ? 'Указатель' : 'Category index'} />
+        <SectionTitle title={ru ? 'Категории' : 'Categories'} />
         <div>
           {categories
             .filter((c) => c !== 'Другое')
@@ -341,7 +385,7 @@ export function BureauHome({
         </div>
       </section>
       <button type="button" className="yb-guide-link" onClick={guide}>
-        <span>{ru ? 'Как составить запрос' : 'How to prepare a brief'}</span>
+        <span>{ru ? 'От запроса до выкупа' : 'From request to purchase'}</span>
         <ArrowUpRight />
       </button>
     </>

@@ -4,6 +4,13 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 16:47 MSK — Source from China for clients across the CIS
+
+- The new home introduces a buyer's work in China, offers photo, link and written requests, and opens an editable example for a wholesale batch of backpacks. The client selects one of ten delivery countries, a city, a personal or business order, a quantity, and a budget with an explicit currency.
+- A saved request can be shared with the client's own buyer using Russian, English or Chinese templates. Attached customer photos can accompany a native share where supported. Users enter supplier offers with item price, quantity, freight, buyer's fee and other costs. The comparison distinguishes incomplete quotes from totals, preserves original currencies and keeps previously saved requests and favourites.
+- Regenerated the complete former 24-item collection and added one inspection backpack. There are 68 distinct gallery views and 25 thumbnails, with individual procurement notes, two responsive sizes of the inspection scene, an alpha cutout, a new showcase handset and a versioned Telegram share image.
+- Checkpoint `refs/checkpoints/before-buyer-cis` at `dc0506cf011c2838b80eb4d7ed3ff7da6e0ab683`. The 390 × 844 before/after comparison changed 156,420 pixels. Chromium and WebKit tested mobile/desktop layouts, all galleries, the CIS quote workflow, share messages, editing, migration, storage fallback and handoff. All 98 public-source assets matched local SHA-256, and 11 Telegram invite/deep-link tests passed. Browser smoke returned zero console errors, page errors and failed requests. Production build passed. All 61 repository TypeScript diagnostics matched the previous baseline by file, code and message.
+
 ## 2026-11-26 16:16 MSK — Relaunch the China buyer as YANGBEN sample bureau
 
 - Replaced the repeated wine-bag landing page and its stacked visual overrides with a bilingual sourcing bureau, a 24-sample library, sample details, a three-item comparison and a local desk. Three original studio photographs have responsive sizes and real texture crops. Existing archive IDs, favourites and requests remain readable.

@@ -1,6 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { categories, sampleIds, type Category, type Copy } from './samples';
 
+import {
+  markets,
+  marketCode,
+  currencyCode,
+  type MarketCode,
+  type Currency,
+} from './markets';
+import { isOffer, offersFrom, type Offer, type ChangeOffer } from './offers';
+
 export type Brief = {
   category: Category;
   description: string;
@@ -9,6 +18,10 @@ export type Brief = {
   color: string;
   quantity: string;
   budget: string;
+  currency: Currency | '';
+  market: MarketCode | '';
+  city: string;
+  purpose: 'personal' | 'business' | '';
   photo: string;
   sampleIds: string[];
 };
@@ -16,6 +29,7 @@ export type SavedBrief = Brief & {
   id: string;
   createdAt: string;
   updatedAt: string;
+  offers: Offer[];
 };
 const recordsKey = 'china-buyer-demo-requests-v1';
 const draftPrefix = 'yangben-draft-v1:';
@@ -24,6 +38,7 @@ const clip = (value: unknown, limit: number) =>
 export function emptyBrief(
   ids: string[] = [],
   category: Category = 'Другое',
+  market: MarketCode | '' = '',
 ): Brief {
   return {
     category,
@@ -33,6 +48,10 @@ export function emptyBrief(
     color: '',
     quantity: '1',
     budget: '',
+    currency: market ? markets[market].currency : '',
+    market,
+    city: '',
+    purpose: '',
     photo: '',
     sampleIds: ids,
   };
@@ -49,6 +68,17 @@ export function cleanBrief(value: unknown): Brief {
     /^data:image\/jpeg;base64,[a-zA-Z\d+/]+=*$/.test(input.photo)
       ? input.photo
       : '';
+  // Budgets saved before destination selection were denominated in roubles.
+  const budget = clip(input.budget, 9);
+  const market = marketCode(input.market);
+  const currency =
+    currencyCode(input.currency) ||
+    (input.currency === undefined && budget
+      ? 'RUB'
+      : market
+        ? markets[market].currency
+        : '');
+  const city = clip(input.city, 80);
   return {
     category,
     description: clip(input.description, 800),
@@ -56,8 +86,15 @@ export function cleanBrief(value: unknown): Brief {
     size: clip(input.size, 80),
     color: clip(input.color, 80),
     quantity:
-      typeof input.quantity === 'string' ? clip(input.quantity, 3) : '1',
-    budget: clip(input.budget, 9),
+      typeof input.quantity === 'string' ? clip(input.quantity, 5) : '1',
+    budget,
+    currency,
+    market,
+    city,
+    purpose:
+      input.purpose === 'business' || input.purpose === 'personal'
+        ? input.purpose
+        : '',
     photo,
     sampleIds: sampleIds(input.sampleIds).slice(0, 3),
   };
@@ -96,19 +133,21 @@ export function validate(brief: Brief): Copy | undefined {
       'Добавьте к описанию ещё пару букв.',
       'Use at least three characters for your description.',
     ];
-  if (!/^\d{1,3}$/.test(brief.quantity) || Number(brief.quantity) < 1)
+  if (!/^\d{1,5}$/.test(brief.quantity) || Number(brief.quantity) < 1)
     return [
-      'Укажите количество от 1 до 999.',
-      'Enter a quantity from 1 to 999.',
+      'Укажите количество от 1 до 99 999.',
+      'Enter a quantity from 1 to 99,999.',
     ];
   if (
     brief.budget &&
     (!/^\d{1,9}$/.test(brief.budget) || Number(brief.budget) < 1)
   )
     return [
-      'Укажите бюджет целым числом в рублях.',
-      'Enter a whole rouble amount for your budget.',
+      'Укажите бюджет целым положительным числом.',
+      'Enter a positive whole number for your budget.',
     ];
+  if (brief.budget && !brief.currency)
+    return ['Выберите валюту бюджета.', 'Choose a budget currency.'];
 }
 function readRecords(): SavedBrief[] {
   try {
@@ -127,6 +166,7 @@ function readRecords(): SavedBrief[] {
       return [
         {
           ...fields,
+          offers: offersFrom(raw.offers),
           id: raw.id,
           createdAt: raw.createdAt,
           updatedAt: Number.isFinite(Date.parse(raw.updatedAt))
@@ -175,6 +215,7 @@ export function useBriefs() {
       url: input.url.trim(),
       color: input.color.trim(),
       size: input.size.trim(),
+      city: input.city.trim(),
     });
     const error = validate(fields);
     if (error) return { error };
@@ -194,6 +235,7 @@ export function useBriefs() {
     const now = new Date().toISOString();
     const record = {
       ...fields,
+      offers: existing?.offers ?? [],
       id:
         existing?.id ??
         (globalThis.crypto?.randomUUID?.() ||
@@ -215,7 +257,32 @@ export function useBriefs() {
       ),
     );
   }
-  return { records, save, remove, temporary };
+  function updateOffer(id: string, change: ChangeOffer): boolean {
+    const current = failed.current ? memory.current : readRecords();
+    const record = current.find((x) => x.id === id);
+    if (!record) return false;
+    const offers = record.offers;
+    if (change.type !== 'remove' && !isOffer(change.offer)) return false;
+    const offerId = change.type === 'remove' ? change.id : change.offer.id;
+    const exists = offers.some((x) => x.id === offerId);
+    if (change.type === 'add' ? exists || offers.length >= 12 : !exists)
+      return false;
+    const next =
+      change.type === 'remove'
+        ? offers.filter((x) => x.id !== offerId)
+        : change.type === 'add'
+          ? [...offers, change.offer]
+          : offers.map((x) => (x.id === offerId ? change.offer : x));
+    write(
+      current.map((x) =>
+        x.id === id
+          ? { ...x, offers: next, updatedAt: new Date().toISOString() }
+          : x,
+      ),
+    );
+    return true;
+  }
+  return { records, save, remove, updateOffer, temporary };
 }
 export function useSelection(key: string, limit: number) {
   const read = () => {

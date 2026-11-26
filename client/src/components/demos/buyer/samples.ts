@@ -19,276 +19,417 @@ const englishCategories: Record<Category, string> = {
 };
 export const categoryName = (category: Category, ru: boolean) =>
   ru ? category : englishCategories[category];
-export type Sample = {
+type Shot = 'front' | 'reverse' | 'detail' | 'texture';
+type Definition = {
   id: string;
   category: Category;
   title: Copy;
   shape: Copy;
+  finish: Copy;
+  ask: Copy;
+  four: boolean;
+};
+export type Sample = Omit<Definition, 'four'> & {
   image: string;
-  gallery?: string[];
-  feature?: string;
-  finish?: Copy;
-  ask?: Copy;
+  gallery: string[];
+  shots: Shot[];
 };
-const materials: Record<Category, Copy> = {
-  Одежда: ['Ткань и состав', 'Fabric and composition'],
-  Обувь: ['Материал верха и подошвы', 'Upper and sole material'],
-  Сумки: ['Фактура корпуса и подкладка', 'Body texture and lining'],
-  Аксессуары: ['Покрытие и фактура', 'Finish and texture'],
-  'Для дома': ['Отделка поверхности', 'Surface finish'],
-  Другое: ['Материал и отделка', 'Material and finish'],
+export const materialOf = (s: Sample, ru: boolean) => local(s.finish, ru);
+export const askOf = (s: Sample, ru: boolean) => local(s.ask, ru);
+const labels: Record<Shot, Copy> = {
+  front: ['Общий вид', 'Full view'],
+  reverse: ['Другой ракурс', 'Alternate view'],
+  detail: ['Деталь', 'Detail'],
+  texture: ['Фактура', 'Texture'],
 };
-const questions: Record<Category, Copy> = {
-  Одежда: ['Замеры, состав и посадку', 'Measurements, fibre content and fit'],
-  Обувь: ['Длину стельки и полноту пары', 'Insole length and width'],
-  Сумки: [
-    'Размеры, застёжку и длину ремня',
-    'Dimensions, fastening and strap drop',
-  ],
-  Аксессуары: ['Вес, размер и отделку', 'Weight, dimensions and finish'],
-  'Для дома': [
-    'Габариты, материал и комплектацию',
-    'Dimensions, material and included pieces',
-  ],
-  Другое: ['Размеры и материал', 'Dimensions and material'],
-};
-export const materialOf = (item: Sample, ru: boolean) =>
-  local(item.finish ?? materials[item.category], ru);
-export const askOf = (item: Sample, ru: boolean) =>
-  local(item.ask ?? questions[item.category], ru);
-export const photoDir = '/china-buyer/yangben/';
-export const samples: Sample[] = [
+export const shotName = (s: Sample, index: number, ru: boolean) =>
+  local(labels[s.shots[index]], ru);
+const definitions: Definition[] = [
   {
     id: 'fold',
-    feature: 'Fold',
     category: 'Сумки',
     title: ['Сумка Fold', 'Fold crossbody'],
     shape: ['Плоский корпус, длинный ремень', 'Flat body, long shoulder strap'],
     finish: [
-      'Синяя ткань с сеткой рипстоп',
-      'Cobalt fabric with a ripstop grid',
+      'Кобальтовая ткань с сетчатым плетением',
+      'Cobalt fabric with a woven grid',
     ],
     ask: [
-      'Длину ремня и внутренние карманы',
-      'Strap length and inside pockets',
+      'Длину ремня, подкладку и качество молнии',
+      'Strap length, lining and zip quality',
     ],
-    image: photoDir + 'fold-480.webp',
-    gallery: [photoDir + 'fold-detail.webp'],
+    four: true,
   },
   {
     id: 'arc',
-    feature: 'Arc',
     category: 'Для дома',
     title: ['Лампа Arc', 'Arc desk lamp'],
     shape: ['Купол над низким основанием', 'Domed shade on a low base'],
-    finish: ['Серебристый матовый металл', 'Satin silver-tone metal'],
-    ask: [
-      'Высоту, тип вилки и температуру света',
-      'Height, plug type and light temperature',
+    finish: [
+      'Сатиновый металл с круговой шлифовкой',
+      'Satin metal with a circular brushed finish',
     ],
-    image: photoDir + 'arc-480.webp',
-    gallery: [photoDir + 'arc-detail.webp'],
+    ask: [
+      'Габариты, тип вилки и температуру света',
+      'Dimensions, plug type and colour temperature',
+    ],
+    four: false,
   },
   {
     id: 'clay',
-    feature: 'Clay',
     category: 'Для дома',
     title: ['Чайник Clay', 'Clay teapot'],
     shape: ['Низкий чайник и пиала', 'Low teapot with a tea cup'],
     finish: [
-      'Терракотовая зернистая поверхность',
+      'Зернистая терракотовая поверхность',
       'Grained terracotta surface',
     ],
     ask: [
-      'Объём чайника и количество пиал',
-      'Teapot capacity and number of cups',
+      'Объём, посадку крышки и защитную упаковку',
+      'Capacity, lid fit and protective packaging',
     ],
-    image: photoDir + 'clay-480.webp',
-    gallery: [photoDir + 'clay-detail.webp'],
+    four: false,
+  },
+  {
+    id: 'inspection-backpack',
+    category: 'Сумки',
+    title: ['Городской рюкзак', 'Everyday backpack'],
+    shape: [
+      'Две лямки и передний карман',
+      'Two shoulder straps and a front pocket',
+    ],
+    finish: [
+      'Плотная синяя ткань, тёмная фурнитура',
+      'Dense navy fabric and dark fittings',
+    ],
+    ask: [
+      'Фото швов и молний, размеры и цену партии',
+      'Seam and zip photos, dimensions and batch price',
+    ],
+    four: true,
   },
   {
     id: 'v5-feature',
     category: 'Сумки',
     title: ['Сумка бордо', 'Bordeaux shoulder bag'],
-    shape: ['Мягкий корпус, широкая ручка', 'Soft body, wide handle'],
-    image: '/china-buyer/v5-feature-fast.webp',
-    gallery: [
-      '/china-buyer/v5-feature-angle.webp',
-      '/china-buyer/v5-feature-model.webp',
-      '/china-buyer/v5-feature-detail.webp',
+    shape: ['Мягкий корпус, узкая ручка', 'Soft body, slim handle'],
+    finish: ['Гладкая поверхность бордового цвета', 'Smooth Bordeaux finish'],
+    ask: [
+      'Фото кромок, креплений ручки и молнии',
+      'Photos of edge finish, handle mounts and zip',
     ],
+    four: true,
   },
   {
     id: 'v4-coat',
     category: 'Одежда',
     title: ['Светлое пальто с поясом', 'Belted coat'],
     shape: ['Свободный крой с поясом', 'Relaxed cut with a belt'],
-    image: '/china-buyer/v4-coat.webp',
-    gallery: [
-      '/china-buyer/v5-light-coat-object.webp',
-      '/china-buyer/v5-light-coat-model.webp',
-      '/china-buyer/v5-light-coat-detail.webp',
+    finish: ['Светлое ворсовое полотно', 'Brushed ivory fabric'],
+    ask: [
+      'Замеры по спинке, состав и обработку борта',
+      'Back length, composition and edge finishing',
     ],
+    four: true,
   },
   {
     id: 'v4-bag',
     category: 'Сумки',
     title: ['Сумка в оттенке вина', 'Wine shoulder bag'],
-    shape: ['Закруглённое дно', 'Rounded base'],
-    image: '/china-buyer/v4-bag.webp',
-    gallery: [
-      '/china-buyer/v5-wine-bag-angle.webp',
-      '/china-buyer/v5-wine-bag-model.webp',
-      '/china-buyer/v5-wine-bag-detail.webp',
+    shape: [
+      'Трапециевидная форма, короткая ручка',
+      'Trapezoid silhouette, short handle',
     ],
+    finish: [
+      'Мелкая фактура и матовый металлический замок',
+      'Fine grain and a brushed metal clasp',
+    ],
+    ask: [
+      'Размер дна, работу замка и упаковку углов',
+      'Base dimensions, clasp operation and corner protection',
+    ],
+    four: true,
   },
   {
     id: 'tailoring',
     category: 'Одежда',
     title: ['Структурный жакет', 'Tailored jacket'],
     shape: ['Чёткая линия плеча', 'Defined shoulder line'],
-    image: '/china-buyer/product-blazer.webp',
-    gallery: [
-      '/china-buyer/v2-blazer-angle.webp',
-      '/china-buyer/v2-blazer-detail.webp',
-      '/china-buyer/v2-blazer-model.webp',
+    finish: [
+      'Графитовая костюмная ткань с мелким переплетением',
+      'Finely woven graphite suiting',
     ],
+    ask: [
+      'Ширину плеч, подкладку и размерную сетку',
+      'Shoulder width, lining and size chart',
+    ],
+    four: true,
   },
   {
     id: 'bag',
     category: 'Сумки',
     title: ['Сумка на каждый день', 'Everyday bag'],
     shape: ['Короткие ручки', 'Short handles'],
-    image: '/china-buyer/product-bag.webp',
-    gallery: [
-      '/china-buyer/v2-bag-angle.webp',
-      '/china-buyer/v2-bag-held.webp',
-      '/china-buyer/v2-bag-detail.webp',
+    finish: [
+      'Тёплый карамельный тон и светлая отстрочка',
+      'Caramel finish with light topstitching',
     ],
+    ask: [
+      'Нагрузку на ручки и внутренние отделения',
+      'Handle load capacity and internal compartments',
+    ],
+    four: true,
   },
   {
     id: 'sneaker',
     category: 'Обувь',
     title: ['Городские кроссовки', 'City trainers'],
     shape: ['Низкая посадка', 'Low-profile shape'],
-    image: '/china-buyer/product-sneaker.webp',
-    gallery: [
-      '/china-buyer/v2-sneaker-angle.webp',
-      '/china-buyer/v2-sneaker-detail.webp',
-      '/china-buyer/v2-sneaker-top.webp',
+    finish: [
+      'Сочетание сетки и ворсистых вставок',
+      'Mesh and soft napped panels',
     ],
+    ask: [
+      'Длину стельки, проклейку и разбивку по размерам',
+      'Insole lengths, sole bonding and size breakdown',
+    ],
+    four: true,
   },
   {
     id: 'wardrobe',
     category: 'Одежда',
     title: ['Образ на каждый день', 'Everyday layers'],
     shape: ['Свободная посадка', 'Relaxed layering'],
-    image: '/china-buyer/fashion.webp',
+    finish: [
+      'Деним, светлый трикотаж и матовая ткань брюк',
+      'Indigo denim, cream knit and matte trouser fabric',
+    ],
+    ask: [
+      'Стоимость каждого предмета и замеры комплекта',
+      'Individual item prices and measurements for the set',
+    ],
+    four: false,
   },
   {
     id: 'burgundy',
     category: 'Сумки',
     title: ['Сумка в винном оттенке', 'Soft wine bag'],
     shape: ['Мягкие складки', 'Soft folds'],
-    image: '/china-buyer/bags.webp',
+    finish: [
+      'Мягкая винная поверхность со сборкой на шнуре',
+      'Soft wine finish gathered at the drawcord',
+    ],
+    ask: [
+      'Как закрывается сумка и насколько длинный шнур',
+      'How the bag closes and the drawcord length',
+    ],
+    four: false,
   },
   {
     id: 'loafers',
     category: 'Обувь',
     title: ['Лаконичные лоферы', 'City loafers'],
     shape: ['Низкий каблук', 'Low heel'],
-    image: '/china-buyer/shoes.webp',
+    finish: [
+      'Гладкая чёрная поверхность и прошитый мыс',
+      'Smooth black finish with an apron seam',
+    ],
+    ask: [
+      'Полноту пары, длину стельки и толщину подошвы',
+      'Fit width, insole length and sole thickness',
+    ],
+    four: false,
   },
   {
     id: 'accessory',
     category: 'Аксессуары',
     title: ['Акцентные очки', 'Statement frames'],
     shape: ['Выразительная оправа', 'Bold frame'],
-    image: '/china-buyer/product-accessory.webp',
+    finish: [
+      'Оливковая полупрозрачная оправа',
+      'Translucent olive-coloured frames',
+    ],
+    ask: [
+      'Ширину переносицы, длину дужки и характеристики линз',
+      'Bridge width, temple length and lens specifications',
+    ],
+    four: false,
   },
   {
     id: 'home',
     category: 'Для дома',
     title: ['Керамика для дома', 'Studio ceramics'],
     shape: ['Округлый объём', 'Rounded volume'],
-    image: '/china-buyer/product-home.webp',
+    finish: [
+      'Белая поверхность с мелкими вкраплениями',
+      'Chalk white surface with fine speckles',
+    ],
+    ask: [
+      'Диаметр горлышка, высоту и упаковку для перевозки',
+      'Neck diameter, height and transit packaging',
+    ],
+    four: false,
   },
   {
     id: 'v2-coat',
     category: 'Одежда',
     title: ['Пальто с выразительным силуэтом', 'City coat'],
     shape: ['Удлинённый силуэт', 'Long silhouette'],
-    image: '/china-buyer/v2-coat.webp',
+    finish: [
+      'Глубокий синий цвет и плотная фактура',
+      'Deep navy colour and dense texture',
+    ],
+    ask: [
+      'Длину, шлицу и плотность ткани образца',
+      'Length, back vent and fabric weight of the sample',
+    ],
+    four: false,
   },
   {
     id: 'v2-knit',
     category: 'Одежда',
     title: ['Трикотажный кардиган', 'Knitted cardigan'],
     shape: ['Рельефная вязка', 'Textured knit'],
-    image: '/china-buyer/v2-knit.webp',
+    finish: ['Овсяный меланж и рельефная вязка', 'Oat melange and ribbed knit'],
+    ask: [
+      'Состав пряжи, усадку и замеры изделия',
+      'Yarn composition, shrinkage and garment measurements',
+    ],
+    four: false,
   },
   {
     id: 'v2-bag-sculpted',
     category: 'Сумки',
     title: ['Сумка строгой формы', 'Structured bag'],
     shape: ['Жёсткая геометрия', 'Structured silhouette'],
-    image: '/china-buyer/v2-bag-sculpted.webp',
+    finish: [
+      'Матовая поверхность и аккуратные складки',
+      'Matte finish with folded gussets',
+    ],
+    ask: [
+      'Жёсткость корпуса и способ крепления ручки',
+      'Body rigidity and handle attachment',
+    ],
+    four: false,
   },
   {
     id: 'v2-bag-burgundy',
     category: 'Сумки',
     title: ['Сумка-полумесяц', 'Crescent bag'],
     shape: ['Изогнутая форма', 'Curved silhouette'],
-    image: '/china-buyer/v2-bag-burgundy.webp',
-    gallery: [
-      '/china-buyer/v2-bag-burgundy-angle.webp',
-      '/china-buyer/v2-bag-burgundy-model.webp',
-      '/china-buyer/v2-bag-burgundy-detail.webp',
+    finish: [
+      'Сливовый оттенок и тонкая строчка',
+      'Deep plum finish and fine stitching',
     ],
+    ask: [
+      'Длину ручки, ширину раскрытия и материал подклада',
+      'Strap drop, opening width and lining material',
+    ],
+    four: true,
   },
   {
     id: 'v2-boots',
     category: 'Обувь',
     title: ['Лаконичные ботильоны', 'Ankle boots'],
     shape: ['Короткое голенище', 'Ankle-height shaft'],
-    image: '/china-buyer/v2-boots.webp',
+    finish: [
+      'Гладкий чёрный верх с боковой молнией',
+      'Smooth black upper with a side zip',
+    ],
+    ask: [
+      'Высоту каблука, обхват голенища и размерный ряд',
+      'Heel height, shaft circumference and size range',
+    ],
+    four: false,
   },
   {
     id: 'v2-slingbacks',
     category: 'Обувь',
     title: ['Туфли с открытой пяткой', 'Slingback shoes'],
     shape: ['Открытая пятка', 'Open heel'],
-    image: '/china-buyer/v2-slingbacks.webp',
+    finish: [
+      'Светлый верх и контрастный каблук',
+      'Ivory upper and contrasting heel',
+    ],
+    ask: [
+      'Диапазон ремешка и устойчивость каблука',
+      'Strap adjustment range and heel stability',
+    ],
+    four: false,
   },
   {
     id: 'v2-scarf',
     category: 'Аксессуары',
     title: ['Платок с графичным рисунком', 'Graphic scarf'],
     shape: ['Контрастный принт', 'Contrasting print'],
-    image: '/china-buyer/v2-scarf.webp',
+    finish: [
+      'Графичный синий рисунок и узкая подгибка',
+      'Graphic blue print and a narrow rolled edge',
+    ],
+    ask: [
+      'Состав, размер и вид рисунка с изнанки',
+      'Fibre composition, dimensions and reverse-side print',
+    ],
+    four: false,
   },
   {
     id: 'v2-earrings',
     category: 'Аксессуары',
     title: ['Скульптурные серьги', 'Sculptural earrings'],
     shape: ['Рельефный профиль', 'Sculpted profile'],
-    image: '/china-buyer/v2-earrings.webp',
+    finish: [
+      'Полированная серебристая поверхность',
+      'Polished silver-tone finish',
+    ],
+    ask: [
+      'Вес одной серьги, сплав и тип застёжки',
+      'Weight per earring, alloy and fastening',
+    ],
+    four: false,
   },
   {
     id: 'v2-teaware',
     category: 'Для дома',
     title: ['Чайная композиция', 'Tea setting'],
     shape: ['Комплект для сервировки', 'Serving set'],
-    image: '/china-buyer/v2-teaware.webp',
+    finish: ['Светло-зелёная глазурь', 'Pale celadon glaze'],
+    ask: [
+      'Комплектацию, объём и защиту каждого предмета',
+      'Included pieces, capacity and individual protection',
+    ],
+    four: false,
   },
   {
     id: 'v2-lamp',
     category: 'Для дома',
     title: ['Настольная лампа', 'Table lamp'],
     shape: ['Направленный свет', 'Directional light'],
-    image: '/china-buyer/v2-lamp.webp',
+    finish: [
+      'Мягкое свечение плафона и деревянная фактура основания',
+      'Opal diffuser and a wood-grained base',
+    ],
+    ask: [
+      'Тип вилки, размеры и возможность замены источника света',
+      'Plug type, dimensions and replaceability of the light source',
+    ],
+    four: false,
   },
 ];
+const productDir = (id: string) => '/china-buyer/sourcing/products/' + id + '/';
+export const samples: Sample[] = definitions.map(({ four, ...sample }) => {
+  const path = productDir(sample.id);
+  const shots: Shot[] = four
+    ? ['front', 'reverse', 'detail', 'texture']
+    : ['front', 'detail'];
+  return {
+    ...sample,
+    shots,
+    image: path + 'thumb.webp',
+    gallery: shots.slice(1).map((shot) => path + shot + '.webp'),
+  };
+});
+export const largeImage = (sample: Sample) =>
+  productDir(sample.id) + 'front.webp';
 export const sampleById = (id: string) =>
   samples.find((item) => item.id === id);
 export function sampleIds(value: unknown) {
@@ -302,5 +443,3 @@ export function sampleIds(value: unknown) {
       )
     : [];
 }
-export const largeImage = (item: Sample) =>
-  item.feature ? item.image.replace('-480.', '-1200.') : item.image;

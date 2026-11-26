@@ -3,7 +3,7 @@ import {
   ArrowUpRight,
   Bookmark,
   Check,
-  ClipboardCopy,
+  Share2,
   FileText,
   FolderOpen,
   ImagePlus,
@@ -31,6 +31,17 @@ import {
   type Copy,
 } from './samples';
 import { preparePhoto, validate, type Brief, type SavedBrief } from './records';
+import { Destination } from './Destination';
+import {
+  currencies,
+  currencyCode,
+  countryName,
+  markets,
+  money,
+} from './markets';
+import { OfferPanel } from './OfferPanel';
+import { ShareBrief } from './ShareBrief';
+import type { ChangeOffer } from './offers';
 
 export const briefTitle = (b: Brief, ru: boolean) =>
   b.sampleIds
@@ -40,8 +51,6 @@ export const briefTitle = (b: Brief, ru: boolean) =>
     .join(' + ') ||
   b.description.trim().slice(0, 90) ||
   (b.url ? new URL(b.url).hostname : ru ? 'Запрос по фото' : 'Photo brief');
-const number = (s: string, ru: boolean) =>
-  new Intl.NumberFormat(ru ? 'ru-RU' : 'en-GB').format(Number(s));
 function ReferenceStrip({
   ids,
   ru,
@@ -160,7 +169,7 @@ export function BriefEditor({
   return (
     <section className="yb-form-page">
       <Back ru={ru} action={back} />
-      <h1>{ru ? 'Запрос байеру' : 'Sourcing brief'}</h1>
+      <h1>{ru ? 'Запрос на закупку' : 'Sourcing request'}</h1>
       <form className="yb-form" onSubmit={review} noValidate>
         <div className="yb-form-col">
           <h2>{ru ? 'Что нужно найти?' : 'What should we find?'}</h2>
@@ -273,7 +282,63 @@ export function BriefEditor({
           </label>
         </div>
         <div className="yb-form-col">
-          <h2>{ru ? 'Параметры поиска' : 'Search details'}</h2>
+          <h2>{ru ? 'Условия закупки' : 'Order requirements'}</h2>
+          <div
+            className="yb-purpose"
+            role="group"
+            aria-label={ru ? 'Назначение заказа' : 'Order purpose'}
+          >
+            {(['personal', 'business'] as const).map((p) => (
+              <button
+                type="button"
+                key={p}
+                aria-pressed={fields.purpose === p}
+                onClick={() =>
+                  update({ purpose: fields.purpose === p ? '' : p })
+                }
+              >
+                {p === 'business'
+                  ? ru
+                    ? 'Для бизнеса'
+                    : 'For business'
+                  : ru
+                    ? 'Для себя'
+                    : 'For myself'}
+              </button>
+            ))}
+          </div>
+          <Destination
+            value={fields.market}
+            ru={ru}
+            onChange={(market) =>
+              update({
+                market,
+                city: market === fields.market ? fields.city : '',
+                currency:
+                  fields.budget && fields.currency
+                    ? fields.currency
+                    : market
+                      ? markets[market].currency
+                      : fields.currency,
+              })
+            }
+          />
+          <label className="yb-field">
+            <span>{ru ? 'Город доставки' : 'Delivery city'}</span>
+            <input
+              id="cbw-city"
+              maxLength={80}
+              value={fields.city}
+              placeholder={
+                fields.market
+                  ? markets[fields.market].city[ru ? 0 : 1]
+                  : ru
+                    ? 'Город или населённый пункт'
+                    : 'City or town'
+              }
+              onChange={(e) => update({ city: e.target.value })}
+            />
+          </label>
           <label className="yb-field">
             <span>{ru ? 'Категория' : 'Category'}</span>
             <select
@@ -313,13 +378,13 @@ export function BriefEditor({
               <input
                 id="cbw-quantity"
                 inputMode="numeric"
-                maxLength={3}
+                maxLength={5}
                 value={fields.quantity}
                 onChange={(e) => update({ quantity: e.target.value })}
               />
             </label>
             <label className="yb-field">
-              <span>{ru ? 'Бюджет, ₽' : 'Budget, ₽'}</span>
+              <span>{ru ? 'Бюджет заказа' : 'Order budget'}</span>
               <input
                 id="cbw-budget"
                 inputMode="numeric"
@@ -330,6 +395,22 @@ export function BriefEditor({
               />
             </label>
           </div>
+          <label className="yb-field">
+            <span>{ru ? 'Валюта бюджета' : 'Budget currency'}</span>
+            <select
+              value={fields.currency}
+              onChange={(e) =>
+                update({ currency: currencyCode(e.target.value) })
+              }
+            >
+              <option value="">
+                {ru ? 'Выберите валюту' : 'Choose a currency'}
+              </option>
+              {currencies.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </label>
           {error && (
             <p ref={errorRef} tabIndex={-1} role="alert" className="yb-error">
               {local(error, ru)}
@@ -360,10 +441,27 @@ function BriefFacts({
 }) {
   const rows = [
     [ru ? 'Категория' : 'Category', categoryName(b.category, ru)],
+    [
+      ru ? 'Назначение' : 'Purpose',
+      b.purpose === 'business'
+        ? ru
+          ? 'Для бизнеса'
+          : 'Business'
+        : b.purpose === 'personal'
+          ? ru
+            ? 'Для себя'
+            : 'Personal'
+          : '',
+    ],
+    [ru ? 'Страна доставки' : 'Delivery country', countryName(b.market, ru)],
+    [ru ? 'Город доставки' : 'Delivery city', b.city],
     [ru ? 'Размер' : 'Size', b.size],
     [ru ? 'Цвет' : 'Colour', b.color],
     [ru ? 'Количество' : 'Quantity', b.quantity],
-    [ru ? 'Бюджет' : 'Budget', b.budget ? number(b.budget, ru) + ' ₽' : ''],
+    [
+      ru ? 'Бюджет' : 'Budget',
+      b.budget && b.currency ? money(Number(b.budget), b.currency, ru) : '',
+    ],
   ];
   return (
     <div className="yb-brief-facts">
@@ -438,8 +536,8 @@ export function Review({
       </div>
       <p className="yb-note">
         {ru
-          ? 'После сохранения запрос можно открыть в разделе «Моё».'
-          : 'After saving, find this brief in My desk.'}
+          ? 'Сохраните запрос, затем передайте его своему байеру. Ответ с предложениями вы получите в вашем чате.'
+          : 'Save the brief, then share it with your buyer. They can reply with offers in your chat.'}
       </p>
     </section>
   );
@@ -452,6 +550,7 @@ export function SavedView({
   edit,
   remove,
   temporary,
+  onOffer,
 }: {
   b: SavedBrief;
   ru: boolean;
@@ -460,28 +559,10 @@ export function SavedView({
   edit: () => void;
   remove: () => void;
   temporary: boolean;
+  onOffer: (change: ChangeOffer) => boolean;
 }) {
   const [confirm, setConfirm] = useState(false);
-  const [copied, setCopied] = useState<'none' | 'yes' | 'manual'>('none');
-  const text = [
-    briefTitle(b, ru),
-    categoryName(b.category, ru),
-    b.description,
-    b.url,
-    b.size && (ru ? 'Размер ' : 'Size ') + b.size,
-    b.color && (ru ? 'Цвет ' : 'Colour ') + b.color,
-    (ru ? 'Количество ' : 'Quantity ') + b.quantity,
-    b.budget && (ru ? 'Бюджет ' : 'Budget ') + number(b.budget, ru) + ' ₽',
-  ].filter(Boolean);
-  const copy = Array.from(new Set(text)).join('\n');
-  async function copyText() {
-    try {
-      await navigator.clipboard.writeText(copy);
-      setCopied('yes');
-    } catch {
-      setCopied('manual');
-    }
-  }
+  const [sharing, setSharing] = useState(false);
   return (
     <section className="yb-narrow">
       <Back ru={ru} action={back} />
@@ -496,35 +577,24 @@ export function SavedView({
             : 'Saved on this device'}
       </div>
       <h1>{briefTitle(b, ru)}</h1>
-      <BriefFacts b={b} ru={ru} open={open} />
       <div className="yb-flow-actions">
-        <button type="button" className="yb-primary" onClick={edit}>
-          <Pencil size={17} />
+        <button
+          className="yb-primary"
+          type="button"
+          aria-expanded={sharing}
+          onClick={() => setSharing(!sharing)}
+        >
+          <Share2 size={17} />
+          {ru ? 'Передать байеру' : 'Send to my buyer'}
+        </button>
+        <button type="button" className="yb-secondary" onClick={edit}>
+          <Pencil size={16} />
           {ru ? 'Редактировать' : 'Edit brief'}
         </button>
-        <button type="button" className="yb-secondary" onClick={copyText}>
-          <ClipboardCopy size={17} />
-          {copied === 'yes'
-            ? ru
-              ? 'Текст скопирован'
-              : 'Text copied'
-            : ru
-              ? 'Скопировать текст'
-              : 'Copy brief text'}
-        </button>
       </div>
-      {copied === 'manual' && (
-        <label className="yb-field">
-          <span>
-            {ru ? 'Выделите и скопируйте текст' : 'Select and copy the text'}
-          </span>
-          <textarea
-            readOnly
-            value={copy}
-            onFocus={(e) => e.currentTarget.select()}
-          />
-        </label>
-      )}
+      {sharing && <ShareBrief b={b} ru={ru} />}
+      <BriefFacts b={b} ru={ru} open={open} />
+      <OfferPanel b={b} ru={ru} onChange={onOffer} />
       {confirm ? (
         <div
           className="yb-confirm"

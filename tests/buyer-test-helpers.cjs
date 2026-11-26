@@ -93,6 +93,6 @@ async function widthOK(p) {
 const btn = (p, name) => p.getByRole('button', { name, exact: true });
 const photo = path.resolve(
   __dirname,
-  '../client/public/china-buyer/yangben/clay-480.webp',
+  '../client/public/china-buyer/sourcing/products/clay/thumb.webp',
 );
 module.exports = { assert, run, open, widthOK, btn, photo };

@@ -6,10 +6,11 @@
 
 ## YANGBEN buyer demo
 
-- `client/src/components/demos/ChinaBuyer.tsx` connects the bureau, library, sample detail, comparison, brief and desk to the existing `china-buyer` route. `client/src/hooks/useDemoHistory.ts` manages browser navigation for the buyer and furniture demos. The furniture wrapper preserves its original history key.
-- `client/src/components/demos/buyer/` contains the bilingual sample library, views, responsive styles, photo preparation, session drafts and device-local records. The original favourite and request keys are retained.
-- `client/public/china-buyer/yangben/` contains the three new reference photographs and texture details. Showcase source images live under `client/public/showcase/`, and `scripts/build-showcase-art.cjs --id=china-buyer` rebuilds the handset art. The Telegram share picture is `client/public/share/demos/china-buyer-yangben.jpg`.
-- Buyer workflow, comparison, gallery, responsive layout, Telegram insets, localisation and storage regression tests are in `tests/china-buyer-*.e2e.cjs`. Set `BUYER_TEST_URL` for a deployment and `BUYER_ENGINE=webkit` for WebKit.
+- `client/src/components/demos/ChinaBuyer.tsx` connects the bureau, sample library, product detail, comparison, procurement brief, desk and saved quotes on the `china-buyer` route. `client/src/hooks/useDemoHistory.ts` handles browser history for the buyer and furniture demos.
+- `client/src/components/demos/buyer/markets.ts` and `Destination.tsx` provide the ten destination countries and twelve quote currencies. `records.ts` preserves on-device favourites, drafts, previous requests and supplier quotations. `offers.ts` and `OfferPanel.tsx` handle explicit currencies, batch totals and unquoted costs.
+- `quoteMessage.ts` and `ShareBrief.tsx` prepare Russian, Chinese and English buyer messages and photo attachments for user-initiated sharing. `Library.tsx`, `SampleViews.tsx`, `BriefViews.tsx` and `Bureau.css` implement the two interface languages and responsive layouts.
+- `samples.ts` maps 25 product references to 68 gallery exposures and 25 thumbnails in `client/public/china-buyer/sourcing/products/`. The inspection photo has two sizes in its parent folder. Showcase source images live in `client/public/showcase/`. Run `node scripts/build-showcase-art.cjs --id=china-buyer` to rebuild the handset. The Telegram invite card is `client/public/share/demos/china-buyer-sourcing.jpg`.
+- `tests/china-buyer-*.e2e.cjs` cover the full request, comparison, saved data, destinations and quotes, all product galleries, localisation, safe areas and responsive layouts. Set `BUYER_TEST_URL` for a deployment and `BUYER_ENGINE=webkit` for WebKit.
 
 ## Stack
 

@@ -13,7 +13,7 @@ run(
       await btn(p, 'Фактура').click();
       assert.match(
         await p.locator('.yb-detail-picture img').getAttribute('src'),
-        /fold-detail/,
+        /fold\/texture\.webp/,
       );
       await btn(p, 'Рассмотреть фото').click();
       const dialog = p.getByRole('dialog');
@@ -33,7 +33,7 @@ run(
       await btn(dialog, 'Следующее фото').click();
       assert.match(
         await dialog.locator('.yb-zoom-frame img').getAttribute('src'),
-        /fold-1200/,
+        /fold\/front\.webp/,
       );
       await p.keyboard.press('Escape');
       await dialog.waitFor({ state: 'hidden' });
@@ -65,7 +65,7 @@ run(
       await p.locator('.yb-thumbs button').nth(3).click();
       assert.match(
         await p.locator('.yb-detail-picture img').getAttribute('src'),
-        /feature-detail/,
+        /v5-feature\/texture\.webp/,
       );
       await p.locator('.yb-related .yb-image-link').first().click();
       assert.ok(

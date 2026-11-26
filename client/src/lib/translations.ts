@@ -133,7 +133,7 @@ export const translations = {
       // Demo app descriptions for project cards
       appDescriptions: {
         'flower-store': 'Цветочная студия: букеты для каждого момента',
-        'china-buyer': 'YANGBEN — бюро образцов и запросов байеру из Китая',
+        'china-buyer': 'YANGBEN — закупки из Китая с доставкой по СНГ',
         'medical-center': 'Медицинский центр: специалисты, услуги и запись на приём',
         'lumi-studio': 'Студия красоты: услуги, мастера и запись',
         'opt-market': 'Оптовые закупки: каталог, цены и повтор заказа',
@@ -1810,7 +1810,7 @@ export const translations = {
       // Demo app descriptions for project cards
       appDescriptions: {
         'flower-store': 'Flower studio: bouquets for every moment',
-        'china-buyer': 'YANGBEN — a sample library and sourcing briefs for China',
+        'china-buyer': 'YANGBEN — source goods from China for delivery across the CIS',
         'medical-center': 'Medical center: specialists, services and appointments',
         'lumi-studio': 'Beauty studio: services, specialists and appointments',
         'opt-market': 'Wholesale purchasing: catalog, pricing and repeat orders',

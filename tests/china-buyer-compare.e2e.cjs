@@ -62,6 +62,7 @@ run('comparison, single combined brief and legacy records', async (browser) => {
     assert.deepEqual(records[0].sampleIds, ['fold', 'clay']);
     assert.equal(records[1].id, old.id);
     await btn(p, 'Редактировать').click();
+    await p.getByLabel('Страна доставки', { exact: true }).selectOption('KG');
     await p.locator('#cbw-budget').fill('12000');
     await btn(p, 'Проверить запрос').click();
     await btn(p, 'Сохранить запрос').click();

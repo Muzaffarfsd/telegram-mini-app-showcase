@@ -29,6 +29,7 @@ import {
   local,
   materialOf,
   sampleById,
+  shotName,
   samples,
   type Sample,
 } from './samples';
@@ -55,18 +56,7 @@ export function SampleDetail({
   const pan = useGalleryPan(zoom, zoomFrame, 1.8, pictures[index]);
   const seen = selection.includes(item.id),
     saved = favorites.includes(item.id);
-  const label = (i: number) =>
-    i === 0
-      ? ru
-        ? 'Общий вид'
-        : 'Full view'
-      : item.feature
-        ? ru
-          ? 'Фактура'
-          : 'Texture'
-        : ru
-          ? 'Фото ' + (i + 1)
-          : 'View ' + (i + 1);
+  const label = (index: number) => shotName(item, index, ru);
   function enlarge() {
     setZoom(false);
     dialog.current?.showModal();
@@ -429,36 +419,41 @@ export function Guide({
   return (
     <section className="yb-guide">
       <Back ru={ru} action={back} />
-      <h1>{ru ? 'Как собрать запрос' : 'Preparing a brief'}</h1>
+      <h1>{ru ? 'Что делает байер' : 'What your buyer does'}</h1>
       <div className="yb-guide-layout">
-        <SamplePhoto
-          item={samples[2]}
-          priority
-          alt={ru ? 'Чайник и пиала из терракоты' : 'Terracotta teapot and cup'}
+        <img
+          src="/china-buyer/sourcing/inspection-480.webp"
+          srcSet="/china-buyer/sourcing/inspection-480.webp 480w, /china-buyer/sourcing/inspection-1200.webp 1200w"
+          sizes="(max-width:650px) 95vw, 490px"
+          alt={
+            ru
+              ? 'Проверка образца рюкзака перед выкупом партии'
+              : 'Inspecting a backpack sample before purchasing a batch'
+          }
         />
         <div>
           {(
             [
               [
                 ImagePlus,
-                ru ? 'Покажите предмет' : 'Show the object',
+                ru ? 'Вы показываете товар' : 'You show the product',
                 ru
-                  ? 'Подойдёт снимок с телефона, скриншот или ссылка на конкретную вещь. Для поиска по форме лучше всего вид сбоку.'
-                  : 'Use a phone photo, a screenshot or a link to the item. A side view helps communicate its shape.',
+                  ? 'Добавьте фото, ссылку или описание. Укажите количество, страну и город. В приложении получится сообщение, которое можно передать своему байеру.'
+                  : 'Add a photo, link or description, then the quantity, country and city. The app prepares a message you can send to your buyer.',
               ],
               [
                 Layers2,
-                ru ? 'Отметьте важные детали' : 'Pick the details that matter',
+                ru ? 'Байер находит поставщика' : 'Your buyer finds suppliers',
                 ru
-                  ? 'У одной сумки вам может нравиться ремень, у другой — фактура. Добавьте обе в сравнение и запишите пожелания в одном запросе.'
-                  : 'You might like the strap of one bag and the surface of another. Compare both, then put those details in a single brief.',
+                  ? 'Байер в Китае уточняет цену, минимальную партию, качество образца и сроки. Попросите отдельно показать стоимость товара, услуги и доставку. Полученные предложения можно сравнить в запросе.'
+                  : 'Your buyer checks the price, minimum order, sample quality and timing. Ask for itemised goods, fees and shipping, then compare the offers in your brief.',
               ],
               [
                 Check,
-                ru ? 'Проверьте условия' : 'Check the requirements',
+                ru ? 'Вы согласуете выкуп' : 'You approve the purchase',
                 ru
-                  ? 'Укажите размер, количество и бюджет. Сохранённый запрос можно открыть и изменить в разделе «Моё».'
-                  : 'Add your size, quantity and budget. Open and edit your saved brief in My desk.',
+                  ? 'После вашего согласия байер выкупает товар, сверяет партию с образцом и передаёт её согласованному перевозчику. Условия оплаты, проверки и доставки вы обсуждаете с байером в своём чате.'
+                  : 'Once you agree the terms, your buyer purchases the goods, checks the batch against the sample and hands it to the agreed carrier. Arrange payment, inspection and delivery directly with your buyer.',
               ],
             ] as const
           ).map(([Mark, title, copy]) => (
