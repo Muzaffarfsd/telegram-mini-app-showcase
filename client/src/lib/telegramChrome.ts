@@ -1,4 +1,6 @@
-type TelegramChrome = {
+export type TelegramChrome = {
+  backgroundColor?: string;
+  headerColor?: string;
   setBackgroundColor?: (color: string) => void;
   setHeaderColor?: (color: string) => void;
   setBottomBarColor?: (color: string) => void;

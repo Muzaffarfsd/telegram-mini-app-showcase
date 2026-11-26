@@ -251,7 +251,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
   const theme = demoDark ? darkTheme : getTheme(baseAppType);
 
   // These demos supply their own navigation inside the shared WEB4TG header.
-  if (demoId === 'flower-store' || demoId === 'furniture-studio') {
+  if (demoId === 'flower-store' || demoId === 'furniture-studio' || demoId === 'takt-coffee') {
     const StandaloneDemo = getDemoComponent(demoId);
     return <div style={{ background: '#fff', minHeight: '100vh' }}>
       <PageBoundary fallback={<DemoLoadingSkeleton label={language === 'ru' ? 'Загрузка демо-приложения' : 'Loading demo app'} />}>

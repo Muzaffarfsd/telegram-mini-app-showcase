@@ -41,7 +41,7 @@ async function run(browserType, name, width, height, language = 'ru') {
       await page.getByRole('button', { name: 'Chat with Alex' }).tap();
       const chat = page.getByTestId('ai-chat-panel');
       await chat.getByRole('textbox', { name: 'Сообщение' }).tap();
-      await chat.getByRole('button', { name: 'Close', exact: true }).tap();
+      await chat.getByRole('button', { name: 'Закрыть', exact: true }).tap();
       await chat.waitFor({ state: 'hidden' });
     }
 
@@ -167,8 +167,8 @@ async function run(browserType, name, width, height, language = 'ru') {
     await primary.tap();
     await page.getByTestId('projects-showcase').waitFor();
     const cardActions = await page.locator('.ps-open').allInnerTexts();
-    assert.equal(cardActions.length, 12);
-    assert.equal(new Set(cardActions).size, 12, 'each business shows its own customer action');
+    assert.equal(cardActions.length, 13);
+    assert.equal(new Set(cardActions).size, cardActions.length, 'each business shows its own customer action');
     assert.deepEqual(await page.locator('.ps-filters button[aria-pressed=true]').evaluate(selectedStyle), homeSegment);
     assert.deepEqual(errors, []);
     await context.close();

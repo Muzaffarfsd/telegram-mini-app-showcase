@@ -16,6 +16,7 @@ const cases = [
   ['#/demos/women-fashion/app', '[data-testid="women-fashion"]', true],
   ['#/demos/jewelry-store/app', '[data-testid="jewelry-store"]', true],
   ['#/demos/flower-store/app', '[data-testid="flower-store"]', false],
+  ['#/demos/takt-coffee/app', '[data-testid="takt-coffee"]', true],
   ['#/demos/china-buyer/app', '[data-testid="china-buyer"]', false],
   ['#/demos/medical-center/app', '[data-testid="medical-center"]', false],
   ['#/demos/lumi-studio/app', '[data-testid="lumi-studio"]', false],
@@ -56,7 +57,7 @@ async function checkChatScroll(page, cdp) {
   await page.waitForFunction(y => document.querySelector('.ai-chat-scroll').scrollTop < y - 60, initialTop);
   assert.ok(Math.abs((await composer.boundingBox()).y - composerY) < 2, 'chat input shifted during a message swipe');
   assert.ok(Math.abs(await page.locator('#root').evaluate(el => el.scrollTop) - backgroundTop) < 2, 'chat swipe moved the background');
-  await panel.getByRole('button', { name: 'Close', exact: true }).press('Enter');
+  await panel.getByRole('button', { name: /^(Close|Закрыть)$/ }).press('Enter');
   await panel.waitFor({ state: 'hidden' });
 }
 
@@ -77,6 +78,31 @@ async function installShowcaseTelegramHost(ctx, initialHeight = 710, reportInset
       if (replies[name]) setTimeout(() => window.Telegram.WebView.receiveEvent(...replies[name]), 0);
     } };
   }, { height: initialHeight, reportInsets });
+}
+
+async function checkCoffeeHost(browser) {
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, serviceWorkers: 'block' });
+  try {
+    await installShowcaseTelegramHost(ctx, 844);
+    const p = await ctx.newPage();
+    await p.goto(new URL('#/demos/takt-coffee/app', site).href);
+    await p.waitForFunction(() => document.documentElement.hasAttribute('data-projects-ios-actions') && document.querySelector('.tk-rail'));
+    await p.locator('.tk-filter-trigger').click();
+    const edge = () => p.locator('dialog[open]').evaluate(el => el.getBoundingClientRect().bottom);
+    assert.ok(844 - await edge() >= 98, 'the coffee picker clears the overlaid Telegram buttons');
+    await p.locator('dialog .tk-sheet-done').click();
+    await p.locator('dialog').waitFor({state:'detached'});
+    const cdp = await ctx.newCDPSession(p);
+    const hero = await p.locator('.tk-rail').boundingBox();
+    await swipe(cdp, [hero.x + hero.width - 24, hero.y + hero.height / 2], [hero.x + 20, hero.y + hero.height / 2]);
+    await p.waitForFunction(() => Number(document.querySelector('.tk-rail').dataset.first) > 0);
+    assert.equal(await p.locator('.tk-app').getAttribute('data-screen'), 'menu', 'swiping does not select a drink');
+    await p.locator('.tk-filter-trigger').click();
+    await p.evaluate(() => window.Telegram.WebView.receiveEvent('viewport_changed', { height: 780, is_expanded: true, is_state_stable: true }));
+    await p.waitForFunction(() => document.documentElement.style.getPropertyValue('--projects-visual-bottom') === '780px');
+    const gap = 746 - await edge();
+    assert.ok(gap >= 0 && gap < 35, 'viewport shrink and overlay are counted once: ' + gap);
+  } finally { await ctx.close(); }
 }
 
 async function checkShowcaseButtonOverlay(browser, width, height, reportInsets = true) {
@@ -233,15 +259,19 @@ async function checkShowcaseArtwork(browser) {
     const cards = page.locator('.ps-card');
     await cards.first().waitFor();
     assert.equal(await cards.count(), demoApps.length);
-    const state = await cards.locator('.ps-art').evaluateAll(nodes => ({
+    const baked = cards.locator('.ps-art:not(.ps-art-furniture)');
+    const furniture = cards.locator('.ps-art-furniture');
+    assert.equal(await furniture.count(), 1, 'the furniture handset has a live screen');
+    assert.equal(await furniture.locator('.ps-device-display img').count(), 1);
+    const state = await baked.evaluateAll(nodes => ({
       requested: nodes.filter(node => node.firstElementChild.hasAttribute('src')).length,
       sheets: new Set(nodes.map(node => getComputedStyle(node).backgroundImage)).size,
       positions: new Set(nodes.map(node => getComputedStyle(node).backgroundPosition)).size,
     }));
     assert.ok(state.requested <= 4, 'only nearby detail images should be requested on entry');
     assert.equal(state.sheets, 1, 'previews share one decoded sheet');
-    assert.equal(state.positions, demoApps.length, 'each gallery item needs a different thumbnail');
-    const previews = await cards.locator('.ps-art').evaluateAll(nodes => Promise.all(nodes.map(async node => {
+    assert.equal(state.positions, demoApps.length - 1, 'each precomposed card needs a different thumbnail');
+    const previews = await baked.evaluateAll(nodes => Promise.all(nodes.map(async node => {
       const background = getComputedStyle(node).backgroundImage;
       if (!background.startsWith('url("data:image/webp;base64,')) return false;
       const preview = new Image();
@@ -258,7 +288,7 @@ async function checkShowcaseArtwork(browser) {
     assert.deepEqual(await art.boundingBox(), size, 'decoding the detail must not move the image');
     await cards.first().scrollIntoViewIfNeeded();
     await cards.first().locator('.ps-art-ready').waitFor();
-    assert.deepEqual(oldLayers, [], 'phone contents and props must not load as separate layers');
+    assert.ok(oldLayers.every(url => /\/furniture-studio[^/]*\.(webp|png)$/.test(url)), 'only the live furniture handset loads separate layers');
     console.log('PASS complete previews on cold open and scroll before detail images arrive');
   } finally { releaseImages(); await ctx.close(); }
 }
@@ -303,6 +333,7 @@ async function run() {
   } finally { await safari.close(); }
   const browser = await chromium.launch({ headless: true });
   try {
+    await checkCoffeeHost(browser);
     await checkShowcaseGeometry(browser, 320);
     await checkShowcaseGeometry(browser, 390);
     await checkShowcaseArtwork(browser);

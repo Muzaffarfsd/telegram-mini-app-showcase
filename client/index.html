@@ -302,7 +302,7 @@
     .projects-load-card::before { top:32%; width:28%; height:18px; border-radius:6px; }
     .projects-load-card::after { bottom:8px; left:15px; width:116px; height:44px; border-radius:99px; }
     /* The static placeholder and the live dock use the same settled geometry. */
-    html.projects-route-theme {
+    html.projects-route-theme, html:has(#root.tk-scroll-root) {
       --projects-viewport: var(--projects-visual-bottom, var(--tg-viewport-stable-height, 100dvh));
       --projects-device-inset: max(env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px), var(--tg-safe-area-bottom, 0px), var(--sab, 0px));
       --projects-native-row: 0px;
@@ -311,10 +311,10 @@
       --projects-tab-height: 60px;
       --projects-dock-space: calc(8px + var(--projects-tab-height) + var(--projects-safe-bottom));
     }
-    html.projects-route-theme[data-projects-native-row] { --projects-native-row: max(72px, 4.5rem); }
+    html.projects-route-theme[data-projects-native-row], html[data-projects-native-row]:has(#root.tk-scroll-root) { --projects-native-row: max(72px, 4.5rem); }
     /* Portrait iOS clients can omit both safe-area reports when overlaying their native row. */
     @media (orientation: portrait) {
-      html.projects-route-theme[data-projects-ios-actions] { --projects-overlay-inset: max(34px, var(--projects-device-inset)); }
+      html.projects-route-theme[data-projects-ios-actions], html[data-projects-ios-actions]:has(#root.tk-scroll-root) { --projects-overlay-inset: max(34px, var(--projects-device-inset)); }
     }
     .projects-load-nav { position:fixed; left:50%; top:calc(var(--projects-viewport) - var(--projects-safe-bottom) - var(--projects-tab-height)); transform:translateX(-50%); width:min(calc(100% - 24px),356px); height:var(--projects-tab-height); border-radius:22px; background:#f5f6f7; box-shadow:0 4px 18px rgba(30,33,35,.10); display:flex; justify-content:space-around; align-items:center; }
     .projects-load-nav .projects-load-shape { width:30px; height:30px; border-radius:10px; }

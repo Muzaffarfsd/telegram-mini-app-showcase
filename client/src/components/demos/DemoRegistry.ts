@@ -18,6 +18,9 @@ const loaders = {
   'flower-store': {
     load: () => import('./FlowerStore')
   },
+  'takt-coffee': {
+    load: () => import('./coffee/TaktCoffee')
+  },
   'china-buyer': {
     load: () => import('./ChinaBuyer')
   },

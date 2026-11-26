@@ -1,0 +1,78 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  drinks,
+  classic,
+  activeGroups,
+  validRecipe,
+  price,
+  recipeKey,
+  recipeParts,
+} from '../client/src/components/demos/coffee/menu';
+import {
+  pickupTimes,
+  timeOf,
+  availablePickup,
+} from '../client/src/components/demos/coffee/orders';
+
+test('all house recipes match the menu and exclude incompatible customisations', () => {
+  for (const d of drinks) {
+    const r = classic(d.id);
+    assert.ok(validRecipe(r));
+    assert.equal(price(r), d.price);
+    assert.equal(activeGroups(d.id).includes('milk'), d.milk);
+    assert.equal(activeGroups(d.id).includes('foam'), d.foam);
+    assert.ok(recipeParts(r, 'en').join(' ').includes('ml'));
+    assert.ok(recipeParts(r, 'ru').join(' ').includes('мл'));
+  }
+  const black = classic('americano');
+  assert.equal(recipeKey(black), recipeKey({ ...black, milk: 'oat' }));
+  assert.equal(price(black), price({ ...black, milk: 'oat' }));
+  assert.equal(validRecipe({ ...black, ml: 999 }), false);
+  assert.equal(validRecipe({ ...black, drink: '__proto__' }), false);
+  assert.equal(validRecipe({ ...black, syrup: 'missing' }), false);
+});
+test('a full custom cup is priced identically in menu, bag and repeat orders', () => {
+  const r = {
+    ...classic('cappuccino'),
+    ml: 350,
+    milk: 'oat',
+    syrup: 'vanilla',
+    beans: 'fruit',
+    shot: 'extra',
+  };
+  assert.equal(price(r), 370);
+  assert.match(recipeParts(r, 'ru').join(', '), /Овсяное молоко/);
+  assert.notEqual(recipeKey(r), recipeKey({ ...r, syrup: 'caramel' }));
+});
+test('paper-menu recipes retain existing orders and distinguish sugar and latte art', () => {
+  const original = classic('cappuccino');
+  assert.ok(validRecipe(original));
+  assert.equal(
+    recipeKey({ ...original, sugar: 'unsweetened', latteArt: 'plain' }),
+    recipeKey(original),
+  );
+  const decorated = { ...original, sugar: 'one', latteArt: 'rosetta' };
+  assert.ok(validRecipe(decorated));
+  assert.notEqual(recipeKey(decorated), recipeKey(original));
+  assert.equal(price(decorated), price(original));
+  assert.match(recipeParts(decorated, 'en').join(' '), /Rosetta latte art/);
+  assert.equal(validRecipe({ ...original, sugar: 'invalid' }), false);
+});
+test('pickup follows both Bishkek bars, preparation lead time and the next operating day', () => {
+  const evening = Date.UTC(2026, 10, 26, 14, 44); // 20:44 in Bishkek
+  const a = pickupTimes('boulevard', evening);
+  assert.equal(timeOf(a[0]), '08:00');
+  assert.equal(a[0], Date.UTC(2026, 10, 27, 2));
+  assert.equal(timeOf(pickupTimes('park', evening)[0]), '09:00');
+  const midday = Date.UTC(2026, 10, 26, 6, 0);
+  const slots = pickupTimes('park', midday);
+  assert.equal(slots.length, 6);
+  assert.equal(timeOf(slots[0]), '12:15');
+  assert.ok(availablePickup('park', slots[0], midday));
+  assert.ok(!availablePickup('park', slots[0], midday + 600000));
+  assert.deepEqual(
+    slots,
+    [...new Set(slots)].sort((x, y) => x - y),
+  );
+});

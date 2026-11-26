@@ -2,6 +2,7 @@
 export const demoShareEntries = {
   'furniture-studio': { ru: 'Мебельный салон', en: 'Furniture showroom' },
   'flower-store': { ru: 'Цветочный магазин', en: 'Flower shop' },
+  'takt-coffee': { ru: 'Кофейня TAKT', en: 'TAKT coffee bar' },
   'china-buyer': { ru: 'YANGBEN — закупки из Китая для СНГ', en: 'YANGBEN — China sourcing for the CIS' },
   'medical-center': { ru: 'Медицинский центр', en: 'Medical center' },
   'lumi-studio': { ru: 'Студия красоты', en: 'Beauty studio' },

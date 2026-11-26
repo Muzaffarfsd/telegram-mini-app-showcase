@@ -31,6 +31,8 @@ interface Project {
 const projects: Project[] = [
   { id: 'muraka-fashion', category: 'shops', title: ['Магазин одежды', 'Clothing store'],
     description: ['Покупатель выбирает вещь и размер. Вы получаете готовый заказ.', 'Customers choose a piece and size. You receive the order.'] },
+  { id: 'takt-coffee', category: 'shops', title: ['Кофейня TAKT', 'TAKT coffee bar'],
+    description: ['Соберите свой напиток и выберите, где и когда его забрать.', 'Build your own cup and choose where and when to pick it up.'] },
   { id: 'women-fashion', category: 'shops', title: ['Женская одежда', 'Womenswear'],
     description: ['От готового образа — к вещам из одной коллекции.', 'Shop a complete look, then explore matching pieces.'] },
   { id: 'nike-sneakers', category: 'shops', title: ['Магазин кроссовок', 'Sneaker store'],

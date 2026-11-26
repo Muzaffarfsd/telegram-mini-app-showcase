@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import coffeeEnglish from '../assets/showcase-localized/takt-coffee-en.webp?no-inline';
 import buyerEnglish from '../assets/showcase-localized/china-buyer-en.webp?no-inline';
 import './ShowcaseHandset.css';
 
@@ -42,7 +43,8 @@ export function ShowcaseArtwork({ id, index, ru }: { id: string; index: number; 
   const screenSource = `/showcase/screens/furniture-studio-v9${ru ? '' : '-en'}.png`;
   const screenFailed = screenFailure === screenSource;
   const ready = (coverReady || coverFailed) && (!furniture || screenReady === screenSource || screenFailed);
-  const localizedArt = id === 'china-buyer' && !ru ? buyerEnglish : art.src;
+  const englishCovers: Record<string, string> = { 'china-buyer': buyerEnglish, 'takt-coffee': coffeeEnglish };
+  const localizedArt = ru ? art.src : englishCovers[id] ?? art.src;
   const source = furniture ? '/showcase/covers/furniture-studio-v4.webp' : localizedArt;
   const eager = index < 2 || coverReady || coverFailed;
   useEffect(() => {

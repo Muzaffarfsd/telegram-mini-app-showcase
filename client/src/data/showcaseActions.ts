@@ -9,6 +9,7 @@ export const showcaseActions = {
   'opt-market': ['Собрать закупку', 'Build a wholesale order'],
   'jewelry-store': ['Выбрать украшение', 'Find a piece'],
   'medical-center': ['Найти врача', 'Find a doctor'],
+  'takt-coffee': ['Собрать кофе', 'Build a coffee'],
   'china-buyer': ['Открыть бюро', 'Open bureau'],
   'skincare-aura': ['Подобрать уход', 'Find a routine'],
 } as const;

@@ -51,6 +51,17 @@ export const demoApps: DemoApp[] = [
     badgeColor: 'bg-black',
   },
   {
+    id: 'takt-coffee',
+    title: 'TAKT — кофейня',
+    description: 'Меню эспрессо-бара, свой рецепт и заказ к выбранному времени.',
+    category: 'Еда и напитки',
+    image: '/takt-coffee/press/cappuccino-320.webp',
+    creator: 'WEB4TG',
+    likes: '0',
+    badge: 'Демо',
+    badgeColor: 'bg-black',
+  },
+  {
     id: 'china-buyer',
     title: 'YANGBEN — байер из Китая',
     description: 'Закупки из Китая для клиентов в СНГ. Запрос байеру, выбор страны и сравнение предложений с доставкой.',

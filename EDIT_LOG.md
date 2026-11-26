@@ -4,6 +4,13 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 19:21 MSK — Publish TAKT with the three-screen coffee reference
+
+- Reworked the first coffee prototype after the user rejected its composition. The coffee selection is a horizontal row of small white cards above a two-column menu. The recipe editor uses photographic ingredient stickers, local option pickers, a red dotted path and a cropped kraft-sleeved cup. The final portrait uses angular red display type and a large cutout with a single order action.
+- Generated the original wraparound print and seven drink packshots, plus the white studio cup and new ingredient photography. Rebuilt both showcase languages, the preview atlas and the share JPEG. The mobile gallery uses the common handset dimensions.
+- Connected the seven-drink menu to recipe pricing, saved combinations, pickup, a timed receipt, cancellation, order history and a guest/barista demo on the same device. The customer and barista views update across tabs. Both languages and browser navigation are supported.
+- Checkpoints: refs/checkpoints/before-takt-coffee at 02df3c138598d51ebc72165349498974a9517f25 and refs/checkpoints/before-takt-reference at 1edb5c00b3f4703558d0ac02aeaba491574a6ed6. Direct comparison with the supplied three-screen still and a 91,435-pixel diagnostic difference against the first prototype. Release verification includes the focused coffee suite, mobile navigation and sharing. TypeScript retains 61 pre-existing repository diagnostics. The pre-existing Yangben footer uses 20px icons, which separately differs from the all-demo return test's 21px assertion.
+
 ## 2026-11-26 18:42 MSK — Keep buyer banner text legible during swipes
 
 - Fixed the home journey in Yangben. The shared touch stylesheet gives every element a 150 ms transition duration. That also animated visibility on the stacked chapter panels, their descendants and the illustrations. Ink.css now switches those layers atomically while the active chapter indicator keeps its own width transition.

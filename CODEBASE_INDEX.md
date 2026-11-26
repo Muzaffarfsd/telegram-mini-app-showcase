@@ -4,6 +4,14 @@
 > AI assistants MUST read this file before starting any work.
 > Updated when files are added / removed / significantly refactored.
 
+## TAKT espresso bar
+
+- The public `takt-coffee` demo opens from Projects and Telegram share links. `client/src/components/demos/coffee/TaktCoffee.tsx` owns navigation, dialog state and browser history. The header holds the order bell, bag and WEB4TG return control.
+- `MenuView.tsx` contains the native horizontal shelf, menu grid and keyboard-accessible pickers. `RecipeView.tsx` places photographic ingredients around a drawn recipe path, crops the unprinted studio cup and shows the finished drink with its own selected ingredients. `TaktCoffee.css` applies the paper, red ink, store packaging and local Stengazeta display type.
+- `menu.ts` holds seven drinks, compatible options and pricing. `orders.ts` and `OrderViews.tsx` cover saved recipes, bag editing, Bishkek pickup slots, tickets, repeat orders, cancellation and the demo barista queue. Receipts and queue share browser storage and sync between tabs. The demo does not send orders to a café or take payments.
+- `client/public/takt-coffee/press/` contains the transparent product and ingredient WebPs. The showcase uses real RU and EN screen captures, one foreground cutout, a shared phone frame and a Telegram share photograph. Rebuild its gallery art with `node scripts/build-showcase-art.cjs --id=takt-coffee`.
+- `tests/takt-coffee.test.ts` checks recipes, prices and opening hours. `tests/takt-coffee.e2e.cjs` covers the interaction, screen proportions, checkout and queue in Chromium and WebKit. Use `COFFEE_TEST_URL` and `COFFEE_ENGINE=webkit` for another deployment or engine.
+
 ## YANGBEN buyer demo
 
 - `client/src/components/demos/ChinaBuyer.tsx` connects the bureau, sample library, product detail, comparison, procurement brief, desk and saved quotes on the `china-buyer` route. `client/src/hooks/useDemoHistory.ts` handles browser history for the buyer and furniture demos.
