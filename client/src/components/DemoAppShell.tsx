@@ -388,8 +388,8 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
             style={{ bottom: 0, height: 'calc(106px + env(safe-area-inset-bottom, 0px))', background: theme.background }}
           />
 
-          {/* Fixed Home Button */}
-          <div 
+          {/* Skincare already has the WEB4TG return in its bottom navigation. */}
+          {demoId !== 'skincare-aura' && <div
             className="fixed z-[9999] pointer-events-none flex justify-end"
             style={{
               left: '50%',
@@ -402,7 +402,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
             <div className="pointer-events-auto">
               <LiquidHomeButton onNavigateHome={handleNavigateHome} />
             </div>
-          </div>
+          </div>}
 
           {/* Bottom Navigation — Liquid Glass */}
           <div 

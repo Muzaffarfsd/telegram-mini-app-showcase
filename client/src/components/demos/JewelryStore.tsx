@@ -10,6 +10,7 @@ import { JewelryProductStory } from './JewelryProductStory';
 import { ArrowLeft, ArrowRight, Check, ChevronDown, Heart, Home, Minus, Package, Plus, Search, ShoppingBag, SlidersHorizontal, Star, Trash2, UserRound, X, ZoomIn } from 'lucide-react';
 import { scrollToTop } from '@/hooks/useScrollToTop';
 import { useJewelryHistory } from './useJewelryHistory';
+import '../StoreNavigation.css';
 import './MurakaFashion.css';
 import './WomenFashion.css';
 import './JewelryStore.css';

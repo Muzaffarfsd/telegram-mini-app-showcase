@@ -105,6 +105,13 @@
   padding: 1px 4px;
   border-radius: 3px;
 }
+/* These transforms position the recipe controls; they are not motion. */
+@media (prefers-reduced-motion: reduce) {
+  .tk-app .tk-recipe-map .tk-ingredient { transform: translate(-50%, -50%) !important; }
+  .tk-app .tk-brew-base > .tk-cup,
+  .tk-app .tk-brew-actions,
+  .tk-app .tk-ingredient .tk-changed-ingredient { transform: translateX(-50%) !important; }
+}
 .tk-brew-base {
   margin-bottom: 0;
 }

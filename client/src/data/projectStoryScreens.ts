@@ -41,3 +41,8 @@ for (const id of ['takt-coffee', 'furniture-studio', 'china-buyer']) {
     { src: `/project-stories/${id}/3-en.webp`, caption: projectStoryScreens[id].find(screen => screen.src.endsWith('/3.webp'))!.caption, language: 'en' },
   );
 }
+
+// The original 1× captures may already be cached on the user's device.
+for (const screens of Object.values(projectStoryScreens)) {
+  for (const screen of screens) screen.src += '?v=20261127-hd';
+}

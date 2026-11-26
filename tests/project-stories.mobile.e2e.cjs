@@ -49,7 +49,11 @@ async function check(engine, width) {
       assert.equal(await images.count(), 3, id + ' should show three real screens');
       for (let i=0;i<await images.count();i++) {
         const image = images.nth(i); await image.scrollIntoViewIfNeeded();
-        await image.evaluate(async el => { await el.decode(); if (!el.naturalWidth) throw Error('Missing project screen'); });
+        await image.evaluate(async el => {
+          await el.decode();
+          if (el.naturalWidth < 780 || el.naturalHeight < 1688) throw Error(`Project screen is not high-density: ${el.naturalWidth}×${el.naturalHeight}`);
+          if (!el.currentSrc.includes('v=20261127-hd')) throw Error('Project screen is missing its updated asset version');
+        });
       }
       if (id === 'takt-coffee') {
         await story.locator('.project-story-gallery-stage').first().tap();

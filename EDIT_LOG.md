@@ -4,6 +4,11 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-27 · Recapture project screens in high density
+
+- Re-captured all 48 real project screens at 780 × 1688 (2×), after visible images and fonts loaded, and increased WebP quality. Versioned the image URLs to avoid stale cached 1× files. The full set is 3.51 MiB and remains individually lazy-loaded. The gallery previews are larger and show the complete screen with its original proportions.
+- Fixed three issues revealed during capture: coffee recipe control positioning with reduced motion, jewelry-store bottom navigation styling on cold entry, and a duplicate white return button in skincare. The screens were captured again after these fixes.
+- Checkpoint `refs/checkpoints/before-project-screen-quality` at `bbb3660d`. Inspected contact sheets and the 2× recipe and skincare captures. Verified all 48 image dimensions, the 13 stories and image decoding in Chromium/WebKit, safe viewer close, reduced-motion recipe controls, cold store navigation and skincare return. Build passed; physical Telegram devices were not tested.
 ## 2026-11-27 · Explain the business value of portfolio projects
 
 - Reworked all 13 project stories around the user’s feedback: a business-specific headline, audience and need appear first, followed by concrete benefits tied to each actual project’s features. Real customer results and integrations are not invented; the existing showcase design and project/order actions remain.
