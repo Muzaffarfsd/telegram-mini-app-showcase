@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import './ShowcaseHandset.css';
 
 const images = import.meta.glob<string>(['../assets/showcase-art/*.webp', '!../assets/showcase-art/*.preview.webp'], {
   eager: true, query: '?no-inline', import: 'default',
@@ -47,11 +48,21 @@ export function ShowcaseArtwork({ id, index, ru }: { id: string; index: number; 
   }, [eager, id]);
   return <span className={`ps-art${ready ? ' ps-art-ready' : ''}${furniture ? ' ps-art-furniture' : ''}${coverFailed ? ' ps-furniture-no-cover' : ''}${screenFailed ? ' ps-furniture-no-screen' : ''}`} aria-hidden="true"
     style={{ backgroundPosition: art.position, backgroundSize: `400% ${rows * 100}%` }}>
-    {furniture ? <span className="ps-furniture-layer">
-      <img ref={image} className="ps-furniture-cover" src={eager ? source : undefined} data-detail={source}
-        alt="" draggable={false} decoding="async" onLoad={event => { void event.currentTarget.decode().then(() => setCoverReady(true), () => setCoverFailed(true)); }} onError={() => setCoverFailed(true)} />
-      <span className="ps-furniture-screen"><img src={eager || coverReady ? screenSource : undefined}
-        alt="" draggable={false} decoding="async" onLoad={event => { void event.currentTarget.decode().then(() => setScreenReady(screenSource), () => setScreenFailure(screenSource)); }} onError={() => setScreenFailure(screenSource)} /></span>
+    {furniture ? <span className="ps-composition">
+      <span className="ps-device-scene">
+        <img ref={image} className="ps-furniture-cover" src={eager ? source : undefined} data-detail={source}
+          alt="" draggable={false} decoding="async"
+          onLoad={event => { void event.currentTarget.decode().then(() => setCoverReady(true), () => setCoverFailed(true)); }}
+          onError={() => setCoverFailed(true)} />
+        <span className="ps-device">
+          <span className="ps-device-display ps-furniture-screen">
+            <img src={eager || coverReady ? screenSource : undefined} alt="" draggable={false} decoding="async"
+              onLoad={event => { void event.currentTarget.decode().then(() => setScreenReady(screenSource), () => setScreenFailure(screenSource)); }}
+              onError={() => setScreenFailure(screenSource)} />
+          </span>
+        </span>
+        {coverReady && !screenFailed && <img className="ps-furniture-foreground" src={source} alt="" draggable={false} />}
+      </span>
       {screenFailed && <img className="ps-furniture-fallback" src="/furniture/studio/rivet-revolve-sofa/studio.small.webp" alt="" draggable={false} decoding="async" />}
     </span> : <img ref={image} src={eager ? source : undefined} data-detail={source} width={612} height={816}
       alt="" draggable={false} fetchPriority={index === 0 ? 'high' : 'auto'} decoding="async"

@@ -40,8 +40,8 @@ async function composition(id, scene) {
   const scaleY = 310 / h;
   const placement = `left:${(62 - x * scaleX) / 264 * 100}%;top:${(17 - y * scaleY) / 352 * 100}%;width:${scaleX * 100}%;height:${scaleY * 100}%`;
   const outline = scene.foreground.map(([px, py]) => `${px / 264 * 100}% ${py / 352 * 100}%`).join(',');
-  return `<div class="scene"><img style="${placement}" src="${cover}">
-    <div class="device"><div class="glass"><img class="screen" src="${screen}"></div></div>
+  return `<div class="ps-device-scene"><img style="${placement}" src="${cover}">
+    <div class="ps-device"><div class="ps-device-display"><img src="${screen}"></div></div>
     <img style="${placement};clip-path:polygon(${outline})" src="${cover}"></div>`;
 }
 
@@ -62,6 +62,7 @@ async function buildPreviewSheet() {
 
 async function main() {
   await fs.mkdir(output, { recursive: true });
+  const handsetStyles = await fs.readFile(path.join(__dirname, '../client/src/components/ShowcaseHandset.css'), 'utf8');
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 3 });
@@ -70,14 +71,11 @@ async function main() {
       if (only && id !== only.slice(5)) continue;
       const html = await composition(id, scene);
       await page.setContent(`<style>
-        *{box-sizing:border-box} body{margin:0} .art{position:absolute;width:174px;height:232px;right:0;top:20px}
-        .scene,.original{position:absolute;inset:0;width:100%;height:100%}.scene{transform:rotate(2deg)}
+        *{box-sizing:border-box} body{margin:0}
+        .original{position:absolute;inset:0;width:100%;height:100%}
         img{display:block;position:absolute}
-        .device{position:absolute;left:23.485%;top:4.83%;width:57.576%;aspect-ratio:152/310;border-radius:16% / 8%;background:linear-gradient(90deg,#787673,#d5d2ce 1.4%,#262626 3%,#121212 96%,#888783 98%,#c3c0ba)}
-        .glass{position:absolute;inset:1.1% 2.35%;overflow:clip;border-radius:14.5% / 7.3%;background:white}
-        .glass::after{content:'';position:absolute;top:1.1%;left:39.5%;width:21%;height:2.2%;border-radius:99px;background:#101010}
-        .screen{inset:5% 0 0;width:100%;height:95%;object-fit:contain;object-position:center top}
-      </style><div class="art">${html}</div>`);
+        ${handsetStyles}
+      </style><div class="ps-composition">${html}</div>`);
       await page.evaluate(() => Promise.all(Array.from(document.images, image => image.decode())));
       const rendered = await page.screenshot({ omitBackground: true });
       await sharp(rendered).webp({ quality: 86, alphaQuality: 82, effort: 5 }).toFile(path.join(output, id + '.webp'));

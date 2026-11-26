@@ -4,6 +4,12 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 15:34 MSK — Match the furniture iPhone to the showcase series
+
+- The furniture preview and the generator for the clothing previews now use one handset template. The preview keeps the actual Russian or English store screen in its native proportions. The furniture photograph sits around the device, with the table in front of its lower corner.
+- On a 390px viewport the body measures 100.18 × 204.32 CSS pixels before the shared two-degree tilt. Independent measurements on browser screenshots matched the camera cutout of both clothing cards within half a CSS pixel at 320, 390 and 768px. Rebuilding the clothing reference with the shared template produced identical pixels.
+- Checkpoint `refs/checkpoints/before-furniture-showcase-frame` at `ef4ff7ab`. Chromium and WebKit verified the artwork, navigation, missing-image fallbacks and reduced-motion placement. Also checked desktop at 1280px. Production build passed. The browser smoke check recorded zero console errors, page errors or failed requests. TypeScript reported the same 61 existing diagnostics.
+
 ## 2026-11-26 15:20 MSK — Faster furniture carousel and interactive home features
 
 - Removed the mobile CSS transition that delayed the carousel track on each animation frame. Tuned the final motion after a gesture or an arrow press. At 390 CSS pixels, four measured gestures settled in a median of 164 ms after release, compared with 1,082 ms on the previous version. The corresponding arrow measurements were 214 ms and 1,179 ms.

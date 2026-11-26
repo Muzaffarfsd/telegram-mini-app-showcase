@@ -71,6 +71,7 @@ HomeDemo.tsx / HomeDemo.css   - six-example hero, home/product or service swipe 
 HomeStory.tsx / HomeStory.css - lower home: real demo journey screens, capabilities, process, FAQ and project actions
 ProjectsPage.tsx               - /projects — pastel frosted-folder showcase, category files/stickers, instant grid/list and filters
 ProjectsShowcase.css           - showcase material/type/layout; static SVG placement survives reduced motion; compact list rows
+ShowcaseHandset.css            - shared iPhone size, placement and screen proportions for live furniture artwork and the showcase image builder
 StoreStickers.tsx              - ten original die-cut stickers with balanced optical scales and static angle variables
 OrderExperience.tsx            - active /constructor — three-step order flow, direction/review/detail illustrations
 OrderFeaturesStep.tsx          - feature selection and nine illustrated category cards

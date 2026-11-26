@@ -1,0 +1,48 @@
+/* The live furniture artwork and the baked showcase cards use this same 204 × 272 stage. */
+.ps-composition {
+  position: absolute;
+  top: 7.352941%;
+  right: 0;
+  width: 85.294118%;
+  height: 85.294118%;
+}
+.ps-device-scene {
+  position: absolute;
+  inset: 0;
+  rotate: 2deg;
+}
+.ps-device {
+  position: absolute;
+  left: 23.485%;
+  top: 4.83%;
+  width: 57.576%;
+  aspect-ratio: 152 / 310;
+  border-radius: 16% / 8%;
+  background: linear-gradient(90deg, #787673, #d5d2ce 1.4%, #262626 3%, #121212 96%, #888783 98%, #c3c0ba);
+}
+.ps-device-display {
+  position: absolute;
+  inset: 1.1% 2.35%;
+  overflow: clip;
+  border-radius: 14.5% / 7.3%;
+  background: white;
+}
+.ps-device-display::after {
+  position: absolute;
+  content: '';
+  top: 1.1%;
+  left: 39.5%;
+  width: 21%;
+  height: 2.2%;
+  border-radius: 99px;
+  background: #101010;
+}
+.ps-device .ps-device-display > img {
+  position: absolute;
+  inset: 5% 0 0;
+  display: block;
+  width: 100%;
+  height: 95%;
+  object-fit: contain;
+  object-position: center top;
+}
