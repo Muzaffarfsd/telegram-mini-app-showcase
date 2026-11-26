@@ -9,6 +9,8 @@ import {
   Minus,
   Plus,
   ReceiptText,
+  Stamp,
+  UserRound,
   ShoppingBag,
   Trash2,
 } from 'lucide-react';
@@ -22,6 +24,9 @@ import {
   say,
   type Locale,
   type Recipe,
+  type MenuSelection,
+  productFor,
+  isBakery,
 } from './menu';
 import { Action, Cup } from './MenuView';
 import {
@@ -36,6 +41,7 @@ import {
   pickupTimes,
   ticketNumber,
   ticketTotal,
+  ticketDiscount,
   timeOf,
   toggleSaved,
   type Line,
@@ -63,8 +69,8 @@ function Empty({
     </div>
   );
 }
-function LinePicture({ recipe }: { recipe: Recipe }) {
-  const d = drinkById[recipe.drink];
+function LinePicture({ recipe }: { recipe: MenuSelection }) {
+  const d = productFor(recipe);
   return (
     <span className="tk-line-picture">
       <Cup id={d.id} />
@@ -79,7 +85,7 @@ export function Bag({
   menu,
 }: Local & {
   bag: Line[];
-  edit: (r: Recipe) => void;
+  edit: (r: MenuSelection) => void;
   pickup: () => void;
   menu: () => void;
 }) {
@@ -93,7 +99,7 @@ export function Bag({
             {bag.map((item) => {
               const r = item.recipe,
                 k = recipeKey(r),
-                d = drinkById[r.drink];
+                d = productFor(r);
               return (
                 <li key={k} className="tk-line">
                   <LinePicture recipe={r} />
@@ -127,7 +133,15 @@ export function Bag({
                       </div>
                       <button
                         className="tk-remove"
-                        aria-label={ru ? 'Удалить напиток' : 'Remove drink'}
+                        aria-label={
+                          isBakery(r)
+                            ? ru
+                              ? 'Удалить выпечку'
+                              : 'Remove pastry'
+                            : ru
+                              ? 'Удалить напиток'
+                              : 'Remove drink'
+                        }
                         onClick={() => forgetLine(k)}
                       >
                         <Trash2 size={16} />
@@ -168,10 +182,15 @@ export function BarPicker({
   lang,
   selected,
   change,
-}: Local & { selected: string; change: (id: string) => void }) {
+  illustrated = false,
+}: Local & {
+  selected: string;
+  change: (id: string) => void;
+  illustrated?: boolean;
+}) {
   return (
     <div
-      className="tk-bars"
+      className={illustrated ? 'tk-bars tk-bars-illustrated' : 'tk-bars'}
       role="group"
       aria-label={lang === 'ru' ? 'Кофейня' : 'Coffee bar'}
     >
@@ -181,7 +200,17 @@ export function BarPicker({
           aria-pressed={b.id === selected}
           onClick={() => change(b.id)}
         >
-          <MapPin size={18} />
+          {illustrated ? (
+            <img
+              className="tk-bar-photo"
+              alt=""
+              src={`/takt-coffee/editorial/${b.id}-640.webp`}
+              width="320"
+              height="180"
+            />
+          ) : (
+            <MapPin size={18} />
+          )}
           <span>
             <b>{say(b.name, lang)}</b>
             <small>
@@ -200,11 +229,15 @@ export function Pickup({
   lang,
   bag,
   bar,
+  discount,
+  pickupName,
   done,
   menu,
 }: Local & {
   bag: Line[];
   bar: string;
+  discount: number;
+  pickupName: string;
   done: (t: Ticket) => void;
   menu: () => void;
 }) {
@@ -212,6 +245,9 @@ export function Pickup({
   const [now, setNow] = useState(Date.now);
   const [choice, setChoice] = useState(0);
   const [expired, setExpired] = useState(false);
+  const [redeem, setRedeem] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitFailed, setSubmitFailed] = useState(false);
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 15000);
     return () => clearInterval(id);
@@ -224,13 +260,22 @@ export function Pickup({
     setChoice(0);
     setExpired(false);
   };
-  const submit = () => {
-    const ticket = checkout(bar, slot);
-    if (ticket) done(ticket);
-    else {
-      setNow(Date.now());
-      setChoice(0);
-      setExpired(true);
+  const submit = async () => {
+    if (submitting || (redeem && !discount)) return;
+    setSubmitting(true);
+    setSubmitFailed(false);
+    try {
+      const ticket = await checkout(bar, slot, redeem);
+      if (ticket) done(ticket);
+      else {
+        setNow(Date.now());
+        setChoice(0);
+        setExpired(true);
+      }
+    } catch {
+      setSubmitFailed(true);
+    } finally {
+      setSubmitting(false);
     }
   };
   return (
@@ -271,6 +316,13 @@ export function Pickup({
               </button>
             ))}
           </div>
+          {submitFailed && (
+            <p role="alert">
+              {ru
+                ? 'Заказ не удалось сохранить. Попробуйте ещё раз.'
+                : 'The order could not be saved. Please try again.'}
+            </p>
+          )}
           {needsChoice && (
             <p role="status">
               {ru
@@ -278,16 +330,47 @@ export function Pickup({
                 : 'The time has changed. Confirm the new slot.'}
             </p>
           )}
+          {pickupName && (
+            <p className="tk-pickup-person">
+              <UserRound size={17} />
+              {(ru ? 'Имя для выдачи · ' : 'Pickup name · ') + pickupName}
+            </p>
+          )}
+          {(discount > 0 || redeem) && (
+            <label className="tk-redeem">
+              <Stamp size={23} />
+              <span>
+                <b>{ru ? 'Использовать бонус' : 'Use a reward'}</b>
+                <small>
+                  {discount
+                    ? (ru ? 'Скидка ' : 'Save ') + money(discount, lang)
+                    : ru
+                      ? 'Бонус уже использован. Снимите отметку для продолжения.'
+                      : 'Reward already used. Uncheck to continue.'}
+                </small>
+              </span>
+              <input
+                type="checkbox"
+                checked={redeem}
+                onChange={(e) => setRedeem(e.target.checked)}
+              />
+            </label>
+          )}
           <div className="tk-total">
             <span>{ru ? 'Итого' : 'Total'}</span>
-            <strong>{money(bagTotal(bag), lang)}</strong>
+            <strong>
+              {money(bagTotal(bag) - (redeem ? discount : 0), lang)}
+            </strong>
           </div>
           <p className="tk-disclosure">
             {ru
               ? 'Демо без оплаты. Чек и заказ в пульте бариста сохранятся на этом устройстве.'
               : 'A payment-free demo. The receipt and barista queue are saved on this device.'}
           </p>
-          <Action onClick={submit} disabled={needsChoice}>
+          <Action
+            onClick={submit}
+            disabled={needsChoice || submitting || (redeem && !discount)}
+          >
             {ru ? 'Подтвердить демо-заказ' : 'Confirm demo order'}
           </Action>
         </>
@@ -443,13 +526,24 @@ export function Receipt({
             {dateOf(ticket.pickup, lang)} · {timeOf(ticket.pickup)}
           </span>
         </div>
+        {ticket.pickupName && (
+          <div className="tk-location-line">
+            <UserRound size={18} />
+            <span>{ticket.pickupName}</span>
+          </div>
+        )}
         <ul>
           {ticket.items.map((i) => (
             <li key={recipeKey(i.recipe)}>
-              <img src={art(i.recipe.drink)} alt="" width="38" height="48" />
+              <img
+                src={art(productFor(i.recipe).id)}
+                alt=""
+                width="38"
+                height="48"
+              />
               <span>
                 <strong>
-                  {i.qty} × {say(drinkById[i.recipe.drink].name, lang)}
+                  {i.qty} × {say(productFor(i.recipe).name, lang)}
                 </strong>
                 <small>{recipeParts(i.recipe, lang).join(' · ')}</small>
               </span>
@@ -457,6 +551,12 @@ export function Receipt({
             </li>
           ))}
         </ul>
+        {ticketDiscount(ticket) > 0 && (
+          <div className="tk-ticket-discount">
+            <span>{ru ? 'Бонус клуба' : 'Club reward'}</span>
+            <b>−{money(ticketDiscount(ticket), lang)}</b>
+          </div>
+        )}
         <div className="tk-total">
           <span>{ru ? 'Итого' : 'Total'}</span>
           <strong>{money(ticketTotal(ticket), lang)}</strong>
@@ -535,7 +635,10 @@ export function Counter({ lang, orders }: Local & { orders: Ticket[] }) {
         queue.map((t) => (
           <article className="tk-barista-order" key={t.id}>
             <div className="tk-panel-heading">
-              <h2>№ {ticketNumber(t)}</h2>
+              <h2>
+                № {ticketNumber(t)}{' '}
+                {t.pickupName && <small>· {t.pickupName}</small>}
+              </h2>
               <b>{timeOf(t.pickup)}</b>
             </div>
             <p>
@@ -546,7 +649,7 @@ export function Counter({ lang, orders }: Local & { orders: Ticket[] }) {
               {t.items.map((i) => (
                 <li key={recipeKey(i.recipe)}>
                   <b>
-                    {i.qty} × {say(drinkById[i.recipe.drink].name, lang)}
+                    {i.qty} × {say(productFor(i.recipe).name, lang)}
                   </b>
                   <small>{recipeParts(i.recipe, lang).join(' · ')}</small>
                 </li>

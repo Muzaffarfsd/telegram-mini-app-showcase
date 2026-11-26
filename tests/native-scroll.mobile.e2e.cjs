@@ -87,21 +87,58 @@ async function checkCoffeeHost(browser) {
     const p = await ctx.newPage();
     await p.goto(new URL('#/demos/takt-coffee/app', site).href);
     await p.waitForFunction(() => document.documentElement.hasAttribute('data-projects-ios-actions') && document.querySelector('.tk-rail'));
+    const dock = p.locator('.tk-dock');
+    const dockEdge = () => dock.evaluate(el => el.getBoundingClientRect().bottom);
+    assert.ok(844 - await dockEdge() >= 98, 'the coffee tabs clear the overlaid Telegram buttons');
+    const initialHistory = await p.evaluate(() => history.length);
+    await dock.locator('[data-tab=menu]').tap();
     await p.locator('.tk-filter-trigger').click();
+    assert.equal(await p.evaluate(() => history.length), initialHistory + 2, 'a touch activation creates one entry for the catalogue and one for sorting');
     const edge = () => p.locator('dialog[open]').evaluate(el => el.getBoundingClientRect().bottom);
     assert.ok(844 - await edge() >= 98, 'the coffee picker clears the overlaid Telegram buttons');
     await p.locator('dialog .tk-sheet-done').click();
     await p.locator('dialog').waitFor({state:'detached'});
+    await dock.locator('[data-tab=home]').tap();
     const cdp = await ctx.newCDPSession(p);
+    const menuTab = await dock.locator('[data-tab=menu]').boundingBox();
+    const center = [menuTab.x + menuTab.width / 2, menuTab.y + menuTab.height / 2];
+    await swipe(cdp, center, [center[0] + 32, center[1]]);
+    assert.equal(await p.locator('.tk-app').getAttribute('data-screen'), 'home', 'dragging on a tab must not activate it');
+    const campaign = await p.locator('.tk-campaign-stage').boundingBox();
+    const middle = [campaign.x + campaign.width / 2, campaign.y + campaign.height / 2];
+    await swipe(cdp, [middle[0] + 52, middle[1]], [middle[0] - 52, middle[1]]);
+    await p.waitForFunction(() => document.querySelector('.tk-edition-pages button:nth-child(2)')?.getAttribute('aria-pressed') === 'true');
+    assert.equal(await p.locator('.tk-app').getAttribute('data-screen'), 'home', 'swiping the campaign selects the next drink without opening it');
+    await p.locator('.tk-rail').evaluate(el => el.scrollIntoView({block:'center'}));
     const hero = await p.locator('.tk-rail').boundingBox();
     await swipe(cdp, [hero.x + hero.width - 24, hero.y + hero.height / 2], [hero.x + 20, hero.y + hero.height / 2]);
     await p.waitForFunction(() => Number(document.querySelector('.tk-rail').dataset.first) > 0);
-    assert.equal(await p.locator('.tk-app').getAttribute('data-screen'), 'menu', 'swiping does not select a drink');
+    assert.equal(await p.locator('.tk-app').getAttribute('data-screen'), 'home', 'swiping does not select a drink');
+    await dock.locator('[data-tab=menu]').tap();
     await p.locator('.tk-filter-trigger').click();
     await p.evaluate(() => window.Telegram.WebView.receiveEvent('viewport_changed', { height: 780, is_expanded: true, is_state_stable: true }));
     await p.waitForFunction(() => document.documentElement.style.getPropertyValue('--projects-visual-bottom') === '780px');
+    const dockGap = 746 - await dockEdge();
+    assert.ok(dockGap >= 0 && dockGap < 35, 'coffee tabs follow the settled viewport: ' + dockGap);
     const gap = 746 - await edge();
     assert.ok(gap >= 0 && gap < 35, 'viewport shrink and overlay are counted once: ' + gap);
+  } finally { await ctx.close(); }
+}
+
+async function checkCompactCoffee(browser) {
+  const ctx = await browser.newContext({ viewport: { width: 320, height: 640 }, hasTouch: true, isMobile: true, colorScheme: 'dark', serviceWorkers: 'block' });
+  try {
+    await installShowcaseTelegramHost(ctx, 640);
+    const p = await ctx.newPage();
+    await p.goto(new URL('#/demos/takt-coffee/app', site).href);
+    await p.waitForFunction(() => document.documentElement.hasAttribute('data-projects-ios-actions') && document.querySelector('.tk-campaign-link'));
+    await p.evaluate(() => document.fonts.ready);
+    const action = await p.locator('.tk-campaign-link').boundingBox();
+    const dock = await p.locator('.tk-dock').boundingBox();
+    assert.ok(action.y + action.height <= dock.y, 'the home menu action clears the coffee tabs on a short Telegram viewport');
+    assert.equal(await p.locator('.tk-app').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 255, 255)', 'the coffee store stays light in dark Telegram');
+    await p.locator('.tk-campaign-link').tap();
+    await p.locator('.tk-catalogue').waitFor();
   } finally { await ctx.close(); }
 }
 
@@ -334,6 +371,7 @@ async function run() {
   const browser = await chromium.launch({ headless: true });
   try {
     await checkCoffeeHost(browser);
+    await checkCompactCoffee(browser);
     await checkShowcaseGeometry(browser, 320);
     await checkShowcaseGeometry(browser, 390);
     await checkShowcaseArtwork(browser);

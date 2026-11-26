@@ -18,7 +18,8 @@ const firstImages: Record<string, string> = {
 export function warmDemoImage(id: string | undefined, priority: 'high' | 'low' = 'low'): void {
   if (!id) return;
   if (id === 'takt-coffee') {
-    warmImage('/takt-coffee/press/cappuccino-320.webp', priority);
+    const base = '/takt-coffee/editorial/cherry-mocha';
+    warmImage(base + '-480.webp', priority, { srcSet: base + '-480.webp 480w, ' + base + '-900.webp 900w', sizes: '(min-width: 700px) 470px, 90vw' });
     return;
   }
   if (id === 'china-buyer') {

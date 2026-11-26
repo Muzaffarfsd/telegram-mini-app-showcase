@@ -1,0 +1,1314 @@
+/* Measure restored views immediately and keep activated results above the dock. */
+#root.tk-scroll-root .tk-app :is(section, article) {
+  content-visibility: visible !important;
+  contain-intrinsic-size: none;
+}
+#root.tk-scroll-root {
+  scroll-padding-block: 8px calc(70px + var(--projects-safe-bottom, 12px));
+}
+/* Shared space below each screen includes the app tabs and any native Telegram actions. */
+.tk-app,
+.tk-app *,
+.tk-dock,
+.tk-dock * {
+  transition-property: none !important;
+}
+.tk-app,
+html[data-projects-native-row] .tk-app {
+  --tk-foot: calc(
+    78px +
+      var(--projects-safe-bottom, max(12px, env(safe-area-inset-bottom, 0px)))
+  );
+}
+.tk-dock {
+  position: fixed;
+  z-index: 90;
+  top: calc(
+    var(--projects-viewport, 100dvh) - var(--projects-safe-bottom, 12px) - 62px
+  );
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: min(410px, calc(100% - 20px));
+  height: 62px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) 45px;
+  align-items: center;
+  padding: 3px 5px;
+  background: #fff;
+  color: #232225;
+  border: 1px solid #dedde0;
+  border-radius: 22px;
+  box-shadow:
+    0 4px 16px #30241b18,
+    0 1px 4px #30241b0a;
+  font-family: 'Google Sans App', Arial, sans-serif;
+  color-scheme: light;
+}
+.tk-dock > button:not(.demo-home-button) {
+  min-width: 0;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  border-radius: 14px;
+  color: #535055;
+  cursor: pointer;
+  font:
+    610 10px/1.12 'Google Sans App',
+    Arial,
+    sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.tk-dock > button[aria-current='page'] {
+  color: #19181b;
+  background: #efeeee;
+}
+.tk-dock .tk-dock-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.tk-dock .tk-dock-icon svg {
+  width: 21px;
+  height: 21px;
+  stroke-width: 2px;
+  opacity: 1;
+}
+.tk-dock-icon b {
+  position: absolute;
+  top: -6px;
+  left: 13px;
+  border-radius: 10px;
+  min-width: 15px;
+  text-align: center;
+  background: #252427;
+  border: 1px solid white;
+  color: white;
+  padding: 1px 3px;
+  font:
+    700 9px/1.1 Arial,
+    sans-serif;
+}
+.tk-dock > button:focus-visible {
+  outline: 2px solid #4d4950;
+  outline-offset: -2px;
+}
+.tk-dock .demo-home-button {
+  justify-self: end;
+}
+.tk-dock::before {
+  content: '';
+  position: absolute;
+  right: 52px;
+  height: 26px;
+  border-left: 1px solid #e3ded5;
+  pointer-events: none;
+}
+.tk-header.is-menu {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+}
+.tk-header .tk-brand-trigger {
+  justify-self: start;
+}
+.tk-header .tk-bell {
+  justify-self: end;
+}
+.tk-header:not(.is-menu) .tk-bell {
+  grid-column: 3;
+}
+.tk-app .tk-bar-select {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 2px 7px;
+  color: #282621;
+}
+.tk-bar-select > span {
+  text-align: left;
+}
+.tk-bar-select small,
+.tk-bar-select strong {
+  display: block;
+}
+.tk-bar-select small {
+  font-size: 10px;
+  color: #5c574f;
+  font-weight: 530;
+  line-height: 1.2;
+}
+.tk-bar-select strong {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  font-size: 14px;
+  line-height: 1.25;
+  font-weight: 730;
+}
+.tk-header:not(.is-creative) {
+  border-bottom: 1px solid #e8e7e8;
+}
+.tk-home-page {
+  padding-top: 13px;
+}
+/* The seasonal spread uses one central cutout and two selectable previews. */
+.tk-campaign {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  background: #fff;
+  padding: 14px 0 20px;
+}
+.tk-campaign-copy {
+  position: relative;
+  z-index: 1;
+}
+.tk-season-label {
+  display: block;
+  color: #5f5d60;
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.tk-app .tk-campaign h1,
+.tk-app .tk-bakery-info h1 {
+  font:
+    750 clamp(35px, 9.6vw, 62px) / 0.99 'Google Sans App',
+    Arial,
+    sans-serif !important;
+  letter-spacing: -0.063em;
+  text-wrap: balance;
+  margin: 8px 0;
+}
+@media (max-width: 599px) {
+  .tk-campaign h1 {
+    display: grid;
+    align-content: center;
+    min-height: calc(clamp(35px, 9.6vw, 62px) * 0.99);
+  }
+  .tk-app:lang(ru) .tk-campaign[data-featured='caramel-frappe'] h1 {
+    font-size: clamp(26px, 7.8vw, 46px) !important;
+  }
+}
+.tk-campaign-copy p {
+  max-width: 32ch;
+  margin: auto;
+  font-size: clamp(13px, 3.55vw, 16px);
+  color: #5b585c;
+  line-height: 1.34;
+  text-wrap: balance;
+}
+.tk-campaign-stage {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: clamp(215px, min(83vw, 39svh), 360px);
+  margin-top: 4px;
+  touch-action: pan-y;
+}
+.tk-hero-product {
+  position: absolute;
+  inset: 1% 15% 0;
+  width: 70%;
+  height: 99%;
+  display: block;
+  min-height: 0;
+}
+.tk-hero-product::before {
+  content: '';
+  position: absolute;
+  left: 16%;
+  right: 16%;
+  bottom: 2%;
+  height: 4%;
+  border-radius: 50%;
+  background: #3c2a2829;
+  filter: blur(7px);
+}
+.tk-hero-cutout {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(3px 5px 3px #35202610);
+}
+.tk-campaign .tk-neighbour {
+  position: absolute;
+  width: clamp(52px, 16%, 82px);
+  height: clamp(75px, 24%, 96px);
+  display: grid;
+  justify-items: center;
+  align-content: center;
+}
+.tk-neighbour.is-previous {
+  left: 1%;
+  top: 33%;
+}
+.tk-neighbour.is-next {
+  right: 1%;
+  top: 53%;
+}
+.tk-neighbour img {
+  width: 65%;
+  height: 65px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 2px #23191815);
+}
+.tk-neighbour.is-previous img {
+  transform: rotate(-11deg);
+}
+.tk-neighbour.is-next img {
+  transform: rotate(10deg);
+}
+.tk-neighbour span {
+  display: grid;
+  place-items: center;
+  border: 1px solid #dfdddc;
+  border-radius: 50%;
+  width: 21px;
+  height: 21px;
+  background: #fff;
+  margin-top: 2px;
+  color: #343335;
+}
+.tk-campaign-buy {
+  width: 100%;
+  max-width: 390px;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+}
+.tk-app .tk-feature-detail {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 38px;
+  padding: 3px 12px;
+  font-size: 14px;
+}
+.tk-feature-detail > span {
+  color: #615e60;
+}
+.tk-feature-detail i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #868286;
+}
+.tk-edition-pages {
+  display: flex;
+  gap: 0;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  margin: -3px 0 6px;
+}
+.tk-edition-pages button {
+  display: grid;
+  align-content: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+}
+.tk-edition-pages span {
+  width: 5px;
+  height: 5px;
+  border-radius: 4px;
+  background: #afacae;
+}
+.tk-edition-pages [aria-pressed='true'] span {
+  width: 20px;
+  background: #1e1d20;
+}
+.tk-app .tk-campaign-link {
+  width: 100%;
+  min-height: 49px;
+  border-radius: 999px;
+  background: #202022;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 9px 7px 21px;
+  font-size: 15px;
+  font-weight: 670;
+}
+.tk-campaign-link > svg {
+  flex: none;
+  box-sizing: content-box;
+  border-radius: 50%;
+  padding: 6px;
+  background: #fff;
+  color: #202022;
+}
+.tk-app .tk-bakery-detail {
+  max-width: 760px;
+  margin: auto;
+}
+.tk-bakery-photo {
+  display: grid;
+  place-items: center;
+  background: #f6f5f4;
+  border-radius: 14px;
+  margin: 16px 0 21px;
+}
+.tk-bakery-photo .tk-cup {
+  width: 82%;
+  height: clamp(195px, 53vw, 320px);
+  object-fit: contain;
+}
+.tk-bakery-info > p,
+.tk-bakery-info dd {
+  color: #545257;
+  line-height: 1.5;
+  font-size: 15px;
+}
+.tk-bakery-info dl {
+  margin: 18px 0;
+}
+.tk-bakery-info dl div {
+  padding: 12px 0;
+  border-top: 1px solid #e5e4e6;
+}
+.tk-bakery-info dt {
+  font-size: 14px;
+  font-weight: 700;
+}
+.tk-bakery-info dd {
+  margin: 3px 0 0;
+}
+.tk-bakery-serving {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 17px;
+  margin: 16px 0;
+}
+.tk-bakery-serving > span {
+  color: #656266;
+  font-size: 14px;
+}
+.tk-section-title {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+}
+.tk-section-title h2 {
+  font-size: clamp(19px, 5.3vw, 27px);
+  font-weight: 730;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+}
+.tk-section-title button,
+.tk-section-title > span {
+  min-height: 44px;
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+  font-size: 12px;
+  color: #5d595e;
+  font-weight: 640;
+  white-space: nowrap;
+}
+.tk-home-page .tk-daily {
+  padding-top: 13px;
+}
+.tk-home-page .tk-rail {
+  margin-top: 3px;
+  padding-bottom: 1px;
+}
+.tk-home-page .tk-pick {
+  border: 1px solid #e6e5e6;
+  border-radius: 5px;
+}
+.tk-home-page .tk-pick .tk-product-image {
+  aspect-ratio: 1.28;
+}
+.tk-home-page .tk-product-copy {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px;
+  padding: 8px 4px;
+}
+.tk-home-page .tk-product-copy strong {
+  font-size: 14px;
+}
+.tk-home-page .tk-product-copy b {
+  font-size: 12px;
+  color: #534c42;
+}
+.tk-home-extras > * {
+  min-width: 0;
+}
+.tk-home-extras {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 19px;
+}
+.tk-app .tk-club-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 16px;
+  border-radius: 7px;
+  border: 1px solid #e1dfde;
+  color: #252326;
+  background-color: #f2f0ef;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #fff2 0px,
+    #fff2 1px,
+    transparent 1px,
+    transparent 5px
+  );
+}
+.tk-club-heading,
+.tk-club-heading > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.tk-club-heading {
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.tk-club-heading > span {
+  letter-spacing: 0.015em;
+  font-weight: 720;
+  font-size: 12px;
+}
+.tk-club-card > strong {
+  display: block;
+  font-size: 21px;
+  letter-spacing: -0.04em;
+  line-height: 1.12;
+}
+.tk-stamps {
+  display: flex;
+  align-items: center;
+  gap: clamp(5px, 1.8vw, 10px);
+  margin: 11px 0;
+}
+.tk-stamps > span {
+  display: grid;
+  place-items: center;
+  width: clamp(30px, 8.2vw, 39px);
+  aspect-ratio: 1;
+  border: 1px dashed #949094;
+  border-radius: 50%;
+  color: #655f63;
+}
+.tk-stamps > span svg {
+  width: 53%;
+  height: 53%;
+  stroke-width: 1.65;
+}
+.tk-stamps > i {
+  width: 1px;
+  height: 26px;
+  border-left: 1px dashed #949094;
+  margin: 0 2px;
+}
+.tk-stamps .tk-prize {
+  border-style: solid;
+  color: #3e383d;
+  border-color: #777377;
+}
+.tk-stamps .is-stamped {
+  background: #28252a;
+  color: #fff;
+  border: 1px solid #28252a;
+}
+.tk-club-card > p {
+  color: #5c565b;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.tk-place-card {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(90px, 0.77fr) 1.23fr;
+  text-align: left;
+  min-height: 124px;
+  overflow: hidden;
+  border-radius: 6px;
+}
+.tk-app .tk-place-card {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px #e5e1da;
+}
+.tk-place-card > img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  min-height: 132px;
+}
+.tk-place-copy {
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 12px;
+}
+.tk-place-copy strong {
+  font-size: 19px;
+  letter-spacing: -0.04em;
+}
+.tk-place-copy > span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #565044;
+  line-height: 1.3;
+}
+.tk-place-copy > span svg {
+  flex: none;
+}
+.tk-place-copy small {
+  font-size: 11px;
+  color: #684637;
+  margin-top: 2px;
+  font-weight: 650;
+}
+.tk-live-order,
+.tk-usual > button,
+.tk-guest-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+}
+.tk-app .tk-live-order {
+  padding: 12px 14px;
+  margin: 0 0 12px;
+  border-radius: 5px;
+  background: #fff;
+  box-shadow: inset 3px 0 #c31d2e;
+}
+.tk-live-order > span,
+.tk-usual > button > span,
+.tk-guest-name > span:nth-child(2) {
+  flex: 1;
+  display: grid;
+  gap: 2px;
+}
+.tk-live-order b,
+.tk-usual strong,
+.tk-guest-name strong {
+  font-size: 15px;
+  letter-spacing: -0.024em;
+}
+.tk-live-order small,
+.tk-usual small,
+.tk-guest-name small {
+  font-size: 12px;
+  color: #635c53;
+}
+.tk-usual {
+  margin-top: 11px;
+}
+.tk-usual > button {
+  min-height: 54px;
+  border-bottom: 1px solid #dfdbd1;
+  padding: 4px;
+}
+.tk-usual .tk-cup {
+  width: 31px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.tk-app .tk-page-title {
+  font:
+    750 clamp(35px, 9.4vw, 57px) / 1.02 'Google Sans App',
+    Arial,
+    sans-serif !important;
+  letter-spacing: -0.058em;
+  margin: 20px 0 14px;
+  color: #19191b;
+}
+.tk-search-row {
+  display: block;
+}
+.tk-search {
+  min-height: 47px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: #f5f5f5;
+  border: 1px solid #ececed;
+  border-radius: 999px;
+  padding: 0 14px;
+  color: #56545a;
+}
+.tk-search:focus-within {
+  border-color: #57555b;
+}
+.tk-search input {
+  font:
+    500 16px/1.2 'Google Sans App',
+    sans-serif;
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: #202023;
+  outline: none;
+}
+.tk-search input::placeholder {
+  color: #666568;
+}
+.tk-search input::-webkit-search-cancel-button {
+  display: none;
+}
+.tk-search button {
+  display: grid;
+  place-items: center;
+  width: 39px;
+  min-height: 44px;
+}
+.tk-category-tabs {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  margin: 17px calc(-1 * var(--tk-side)) 13px;
+  padding: 3px var(--tk-side);
+}
+.tk-category-tabs::-webkit-scrollbar {
+  display: none;
+}
+.tk-app .tk-category-tabs button {
+  flex: 0 0 auto;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 7px;
+  min-width: 58px;
+  padding: 0 1px;
+  font-size: 12px;
+  line-height: 1.15;
+  font-weight: 570;
+  color: #4f4d52;
+}
+.tk-category-photo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background: #f4f3f3;
+}
+.tk-category-photo .tk-cup {
+  width: 67%;
+  height: 78%;
+  filter: drop-shadow(1px 2px 1px #3727181a);
+}
+.tk-category-photo img[data-cup='almond-croissant'] {
+  width: 87%;
+}
+.tk-category-photo b {
+  font:
+    400 24px/0.96 'Stengazeta',
+    Impact,
+    sans-serif;
+  letter-spacing: -0.04em;
+  color: #343236;
+}
+.tk-category-tabs [aria-pressed='true'] .tk-category-photo {
+  outline: 1.5px solid #252326;
+  outline-offset: 2px;
+}
+.tk-category-tabs [aria-pressed='true'] .tk-category-photo:has(b) {
+  background: #242426;
+}
+.tk-category-tabs [aria-pressed='true'] .tk-category-photo b {
+  color: #fff;
+}
+.tk-app .tk-category-tabs [aria-pressed='true'] {
+  color: #19191b;
+  font-weight: 730;
+}
+.tk-result-title {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  margin-bottom: 2px;
+}
+.tk-result-title h2 {
+  font-size: clamp(21px, 5.3vw, 30px);
+}
+.tk-result-title .tk-result-count {
+  min-height: 0;
+  align-self: center;
+  color: #6b686e;
+  font-size: 12px;
+  font-weight: 540;
+}
+.tk-result-title .tk-filter-trigger {
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  color: #202022;
+  border-radius: 50%;
+}
+.tk-catalogue .tk-grid {
+  gap: 15px 10px;
+}
+.tk-menu-product {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  display: flex;
+}
+.tk-menu-product::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 16% 0 0;
+  border-radius: 20px 30px 17px 17px;
+  background: linear-gradient(160deg, #f4f3f2, #f7f6f6 62%, #f2f1f0);
+  transform: skewY(-3deg);
+  transform-origin: bottom left;
+}
+.tk-menu-product::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 48%;
+  background: linear-gradient(120deg, #f6f5f4, #f5f4f3);
+  border-radius: 0 0 17px 17px;
+}
+.tk-menu-product:nth-child(even)::before {
+  transform: skewY(3deg);
+  transform-origin: bottom right;
+  border-radius: 30px 20px 17px 17px;
+}
+.tk-app .tk-menu-product .tk-card {
+  width: 100%;
+  padding: 0;
+  height: 100%;
+  background: transparent;
+  border-radius: 17px;
+}
+.tk-catalogue .tk-product-image {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1.19;
+  background: transparent;
+  border-radius: 0;
+}
+.tk-catalogue .tk-product-image::before {
+  left: 30%;
+  right: 30%;
+  bottom: 3%;
+  height: 5%;
+  filter: blur(4px);
+  background: #51453e2e;
+}
+.tk-catalogue .tk-product-image > .tk-cup {
+  position: absolute;
+  left: 50%;
+  top: auto;
+  bottom: 1%;
+  transform: translateX(-50%);
+  width: 82%;
+  height: 96%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+.tk-catalogue .tk-product-image > .tk-cup[data-cup='espresso'] {
+  height: 72%;
+}
+.tk-catalogue .tk-product-image > .tk-cup[data-cup='flat-white'] {
+  height: 84%;
+}
+.tk-catalogue
+  .tk-product-image
+  > .tk-cup:is([data-cup='almond-croissant'], [data-cup='chocolate-cookie']) {
+  height: 75%;
+}
+.tk-catalogue .tk-product-copy {
+  flex: 1;
+  gap: 2px;
+  padding: 8px 12px 10px;
+}
+.tk-catalogue .tk-card-serving {
+  color: #69656a;
+  font-size: 10px;
+  font-weight: 550;
+}
+.tk-catalogue .tk-product-copy strong {
+  font-size: clamp(16px, 4.4vw, 21px);
+  font-weight: 690;
+  line-height: 1.08;
+  letter-spacing: -0.042em;
+  text-wrap: balance;
+}
+.tk-catalogue .tk-product-copy > small {
+  color: #625e64;
+  font-size: 12px;
+  line-height: 1.32;
+}
+.tk-catalogue .tk-card-price {
+  display: flex;
+  align-items: flex-end;
+  min-height: 33px;
+  margin-top: auto;
+  padding-top: 6px;
+  padding-right: 32px;
+  font-size: 15px;
+  color: #19191b;
+  font-weight: 720;
+}
+.tk-app .tk-product-save,
+.tk-app .tk-quick-add {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: #373439;
+}
+.tk-app .tk-product-save {
+  top: 0;
+  right: 0;
+}
+.tk-product-save svg {
+  background: #ffffffcf;
+  border-radius: 50%;
+  box-sizing: content-box;
+  padding: 4px;
+}
+.tk-app .tk-product-save[aria-pressed='true'] {
+  color: #141416;
+}
+.tk-app .tk-quick-add {
+  bottom: 1px;
+  right: 3px;
+  color: #fff;
+}
+.tk-quick-add svg {
+  box-sizing: content-box;
+  padding: 7px;
+  border-radius: 50%;
+  background: #252427;
+}
+.tk-added-status {
+  position: fixed;
+  z-index: 95;
+  left: 0;
+  right: 0;
+  top: calc(
+    var(--projects-viewport, 100dvh) - var(--projects-safe-bottom, 12px) - 118px
+  );
+  text-align: center;
+  pointer-events: none;
+}
+.tk-added-status button {
+  border: 0;
+  font-family: 'Google Sans App', Arial, sans-serif;
+  cursor: pointer;
+  touch-action: manipulation;
+  display: inline-flex;
+  max-width: calc(100vw - 28px);
+  min-height: 42px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  background: #232225;
+  color: white;
+  padding: 7px 15px;
+  border-radius: 24px;
+  box-shadow: 0 3px 12px #18141924;
+  pointer-events: auto;
+  font-size: 13px;
+}
+.tk-search-empty {
+  padding: 32px 14px;
+  text-align: center;
+  color: #4d473e;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+.tk-search-empty h2 {
+  font-size: 19px;
+  font-weight: 730;
+}
+.tk-search-empty p {
+  font-size: 14px;
+}
+.tk-profile-page {
+  max-width: 568px;
+  margin: auto;
+}
+.tk-app .tk-guest-name {
+  border-top: 1px solid #dfdddf;
+  padding: 12px 0 15px;
+  margin-bottom: 4px;
+}
+.tk-monogram {
+  display: grid;
+  place-items: center;
+  background: #fff;
+  border: 1px solid #d1cabf;
+  color: #28262a;
+  border-radius: 50%;
+  width: 46px;
+  height: 46px;
+  font-weight: 750;
+  font-size: 21px;
+}
+.tk-account-links {
+  border-top: 1px solid #dfdddf;
+  margin-top: 20px;
+}
+.tk-account-links button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  border-bottom: 1px solid #dfdddf;
+  text-align: left;
+}
+.tk-account-links button > span {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 630;
+}
+.tk-account-links small {
+  color: #625d53;
+  font-size: 12px;
+}
+.tk-name-form label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 620;
+}
+.tk-name-form input {
+  background: #fff;
+  border: 1px solid #c7bfb4;
+  border-radius: 4px;
+  color: #221f1b;
+  font-size: 16px;
+  padding: 10px 12px;
+  min-height: 46px;
+}
+.tk-name-form p,
+.tk-club-rules p {
+  font-size: 14px;
+  line-height: 1.45;
+  color: #4d443d;
+  margin: 10px 0;
+}
+.tk-club-rules > p {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.tk-club-rules > p svg {
+  flex: none;
+  margin-top: 2px;
+}
+.tk-app .tk-bars-illustrated {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+.tk-app .tk-bars-illustrated button {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #d8d3c8;
+  border-radius: 6px;
+  padding: 0 0 10px;
+  text-align: left;
+  min-width: 0;
+}
+.tk-app .tk-bars-illustrated button[aria-pressed='true'] {
+  border: 2px solid #a71f2a;
+}
+.tk-bars-illustrated button > span {
+  padding: 0 8px;
+  display: grid;
+  gap: 5px;
+}
+.tk-bars-illustrated .tk-bar-photo {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1.48;
+  object-fit: cover;
+}
+.tk-app .tk-bars-illustrated button > i {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  background: white;
+}
+.tk-app .tk-bars-illustrated button[aria-pressed='true'] > i {
+  background: #ae202d;
+  color: white;
+}
+.tk-pickup-person,
+.tk-ticket-discount,
+.tk-redeem {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  margin-top: 15px;
+  font-size: 14px;
+}
+.tk-ticket-discount {
+  justify-content: space-between;
+  color: #87303a;
+  margin: 12px 0;
+}
+.tk-redeem {
+  padding: 13px;
+  border: 1px solid #c5ac97;
+  border-radius: 6px;
+  background: #f1e8dc;
+}
+.tk-redeem span {
+  flex: 1;
+  display: grid;
+  gap: 3px;
+}
+.tk-redeem input {
+  width: 21px;
+  height: 21px;
+  accent-color: #a81d2b;
+}
+.tk-redeem small {
+  font-size: 12px;
+}
+.tk-panel-heading h2 small {
+  font-size: 14px;
+}
+.tk-brew-base,
+html[data-projects-native-row] .tk-brew-base {
+  margin-bottom: 0;
+}
+@media (max-width: 350px) {
+  .tk-catalogue .tk-product-copy {
+    padding-inline: 9px;
+  }
+  .tk-campaign {
+    padding-top: 9px;
+  }
+  .tk-campaign-stage {
+    height: clamp(180px, 33svh, 220px);
+  }
+  .tk-home-page .tk-product-copy {
+    padding: 6px 2px;
+  }
+  .tk-stamps {
+    gap: 6px;
+  }
+}
+@media (min-width: 600px) {
+  .tk-campaign {
+    grid-template-columns: 1fr 1.08fr;
+    column-gap: 12px;
+    row-gap: 13px;
+    align-content: center;
+    justify-items: start;
+    position: relative;
+    text-align: left;
+    padding: 24px clamp(10px, 4vw, 43px);
+    margin: 8px 0;
+  }
+  .tk-campaign-copy {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: end;
+    padding-top: 12px;
+  }
+  .tk-app .tk-campaign h1 {
+    font-size: clamp(52px, 6.7vw, 79px) !important;
+  }
+  .tk-campaign-copy p {
+    margin: 0;
+    font-size: 16px;
+    max-width: 27ch;
+  }
+  .tk-campaign-stage {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    height: clamp(330px, 43vw, 435px);
+    margin: 0;
+  }
+  .tk-campaign-buy {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
+    justify-items: start;
+    max-width: 330px;
+  }
+  .tk-app .tk-feature-detail {
+    padding-left: 0;
+  }
+  .tk-edition-pages {
+    margin: 0 0 12px -6px;
+  }
+  .tk-category-tabs {
+    margin-inline: 0;
+    padding-inline: 4px;
+  }
+  .tk-bakery-detail {
+    display: grid;
+    grid-template-columns: 1fr 1.08fr;
+    align-items: center;
+    gap: 32px;
+    min-height: 55vh;
+  }
+  .tk-home-extras {
+    grid-template-columns: 1fr 1.15fr;
+    align-items: center;
+    margin-top: 25px;
+    gap: 22px;
+  }
+  .tk-category-tabs {
+    gap: 19px;
+  }
+  .tk-app .tk-club-card {
+    padding: 22px;
+  }
+  .tk-profile-page .tk-page-title {
+    margin-top: 24px;
+  }
+}
+.tk-ingredient .tk-changed-ingredient {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  line-height: 1.1;
+  font-size: 11px;
+  font-weight: 670;
+  white-space: nowrap;
+  color: #9b2930;
+  background: var(--tk-paper);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+.tk-drink-intro {
+  display: grid;
+  grid-template-columns: 65px 1fr;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+}
+.tk-drink-intro .tk-cup {
+  width: 62px;
+  height: 80px;
+  object-fit: contain;
+}
+.tk-drink-intro p,
+.tk-current-recipe p {
+  font-size: 14px;
+  color: #544d44;
+  line-height: 1.45;
+  margin: 4px 0;
+}
+.tk-current-recipe {
+  padding: 13px 0;
+  border-top: 1px solid #ddd6ca;
+}
+@media (max-width: 599px) and (max-height: 740px) {
+  .tk-builder {
+    --tk-map-height: clamp(218px, min(88vw, 40svh), 295px);
+  }
+  .tk-recipe-map {
+    height: var(--tk-map-height);
+  }
+  .tk-brew-base {
+    height: clamp(
+      165px,
+      calc(
+        var(--tk-view) - var(--tk-foot) - var(--tk-top) - var(--tk-map-height) -
+          87px
+      ),
+      285px
+    );
+  }
+  .tk-brew-actions {
+    bottom: 10px;
+  }
+  .tk-app .tk-poster-cup {
+    height: clamp(198px, 40svh, 295px);
+  }
+}
+/* Reserve the same space as the host's bottom actions on compact Telegram windows. */
+@media (max-width: 599px) {
+  html[data-projects-native-row] .tk-home-page {
+    padding-top: 4px;
+  }
+  html[data-projects-native-row] .tk-campaign {
+    padding-top: 3px;
+  }
+  html[data-projects-native-row] .tk-campaign-stage {
+    height: clamp(
+      135px,
+      calc(var(--tk-view) - var(--tk-top) - var(--tk-foot) - 245px),
+      min(83vw, 39svh)
+    );
+  }
+  html[data-projects-native-row] .tk-campaign-buy {
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+  }
+  html[data-projects-native-row] .tk-edition-pages {
+    margin: 0;
+  }
+  html[data-projects-native-row] .tk-campaign-link {
+    grid-column: 1 / -1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tk-dock * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

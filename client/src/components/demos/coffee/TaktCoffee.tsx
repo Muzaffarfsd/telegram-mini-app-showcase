@@ -10,11 +10,8 @@ import {
   Bookmark,
   ChevronDown,
   ChevronLeft,
-  ChevronRight,
-  Coffee,
   MapPin,
-  ReceiptText,
-  ShoppingBag,
+  Info,
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useDemoHistory } from '@/hooks/useDemoHistory';
@@ -24,8 +21,13 @@ import {
   restoreTelegramChrome,
   type TelegramChrome,
 } from '@/lib/telegramChrome';
-import { DemoHomeButton } from '../../DemoHomeButton';
-import { Action, MenuView, Sheet, type Filter } from './MenuView';
+import {
+  CoffeeNavigation,
+  isCoffeeTab,
+  type CoffeeTab,
+} from './CoffeeNavigation';
+import { ClubRules, CoffeeHome, GuestProfile } from './GuestViews';
+import { Action, MenuView, type Filter, type Sort } from './MenuView';
 import { Builder, FinishCup, type RecipePanel } from './RecipeView';
 import {
   Bag,
@@ -38,6 +40,7 @@ import {
 } from './OrderViews';
 import {
   addRecipe,
+  availableDiscount,
   barFor,
   chooseBar,
   repeatOrder,
@@ -46,32 +49,58 @@ import {
   toggleSaved,
   useCabinet,
 } from './orders';
-import { drinkById, recipeKey, say, validRecipe, type Recipe } from './menu';
+import {
+  bakery,
+  drinkById,
+  isBakery,
+  recipeKey,
+  say,
+  validRecipe,
+  type Recipe,
+  type BakeryId,
+  type MenuSelection,
+} from './menu';
+import { BakeryDetail } from './BakeryDetail';
+import { type FeaturedDrink } from './Campaign';
 import './TaktCoffee.css';
+import './CoffeeShop.css';
 
 type Screen =
-  | 'menu'
+  | CoffeeTab
   | 'builder'
+  | 'bakery'
   | 'cup'
-  | 'bag'
   | 'bars'
   | 'pickup'
   | 'receipt'
   | 'orders'
   | 'saved'
   | 'counter';
-type Panel = 'directory' | 'filters' | RecipePanel;
+type Panel = 'name' | 'club' | 'filters' | RecipePanel;
 type Route = {
   screen: Screen;
   filter: Filter;
+  query?: string;
+  sort?: Sort;
+  tab?: CoffeeTab;
   slide: number;
   recipe?: Recipe;
   editKey?: string;
+  bakeryId?: BakeryId;
+  featured?: FeaturedDrink;
   orderId?: string;
   station?: string;
   panel?: Panel;
 };
-const start: Route = { screen: 'menu', filter: 'all', slide: 0 };
+const start: Route = { screen: 'home', filter: 'all', slide: 0, tab: 'home' };
+function tabOf(route: Route): CoffeeTab {
+  if (isCoffeeTab(route.screen)) return route.screen;
+  if (route.tab) return route.tab;
+  if (route.screen === 'pickup') return 'bag';
+  return ['builder', 'cup', 'bakery'].includes(route.screen)
+    ? 'menu'
+    : 'profile';
+}
 export default function TaktCoffee() {
   useShowcaseViewport(true, true);
   const { language: lang } = useLanguage(),
@@ -81,13 +110,18 @@ export default function TaktCoffee() {
   const current = useRef(route);
   current.current = route;
   const main = useRef<HTMLElement>(null),
-    previous = useRef<Screen>('menu');
+    previous = useRef<Screen>('home');
+  const tabPositions = useRef<Partial<Record<CoffeeTab, number>>>({});
+  const restoreTabTop = useRef<number | null>(null);
   const history = useDemoHistory<Route>({
     demoPath: 'takt-coffee',
+    sameSnapshot: (a, b) => JSON.stringify(a) === JSON.stringify(b),
     getSnapshot: () => current.current,
     restore: (entry) => {
       if (
         !entry ||
+        (entry.screen === 'bakery' &&
+          (!entry.bakeryId || !Object.hasOwn(bakery, entry.bakeryId))) ||
         (['builder', 'cup'].includes(entry.screen) &&
           !validRecipe(entry.recipe))
       ) {
@@ -106,15 +140,24 @@ export default function TaktCoffee() {
           ...entry,
           recipe: latest.recipe,
           filter: latest.filter,
+          sort: latest.sort,
+          query: latest.query,
           slide: latest.slide,
         });
       } else setRoute(entry);
     },
   });
   function go(screen: Screen, next: Partial<Route> = {}) {
+    if (isCoffeeTab(route.screen))
+      tabPositions.current[route.screen] =
+        document.getElementById('root')?.scrollTop ?? 0;
     const target = {
       screen,
+      tab: isCoffeeTab(screen) ? screen : tabOf(route),
+      query: route.query,
+      sort: route.sort,
       filter: route.filter,
+      featured: route.featured,
       slide: route.slide,
       ...next,
     };
@@ -129,11 +172,23 @@ export default function TaktCoffee() {
   }
   const close = () =>
     history.back(() => setRoute((v) => ({ ...v, panel: undefined })));
-  const back = () => history.back(() => go('menu'));
+  const back = () => history.back(() => go('home'));
+  function selectTab(tab: CoffeeTab) {
+    if (route.screen === tab) {
+      scrollToTop();
+      return;
+    }
+    restoreTabTop.current = tabPositions.current[tab] ?? 0;
+    go(tab);
+  }
   const menu = () =>
     route.screen === 'menu' && !route.panel ? scrollToTop() : go('menu');
   const build = (recipe: Recipe, editKey?: string) =>
     go('builder', { recipe, editKey });
+  function openProduct(item: MenuSelection, editKey?: string) {
+    if (isBakery(item)) go('bakery', { bakeryId: item.bakery, editKey });
+    else build(item, editKey);
+  }
   const setSlide = useCallback(
     (slide: number) =>
       setRoute((v) => (v.slide === slide ? v : { ...v, slide })),
@@ -141,15 +196,26 @@ export default function TaktCoffee() {
   );
   const chooseLocation = () => go('bars', { station: data.bar });
   useEffect(() => {
-    history.replaceCurrent();
+    // Typing and scrolling a shelf can produce a burst of snapshots. Navigation
+    // flushes the latest route through the history hook before switching views.
+    const timer = window.setTimeout(history.replaceCurrent, 130);
+    window.addEventListener('pagehide', history.replaceCurrent);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('pagehide', history.replaceCurrent);
+    };
   }, [route, history.replaceCurrent]);
   useLayoutEffect(() => {
     if (previous.current !== route.screen) {
       previous.current = route.screen;
       main.current?.focus({ preventScroll: true });
+      const root = document.getElementById('root');
+      if (root && restoreTabTop.current !== null)
+        root.scrollTop = restoreTabTop.current;
+      restoreTabTop.current = null;
     }
   }, [route.screen]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const tg = window.Telegram?.WebApp as TelegramChrome | undefined;
     const old = {
       background: tg?.backgroundColor,
@@ -159,9 +225,9 @@ export default function TaktCoffee() {
     const root = document.getElementById('root');
     root?.classList.add('tk-scroll-root');
     try {
-      tg?.setBackgroundColor?.('#f5f5ef');
-      tg?.setHeaderColor?.('#f5f5ef');
-      tg?.setBottomBarColor?.('#f5f5ef');
+      tg?.setBackgroundColor?.('#ffffff');
+      tg?.setHeaderColor?.('#ffffff');
+      tg?.setBottomBarColor?.('#ffffff');
     } catch {
       /* Older clients. */
     }
@@ -172,6 +238,7 @@ export default function TaktCoffee() {
   }, []);
   const { screen, recipe, editKey } = route;
   const creative = screen === 'builder' || screen === 'cup';
+  const rootScreen = isCoffeeTab(screen);
   const count = data.bag.reduce((n, i) => n + i.qty, 0);
   const ready = data.orders.filter((t) => stageOf(t) === 'ready').length;
   const saved =
@@ -188,18 +255,16 @@ export default function TaktCoffee() {
         <header
           className={
             'tk-header' +
-            (screen === 'menu' ? ' is-menu' : creative ? ' is-creative' : '')
+            (rootScreen ? ' is-menu' : creative ? ' is-creative' : '')
           }
         >
-          {screen === 'menu' ? (
+          {rootScreen ? (
             <button
               className="tk-brand-trigger"
-              aria-label={ru ? 'Разделы кофейни' : 'Coffee bar sections'}
-              aria-haspopup="dialog"
-              onClick={() => panel('directory')}
+              aria-label={ru ? 'На главную кофейни' : 'Coffee bar home'}
+              onClick={() => selectTab('home')}
             >
               <span className="tk-wordmark">TAKT</span>
-              <ChevronDown size={12} />
             </button>
           ) : (
             <button
@@ -221,13 +286,23 @@ export default function TaktCoffee() {
               {ru ? 'Ваша чашка' : 'Your cup'}
             </span>
           )}
-          {!creative && screen !== 'menu' && (
+          {!creative && !rootScreen && (
             <button
               className="tk-compact-logo"
-              onClick={menu}
-              aria-label={ru ? 'В меню кофейни' : 'Coffee menu'}
+              onClick={() => selectTab('home')}
+              aria-label={ru ? 'На главную кофейни' : 'Coffee bar home'}
             >
               TAKT
+            </button>
+          )}
+          {screen === 'builder' && (
+            <button
+              className="tk-icon tk-save-top"
+              aria-haspopup="dialog"
+              aria-label={ru ? 'О напитке' : 'About this drink'}
+              onClick={() => panel('drink')}
+            >
+              <Info size={21} />
             </button>
           )}
           {screen === 'cup' && recipe && (
@@ -240,50 +315,80 @@ export default function TaktCoffee() {
               <Bookmark size={21} fill={saved ? 'currentColor' : 'none'} />
             </button>
           )}
+          {rootScreen && (
+            <button className="tk-bar-select" onClick={chooseLocation}>
+              <MapPin size={16} />
+              <span>
+                <small>{ru ? 'Самовывоз' : 'Pickup at'}</small>
+                <strong>
+                  {say(barFor(data.bar).name, lang)} <ChevronDown size={13} />
+                </strong>
+              </span>
+            </button>
+          )}
           {!creative && (
-            <nav
-              className="tk-top-nav"
-              aria-label={ru ? 'Навигация кофейни' : 'Coffee bar navigation'}
+            <button
+              className="tk-icon tk-bell"
+              aria-label={ru ? 'Мои заказы' : 'My orders'}
+              onClick={() => go('orders')}
             >
-              {screen === 'menu' && (
-                <button
-                  className="tk-icon tk-bell"
-                  aria-label={ru ? 'Мои заказы' : 'My orders'}
-                  onClick={() => go('orders')}
-                >
-                  <Bell size={21} />
-                  {ready > 0 && <i />}
-                </button>
-              )}
-              {screen !== 'bag' && (
-                <button
-                  className="tk-icon tk-bag"
-                  aria-label={(ru ? 'Корзина' : 'Bag') + ' · ' + count}
-                  onClick={() => go('bag')}
-                >
-                  <ShoppingBag size={21} />
-                  {count > 0 && <span>{count}</span>}
-                </button>
-              )}
-              <DemoHomeButton color="#242321" />
-            </nav>
+              <Bell size={21} />
+              {ready > 0 && <i />}
+            </button>
           )}
         </header>
         <main ref={main} tabIndex={-1} className="tk-main">
+          {screen === 'home' && (
+            <CoffeeHome
+              lang={lang}
+              data={data}
+              build={build}
+              menu={menu}
+              openClub={() => panel('club')}
+              openBar={chooseLocation}
+              saved={() => go('saved')}
+              openCup={(r) => go('cup', { recipe: r })}
+              receipt={(t) => go('receipt', { orderId: t.id })}
+              repeat={(t) => {
+                repeatOrder(t);
+                go('bag');
+              }}
+              slide={route.slide}
+              setSlide={setSlide}
+              featured={route.featured}
+              feature={(featured) => setRoute((v) => ({ ...v, featured }))}
+            />
+          )}
           {screen === 'menu' && (
             <MenuView
               lang={lang}
-              bar={data.bar}
-              openBar={chooseLocation}
-              saved={() => go('saved')}
-              build={build}
+              openProduct={openProduct}
+              bag={data.bag}
+              openBag={() => go('bag')}
               filter={route.filter}
               setFilter={(filter) => setRoute((v) => ({ ...v, filter }))}
+              query={route.query ?? ''}
+              setQuery={(query) => setRoute((v) => ({ ...v, query }))}
+              sort={route.sort ?? 'house'}
+              setSort={(sort) => setRoute((v) => ({ ...v, sort }))}
               filtersOpen={route.panel === 'filters'}
               openFilters={() => panel('filters')}
               close={close}
-              slide={route.slide}
-              setSlide={setSlide}
+              saved={data.saved}
+            />
+          )}
+          {screen === 'profile' && (
+            <GuestProfile
+              lang={lang}
+              data={data}
+              panel={route.panel}
+              saved={() => go('saved')}
+              orders={() => go('orders')}
+              bar={chooseLocation}
+              counter={() => go('counter')}
+              editName={() => panel('name')}
+              club={() => panel('club')}
+              close={close}
             />
           )}
           {screen === 'builder' && recipe && (
@@ -313,11 +418,22 @@ export default function TaktCoffee() {
               }}
             />
           )}
+          {screen === 'bakery' && route.bakeryId && (
+            <BakeryDetail
+              lang={lang}
+              id={route.bakeryId}
+              fromBag={!!editKey}
+              done={() => {
+                if (!editKey) addRecipe({ bakery: route.bakeryId! });
+                go('bag');
+              }}
+            />
+          )}
           {screen === 'bag' && (
             <Bag
               lang={lang}
               bag={data.bag}
-              edit={(r) => build(r, recipeKey(r))}
+              edit={(r) => openProduct(r, recipeKey(r))}
               menu={menu}
               pickup={() => go('pickup')}
             />
@@ -326,6 +442,7 @@ export default function TaktCoffee() {
             <section className="tk-standard">
               <h1 className="tk-display">{ru ? 'Кофейни' : 'Coffee bars'}</h1>
               <BarPicker
+                illustrated
                 lang={lang}
                 selected={route.station ?? data.bar}
                 change={(station) => setRoute((v) => ({ ...v, station }))}
@@ -345,6 +462,8 @@ export default function TaktCoffee() {
               lang={lang}
               bag={data.bag}
               bar={data.bar}
+              discount={availableDiscount(data)}
+              pickupName={data.pickupName}
               done={(t) => go('receipt', { orderId: t.id })}
               menu={menu}
             />
@@ -379,38 +498,8 @@ export default function TaktCoffee() {
             />
           )}
           {screen === 'counter' && <Counter lang={lang} orders={data.orders} />}
-          {route.panel === 'directory' && (
-            <Sheet
-              lang={lang}
-              title={ru ? 'Кофейня TAKT' : 'TAKT coffee bar'}
-              close={close}
-            >
-              <div className="tk-choice-list tk-directory">
-                <button onClick={close}>
-                  <Coffee size={18} />
-                  <span>{ru ? 'Меню' : 'Menu'}</span>
-                  <ChevronRight size={15} />
-                </button>
-                <button onClick={() => go('saved')}>
-                  <Bookmark size={18} />
-                  <span>{ru ? 'Мои рецепты' : 'My recipes'}</span>
-                  <ChevronRight size={15} />
-                </button>
-                <button onClick={() => go('orders')}>
-                  <ReceiptText size={18} />
-                  <span>{ru ? 'Мои заказы' : 'My orders'}</span>
-                  <ChevronRight size={15} />
-                </button>
-                <button onClick={chooseLocation}>
-                  <MapPin size={18} />
-                  <span>
-                    {ru ? 'Кофейня' : 'Pickup bar'} ·{' '}
-                    {say(barFor(data.bar).name, lang)}
-                  </span>
-                  <ChevronRight size={15} />
-                </button>
-              </div>
-            </Sheet>
+          {route.panel === 'club' && (
+            <ClubRules lang={lang} data={data} close={close} />
           )}
           {temporaryStorage() && (
             <p className="tk-disclosure" role="status">
@@ -421,6 +510,12 @@ export default function TaktCoffee() {
           )}
         </main>
       </div>
+      <CoffeeNavigation
+        lang={lang}
+        active={tabOf(route)}
+        count={count}
+        select={selectTab}
+      />
     </div>
   );
 }

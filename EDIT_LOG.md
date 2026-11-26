@@ -4,6 +4,19 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 20:33 MSK — Give TAKT a light fashion-store home and a photographic menu
+
+- The home opens on an original transparent cherry mocha portrait. Two preview drinks, swipe gestures and accessible selectors switch among three seasonal recipes. Size, price, customization and the menu action stay in place across selections. The WEB4TG dock clears the host actions at 320 × 640, including dark Telegram mode.
+- The catalogue offers thirteen drinks and two baked items. Search, seven photographic categories, sorting, recipe bookmarks and quick add all work. Mixed orders retain pastry weights, ingredients, quantities and prices through checkout, the counter, collection and repeat. Only collected drinks earn stamps.
+- Updated the Russian and English gallery captures, the shared-size handset, the first-image preload and the versioned seasonal Telegram invitation. Checkpoint `refs/checkpoints/before-takt-light-edit` at `59024706392e29287fbd055172f347a17770e859`. Settled mobile screenshots changed 237,416 pixels on home and 108,143 on the menu.
+- The production build, eighteen unit tests, full Chromium and WebKit coffee flows, studio home and sharing checks passed. Browser smoke reported zero page, console and network errors. The existing TypeScript baseline is 61 diagnostics. The demo-return suite passed TAKT, its bag and its profile. Its existing YANGBEN 20 px icon assertion still differs from the expected 21 px.
+
+## 2026-11-26 20:11 MSK — Restore TAKT’s bottom tabs and give the coffee shop a home, catalogue and guest club
+
+- The shared-style dock now exposes Home, Menu, Bag, Profile and the original WEB4TG return on every coffee screen. Current tabs, cart count, scroll and native host clearances are represented independently. Home shows a seasonal mocha, the barista shelf, actual order status, collected orders to repeat and the selected pickup bar. The catalogue searches drink names and tasting notes, filters categories, sorts by price and saves a recipe directly from a card.
+- Added matcha latte, cocoa and cold brew with their own packshots and compatible ingredients. A cold drink can be made with light or no ice. Each bar has a location photograph. The guest card counts collected drinks, reserves a reward when used, applies the discount to the receipt and restores it after cancellation. The pickup name appears in the receipt and the barista queue. Existing bags, recipes and receipts use the same storage key.
+- Native browser history can skip redundant writes for TAKT. The coffee tests cover ten drinks, instant search and return, small-phone action hit targets, local pickup names, collection, redemption and cancellation. The responsive gallery uses the new home in both languages. The repository TypeScript baseline retains its existing 61 diagnostics. Checkpoint `refs/checkpoints/before-takt-navigation` at `fc1ead3e8f492ffbc8447430a03f9e6dea6dd5ae`. The before/after browser comparison changed 91,429 pixels.
+
 ## 2026-11-26 19:21 MSK — Publish TAKT with the three-screen coffee reference
 
 - Reworked the first coffee prototype after the user rejected its composition. The coffee selection is a horizontal row of small white cards above a two-column menu. The recipe editor uses photographic ingredient stickers, local option pickers, a red dotted path and a cropped kraft-sleeved cup. The final portrait uses angular red display type and a large cutout with a single order action.

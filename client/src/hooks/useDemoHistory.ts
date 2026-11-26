@@ -18,6 +18,8 @@ interface DemoHistoryOptions<T extends object> {
   getSnapshot: () => T;
   /** Restore view state without creating another history entry or resetting scroll. */
   restore: (snapshot: T) => void;
+  /** Skip redundant native history writes when a demo can compare its snapshots. */
+  sameSnapshot?: (current: T, stored: T) => boolean;
 }
 
 function stateObject(): Record<string, unknown> | null {
@@ -71,6 +73,7 @@ function freshSession() {
 export function useDemoHistory<T extends object>({
   getSnapshot,
   restore,
+  sameSnapshot,
   demoPath,
 }: DemoHistoryOptions<T>) {
   const key =
@@ -79,6 +82,8 @@ export function useDemoHistory<T extends object>({
       : '__web4tgDemoHistory-' + demoPath;
   const getSnapshotRef = useRef(getSnapshot);
   const restoreRef = useRef(restore);
+  const sameSnapshotRef = useRef(sameSnapshot);
+  sameSnapshotRef.current = sameSnapshot;
   getSnapshotRef.current = getSnapshot;
   restoreRef.current = restore;
   const hashRef = useRef('');
@@ -101,15 +106,22 @@ export function useDemoHistory<T extends object>({
     const entry = readEntry<T>(state, hashRef.current, key);
     if (!state || !entry || entry.session !== sessionRef.current) return false;
     const root = document.getElementById('root');
-    positions.current.set(entry.index, root?.scrollTop ?? 0);
+    const scrollTop = root?.scrollTop ?? 0;
+    const snapshot = getSnapshotRef.current();
+    positions.current.set(entry.index, scrollTop);
+    if (
+      entry.scrollTop === scrollTop &&
+      sameSnapshotRef.current?.(snapshot, entry.snapshot)
+    )
+      return true;
     try {
       window.history.replaceState(
         {
           ...state,
           [key]: {
             ...entry,
-            snapshot: getSnapshotRef.current(),
-            scrollTop: root?.scrollTop ?? 0,
+            snapshot,
+            scrollTop,
           },
         },
         '',

@@ -17,6 +17,7 @@ const miniAppUrl = 'https://t.me/w4tg_bot/w4tg';
 const demoPhotoIds: Partial<Record<DemoShareId, string>> = {
   'furniture-studio': 'furniture-studio-v3',
   'china-buyer': 'china-buyer-atelier',
+  'takt-coffee': 'takt-coffee-cherry',
 };
 const inviteImageUrl = 'https://w4tg.up.railway.app/share/invite-three-stores-v1.jpg';
 

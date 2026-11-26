@@ -5,6 +5,7 @@ import {
   classic,
   activeGroups,
   validRecipe,
+  validSelection,
   price,
   recipeKey,
   recipeParts,
@@ -13,6 +14,10 @@ import {
   pickupTimes,
   timeOf,
   availablePickup,
+  clubBalance,
+  availableDiscount,
+  ticketTotal,
+  type Ticket,
 } from '../client/src/components/demos/coffee/orders';
 
 test('all house recipes match the menu and exclude incompatible customisations', () => {
@@ -75,4 +80,83 @@ test('pickup follows both Bishkek bars, preparation lead time and the next opera
     slots,
     [...new Set(slots)].sort((x, y) => x - y),
   );
+});
+test('cold drinks and drinks without coffee expose only compatible changes', () => {
+  const iced = classic('iced-latte');
+  assert.equal(recipeKey(iced), recipeKey({ ...iced, ice: 'regular' }));
+  assert.notEqual(recipeKey(iced), recipeKey({ ...iced, ice: 'no-ice' }));
+  assert.deepEqual(activeGroups('cold-brew').sort(), ['ice', 'sugar', 'syrup']);
+  for (const id of ['matcha-latte', 'cocoa'] as const) {
+    assert.ok(
+      !activeGroups(id).includes('beans') && !activeGroups(id).includes('shot'),
+    );
+    assert.equal(
+      price(classic(id)),
+      price({ ...classic(id), beans: 'decaf', shot: 'extra' }),
+    );
+  }
+});
+test('stamps are earned on collection, reserved on redemption and released on cancellation', () => {
+  const base: Ticket = {
+    id: 'one',
+    created: 1,
+    pickup: 2,
+    bar: 'park',
+    stage: 'collected',
+    items: [{ recipe: classic('cappuccino'), qty: 6, unit: 200 }],
+  };
+  assert.deepEqual(clubBalance([base]), { rewards: 1, stamps: 1 });
+  const espresso = { recipe: classic('espresso'), qty: 2 };
+  assert.equal(availableDiscount({ orders: [base], bag: [espresso] }), 120);
+  assert.equal(
+    availableDiscount({
+      orders: [base],
+      bag: [espresso, { recipe: classic('mocha'), qty: 1 }],
+    }),
+    200,
+  );
+  const used: Ticket = {
+    ...base,
+    id: 'two',
+    stage: 'received',
+    reward: 120,
+    items: [{ ...espresso, unit: 120 }],
+  };
+  assert.equal(ticketTotal(used), 120);
+  assert.deepEqual(clubBalance([base, used]), { rewards: 0, stamps: 1 });
+  assert.equal(availableDiscount({ orders: [base, used], bag: [espresso] }), 0);
+  assert.deepEqual(clubBalance([base, { ...used, stage: 'collected' }]), {
+    rewards: 0,
+    stamps: 2,
+  });
+  assert.deepEqual(clubBalance([base, { ...used, stage: 'cancelled' }]), {
+    rewards: 1,
+    stamps: 1,
+  });
+  assert.deepEqual(clubBalance([{ ...base, stage: 'ready' }]), {
+    rewards: 0,
+    stamps: 0,
+  });
+});
+test('bakery orders keep their weight, price and quantity apart from drink rewards', () => {
+  const pastry = { bakery: 'almond-croissant' } as const;
+  assert.ok(validSelection(pastry));
+  assert.equal(validSelection({ bakery: '__proto__' }), false);
+  assert.equal(validRecipe(pastry), false);
+  assert.equal(price(pastry), 175);
+  assert.deepEqual(recipeParts(pastry, 'ru'), ['95 г', '1 шт.']);
+  assert.deepEqual(activeGroups('peach-tea').sort(), ['ice', 'sugar', 'syrup']);
+  const pastryLine = { recipe: pastry, qty: 3, unit: 175 };
+  const t: Ticket = {
+    id: 'mixed',
+    created: 1,
+    pickup: 2,
+    bar: 'park',
+    stage: 'collected',
+    items: [pastryLine, { recipe: classic('espresso'), qty: 5, unit: 120 }],
+  };
+  assert.deepEqual(clubBalance([t]), { rewards: 1, stamps: 0 });
+  assert.equal(availableDiscount({ orders: [t], bag: [pastryLine] }), 0);
+  assert.equal(availableDiscount({ orders: [t], bag: t.items }), 120);
+  assert.equal(ticketTotal(t), 1125);
 });

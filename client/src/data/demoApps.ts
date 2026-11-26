@@ -53,9 +53,9 @@ export const demoApps: DemoApp[] = [
   {
     id: 'takt-coffee',
     title: 'TAKT — кофейня',
-    description: 'Меню эспрессо-бара, свой рецепт и заказ к выбранному времени.',
+    description: 'Сезонные напитки и выпечка. Соберите свой рецепт и выберите время самовывоза.',
     category: 'Еда и напитки',
-    image: '/takt-coffee/press/cappuccino-320.webp',
+    image: '/takt-coffee/editorial/cherry-mocha-480.webp',
     creator: 'WEB4TG',
     likes: '0',
     badge: 'Демо',

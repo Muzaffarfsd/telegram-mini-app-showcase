@@ -3,6 +3,9 @@ import {
   type Copy,
   type Locale,
   type Recipe,
+  type MenuSelection,
+  isBakery,
+  validSelection,
   price,
   recipeKey,
   validRecipe,
@@ -57,7 +60,7 @@ export function availablePickup(barId: string, time: number, now = Date.now()) {
   return pickupTimes(barId, now).includes(time);
 }
 
-export type Line = { recipe: Recipe; qty: number };
+export type Line = { recipe: MenuSelection; qty: number };
 export const stages = ['received', 'brewing', 'ready', 'collected'] as const;
 type Stage = (typeof stages)[number] | 'cancelled';
 export const stageName: Record<Stage, Copy> = {
@@ -74,18 +77,27 @@ export type Ticket = {
   pickup: number;
   stage: Stage;
   items: (Line & { unit: number })[];
+  reward?: number;
+  pickupName?: string;
 };
-type Cabinet = { bag: Line[]; saved: Recipe[]; orders: Ticket[]; bar: string };
+export type Cabinet = {
+  bag: Line[];
+  saved: Recipe[];
+  orders: Ticket[];
+  bar: string;
+  pickupName: string;
+};
 const key = 'web4tg-takt-coffee-v1';
 const blank = (): Cabinet => ({
   bag: [],
   saved: [],
   orders: [],
   bar: bars[0].id,
+  pickupName: '',
 });
 const validLine = (item: Line) =>
   item &&
-  validRecipe(item.recipe) &&
+  validSelection(item.recipe) &&
   Number.isSafeInteger(item.qty) &&
   item.qty > 0 &&
   item.qty <= 99;
@@ -112,6 +124,10 @@ function decode(raw: string | null): Cabinet {
           )
         : [],
       bar: barFor(data.bar).id,
+      pickupName:
+        typeof data.pickupName === 'string'
+          ? data.pickupName.trim().slice(0, 36)
+          : '',
     };
   } catch {
     return blank();
@@ -173,7 +189,7 @@ export function toggleSaved(recipe: Recipe) {
       : [recipe, ...s.saved],
   }));
 }
-function combine(bag: Line[], recipe: Recipe, qty: number): Line[] {
+function combine(bag: Line[], recipe: MenuSelection, qty: number): Line[] {
   const k = recipeKey(recipe);
   const same = bag.find((i) => recipeKey(i.recipe) === k);
   return same
@@ -182,7 +198,7 @@ function combine(bag: Line[], recipe: Recipe, qty: number): Line[] {
       )
     : [...bag, { recipe, qty }];
 }
-export function addRecipe(recipe: Recipe, editing?: string) {
+export function addRecipe(recipe: MenuSelection, editing?: string) {
   update((s) => {
     const line = editing && s.bag.find((i) => recipeKey(i.recipe) === editing);
     const rest = line ? s.bag.filter((i) => i !== line) : s.bag;
@@ -208,11 +224,56 @@ export const forgetLine = (k: string) =>
   }));
 export const chooseBar = (bar: string) =>
   update((s) => ({ ...s, bar: barFor(bar).id }));
+export const savePickupName = (name: string) =>
+  update((s) => ({ ...s, pickupName: name.trim().slice(0, 36) }));
 export const bagTotal = (items: Line[]) =>
   items.reduce((sum, i) => sum + price(i.recipe) * i.qty, 0);
+export const stampsPerReward = 5;
+export const rewardLimit = 200;
+export const ticketDiscount = (t: Ticket) =>
+  Number.isFinite(t.reward) && t.reward! > 0
+    ? Math.min(t.reward!, rewardLimit)
+    : 0;
 export const ticketTotal = (t: Ticket) =>
-  t.items.reduce((sum, i) => sum + i.unit * i.qty, 0);
-export function checkout(bar: string, pickup: number) {
+  Math.max(
+    0,
+    t.items.reduce((sum, i) => sum + i.unit * i.qty, 0) - ticketDiscount(t),
+  );
+
+export function clubBalance(orders: Ticket[]) {
+  let stamps = 0;
+  for (const ticket of orders) {
+    const stage = stageOf(ticket);
+    if (stage === 'cancelled') continue;
+    const redeemed = ticketDiscount(ticket) > 0;
+    if (redeemed) stamps -= stampsPerReward;
+    if (stage === 'collected') {
+      stamps +=
+        ticket.items.reduce(
+          (count, item) => count + (isBakery(item.recipe) ? 0 : item.qty),
+          0,
+        ) - (redeemed ? 1 : 0);
+    }
+  }
+  const available = Math.max(0, stamps);
+  return {
+    stamps: available % stampsPerReward,
+    rewards: Math.floor(available / stampsPerReward),
+  };
+}
+export function availableDiscount(s: Pick<Cabinet, 'orders' | 'bag'>) {
+  if (!s.bag.length || clubBalance(s.orders).rewards < 1) return 0;
+  return Math.min(
+    rewardLimit,
+    s.bag.reduce(
+      (highest, item) =>
+        isBakery(item.recipe) ? highest : Math.max(highest, price(item.recipe)),
+      0,
+    ),
+  );
+}
+
+function completePurchase(bar: string, pickup: number, useReward: boolean) {
   let ticket: Ticket | undefined;
   update((s) => {
     const created = Date.now();
@@ -222,7 +283,11 @@ export function checkout(bar: string, pickup: number) {
       !availablePickup(bar, pickup, created)
     )
       return s;
+    const reward = useReward ? availableDiscount(s) : 0;
+    if (useReward && !reward) return s;
     ticket = {
+      ...(reward ? { reward } : {}),
+      ...(s.pickupName && { pickupName: s.pickupName }),
       id: crypto.randomUUID(),
       created,
       bar,
@@ -233,6 +298,21 @@ export function checkout(bar: string, pickup: number) {
     return { ...s, bar, bag: [], orders: [ticket, ...s.orders] };
   });
   return ticket;
+}
+export async function checkout(bar: string, pickup: number, useReward = false) {
+  const purchase = () => completePurchase(bar, pickup, useReward);
+  try {
+    return globalThis.navigator?.locks
+      ? await navigator.locks.request(key + '-checkout', purchase)
+      : purchase();
+  } catch (error) {
+    if (
+      error instanceof DOMException &&
+      ['SecurityError', 'NotSupportedError'].includes(error.name)
+    )
+      return purchase();
+    throw error;
+  }
 }
 export function repeatOrder(ticket: Ticket) {
   update((s) => ({

@@ -1,0 +1,431 @@
+import { useEffect, useState } from 'react';
+import {
+  ArrowRight,
+  Bookmark,
+  ChevronRight,
+  Clock3,
+  Coffee,
+  MapPin,
+  Pencil,
+  ReceiptText,
+  RotateCcw,
+  Sparkle,
+  Stamp,
+  Ticket,
+} from 'lucide-react';
+import { drinkById, money, price, say, type Locale, type Recipe } from './menu';
+import {
+  barFor,
+  clubBalance,
+  dateOf,
+  pickupTimes,
+  rewardLimit,
+  savePickupName,
+  stageName,
+  stageOf,
+  stampsPerReward,
+  ticketNumber,
+  timeOf,
+  type Cabinet,
+  type Ticket as CoffeeTicket,
+} from './orders';
+import { Cup, DailyShelf, Sheet } from './MenuView';
+
+import { Campaign, type FeaturedDrink } from './Campaign';
+type GuestProps = { lang: Locale; data: Cabinet };
+const hours = (n: number) => String(n).padStart(2, '0') + ':00';
+
+function PickupFeature({
+  lang,
+  barId,
+  onClick,
+}: {
+  lang: Locale;
+  barId: string;
+  onClick: () => void;
+}) {
+  const ru = lang === 'ru',
+    bar = barFor(barId);
+  const [now, setNow] = useState(Date.now);
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 30000);
+    return () => clearInterval(id);
+  }, []);
+  const earliest = pickupTimes(bar.id, now)[0];
+  const today = dateOf(now, lang) === dateOf(earliest, lang);
+  return (
+    <section className="tk-pickup-feature">
+      <div className="tk-section-title">
+        <h2>{ru ? 'Ваша кофейня' : 'Your coffee bar'}</h2>
+        <button onClick={onClick}>
+          {ru ? 'Сменить' : 'Change'} <ChevronRight size={16} />
+        </button>
+      </div>
+      <button className="tk-place-card" onClick={onClick}>
+        <img
+          loading="lazy"
+          alt=""
+          src={'/takt-coffee/editorial/' + bar.id + '-640.webp'}
+          width="320"
+          height="170"
+        />
+        <span className="tk-place-copy">
+          <strong>{say(bar.name, lang)}</strong>
+          <span>
+            <MapPin size={15} />
+            {say(bar.location, lang)}
+          </span>
+          <span>
+            <Clock3 size={15} />
+            {hours(bar.open)}–{hours(bar.close)}
+          </span>
+          <small>
+            {(ru ? 'Самовывоз · ' : 'Pickup · ') +
+              (today ? (ru ? 'сегодня' : 'today') : dateOf(earliest, lang)) +
+              ' ' +
+              timeOf(earliest)}
+          </small>
+        </span>
+      </button>
+    </section>
+  );
+}
+
+function StampRow({ stamps, reward }: { stamps: number; reward: boolean }) {
+  return (
+    <div aria-hidden="true" className="tk-stamps">
+      {Array.from({ length: stampsPerReward }, (_, i) => (
+        <span key={i} className={i < stamps ? 'is-stamped' : ''}>
+          <Coffee size={21} />
+        </span>
+      ))}
+      <i />
+      <span className={'tk-prize' + (reward ? ' is-stamped' : '')}>
+        <Sparkle size={23} />
+      </span>
+    </div>
+  );
+}
+export function ClubCard({
+  lang,
+  data,
+  open,
+}: GuestProps & { open?: () => void }) {
+  const ru = lang === 'ru',
+    balance = clubBalance(data.orders);
+  const card = (
+    <>
+      <div className="tk-club-heading">
+        <span>
+          <Stamp size={17} />
+          {ru ? 'Клуб TAKT' : 'TAKT Club'}
+        </span>
+        {open && <ChevronRight size={19} />}
+      </div>
+      <strong>
+        {balance.rewards > 0
+          ? (ru ? 'Доступно бонусов · ' : 'Available rewards · ') +
+            balance.rewards
+          : (ru ? 'Отметки · ' : 'Stamps · ') +
+            balance.stamps +
+            ' / ' +
+            stampsPerReward}
+      </strong>
+      <StampRow stamps={balance.stamps} reward={balance.rewards > 0} />
+      <p>
+        {ru
+          ? 'Пять чашек — скидка до 200 сом на следующую.'
+          : 'Five cups earn up to 200 KGS off your next one.'}
+      </p>
+    </>
+  );
+  return open ? (
+    <button className="tk-club-card" onClick={open}>
+      {card}
+    </button>
+  ) : (
+    <div className="tk-club-card">{card}</div>
+  );
+}
+export function CoffeeHome({
+  lang,
+  data,
+  build,
+  menu,
+  openClub,
+  openBar,
+  saved,
+  openCup,
+  receipt,
+  repeat,
+  slide,
+  setSlide,
+  featured,
+  feature,
+}: GuestProps & {
+  build: (r: Recipe) => void;
+  menu: () => void;
+  openClub: () => void;
+  openBar: () => void;
+  saved: () => void;
+  openCup: (r: Recipe) => void;
+  receipt: (t: CoffeeTicket) => void;
+  repeat: (t: CoffeeTicket) => void;
+  slide: number;
+  setSlide: (n: number) => void;
+  featured?: FeaturedDrink;
+  feature: (drink: FeaturedDrink) => void;
+}) {
+  const ru = lang === 'ru';
+  const active = data.orders.find((t) =>
+    ['received', 'brewing', 'ready'].includes(stageOf(t)),
+  );
+  const previous = data.orders.find((t) => stageOf(t) === 'collected');
+  const favorite = data.saved[0];
+  return (
+    <div className="tk-home-page">
+      {active && (
+        <button className="tk-live-order" onClick={() => receipt(active)}>
+          <ReceiptText size={23} />
+          <span>
+            <b>
+              {say(stageName[stageOf(active)], lang)} · № {ticketNumber(active)}
+            </b>
+            <small>
+              {say(barFor(active.bar).name, lang)} ·{' '}
+              {dateOf(active.pickup, lang)} · {timeOf(active.pickup)}
+            </small>
+          </span>
+          <ChevronRight size={19} />
+        </button>
+      )}
+      <Campaign
+        lang={lang}
+        selected={featured}
+        select={feature}
+        build={build}
+        menu={menu}
+      />
+      <DailyShelf
+        lang={lang}
+        build={build}
+        slide={slide}
+        setSlide={setSlide}
+        catalogue={menu}
+      />
+      {(favorite || previous) && (
+        <section className="tk-usual">
+          <div className="tk-section-title">
+            <h2>{ru ? 'Ваш обычный заказ' : 'Your usual'}</h2>
+          </div>
+          {favorite && (
+            <button onClick={() => openCup(favorite)}>
+              <Cup id={favorite.drink} />
+              <span>
+                <strong>{say(drinkById[favorite.drink].name, lang)}</strong>
+                <small>
+                  {(ru ? 'Сохранённый рецепт · ' : 'Saved recipe · ') +
+                    money(price(favorite), lang)}
+                </small>
+              </span>
+              <Bookmark size={18} />
+            </button>
+          )}
+          {previous && (
+            <button onClick={() => repeat(previous)}>
+              <RotateCcw size={22} />
+              <span>
+                <strong>{ru ? 'Повторить заказ' : 'Order again'}</strong>
+                <small>
+                  № {ticketNumber(previous)} · {dateOf(previous.pickup, lang)}
+                </small>
+              </span>
+              <ArrowRight size={18} />
+            </button>
+          )}
+          {data.saved.length > 1 && (
+            <button className="tk-text-button" onClick={saved}>
+              {ru ? 'Все мои рецепты' : 'All my recipes'}{' '}
+              <ChevronRight size={16} />
+            </button>
+          )}
+        </section>
+      )}
+      <div className="tk-home-extras">
+        <ClubCard lang={lang} data={data} open={openClub} />
+        <PickupFeature lang={lang} barId={data.bar} onClick={openBar} />
+      </div>
+    </div>
+  );
+}
+export function GuestProfile({
+  lang,
+  data,
+  saved,
+  orders,
+  bar,
+  counter,
+  editName,
+  club,
+  close,
+  panel,
+}: GuestProps & {
+  saved: () => void;
+  orders: () => void;
+  bar: () => void;
+  counter: () => void;
+  editName: () => void;
+  club: () => void;
+  close: () => void;
+  panel?: string;
+}) {
+  const ru = lang === 'ru';
+  return (
+    <section className="tk-profile-page">
+      <h1 className="tk-page-title">{ru ? 'Профиль' : 'Profile'}</h1>
+      <button className="tk-guest-name" onClick={editName}>
+        <span className="tk-monogram" aria-hidden="true">
+          {data.pickupName ? (
+            Array.from(data.pickupName)[0].toLocaleUpperCase()
+          ) : (
+            <Coffee size={24} />
+          )}
+        </span>
+        <span>
+          <strong>
+            {data.pickupName || (ru ? 'Гость TAKT' : 'TAKT guest')}
+          </strong>
+          <small>
+            {data.pickupName
+              ? ru
+                ? 'Имя для выдачи'
+                : 'Pickup name'
+              : ru
+                ? 'Добавить имя для выдачи'
+                : 'Add a pickup name'}
+          </small>
+        </span>
+        <Pencil size={17} />
+      </button>
+      <ClubCard lang={lang} data={data} open={club} />
+      <div className="tk-account-links">
+        <button onClick={saved}>
+          <Bookmark size={21} />
+          <span>{ru ? 'Мои рецепты' : 'My recipes'}</span>
+          <small>{data.saved.length}</small>
+          <ChevronRight size={15} />
+        </button>
+        <button onClick={orders}>
+          <ReceiptText size={21} />
+          <span>{ru ? 'История заказов' : 'Order history'}</span>
+          <small>{data.orders.length}</small>
+          <ChevronRight size={15} />
+        </button>
+        <button onClick={bar}>
+          <MapPin size={21} />
+          <span>{ru ? 'Моя кофейня' : 'Pickup bar'}</span>
+          <small>{say(barFor(data.bar).name, lang)}</small>
+          <ChevronRight size={15} />
+        </button>
+        <button onClick={counter}>
+          <Coffee size={21} />
+          <span>{ru ? 'Демо-пульт бариста' : 'Demo barista counter'}</span>
+          <ChevronRight size={15} />
+        </button>
+      </div>
+      {panel === 'name' && (
+        <NameEditor lang={lang} name={data.pickupName} close={close} />
+      )}
+    </section>
+  );
+}
+export function ClubRules({
+  lang,
+  data,
+  close,
+}: GuestProps & { close: () => void }) {
+  const ru = lang === 'ru';
+  return (
+    <Sheet
+      lang={lang}
+      title={ru ? 'Как работает клуб' : 'How the club works'}
+      close={close}
+    >
+      <div className="tk-club-rules">
+        <ClubCard lang={lang} data={data} />
+        <p>
+          <Coffee size={18} />
+          {ru
+            ? 'За каждый полученный напиток начисляется одна отметка.'
+            : 'Collect one stamp for each drink you pick up.'}
+        </p>
+        <p>
+          <Ticket size={18} />
+          {ru
+            ? 'Пять отметок дают скидку до ' +
+              money(rewardLimit, lang) +
+              ' на один напиток. Выберите бонус при оформлении самовывоза.'
+            : 'Five stamps give up to ' +
+              money(rewardLimit, lang) +
+              ' off one drink. Apply it at pickup checkout.'}
+        </p>
+        <p>
+          <RotateCcw size={18} />
+          {ru
+            ? 'Чашка со скидкой не приносит отметку. При отмене заказа бонус возвращается.'
+            : 'A discounted cup earns no stamp. Cancelling an order restores its reward.'}
+        </p>
+      </div>
+      <button className="tk-sheet-done" onClick={close}>
+        {ru ? 'Понятно' : 'Got it'}
+      </button>
+    </Sheet>
+  );
+}
+function NameEditor({
+  lang,
+  name,
+  close,
+}: {
+  lang: Locale;
+  name: string;
+  close: () => void;
+}) {
+  const [draft, setDraft] = useState(name),
+    ru = lang === 'ru';
+  return (
+    <Sheet
+      lang={lang}
+      title={ru ? 'Имя для выдачи' : 'Pickup name'}
+      close={close}
+    >
+      <form
+        className="tk-name-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          savePickupName(draft);
+          close();
+        }}
+      >
+        <label>
+          {ru ? 'Как к вам обращаться?' : 'What should we call you?'}
+          <input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            maxLength={36}
+            autoComplete="given-name"
+            placeholder={ru ? 'Ваше имя' : 'Your name'}
+          />
+        </label>
+        <p>
+          {ru
+            ? 'Это имя будет в чеке и у бариста на этом устройстве.'
+            : 'This name appears on the receipt and the barista screen on this device.'}
+        </p>
+        <button type="submit" className="tk-sheet-done">
+          {ru ? 'Сохранить' : 'Save'}
+        </button>
+      </form>
+    </Sheet>
+  );
+}

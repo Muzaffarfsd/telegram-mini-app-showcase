@@ -2,20 +2,20 @@
 #root.tk-scroll-root {
   min-height: 0;
   height: var(--projects-viewport, 100dvh);
-  background: #f5f5ef;
+  background: #ffffff;
 }
 body:has(#root.tk-scroll-root) {
   min-height: 0;
   padding-block: 0 !important;
 }
 .tk-app {
-  --tk-paper: #f5f5ef;
-  --tk-ink: #1b1b18;
-  --tk-muted: #575750;
-  --tk-line: #ddddd5;
-  --tk-red: #d41c2a;
-  --tk-bright: #ed2937;
-  --tk-wash: #f7f6f2;
+  --tk-paper: #ffffff;
+  --tk-ink: #19191b;
+  --tk-muted: #56565a;
+  --tk-line: #e4e4e5;
+  --tk-accent: #202022;
+  --tk-bright: #232325;
+  --tk-wash: #f6f6f6;
   --tk-side: clamp(16px, 4.7vw, 32px);
   --tk-top: max(
     13px,
@@ -106,7 +106,7 @@ html[data-projects-native-row] .tk-app {
     400 43px/0.96 'Stengazeta',
     Impact,
     sans-serif;
-  color: var(--tk-red);
+  color: var(--tk-accent);
   letter-spacing: -0.045em;
 }
 .tk-brand-trigger > svg {
@@ -151,7 +151,7 @@ html[data-projects-native-row] .tk-app {
   min-width: 15px;
   padding: 1px 3px;
   border-radius: 20px;
-  background: var(--tk-red);
+  background: var(--tk-accent);
   color: white;
   font-size: 10px;
 }
@@ -181,7 +181,7 @@ html[data-projects-native-row] .tk-app {
   justify-self: end;
 }
 .tk-save-top[aria-pressed='true'] {
-  color: var(--tk-red);
+  color: var(--tk-accent);
 }
 .tk-cup {
   display: block;
@@ -278,12 +278,6 @@ html[data-projects-native-row] .tk-app {
 }
 .tk-product-image > .tk-cup[data-cup='flat-white'] {
   height: 71%;
-}
-.tk-flame {
-  position: absolute;
-  top: 6px;
-  right: 5px;
-  color: var(--tk-bright);
 }
 .tk-product-copy {
   display: flex;
@@ -480,7 +474,7 @@ html[data-projects-native-row] .tk-app {
   min-height: 80px;
   padding: 14px 0 10px;
   text-align: center;
-  color: var(--tk-red);
+  color: var(--tk-accent);
   font:
     400 clamp(33px, 9.6vw, 52px) / 0.95 'Stengazeta',
     Impact,
@@ -539,7 +533,7 @@ html[data-projects-native-row] .tk-app {
   min-height: 50px;
   width: 100%;
   padding: 11px 15px;
-  background: var(--tk-red);
+  background: var(--tk-accent);
   color: white;
   font-size: 14px;
   line-height: 1.2;
@@ -648,7 +642,7 @@ html[data-projects-native-row] .tk-app .tk-sheet {
   flex: 1;
 }
 .tk-choice-list button svg:last-child {
-  color: var(--tk-red);
+  color: var(--tk-accent);
 }
 .tk-choice-list small {
   font-size: 12px;
@@ -668,7 +662,7 @@ html[data-projects-native-row] .tk-app .tk-sheet {
 .tk-recipe-list li + li::before {
   content: '·';
   margin-right: 8px;
-  color: var(--tk-red);
+  color: var(--tk-accent);
 }
 .tk-display {
   font-size: clamp(33px, 8.2vw, 54px);
@@ -704,7 +698,7 @@ html[data-projects-native-row] .tk-app .tk-sheet {
   border-radius: 3px;
 }
 .tk-app .tk-times button[aria-pressed='true'] {
-  border-color: var(--tk-red);
+  border-color: var(--tk-accent);
 }
 .tk-times small {
   font-size: 12px;
@@ -756,7 +750,7 @@ html[data-projects-native-row] .tk-app .tk-sheet {
   gap: 6px;
   font-size: 13px;
   font-weight: 720;
-  color: var(--tk-red);
+  color: var(--tk-accent);
 }
 
 .tk-standard {
@@ -779,7 +773,7 @@ html[data-projects-native-row] .tk-app .tk-sheet {
   border-top: 1px solid var(--tk-line);
 }
 .tk-empty > svg {
-  color: var(--tk-red);
+  color: var(--tk-accent);
   width: 32px;
   height: 32px;
   stroke-width: 1.4;
@@ -900,7 +894,7 @@ html[data-projects-native-row] .tk-app .tk-sheet {
   gap: 10px;
 }
 .tk-bars button[aria-pressed='true'] {
-  border-color: var(--tk-red);
+  border-color: var(--tk-accent);
   background: #f4e9e0;
 }
 .tk-bars small,
@@ -922,8 +916,8 @@ html[data-projects-native-row] .tk-app .tk-sheet {
 }
 .tk-bars [aria-pressed='true'] i {
   color: white;
-  background: var(--tk-red);
-  border-color: var(--tk-red);
+  background: var(--tk-accent);
+  border-color: var(--tk-accent);
 }
 .tk-saved-line,
 .tk-saved-open,
@@ -1006,7 +1000,7 @@ html[data-projects-native-row] .tk-app .tk-sheet {
 }
 .tk-cancel-confirm button + button {
   margin-left: 15px;
-  color: var(--tk-red);
+  color: var(--tk-accent);
 }
 .tk-location-line {
   display: flex;
@@ -1052,7 +1046,7 @@ html[data-projects-native-row] .tk-app .tk-sheet {
 }
 .tk-bars button[aria-pressed='true'] {
   background: #fff;
-  border-color: var(--tk-red);
+  border-color: var(--tk-accent);
 }
 .tk-ticket {
   background: white;

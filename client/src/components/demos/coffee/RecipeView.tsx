@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import { ArrowRight, Check, ChevronDown, ChevronRight } from 'lucide-react';
 import {
   activeGroups,
+  classic,
   art,
   drinkById,
   groups,
@@ -18,7 +19,7 @@ import {
 } from './menu';
 import { Cup, Sheet } from './MenuView';
 
-export type RecipePanel = GroupId | 'size' | 'details';
+export type RecipePanel = GroupId | 'size' | 'details' | 'drink';
 type Specimen = readonly [GroupId, number, number, number];
 type Diagram = { items: Specimen[]; lines: string[] };
 const hot: Diagram = {
@@ -42,7 +43,7 @@ const iced: Diagram = {
   items: [
     ['beans', 21, 22, -8],
     ['sugar', 73, 13, 7],
-    ['shot', 31, 60, 4],
+    ['ice', 31, 60, 4],
     ['syrup', 84, 48, -8],
     ['milk', 67, 83, -5],
   ],
@@ -80,8 +81,33 @@ const short: Diagram = {
     'M 81 35 C 91 52, 73 59, 63 68',
   ],
 };
+const milkOnly: Diagram = {
+  items: [
+    ['latteArt', 21, 20, -8],
+    ['sugar', 74, 16, 7],
+    ['foam', 30, 54, 5],
+    ['syrup', 81, 53, -7],
+    ['milk', 58, 84, 4],
+  ],
+  lines: [
+    'M 14 29 C 3 43, 18 46, 23 49',
+    'M 32 18 C 48 7, 60 11, 64 14',
+    'M 82 24 C 91 32, 90 41, 85 45',
+    'M 78 64 C 75 71, 68 76, 64 78',
+  ],
+};
+const cold: Diagram = {
+  ...short,
+  items: [
+    ['ice', 25, 26, -9],
+    ['sugar', 77, 25, 7],
+    ['syrup', 54, 73, -6],
+  ],
+};
 function diagramFor(recipe: Recipe) {
   const d = drinkById[recipe.drink];
+  if (d.iced && !d.milk) return cold;
+  if (d.withoutCoffee) return milkOnly;
   return d.foam ? hot : d.iced ? iced : d.id === 'espresso' ? short : black;
 }
 function Choices({
@@ -141,6 +167,7 @@ export function Builder({
     panel &&
     panel !== 'size' &&
     panel !== 'details' &&
+    panel !== 'drink' &&
     activeGroups(d.id).includes(panel)
       ? panel
       : undefined;
@@ -211,6 +238,11 @@ export function Builder({
               draggable={false}
             />
             <span>{say(groups[g].name, lang)}</span>
+            {selection(g, recipe) !== selection(g, classic(d.id)) && (
+              <small className="tk-changed-ingredient">
+                {say(optionFor(g, recipe).name, lang)}
+              </small>
+            )}
           </button>
         ))}
       </div>
@@ -253,6 +285,25 @@ export function Builder({
           </button>
         </Sheet>
       )}
+      {panel === 'drink' && (
+        <Sheet lang={lang} title={say(d.name, lang)} close={close}>
+          <div className="tk-drink-intro">
+            <Cup id={d.id} />
+            <div>
+              <b>{say(d.notes, lang)}</b>
+              <p>{say(d.detail, lang)}</p>
+            </div>
+          </div>
+          <div className="tk-current-recipe">
+            <b>{ru ? 'Ваш рецепт' : 'Your recipe'}</b>
+            <p>{recipeParts(recipe, lang).join(' · ')}</p>
+            <strong>{money(price(recipe), lang)}</strong>
+          </div>
+          <button className="tk-sheet-done" onClick={close}>
+            {ru ? 'К настройкам' : 'Back to recipe'}
+          </button>
+        </Sheet>
+      )}
       {panel === 'size' && (
         <Sheet
           lang={lang}
@@ -288,7 +339,21 @@ export function Builder({
 }
 function cupLine(r: Recipe, lang: Locale) {
   const d = drinkById[r.drink];
-  if (d.iced) return lang === 'ru' ? 'Со льдом' : 'Over ice';
+  const flavours = {
+    cinnamon: ['С корицей', 'With cinnamon'],
+    vanilla: ['С ванилью', 'With vanilla'],
+    caramel: ['С карамелью', 'With caramel'],
+    chocolate: ['С шоколадом', 'With chocolate'],
+  } as const;
+  if (Object.hasOwn(flavours, r.syrup))
+    return say(flavours[r.syrup as keyof typeof flavours], lang);
+  if (d.iced) {
+    if (selection('ice', r) === 'no-ice')
+      return lang === 'ru' ? 'Без льда' : 'Without ice';
+    if (selection('ice', r) === 'less')
+      return lang === 'ru' ? 'Меньше льда' : 'Light ice';
+    return lang === 'ru' ? 'Со льдом' : 'Over ice';
+  }
   if (d.milk) {
     if (r.milk === 'oat')
       return lang === 'ru' ? 'На овсяном молоке' : 'With oat milk';
