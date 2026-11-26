@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal, flushSync } from 'react-dom';
 import {
+  ArrowDownRight,
   BookOpen,
   FolderClosed,
   Grid2X2,
@@ -43,6 +44,9 @@ import { marketCode, type MarketCode } from './buyer/markets';
 import { backpackExample } from './buyer/quoteMessage';
 import './buyer/Bureau.css';
 import './buyer/Ink.css';
+import './buyer/Atelier.css';
+import type { SampleRequest } from './buyer/SampleDossier';
+import type { Lookbook } from './buyer/AtelierJournal';
 
 type Screen =
   | 'home'
@@ -59,6 +63,8 @@ type Route = {
   filter: CatalogState;
   tab: 'briefs' | 'saved';
   id?: string;
+  shot?: 'texture';
+  lookbook?: Lookbook;
   slot?: string;
   intent?: string;
   mode?: 'photo' | 'link' | 'any';
@@ -139,6 +145,7 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
       ...route,
       screen,
       id: undefined,
+      shot: undefined,
       slot: undefined,
       intent: undefined,
       mode: undefined,
@@ -197,7 +204,7 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
       search,
     });
   }
-  const open = (id: string) => go('sample', { id });
+  const open = (id: string, shot?: 'texture') => go('sample', { id, shot });
   const actions: LibraryActions = {
     ru,
     favorites: favorites.ids,
@@ -247,6 +254,17 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
       sessionStorage.setItem('yangben-last-slot', slot);
     } catch {}
     go('editor', { slot, mode, intent: uid() });
+  }
+  function beginSample(id: string, options: SampleRequest) {
+    const item = sampleById(id);
+    if (!item) return;
+    const key = 'samples:' + id + (market ? '@' + market : '');
+    const draft = drafts.get(key) ?? emptyBrief([id], item.category, market);
+    drafts.put(key, {
+      ...draft,
+      ...options,
+    });
+    startBrief([id], 'any', key);
   }
   function beginExample() {
     const key = 'example-backpacks@' + market;
@@ -357,7 +375,18 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
         )}
         <div className="yb-mast-end">
           {route.screen === 'home' && (
-            <span>{ru ? 'Китай → СНГ' : 'China → CIS'}</span>
+            <button
+              type="button"
+              className="yb-contents-link"
+              onClick={() => {
+                const heading = document.getElementById('yb-lookbook-title');
+                heading?.scrollIntoView({ block: 'start' });
+                heading?.focus({ preventScroll: true });
+              }}
+            >
+              {ru ? 'Лукбук' : 'Lookbook'}
+              <ArrowDownRight size={14} />
+            </button>
           )}
           {route.screen === 'sample' && item && (
             <button
@@ -404,6 +433,11 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
             market={market}
             chooseMarket={chooseMarket}
             example={beginExample}
+            beginEdit={startBrief}
+            story={route.lookbook}
+            chooseStory={(lookbook) =>
+              setRoute((current) => ({ ...current, lookbook }))
+            }
             guide={() => go('guide')}
           />
         )}
@@ -417,10 +451,14 @@ export default function ChinaBuyer(_props: { onClose: () => void }) {
         )}
         {route.screen === 'sample' && item && (
           <SampleDetail
-            key={item.id}
+            key={item.id + (route.shot ?? '')}
             item={item}
             actions={actions}
-            begin={startBrief}
+            defaults={drafts.get(
+              'samples:' + item.id + (market ? '@' + market : ''),
+            )}
+            initialShot={route.shot}
+            begin={beginSample}
           />
         )}
         {route.screen === 'compare' && (

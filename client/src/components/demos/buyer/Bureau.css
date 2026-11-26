@@ -216,26 +216,6 @@ body:has(#root.china-buyer-scroll-root) :is(.w4-topbar, .home-ai-surface) {
   inset: 0;
   object-fit: cover;
 }
-.yb-feature--arc .yb-feature-pic img {
-  object-position: center 47%;
-}
-.yb-feature--clay .yb-feature-pic img {
-  object-position: center 68%;
-}
-.yb-feature:is(.yb-feature--arc, .yb-feature--clay)
-  .yb-feature-pic
-  img:first-child {
-  right: auto;
-  width: 60%;
-  object-position: 50% 62%;
-}
-.yb-feature .yb-feature-pic img.yb-feature-detail {
-  width: 40%;
-  left: 60%;
-  border-left: 3px solid white;
-  object-fit: cover;
-}
-.yb-picture-label,
 .yb-picture-open {
   position: absolute;
   display: inline-flex;
@@ -243,14 +223,6 @@ body:has(#root.china-buyer-scroll-root) :is(.w4-topbar, .home-ai-surface) {
   justify-content: center;
   background: #fff;
   color: #141414;
-}
-.yb-picture-label {
-  top: 12px;
-  left: 12px;
-  border-radius: 99px;
-  padding: 4px 8px;
-  font-weight: 620;
-  font-size: 11px;
 }
 .yb-picture-open {
   right: 12px;

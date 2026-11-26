@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import type { Copy } from './samples';
+import { EditorialPhoto } from './AtelierJournal';
 
 const artwork = '/china-buyer/ink/';
 const chapters = [
@@ -19,8 +20,8 @@ const chapters = [
       'Show what you want to buy. Your buyer finds a supplier and asks for a quote including delivery to your city.',
     ],
     alt: [
-      'Лаковая лодка-дракон везёт посылки по реке среди голубых гор.',
-      'A lacquered dragon boat carries parcels past misty blue mountains.',
+      'В красной лодке-драконе лежат кобальтовая сумка и свёртки ткани. За ними видны голубые горы.',
+      'A vermilion dragon boat carries a cobalt crossbody and folded fabric past misty blue mountains.',
     ],
   },
   {
@@ -162,11 +163,12 @@ export function InkJourney({
           origin.current = null;
         }}
       >
-        <InkArt name="landscape" className="yb-paint-mountains" eager />
-        <InkArt
-          name="dragon"
-          className={'yb-paint-dragon' + (index === 0 ? '' : ' is-away')}
+        <EditorialPhoto
+          name="voyage"
+          alt=""
           eager
+          sizes="(min-width: 760px) 570px, 100vw"
+          className={'yb-paint-voyage' + (index === 0 ? '' : ' is-away')}
         />
         <InkArt
           name="worktable"

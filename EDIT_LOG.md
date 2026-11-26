@@ -4,6 +4,14 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 18:16 MSK — An editorial shoot for every Yangben sample
+
+- Replaced every legacy product exposure and thumbnail. All 25 items now have four original photographs of the same object, including a reverse, construction detail and macro. Five separately art-directed editorial scenes and a transparent showcase cutout bring the catalogue into the reference palette. Existing public photographs retain their paths and the app uses revisioned image URLs.
+- Added bilingual, shoppable lookbook spreads and a material atlas. Open a subject on the photograph, explore its texture or start a combined brief for all three subjects. The home story and its scroll position restore on back navigation.
+- Rebuilt the sample page around the photographs, requested colours, sizes and quantities, item-specific construction and measurements, inspection, care and quote information. The controls preserve the other contents of a saved sourcing draft. A review belongs to its sample and is labelled as personal to the device.
+- Shared storefront wiring changes only the buyer demo preloader and its versioned Telegram preview. Showcase images were rebuilt in both languages. Checkpoint refs/checkpoints/before-buyer-atelier points to 84b953098ce4a69a52653d7022b7ea6a81479e6e.
+- Mobile comparisons against the former live UI changed 47,082 pixels on home, 144,063 on sample detail and 68,888 in the library. The 100 gallery pictures are distinct, all 93 prior product and thumbnail binaries changed, and 151 deployed-format assets were verified. Both language flows, real browser interactions, photo galleries and the existing TypeScript baseline are covered by the release checks.
+
 ## 2026-11-26 17:50 MSK — The blue-ink visual system for Yangben
 
 - Rebuilt the buyer app around the supplied art direction. White surfaces, black text and icon actions, a vermilion seal and blue ink illustrations carry through the bureau, sample library, detail, comparison, brief editor, review, saved requests and supplier quotes. Chapter tabs support touch, keyboard, reduced motion and both interface languages.

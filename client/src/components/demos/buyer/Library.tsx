@@ -16,6 +16,11 @@ import {
   X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import {
+  AtelierJournal,
+  EditorialPhoto,
+  type Lookbook,
+} from './AtelierJournal';
 import { Destination } from './Destination';
 import { InkHeading, InkJourney, InkArt } from './InkJourney';
 import type { MarketCode } from './markets';
@@ -45,7 +50,7 @@ export type LibraryActions = {
   ru: boolean;
   favorites: string[];
   selection: string[];
-  open: (id: string) => void;
+  open: (id: string, shot?: 'texture') => void;
   favorite: (id: string) => void;
   select: (id: string) => void;
   compare: () => void;
@@ -172,7 +177,7 @@ function Feature({ actions }: { actions: LibraryActions }) {
   const next = (step: number) => setIndex((i) => (i + step + 3) % 3);
   return (
     <section
-      className={'yb-feature yb-feature--' + item.id}
+      className="yb-feature"
       aria-label={ru ? 'Выбор бюро' : 'Bureau selection'}
       aria-roledescription={ru ? 'Карусель' : 'Carousel'}
       onKeyDown={(e) => {
@@ -204,20 +209,19 @@ function Feature({ actions }: { actions: LibraryActions }) {
             suppress.current = false;
             return;
           }
-          open(item.id);
+          open(item.id, 'texture');
         }}
         aria-label={(ru ? 'Открыть ' : 'Open ') + local(item.title, ru)}
       >
-        <SamplePhoto item={item} sizes="(max-width: 760px) 95vw, 490px" />
-        {index > 0 && (
-          <img
-            className="yb-feature-detail"
-            src={item.gallery?.[0]}
-            alt=""
-            decoding="async"
-          />
-        )}
-        <span className="yb-picture-label">{ru ? 'Образец' : 'Sample'}</span>
+        <img
+          className="yb-atlas-macro"
+          src={item.gallery[2]}
+          loading="lazy"
+          alt=""
+        />
+        <span className="yb-atlas-inset">
+          <img src={item.image} alt="" loading="lazy" />
+        </span>
         <span className="yb-picture-open">
           <ArrowUpRight size={21} />
         </span>
@@ -225,7 +229,7 @@ function Feature({ actions }: { actions: LibraryActions }) {
       <div className="yb-feature-foot">
         <button
           type="button"
-          onClick={() => open(item.id)}
+          onClick={() => open(item.id, 'texture')}
           className="yb-feature-caption"
         >
           <strong>{local(item.title, ru)}</strong>
@@ -261,6 +265,9 @@ export function BureauHome({
   guide,
   market,
   chooseMarket,
+  beginEdit,
+  story,
+  chooseStory,
   example,
 }: {
   actions: LibraryActions;
@@ -269,6 +276,9 @@ export function BureauHome({
   guide: () => void;
   market: MarketCode | '';
   chooseMarket: (value: MarketCode | '') => void;
+  beginEdit: (ids: string[]) => void;
+  story?: Lookbook;
+  chooseStory: (story: Lookbook) => void;
   example: () => void;
 }) {
   const { ru } = actions;
@@ -297,6 +307,13 @@ export function BureauHome({
         </section>
         <Destination compact ru={ru} value={market} onChange={chooseMarket} />
       </InkJourney>
+      <AtelierJournal
+        ru={ru}
+        open={actions.open}
+        begin={beginEdit}
+        story={story}
+        choose={chooseStory}
+      />
       <button
         type="button"
         className="yb-case"
@@ -308,15 +325,13 @@ export function BureauHome({
         }
       >
         <div className="yb-case-image">
-          <img
-            src="/china-buyer/sourcing/inspection-480.webp"
-            srcSet="/china-buyer/sourcing/inspection-480.webp 480w, /china-buyer/sourcing/inspection-1200.webp 1200w"
+          <EditorialPhoto
+            name="inspection"
             sizes="(max-width: 759px) 100vw, 560px"
-            fetchPriority="high"
             alt={
               ru
-                ? 'Байер проверяет молнию рюкзака перед отправкой партии'
-                : 'A buyer checks the zip on a backpack before dispatch'
+                ? 'Байер проверяет молнию тёмно-синего рюкзака'
+                : 'A buyer checks the zip of a navy backpack'
             }
           />
           <span>{ru ? 'Пример закупки' : 'Example brief'}</span>
@@ -339,18 +354,19 @@ export function BureauHome({
       </button>
       <section className="yb-section">
         <SectionTitle
-          title={ru ? 'Что хотите закупить?' : 'What would you like to source?'}
+          title={ru ? 'Атлас фактур' : 'Material atlas'}
           action={() => catalog()}
           label={ru ? 'Все образцы' : 'All samples'}
         />
         <div className="yb-sourcing-shelf">
           <Feature actions={actions} />
-          <div className="yb-home-samples">
-            {samples
-              .filter((item) => item.id === 'sneaker' || item.id === 'home')
-              .map((item) => (
-                <SampleCard key={item.id} item={item} actions={actions} />
-              ))}
+          <div className="yb-atlas-notes">
+            <h3>{ru ? 'Рассмотрите вблизи' : 'Under the lens'}</h3>
+            <p>
+              {ru
+                ? 'Перелистывайте образцы, чтобы сравнить плетение ткани, шлифовку металла и зерно глины. Коснитесь кадра, чтобы открыть эту фактуру в карточке.'
+                : 'Compare a woven fabric, brushed metal and clay grain. Open a frame to inspect that texture on its sample page.'}
+            </p>
           </div>
         </div>
       </section>

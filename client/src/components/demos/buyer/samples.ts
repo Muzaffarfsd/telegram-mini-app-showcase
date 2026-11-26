@@ -27,9 +27,8 @@ type Definition = {
   shape: Copy;
   finish: Copy;
   ask: Copy;
-  four: boolean;
 };
-export type Sample = Omit<Definition, 'four'> & {
+export type Sample = Definition & {
   image: string;
   gallery: string[];
   shots: Shot[];
@@ -58,7 +57,6 @@ const definitions: Definition[] = [
       'Длину ремня, подкладку и качество молнии',
       'Strap length, lining and zip quality',
     ],
-    four: true,
   },
   {
     id: 'arc',
@@ -73,7 +71,6 @@ const definitions: Definition[] = [
       'Габариты, тип вилки и температуру света',
       'Dimensions, plug type and colour temperature',
     ],
-    four: false,
   },
   {
     id: 'clay',
@@ -88,7 +85,6 @@ const definitions: Definition[] = [
       'Объём, посадку крышки и защитную упаковку',
       'Capacity, lid fit and protective packaging',
     ],
-    four: false,
   },
   {
     id: 'inspection-backpack',
@@ -106,7 +102,6 @@ const definitions: Definition[] = [
       'Фото швов и молний, размеры и цену партии',
       'Seam and zip photos, dimensions and batch price',
     ],
-    four: true,
   },
   {
     id: 'v5-feature',
@@ -118,7 +113,6 @@ const definitions: Definition[] = [
       'Фото кромок, креплений ручки и молнии',
       'Photos of edge finish, handle mounts and zip',
     ],
-    four: true,
   },
   {
     id: 'v4-coat',
@@ -130,7 +124,6 @@ const definitions: Definition[] = [
       'Замеры по спинке, состав и обработку борта',
       'Back length, composition and edge finishing',
     ],
-    four: true,
   },
   {
     id: 'v4-bag',
@@ -148,7 +141,6 @@ const definitions: Definition[] = [
       'Размер дна, работу замка и упаковку углов',
       'Base dimensions, clasp operation and corner protection',
     ],
-    four: true,
   },
   {
     id: 'tailoring',
@@ -163,7 +155,6 @@ const definitions: Definition[] = [
       'Ширину плеч, подкладку и размерную сетку',
       'Shoulder width, lining and size chart',
     ],
-    four: true,
   },
   {
     id: 'bag',
@@ -178,7 +169,6 @@ const definitions: Definition[] = [
       'Нагрузку на ручки и внутренние отделения',
       'Handle load capacity and internal compartments',
     ],
-    four: true,
   },
   {
     id: 'sneaker',
@@ -193,7 +183,6 @@ const definitions: Definition[] = [
       'Длину стельки, проклейку и разбивку по размерам',
       'Insole lengths, sole bonding and size breakdown',
     ],
-    four: true,
   },
   {
     id: 'wardrobe',
@@ -208,7 +197,6 @@ const definitions: Definition[] = [
       'Стоимость каждого предмета и замеры комплекта',
       'Individual item prices and measurements for the set',
     ],
-    four: false,
   },
   {
     id: 'burgundy',
@@ -223,7 +211,6 @@ const definitions: Definition[] = [
       'Как закрывается сумка и насколько длинный шнур',
       'How the bag closes and the drawcord length',
     ],
-    four: false,
   },
   {
     id: 'loafers',
@@ -238,7 +225,6 @@ const definitions: Definition[] = [
       'Полноту пары, длину стельки и толщину подошвы',
       'Fit width, insole length and sole thickness',
     ],
-    four: false,
   },
   {
     id: 'accessory',
@@ -246,14 +232,13 @@ const definitions: Definition[] = [
     title: ['Акцентные очки', 'Statement frames'],
     shape: ['Выразительная оправа', 'Bold frame'],
     finish: [
-      'Оливковая полупрозрачная оправа',
-      'Translucent olive-coloured frames',
+      'Дымчато-синяя полупрозрачная оправа',
+      'Translucent smoke-blue frames',
     ],
     ask: [
       'Ширину переносицы, длину дужки и характеристики линз',
       'Bridge width, temple length and lens specifications',
     ],
-    four: false,
   },
   {
     id: 'home',
@@ -268,7 +253,6 @@ const definitions: Definition[] = [
       'Диаметр горлышка, высоту и упаковку для перевозки',
       'Neck diameter, height and transit packaging',
     ],
-    four: false,
   },
   {
     id: 'v2-coat',
@@ -283,7 +267,6 @@ const definitions: Definition[] = [
       'Длину, шлицу и плотность ткани образца',
       'Length, back vent and fabric weight of the sample',
     ],
-    four: false,
   },
   {
     id: 'v2-knit',
@@ -295,7 +278,6 @@ const definitions: Definition[] = [
       'Состав пряжи, усадку и замеры изделия',
       'Yarn composition, shrinkage and garment measurements',
     ],
-    four: false,
   },
   {
     id: 'v2-bag-sculpted',
@@ -310,7 +292,6 @@ const definitions: Definition[] = [
       'Жёсткость корпуса и способ крепления ручки',
       'Body rigidity and handle attachment',
     ],
-    four: false,
   },
   {
     id: 'v2-bag-burgundy',
@@ -325,7 +306,6 @@ const definitions: Definition[] = [
       'Длину ручки, ширину раскрытия и материал подклада',
       'Strap drop, opening width and lining material',
     ],
-    four: true,
   },
   {
     id: 'v2-boots',
@@ -340,7 +320,6 @@ const definitions: Definition[] = [
       'Высоту каблука, обхват голенища и размерный ряд',
       'Heel height, shaft circumference and size range',
     ],
-    four: false,
   },
   {
     id: 'v2-slingbacks',
@@ -355,7 +334,6 @@ const definitions: Definition[] = [
       'Диапазон ремешка и устойчивость каблука',
       'Strap adjustment range and heel stability',
     ],
-    four: false,
   },
   {
     id: 'v2-scarf',
@@ -370,7 +348,6 @@ const definitions: Definition[] = [
       'Состав, размер и вид рисунка с изнанки',
       'Fibre composition, dimensions and reverse-side print',
     ],
-    four: false,
   },
   {
     id: 'v2-earrings',
@@ -385,19 +362,17 @@ const definitions: Definition[] = [
       'Вес одной серьги, сплав и тип застёжки',
       'Weight per earring, alloy and fastening',
     ],
-    four: false,
   },
   {
     id: 'v2-teaware',
     category: 'Для дома',
     title: ['Чайная композиция', 'Tea setting'],
     shape: ['Комплект для сервировки', 'Serving set'],
-    finish: ['Светло-зелёная глазурь', 'Pale celadon glaze'],
+    finish: ['Ледяная голубая глазурь', 'Ice-blue glaze'],
     ask: [
       'Комплектацию, объём и защиту каждого предмета',
       'Included pieces, capacity and individual protection',
     ],
-    four: false,
   },
   {
     id: 'v2-lamp',
@@ -412,24 +387,22 @@ const definitions: Definition[] = [
       'Тип вилки, размеры и возможность замены источника света',
       'Plug type, dimensions and replaceability of the light source',
     ],
-    four: false,
   },
 ];
 const productDir = (id: string) => '/china-buyer/sourcing/products/' + id + '/';
-export const samples: Sample[] = definitions.map(({ four, ...sample }) => {
+const shootVersion = '?v=atelier-1';
+export const samples: Sample[] = definitions.map((sample) => {
   const path = productDir(sample.id);
-  const shots: Shot[] = four
-    ? ['front', 'reverse', 'detail', 'texture']
-    : ['front', 'detail'];
+  const shots: Shot[] = ['front', 'reverse', 'detail', 'texture'];
   return {
     ...sample,
     shots,
-    image: path + 'thumb.webp',
-    gallery: shots.slice(1).map((shot) => path + shot + '.webp'),
+    image: path + 'thumb.webp' + shootVersion,
+    gallery: shots.slice(1).map((shot) => path + shot + '.webp' + shootVersion),
   };
 });
 export const largeImage = (sample: Sample) =>
-  productDir(sample.id) + 'front.webp';
+  productDir(sample.id) + 'front.webp' + shootVersion;
 export const sampleById = (id: string) =>
   samples.find((item) => item.id === id);
 export function sampleIds(value: unknown) {

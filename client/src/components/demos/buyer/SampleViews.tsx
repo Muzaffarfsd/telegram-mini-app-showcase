@@ -13,6 +13,12 @@ import {
   X,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import {
+  SampleOrder,
+  SampleDossier,
+  SampleReview,
+  type SampleRequest,
+} from './SampleDossier';
 import { useGalleryPan } from '../useGalleryPan';
 import { InkArt, InkHeading } from './InkJourney';
 import {
@@ -37,17 +43,25 @@ export function SampleDetail({
   item,
   actions,
   begin,
+  initialShot,
+  defaults,
 }: {
+  defaults?: SampleRequest;
   item: Sample;
+  initialShot?: 'texture';
   actions: LibraryActions;
-  begin: (ids: string[]) => void;
+  begin: (id: string, request: SampleRequest) => void;
 }) {
   const { ru, selection, select, compare } = actions;
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(
+    initialShot === 'texture' ? item.shots.indexOf('texture') : 0,
+  );
   const [zoom, setZoom] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const zoomButton = useRef<HTMLButtonElement>(null);
   const zoomFrame = useRef<HTMLButtonElement>(null);
+  const photoTouch = useRef<{ x: number; y: number } | null>(null);
+  const swiped = useRef(false);
   const pictures = [largeImage(item), ...(item.gallery ?? [])];
   const name = local(item.title, ru);
   const pan = useGalleryPan(zoom, zoomFrame, 1.8, pictures[index]);
@@ -79,7 +93,46 @@ export function SampleDetail({
             type="button"
             className="yb-detail-picture"
             aria-label={ru ? 'Рассмотреть фото' : 'Inspect photo'}
-            onClick={enlarge}
+            onTouchStart={(event) => {
+              swiped.current = false;
+              const point = event.touches[0];
+              photoTouch.current =
+                event.touches.length === 1
+                  ? { x: point.clientX, y: point.clientY }
+                  : null;
+            }}
+            onTouchCancel={() => {
+              photoTouch.current = null;
+              swiped.current = false;
+            }}
+            onTouchEnd={(event) => {
+              const start = photoTouch.current,
+                point = event.changedTouches[0];
+              photoTouch.current = null;
+              if (!start || !point) return;
+              const dx = point.clientX - start.x,
+                dy = point.clientY - start.y;
+              if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy) * 1.35) {
+                swiped.current = true;
+                step(dx < 0 ? 1 : -1);
+              }
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                event.preventDefault();
+                step(event.key === 'ArrowRight' ? 1 : -1);
+              } else swiped.current = false;
+            }}
+            onPointerDown={(event) => {
+              if (event.pointerType !== 'touch') swiped.current = false;
+            }}
+            onClick={() => {
+              if (swiped.current) {
+                swiped.current = false;
+                return;
+              }
+              enlarge();
+            }}
           >
             <img
               src={pictures[index]}
@@ -111,14 +164,12 @@ export function SampleDetail({
           )}
         </div>
         <div className="yb-detail-copy">
-          <button
-            type="button"
-            className="yb-primary yb-wide"
-            onClick={() => begin([item.id])}
-          >
-            {ru ? 'Найти похожее' : 'Source something similar'}
-            <ArrowRight size={18} />
-          </button>
+          <SampleOrder
+            defaults={defaults}
+            item={item}
+            ru={ru}
+            begin={(options) => begin(item.id, options)}
+          />
           <div className="yb-detail-tools">
             <button
               className="yb-secondary"
@@ -136,23 +187,22 @@ export function SampleDetail({
               )<ArrowUpRight size={16} />
             </button>
           )}
-          <dl className="yb-dl">
-            <div>
-              <dt>{ru ? 'Фактура' : 'Surface'}</dt>
-              <dd>{materialOf(item, ru)}</dd>
-            </div>
-            <div>
-              <dt>{ru ? 'Уточнить у байера' : 'Ask the buyer'}</dt>
-              <dd>{askOf(item, ru)}</dd>
-            </div>
-          </dl>
           <p className="yb-note">
             {ru
-              ? 'Образец задаёт направление поиска. Наличие, состав и цену уточняет байер.'
-              : 'A visual reference for sourcing. Your buyer can confirm availability, composition and price.'}
+              ? 'Параметры перейдут в запрос. Наличие и итоговую цену подтвердит байер.'
+              : 'Your preferences are added to the brief. Your buyer will confirm availability and the final price.'}
           </p>
         </div>
       </div>
+      <SampleDossier
+        item={item}
+        ru={ru}
+        inspect={() => {
+          setIndex(item.shots.indexOf('detail'));
+          enlarge();
+        }}
+      />
+      <SampleReview key={item.id} item={item} ru={ru} />
       <section className="yb-section">
         <SectionTitle
           title={ru ? 'Из той же категории' : 'In the same category'}

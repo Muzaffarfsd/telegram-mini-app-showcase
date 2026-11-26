@@ -1,6 +1,6 @@
 const { assert, run, open, btn } = require('./buyer-test-helpers.cjs');
 
-run('all 25 product galleries and 68 original images', async (browser) => {
+run('all 25 product galleries and 100 original images', async (browser) => {
   const { context, page, nav, errors } = await open(browser, { width: 1100 });
   try {
     await btn(nav, 'Образцы').click();
@@ -14,7 +14,7 @@ run('all 25 product galleries and 68 original images', async (browser) => {
       const thumbs = page.locator('.yb-thumbs button');
       await thumbs.first().waitFor();
       const count = await thumbs.count();
-      assert.ok(count === 2 || count === 4, id);
+      assert.equal(count, 4, id);
       for (let i = 0; i < count; i++) {
         await thumbs.nth(i).click();
         const [src, width, height] = await page
@@ -42,7 +42,7 @@ run('all 25 product galleries and 68 original images', async (browser) => {
       await page.goBack();
       await page.getByTestId(id).waitFor();
     }
-    assert.equal(seen.size, 68);
+    assert.equal(seen.size, 100);
     assert.deepEqual(errors, []);
   } finally {
     await context.close();

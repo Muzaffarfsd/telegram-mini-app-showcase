@@ -16,7 +16,7 @@ const miniAppUrl = 'https://t.me/w4tg_bot/w4tg';
 // Telegram downloads the JPEG itself. This is a fixed, public application asset.
 const demoPhotoIds: Partial<Record<DemoShareId, string>> = {
   'furniture-studio': 'furniture-studio-v3',
-  'china-buyer': 'china-buyer-ink',
+  'china-buyer': 'china-buyer-atelier',
 };
 const inviteImageUrl = 'https://w4tg.up.railway.app/share/invite-three-stores-v1.jpg';
 

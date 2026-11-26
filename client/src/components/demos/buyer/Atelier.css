@@ -1,0 +1,518 @@
+.yb .yb-contents-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--yb-ink);
+  font-weight: 590;
+}
+#yb-lookbook-title {
+  scroll-margin-top: 22px;
+}
+#yb-lookbook-title:focus {
+  outline: none;
+}
+.yb .yb-paint-voyage {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 7%,
+    #000 88%,
+    transparent
+  );
+}
+.yb-journey-art--0 .yb-chapter-mark {
+  inset: 3% auto auto 49%;
+}
+.yb-lookbook {
+  margin: 38px 0 30px;
+  scroll-margin-top: 18px;
+}
+.yb-atelier-heading {
+  text-align: center;
+  margin: 0 0 13px;
+}
+.yb-atelier-heading .yb-script {
+  color: var(--yb-muted);
+  font-size: 18px;
+  letter-spacing: 0.25em;
+}
+.yb .yb-atelier-heading h2,
+.yb .yb-passport h2,
+.yb .yb-sample-review h2 {
+  font-size: clamp(26px, 5.5vw, 42px);
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  margin: 5px 0 0;
+  font-weight: 640;
+}
+.yb-edit-tabs {
+  display: flex;
+  align-items: end;
+  gap: clamp(8px, 3vw, 26px);
+  justify-content: center;
+  border-bottom: 1px solid var(--yb-line);
+  margin-bottom: 15px;
+}
+.yb .yb-edit-tabs button {
+  min-width: 0;
+  min-height: 44px;
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  padding: 7px 1px;
+  font-size: clamp(12px, 3.3vw, 15px);
+  line-height: 1.2;
+  color: var(--yb-muted);
+}
+.yb .yb-edit-tabs button[aria-pressed='true'] {
+  color: var(--yb-ink);
+  border-bottom-color: currentColor;
+  font-weight: 660;
+}
+.yb-edit-spread {
+  min-width: 0;
+  display: grid;
+  align-items: center;
+  gap: 16px;
+}
+.yb-edit-photo {
+  isolation: isolate;
+  position: relative;
+  aspect-ratio: 1.5;
+  background: #eef4fa;
+  border-radius: 20px;
+}
+.yb-edit-photo > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+.yb .yb-shop-point {
+  position: absolute;
+  z-index: 1;
+  translate: -50% -50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #141414;
+}
+.yb-shop-point::before {
+  content: '';
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 7px #263e5b38;
+  z-index: -1;
+}
+.yb .yb-shop-point:hover::before,
+.yb .yb-shop-point:focus-visible::before {
+  inset: 7px;
+}
+.yb .yb-edit-legend h3,
+.yb .yb-atlas-notes h3,
+.yb .yb-detail-study h3 {
+  font-size: clamp(22px, 4vw, 35px);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  font-weight: 635;
+  margin: 0 0 7px;
+}
+.yb-edit-legend > p,
+.yb-atlas-notes > p,
+.yb-detail-study p,
+.yb-sample-review > p {
+  color: var(--yb-muted);
+  font-size: 15px;
+  line-height: 1.5;
+  max-width: 56ch;
+  margin: 0;
+}
+.yb-edit-legend ul {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--yb-line);
+}
+.yb-edit-legend li {
+  border-bottom: 1px solid var(--yb-line);
+}
+.yb-edit-legend li button {
+  display: grid;
+  grid-template-columns: 41px 1fr auto;
+  align-items: center;
+  gap: 11px;
+  text-align: left;
+  width: 100%;
+  min-height: 48px;
+  font-size: 14px;
+  font-weight: 560;
+}
+.yb-edit-legend li img {
+  width: 38px;
+  height: 38px;
+  object-fit: cover;
+  border-radius: 7px;
+}
+.yb .yb-edit-legend > .yb-primary {
+  width: 100%;
+  margin-top: 4px;
+}
+.yb .yb-sourcing-shelf {
+  align-items: center;
+}
+.yb .yb-feature-pic .yb-atlas-macro {
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  object-position: center;
+}
+.yb .yb-feature-pic .yb-atlas-inset {
+  position: absolute;
+  bottom: 13px;
+  left: 13px;
+  width: 65px;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  border: 3px solid white;
+}
+.yb .yb-atlas-inset img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.yb-atlas-notes {
+  padding: 7px 0 0;
+}
+.yb .yb-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'gallery' 'intro' 'copy';
+  gap: 15px;
+}
+.yb-gallery {
+  grid-area: gallery;
+  min-width: 0;
+}
+.yb .yb-detail-picture {
+  touch-action: pan-y pinch-zoom;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 18px;
+  overflow: hidden;
+}
+.yb .yb-detail-picture img {
+  object-fit: cover;
+}
+.yb .yb-product-intro {
+  grid-area: intro;
+  text-align: left;
+  margin: 4px 0 0;
+  max-width: 100%;
+}
+.yb .yb-product-intro h1 {
+  margin-top: 4px;
+  font-size: clamp(31px, 7.7vw, 52px);
+}
+.yb .yb-product-intro .yb-lead-text {
+  margin-top: 6px;
+}
+.yb-detail-copy {
+  grid-area: copy;
+  min-width: 0;
+}
+.yb-sample-order {
+  padding: 0;
+  border-top: 1px solid var(--yb-line);
+}
+.yb-price-line,
+.yb-qty-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 45px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--yb-line);
+}
+.yb .yb-sample-order fieldset,
+.yb .yb-sample-review fieldset {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+  margin: 13px 0 0;
+}
+.yb .yb-sample-order legend,
+.yb .yb-sample-review legend {
+  font-size: 13px;
+  font-weight: 650;
+  padding: 0;
+  margin-bottom: 4px;
+}
+.yb-colour-choices,
+.yb-size-choices {
+  display: flex;
+  gap: 5px 12px;
+  flex-wrap: wrap;
+}
+.yb :is(.yb-colour-choices, .yb-size-choices) button {
+  min-width: 34px;
+  min-height: 44px;
+  padding: 3px 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 14px;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: var(--yb-muted);
+}
+.yb :is(.yb-colour-choices, .yb-size-choices) button[aria-pressed='true'] {
+  color: var(--yb-ink);
+  border-bottom-color: currentColor;
+  font-weight: 640;
+}
+.yb-colour-choices i {
+  width: 17px;
+  height: 17px;
+  display: inline-block;
+  border-radius: 50%;
+  border: 1px solid #14141424;
+}
+.yb .yb-sample-order input,
+.yb .yb-sample-review textarea {
+  width: 100%;
+  border: 1px solid var(--yb-line);
+  border-radius: 9px;
+  background: white;
+  color: var(--yb-ink);
+  font: inherit;
+  font-size: 16px;
+  min-height: 44px;
+  padding: 9px 11px;
+}
+.yb .yb-sample-order input:focus,
+.yb .yb-sample-review textarea:focus {
+  outline: 2px solid var(--yb-ink);
+  outline-offset: 1px;
+}
+.yb .yb-qty-row {
+  margin: 12px 0 4px;
+  padding: 5px 0 8px;
+}
+.yb .yb-qty-row input {
+  width: 78px;
+  text-align: center;
+}
+.yb .yb-sample-order > .yb-primary {
+  width: 100%;
+  max-width: none;
+  min-height: 49px;
+}
+.yb .yb-detail-tools {
+  margin: 0;
+  border-block: 1px solid var(--yb-line);
+}
+.yb .yb-detail-copy .yb-note {
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 10px 0 0;
+}
+.yb-passport {
+  margin: 35px 0 0;
+  display: grid;
+  align-items: start;
+  gap: 21px;
+}
+.yb-passport-details {
+  min-width: 0;
+}
+.yb .yb-passport-details h2 {
+  margin-bottom: 13px;
+}
+.yb-passport details {
+  border-top: 1px solid var(--yb-line);
+}
+.yb-passport details:last-child {
+  border-bottom: 1px solid var(--yb-line);
+}
+.yb-passport summary {
+  min-height: 49px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 15px;
+  font-weight: 615;
+}
+.yb-passport summary::-webkit-details-marker {
+  display: none;
+}
+.yb-passport details[open] summary svg {
+  rotate: 180deg;
+}
+.yb-passport details p {
+  margin: 0 0 15px;
+  max-width: 65ch;
+  color: var(--yb-muted);
+  font-size: 15px;
+  line-height: 1.53;
+}
+.yb-detail-study {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(82px, 0.68fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+}
+.yb .yb-detail-study button {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.yb-detail-study img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.yb-detail-study button span {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 29px;
+  height: 29px;
+  background: white;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.yb .yb-detail-study h3 {
+  font-size: 22px;
+}
+.yb .yb-detail-study p {
+  font-size: 14px;
+}
+.yb-sample-review {
+  margin-top: 28px;
+  padding-block: 19px 5px;
+  border-top: 1px solid var(--yb-line);
+}
+.yb .yb-sample-review h2 {
+  font-size: 25px;
+  margin: 0 0 8px;
+}
+.yb .yb-sample-review .yb-text-button {
+  min-height: 44px;
+}
+.yb-sample-review form {
+  max-width: 615px;
+}
+.yb-sample-review form > label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+.yb .yb-sample-review textarea {
+  display: block;
+  margin: 5px 0;
+  resize: vertical;
+}
+.yb-sample-review form > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.yb-rating,
+.yb-saved-review strong {
+  display: flex;
+  align-items: center;
+}
+.yb-rating label {
+  width: 44px;
+  height: 44px;
+  position: relative;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.yb-rating input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.yb-rating label:focus-within {
+  outline: 2px solid var(--yb-ink);
+  outline-offset: -3px;
+  border-radius: 5px;
+}
+.yb-saved-review {
+  margin: 15px 0;
+}
+.yb-saved-review p {
+  margin: 8px 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 760px) {
+  .yb-lookbook {
+    margin: 49px 0 38px;
+  }
+  .yb-edit-spread {
+    grid-template-columns: minmax(0, 1.62fr) minmax(230px, 1fr);
+    gap: clamp(22px, 4vw, 54px);
+  }
+  .yb-edit-photo {
+    aspect-ratio: 1.47;
+  }
+  .yb-atlas-notes {
+    max-width: 350px;
+    justify-self: center;
+    padding: 0 12px;
+  }
+  .yb .yb-detail {
+    grid-template-columns: minmax(0, 1.15fr) minmax(285px, 0.85fr);
+    grid-template-areas: 'gallery intro' 'gallery copy';
+    grid-template-rows: auto 1fr;
+    gap: 12px clamp(22px, 4vw, 60px);
+    align-items: start;
+  }
+  .yb .yb-product-intro {
+    margin: 8px 0 0;
+  }
+  .yb-passport {
+    grid-template-columns: minmax(0, 1.15fr) minmax(285px, 0.85fr);
+    gap: clamp(22px, 4vw, 60px);
+    margin-top: 48px;
+  }
+  .yb-detail-study {
+    align-self: start;
+    grid-template-columns: minmax(95px, 0.8fr) minmax(115px, 1fr);
+  }
+  .yb .yb-edit-tabs button {
+    padding-inline: 9px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .yb-shop-point::before {
+    transition: inset 100ms ease-out;
+  }
+}
