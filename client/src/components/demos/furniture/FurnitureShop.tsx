@@ -26,12 +26,13 @@ export default function FurnitureShop({ onClose }: { onClose: () => void }) {
           </Suspense>
         ) : null
       }
-      renderPlanner={(product, closePlanner, scene, project, onItem, onKit, onTransfer) => (
+      renderPlanner={(product, closePlanner, scene, project, onItem, onKit, onTransfer, startIn3D) => (
         <RoomExperience
           key={scene + ':' + (project?.id || '')}
           productId={product.id}
           ru={language === 'ru'}
           scene={scene}
+          startIn3D={startIn3D}
           project={project}
           onClose={closePlanner}
           onItem={onItem}

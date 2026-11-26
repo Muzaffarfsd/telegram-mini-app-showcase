@@ -12,7 +12,7 @@ import { typeLabel } from './catalogSearch';
 import './FurniturePlanner.css';
 
 export type { PlannerProduct } from './plannerTypes';
-export type FurniturePlannerProps = { products: readonly PlannerProduct[]; initialProductId?: string; initialPlan?:PlannerLayout; sceneKey?:RoomKey; storageKey?:string; initialMessage?:string; onItem?:(id:string)=>void; onKit?:(ids:string[])=>void; onClose: () => void };
+export type FurniturePlannerProps = { products: readonly PlannerProduct[]; initialProductId?: string; startIn3D?: boolean; initialPlan?:PlannerLayout; sceneKey?:RoomKey; storageKey?:string; initialMessage?:string; onItem?:(id:string)=>void; onKit?:(ids:string[])=>void; onClose: () => void };
 type Bounds = Record<string, { widthM: number; depthM: number; heightM: number }>;
 const id = () => globalThis.crypto?.randomUUID?.() ?? `item-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
@@ -73,7 +73,7 @@ function initialLayout(products: readonly PlannerProduct[], initialId?: string):
   return { layout, couldNotAdd: !!initialId&&!layout.items.some(i=>i.productId===initialId) };
 }
 
-export default function FurniturePlanner({ products, initialProductId, initialPlan, sceneKey='custom', storageKey=PLANNER_STORAGE_KEY, initialMessage='', onItem, onKit, onClose }: FurniturePlannerProps) {
+export default function FurniturePlanner({ products, initialProductId, startIn3D=false, initialPlan, sceneKey='custom', storageKey=PLANNER_STORAGE_KEY, initialMessage='', onItem, onKit, onClose }: FurniturePlannerProps) {
   const { language } = useLanguage(), ru = language === 'ru';
   const t = (r: string, e: string) => ru ? r : e;
   const pieceLabel=(p:PlannerProduct)=>[typeLabel(p.category,ru),p.name].filter(Boolean).join(' · ');
@@ -85,7 +85,7 @@ export default function FurniturePlanner({ products, initialProductId, initialPl
   const pendingPose=useRef(savedView.pose);
   const [layout, setLayout] = useState(start.layout);
   const [selected, setSelected] = useState<string | null>(() => start.layout.items.find(item => item.id===savedView.selected)?.id ?? start.layout.items.find(item => item.productId === initialProductId)?.id ?? start.layout.items[0]?.id ?? null);
-  const [view, setView] = useState<PlannerView>(savedView.view==='perspective'?'perspective':'top');
+  const [view, setView] = useState<PlannerView>(startIn3D || savedView.view==='perspective'?'perspective':'top');
   const [insideView, setInsideView] = useState(false);
   const [requested3D,setRequested3D]=useState(false);
   const [sceneReady,setSceneReady]=useState(false);

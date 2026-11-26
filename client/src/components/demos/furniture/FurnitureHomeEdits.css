@@ -1,0 +1,342 @@
+/* The hotspot coordinates follow the full 4:3 editorial photograph at every width. */
+.fs-store .fedit-room .fhome-heading h2,
+.fs-store .fedit-material .fhome-heading h2 {
+  margin: 0;
+  font: 600 clamp(27px, 7vw, 43px) / 1.05 var(--fs-font);
+  letter-spacing: -0.042em;
+}
+.fedit-room .fhome-heading,
+.fedit-material .fhome-heading {
+  margin-bottom: 12px;
+}
+.fedit-room {
+  padding-top: clamp(26px, 4.5vw, 48px);
+}
+.fedit-room-picture {
+  position: relative;
+  margin-inline: calc(-1 * var(--fh-gutter));
+}
+.fedit-room-picture > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+}
+.fhome .fedit-pin {
+  position: absolute;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  touch-action: manipulation;
+}
+.fedit-pin > span {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border: 1px solid rgba(0, 0, 0, 0.45);
+  border-radius: 50%;
+  color: #141414;
+  background: #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 18%);
+}
+.fedit-pin[aria-pressed='true'] > span {
+  background: #181818;
+  border-color: #fff;
+  color: white;
+}
+.fhome .fedit-pin:focus-visible {
+  outline: 2px solid white;
+  outline-offset: -7px;
+  border-radius: 50%;
+}
+.fedit-room-list {
+  display: none;
+}
+.fhome .fedit-item-link {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 67px;
+  border: 0;
+  border-bottom: 1px solid var(--fh-rule);
+  padding: 8px 1px;
+  color: #161616;
+  background: #fff;
+  text-align: left;
+}
+.fedit-item-link > img {
+  width: 56px;
+  height: 51px;
+  object-fit: contain;
+}
+.fedit-item-link > span {
+  display: grid;
+  flex: 1;
+  gap: 3px;
+  min-width: 0;
+}
+.fedit-item-link small {
+  font-size: 12px;
+  font-weight: 460;
+  color: #595959;
+  line-height: 1.35;
+}
+.fedit-item-link strong {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+.fedit-item-link > svg {
+  flex: none;
+}
+.fedit-material {
+  padding-top: clamp(32px, 5.5vw, 57px);
+}
+.fedit-samples {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 1px 0 13px;
+}
+.fhome .fedit-samples button {
+  min-width: 0;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 3px 1px 6px;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid #e8e8e8;
+  font-size: 13px;
+  font-weight: 530;
+}
+.fedit-samples button[aria-pressed='true'] {
+  border-bottom-color: #171717;
+}
+.fedit-samples button > span {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border: 1px solid rgb(0 0 0 / 14%);
+  border-radius: 50%;
+  overflow: hidden;
+  isolation: isolate;
+}
+.fedit-samples img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  scale: 4;
+}
+.fedit-material-view {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 1.58;
+  background: white;
+  box-shadow: inset 0 0 0 1px #e4e4e4;
+}
+.fedit-detail-photo,
+.fedit-object-view {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.fedit-detail-photo {
+  display: block;
+  object-fit: cover;
+  scale: 1.42;
+}
+.fedit-object-view {
+  display: grid;
+  place-items: center;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px #e4e4e4;
+  clip-path: inset(0 calc(100% - var(--material-reveal)) 0 0);
+  transition-property: none;
+}
+.fedit-object-view img {
+  width: 92%;
+  height: 92%;
+  min-height: 0;
+  object-fit: contain;
+}
+.fedit-handle {
+  position: absolute;
+  inset-block: 0;
+  left: var(--material-reveal);
+  width: 1px;
+  background: #171717;
+  pointer-events: none;
+  transition-property: none;
+}
+.fedit-handle > span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: 35px;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #333;
+  border-radius: 50%;
+  color: #141414;
+  background: #fff;
+}
+.fedit-material-view input[type='range'] {
+  position: absolute;
+  inset: 0;
+  display: block;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: ew-resize;
+  appearance: none;
+  background: transparent;
+  touch-action: pan-y;
+}
+.fedit-material-view input::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 100%;
+}
+.fedit-material-view input::-webkit-slider-thumb {
+  appearance: none;
+  width: 1px;
+  height: 100%;
+}
+.fedit-material-view input::-moz-range-track {
+  height: 100%;
+}
+.fedit-material-view input::-moz-range-thumb {
+  width: 1px;
+  height: 100%;
+  border: 0;
+}
+.fedit-material-view:focus-within {
+  outline: 2px solid #171717;
+  outline-offset: 2px;
+}
+.fedit-view-labels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--fh-rule);
+}
+.fhome .fedit-view-labels button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #535353;
+  font-size: 12px;
+}
+.fedit-view-labels button[aria-pressed='true'] {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.fedit-sample-link .fedit-item-link {
+  border-bottom: none;
+  min-height: 64px;
+}
+.fhome .fedit-material + .fhome-light-story {
+  margin-top: clamp(26px, 4vw, 40px);
+}
+
+@media (min-width: 700px) {
+  .fedit-room-body,
+  .fedit-material-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    column-gap: clamp(22px, 4vw, 47px);
+  }
+  .fedit-room-picture {
+    margin: 0;
+  }
+  .fedit-room-details {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    justify-content: space-between;
+    padding-block: 3px 1px;
+  }
+  .fedit-room-list {
+    display: grid;
+  }
+  .fedit-room-list h3 {
+    margin: 0 0 16px;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+  .fhome .fedit-room-list button {
+    display: grid;
+    justify-items: start;
+    width: 100%;
+    text-align: left;
+    padding: 9px 0;
+    gap: 3px;
+    border: 0;
+    border-top: 1px solid var(--fh-rule);
+    background: none;
+  }
+  .fedit-room-list button[aria-pressed='true'] {
+    border-top-color: #151515;
+  }
+  .fedit-room-list button span {
+    font-size: 12px;
+    color: #595959;
+  }
+  .fedit-room-list button strong {
+    font-size: 15px;
+    font-weight: 560;
+  }
+  .fedit-material .fhome-heading {
+    margin-bottom: 20px;
+  }
+  .fedit-material-body {
+    grid-template-areas: 'photo samples' 'photo info';
+    grid-template-rows: auto 1fr;
+  }
+  .fedit-compare {
+    grid-area: photo;
+  }
+  .fedit-material-view {
+    aspect-ratio: 1.7;
+  }
+  .fedit-samples {
+    grid-area: samples;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin: 0;
+  }
+  .fhome .fedit-samples button {
+    justify-content: flex-start;
+    min-height: 51px;
+    gap: 12px;
+    border-width: 0 0 1px;
+  }
+  .fedit-sample-link {
+    grid-area: info;
+    align-self: end;
+    margin-bottom: 45px;
+  }
+}

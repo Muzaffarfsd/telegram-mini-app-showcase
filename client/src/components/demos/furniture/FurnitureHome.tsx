@@ -3,6 +3,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Ruler, Search } from 'lucide-react';
 import type { FurnitureProduct } from './storeCatalog';
 import { homeCollections } from './homeCollections';
+import { MaterialEdit, ReadingCornerEdit, type HomeEditSelection } from './FurnitureHomeEdits';
 import { scenePoster, stories, type RoomKey } from './roomLibrary';
 import { studioThumbnail, studioSrcSet } from './studioPhotography';
 import './FurnitureHome.css';
@@ -12,9 +13,11 @@ type Props = {
   ru: boolean;
   plannerAvailable: boolean;
   category: string;
+  edits: HomeEditSelection;
+  onEdit: (patch: HomeEditSelection) => void;
   onCategoryChange: (category: string) => void;
   onOpenProduct: (p: FurnitureProduct, photo?: number) => void;
-  onOpenPlanner: (p: FurnitureProduct, scene?: RoomKey) => void;
+  onOpenPlanner: (p: FurnitureProduct, scene?: RoomKey, startIn3D?: boolean) => void;
   onOpenCatalog: (category?: string, query?: string) => void;
   renderCard: (p: FurnitureProduct, language: 'ru' | 'en') => ReactNode;
 };
@@ -28,11 +31,16 @@ const newPieceIds = [
   'abo-b07jxxr83f',
 ];
 
+const snapDuration = 0.72;
+const snapFriction = 0.21;
+
 export default function FurnitureHome({
   products,
   ru,
   plannerAvailable,
   category,
+  edits,
+  onEdit,
   onCategoryChange,
   onOpenProduct,
   onOpenPlanner,
@@ -40,6 +48,7 @@ export default function FurnitureHome({
   renderCard,
 }: Props) {
   const t = (r: string, e: string) => (ru ? r : e);
+  const editProps = { products, ru, selection: edits, onSelect: onEdit, onOpenProduct };
   const groups = useMemo(() => homeCollections(products), [products]);
   const index = Math.max(
     0,
@@ -51,7 +60,7 @@ export default function FurnitureHome({
     align: 'start',
     loop: groups.length > 1,
     startIndex: start.current,
-    duration: 24,
+    duration: snapDuration,
     breakpoints: { '(prefers-reduced-motion: reduce)': { duration: 0 } },
   });
   const cover = useRef<HTMLElement>(null);
@@ -61,13 +70,19 @@ export default function FurnitureHome({
 
   useEffect(() => {
     if (!carousel) return;
+    const settle = () => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        carousel.scrollTo(carousel.selectedScrollSnap(), true);
+        return;
+      }
+      // Embla sets separate inertia on pointer release. Damp the final snap for every input.
+      const body = carousel.internalEngine().scrollBody;
+      if (body.duration()) body.useDuration(snapDuration).useFriction(snapFriction);
+    };
     const select = () => {
+      settle();
       const selected = groups[carousel.selectedScrollSnap()];
       if (selected) onCategoryChange(selected.category);
-    };
-    const settle = () => {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-        carousel.scrollTo(carousel.selectedScrollSnap(), true);
     };
     carousel.on('select', select).on('pointerUp', settle);
     return () => {
@@ -265,16 +280,16 @@ export default function FurnitureHome({
           </span>
         </div>
       </section>
-      <section className="fhome-section fhome-picks" lang="en" aria-label={current.selection}>
+      <section className="fhome-section fhome-picks" aria-label={ru ? current.category : current.selection}>
         <div className="fhome-heading">
-          <h2>{current.selection}</h2>
+          <h2>{ru ? current.category : current.selection}</h2>
           <button className="fhome-text-link" onClick={() => onOpenCatalog(current.category)}>
-            View all <ArrowUpRight size={15} />
+            {t('Смотреть все', 'View all')} <ArrowUpRight size={15} />
           </button>
         </div>
         <div className="fhome-piece-rail" key={current.category}>
           {shelf.map((p) => (
-            <div key={p.id}>{renderCard(p, 'en')}</div>
+            <div key={p.id}>{renderCard(p, ru ? 'ru' : 'en')}</div>
           ))}
         </div>
       </section>
@@ -306,7 +321,7 @@ export default function FurnitureHome({
             {t('Все модели', 'All pieces')} <ArrowUpRight size={15} />
           </button>
         </div>
-        <div className="fhome-category-strip" lang="en">
+        <div className="fhome-category-strip">
           {groups.map((group, i) => (
             <button
               type="button"
@@ -316,11 +331,31 @@ export default function FurnitureHome({
               onClick={() => showCategory(i)}
             >
               <img src={studioThumbnail(group.hero.images[0])} loading="lazy" alt="" />
-              <span>{group.title}</span>
+              <span>{ru ? group.category : group.title}</span>
             </button>
           ))}
         </div>
       </section>
+      <ReadingCornerEdit
+        {...editProps}
+        onOpenRoom={plannerAvailable ? product => onOpenPlanner(product, 'reading', true) : undefined}
+      />
+      {newPieces.length > 0 && (
+        <section className="fhome-section fhome-arrivals">
+          <div className="fhome-heading">
+            <h2>{t('Новинки', 'New arrivals')}</h2>
+            <button className="fhome-text-link" onClick={() => onOpenCatalog()}>
+              {t('В каталог', 'Browse all')} <ArrowUpRight size={15} />
+            </button>
+          </div>
+          <div className="fhome-piece-rail">
+            {newPieces.map((p) => (
+              <div key={p.id}>{renderCard(p, ru ? 'ru' : 'en')}</div>
+            ))}
+          </div>
+        </section>
+      )}
+      <MaterialEdit {...editProps} />
       {light && (
         <button
           type="button"
@@ -345,21 +380,6 @@ export default function FurnitureHome({
             </span>
           </span>
         </button>
-      )}
-      {newPieces.length > 0 && (
-        <section className="fhome-section fhome-arrivals">
-          <div className="fhome-heading">
-            <h2>{t('Новинки', 'New arrivals')}</h2>
-            <button className="fhome-text-link" onClick={() => onOpenCatalog()}>
-              {t('В каталог', 'Browse all')} <ArrowUpRight size={15} />
-            </button>
-          </div>
-          <div className="fhome-piece-rail">
-            {newPieces.map((p) => (
-              <div key={p.id}>{renderCard(p, ru ? 'ru' : 'en')}</div>
-            ))}
-          </div>
-        </section>
       )}
       {plannerAvailable && (
         <section className="fhome-section fhome-interiors">

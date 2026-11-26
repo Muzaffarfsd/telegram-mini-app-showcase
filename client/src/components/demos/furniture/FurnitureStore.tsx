@@ -28,6 +28,7 @@ import { restoreTelegramChrome } from '../../../lib/telegramChrome';
 import { scrollToTop } from '../../../hooks/useScrollToTop';
 import { furnitureCatalog, type FurnitureProduct } from './storeCatalog';
 import FurnitureHome from './FurnitureHome';
+import type { HomeEditSelection } from './FurnitureHomeEdits';
 import FurnitureReviews from './FurnitureReviews';
 import { studioAngleLabel, studioSrcSet, studioThumbnail } from './studioPhotography';
 import FurnitureDetails from './FurnitureDetails';
@@ -55,6 +56,7 @@ type Snapshot = {
   selectedId: string;
   category: string;
   homeCategory?: string;
+  homeEdits?: HomeEditSelection;
   query: string;
   sort: SortOrder;
   maxWidth: string;
@@ -72,7 +74,7 @@ type StoreProps = {
   /** Optional real 3D viewer, mounted only when the visitor chooses it. */
   render3D?: (product: FurnitureProduct, onClose: () => void, onPlaceInRoom?: () => void) => ReactNode;
   /** Optional spatial planner, mounted on its own screen with a history-aware close action. */
-  renderPlanner?: (product: FurnitureProduct, onClose: () => void, scene: RoomKey, project: RoomProject | undefined, openItem:(id:string)=>void, addKit:(ids:string[])=>void, transfer:()=>void) => ReactNode;
+  renderPlanner?: (product: FurnitureProduct, onClose: () => void, scene: RoomKey, project: RoomProject | undefined, openItem:(id:string)=>void, addKit:(ids:string[])=>void, transfer:()=>void, startIn3D?: boolean) => ReactNode;
 };
 
 const featuredOrder: Record<string, number> = {
@@ -315,6 +317,7 @@ export default function FurnitureStore({
   const [selectedId, setSelectedId] = useState(shared?(shared.layout.items[0]?.productId||products[0]?.id||''):'');
   const [category, setCategory] = useState('Все');
   const [homeCategory, setHomeCategory] = useState('Диваны');
+  const [homeEdits, setHomeEdits] = useState<HomeEditSelection>({});
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortOrder>('featured');
   const [maxWidth, setMaxWidth] = useState('');
@@ -383,6 +386,7 @@ export default function FurnitureStore({
     selectedId,
     category,
     homeCategory,
+    homeEdits,
     query,
     sort,
     maxWidth,
@@ -398,6 +402,7 @@ export default function FurnitureStore({
     setSelectedId(next.selectedId);
     setCategory(next.category);
     setHomeCategory(next.homeCategory ?? 'Диваны');
+    setHomeEdits(next.homeEdits ?? {});
     setQuery(next.query);
     setSort(next.sort ?? 'featured');
     setMaxWidth(next.maxWidth ?? '');
@@ -416,6 +421,7 @@ export default function FurnitureStore({
     selectedId,
     category,
     homeCategory,
+    homeEdits,
     query,
     sort,
     maxWidth,
@@ -643,9 +649,9 @@ export default function FurnitureStore({
       zoomed: false,
       viewing3D: false,
     });
-  const openPlanner = (product: FurnitureProduct, scene:RoomKey='fixed', pid='') => {
+  const openPlanner = (product: FurnitureProduct, scene:RoomKey='fixed', pid='', startIn3D=false) => {
     plannerOrigin.current = screen;
-    transition({ screen: 'planner', roomKey:scene, projectId:pid, sheet: null, selectedId: product.id, viewing3D: false, zoomed:false });
+    transition({ screen: 'planner', roomKey:scene, projectId:pid, sheet: null, selectedId: product.id, viewing3D: startIn3D, zoomed:false });
   };
   const back = () =>
     history.back(() => {
@@ -779,9 +785,11 @@ export default function FurnitureStore({
             ru={ru}
             category={homeCategory}
             onCategoryChange={setHomeCategory}
+            edits={homeEdits}
+            onEdit={patch => setHomeEdits(current => ({ ...current, ...patch }))}
             plannerAvailable={!!renderPlanner}
             onOpenProduct={openProduct}
-            onOpenPlanner={openPlanner}
+            onOpenPlanner={(product, scene, startIn3D) => openPlanner(product, scene, undefined, startIn3D)}
             onOpenCatalog={openCatalog}
             renderCard={(product, displayLanguage) => (
               <ProductCard
@@ -1144,7 +1152,7 @@ export default function FurnitureStore({
         )}
         {screen === 'planner' && selected && renderPlanner && (
           <section className="fs-planner" aria-label={t('Планировщик комнаты', 'Room planner')}>
-            {renderPlanner(selected,back,roomKey,roomKey==='shared'&&shared?{id:'shared',name:t('Полученная комната','Shared room'),date:'',scene:shared.scene,layout:shared.layout}:projects.find(p=>p.id===projectId),id=>{const p=products.find(p=>p.id===id);if(p)openProduct(p)},ids=>{setCart(lines=>{const next=lines.map(l=>({...l}));for(const id of ids){const found=next.find(l=>l.id===id);if(found)found.quantity=Math.min(10,found.quantity+1);else next.push({id,quantity:1})}return next});transition({screen:'catalog',sheet:'cart',viewing3D:false})},()=>{setRoomKey('transferred');setProjectId('')})}
+            {renderPlanner(selected,back,roomKey,roomKey==='shared'&&shared?{id:'shared',name:t('Полученная комната','Shared room'),date:'',scene:shared.scene,layout:shared.layout}:projects.find(p=>p.id===projectId),id=>{const p=products.find(p=>p.id===id);if(p)openProduct(p)},ids=>{setCart(lines=>{const next=lines.map(l=>({...l}));for(const id of ids){const found=next.find(l=>l.id===id);if(found)found.quantity=Math.min(10,found.quantity+1);else next.push({id,quantity:1})}return next});transition({screen:'catalog',sheet:'cart',viewing3D:false})},()=>{setRoomKey('transferred');setProjectId('')},viewing3D)}
           </section>
         )}
         {screen === 'account' && (

@@ -4,6 +4,13 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 15:20 MSK — Faster furniture carousel and interactive home features
+
+- Removed the mobile CSS transition that delayed the carousel track on each animation frame. Tuned the final motion after a gesture or an arrow press. At 390 CSS pixels, four measured gestures settled in a median of 164 ms after release, compared with 1,082 ms on the previous version. The corresponding arrow measurements were 214 ms and 1,179 ms.
+- The large category titles stay in English. The shelf below, the eleven category thumbnails and the catalogue use the chosen store language. Both language previews were refreshed.
+- Added a reading-corner photograph with three selectable products. The room action opens the existing reading scene directly in 3D. The material comparison pairs each full product with its own detail image and can open that exact gallery view. Back navigation restores the selected item, material and divider.
+- Checkpoint `refs/checkpoints/furniture-home-before-edits` at `93335aad`. Compared mobile before/after screenshots and checked layouts from 320 to 1440 pixels. Build and Chromium/WebKit store tests passed, including touch, reduced motion, product galleries, checkout, room lighting, export and artwork fallbacks. Browser smoke check recorded zero console errors, page errors or failed requests. The 61 existing TypeScript diagnostics match the baseline.
+
 ## 2026-11-26 14:57 MSK — Furniture home collections and Google Sans
 
 - Built a bidirectional, looping home carousel for all eleven stocked categories. The first slide is Sofas in both store languages. Each slide links to the featured product and its filtered catalogue. The same home includes shopping by category, search, a lighting story, new arrivals, interiors and the room planner.

@@ -19,6 +19,7 @@ type Props = {
   ru: boolean;
   onClose: () => void;
   scene: RoomKey;
+  startIn3D?: boolean;
   project?: RoomProject;
   onItem: (id: string) => void;
   onKit: (ids: string[]) => void;
@@ -27,6 +28,7 @@ export default function RoomExperience({
   productId,
   ru,
   scene,
+  startIn3D,
   project,
   onClose,
   onItem,
@@ -91,6 +93,7 @@ export default function RoomExperience({
       {personal ? (
         <FurniturePlanner
           products={roomProducts}
+          startIn3D={startIn3D}
           initialProductId={productId}
           initialPlan={initial}
           storageKey={draftKey}

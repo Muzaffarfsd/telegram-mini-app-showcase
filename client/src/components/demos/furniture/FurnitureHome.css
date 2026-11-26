@@ -25,6 +25,8 @@
   display: flex;
   touch-action: pan-y pinch-zoom;
 }
+/* The carousel moves these layers each frame, including while the finger is down. */
+.fhome-track, .fhome-slide, .fhome-slide .fhome-cover-link { transition-property: none; }
 .fhome-slide {
   position: relative;
   flex: 0 0 100%;
@@ -57,7 +59,7 @@
   background: transparent;
   cursor: grab;
 }
-.fhome-slide .fhome-cover-link:active { cursor: grabbing; }
+.fhome-slide .fhome-cover-link:active { cursor: grabbing; transform: none; opacity: 1; }
 .fhome-slide .fhome-cover-link:focus-visible { outline-offset: -5px; }
 .fhome-slide .fhome-hero-image {
   position: absolute;
@@ -207,7 +209,7 @@
 .fhome-category { display: grid; grid-template-rows: 47px auto; justify-items: center; align-items: center; gap: 6px; padding: 5px 0 12px; border-bottom: 2px solid transparent; }
 .fhome-category[aria-pressed='true'] { border-bottom-color: #191919; }
 .fhome-category img { width: 87%; height: 100%; padding: 2px; object-fit: contain; background: transparent; }
-.fhome-category span { font-size: 12px; font-weight: 500; white-space: nowrap; }
+.fhome-category span { display: grid; align-items: start; min-height: 2.4em; max-width: 100%; text-wrap: balance; font-size: 12px; line-height: 1.2; font-weight: 500; }
 .fhome .fhome-light-story {
   position: relative;
   isolation: isolate;
