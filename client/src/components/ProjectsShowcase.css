@@ -49,6 +49,8 @@
 .ps-save[aria-pressed="true"] { color:#171816; background:#e4e5e1; }
 .ps-artwork-layer { position: absolute; inset: 0 0 60px; pointer-events: none; overflow: clip; }
 .ps-art { position: absolute; width: min(63.31%, 204px); aspect-ratio: 3 / 4; right: 0; top: 50%; translate: 0 -50%; background-image:url('../assets/showcase-preview-sheet.webp?inline'); background-repeat:no-repeat; }
+/* Mobile global transition timing must not fade artwork when its decoded image replaces the preview. */
+.ps-art, .ps-art * { transition-property: none; }
 .ps-art-ready { background-image:none; }
 .ps-art img { display: block; width: 100%; height: 100%; opacity: 0; }
 .ps-art-ready img { opacity: 1; }

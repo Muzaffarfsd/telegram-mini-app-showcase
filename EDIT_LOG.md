@@ -4,6 +4,10 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-27 · Remove showcase entrance flicker
+
+- Removed the showcase loading shimmer and disabled inherited mobile transitions on the artwork layers, so the phone artwork no longer fades in when its decoded image replaces the preview. The card layout, lazy loading and navigation remain unchanged.
+- Checkpoint `refs/checkpoints/before-showcase-card-entrance` at `df84d78b`. Compared delayed-preview and decoded images; checked the mobile first navigation and static artwork in Chromium and WebKit, and ran the cold-start suite on both engines. Screenshots are in `work/showcase-static-chromium.png` and `work/showcase-static-webkit.png`.
 ## 2026-11-26 · Update the furniture gesture regression
 
 - Updated the fixed-room gesture test to follow the current room entry and measured plan while retaining drag, rotation, undo and cancellation checks. The test passed locally and on the current production version.
