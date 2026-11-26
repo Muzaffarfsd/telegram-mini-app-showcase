@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
@@ -57,7 +56,7 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
   controls.minPolarAngle = 0.22; controls.maxPolarAngle = Math.PI / 2.18;
   const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
   const ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-  const loader = new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder); const basis=new KTX2Loader().setTranscoderPath('/furniture/basis/').detectSupport(renderer); loader.setKTX2Loader(basis);
+  const loader = new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder);
   const cached = new Map<string, Promise<THREE.Group>>();
   const instances = new Map<string, THREE.Group>();
   const models = new Map<string, THREE.Group>();
@@ -694,7 +693,7 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
       canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerup', onEnd); canvas.removeEventListener('pointercancel', onEnd); canvas.removeEventListener('lostpointercapture', onEnd); canvas.removeEventListener('webglcontextlost', lost);
       if (highlight) { highlight.geometry.dispose(); (highlight.material as THREE.Material).dispose(); }
       architecture.children.forEach(disposeGroup); instances.forEach(group => { const styling=group.getObjectByName('room-styling');if(styling)disposeGroup(styling); const shadow = group.children[0] as THREE.Mesh; shadow?.geometry?.dispose(); (shadow?.material as THREE.Material | undefined)?.dispose(); });
-      cached.forEach(promise => { void promise.then(disposeGroup).catch(() => {}); }); if (plant) disposeGroup(plant); if (decor) disposeGroup(decor); if (bookshelf) disposeGroup(bookshelf); if (pendant) disposeGroup(pendant); if (wallPicture) disposeGroup(wallPicture); shadowTexture.dispose(); wallFadeTexture.dispose(); wood?.dispose(); normal?.dispose(); environment?.dispose(); rugTexture?.dispose(); rugNormal?.dispose(); plaster?.dispose(); linen?.dispose(); linenNormal?.dispose(); garden?.dispose(); basis.dispose(); renderer.dispose();
+      cached.forEach(promise => { void promise.then(disposeGroup).catch(() => {}); }); if (plant) disposeGroup(plant); if (decor) disposeGroup(decor); if (bookshelf) disposeGroup(bookshelf); if (pendant) disposeGroup(pendant); if (wallPicture) disposeGroup(wallPicture); shadowTexture.dispose(); wallFadeTexture.dispose(); wood?.dispose(); normal?.dispose(); environment?.dispose(); rugTexture?.dispose(); rugNormal?.dispose(); plaster?.dispose(); linen?.dispose(); linenNormal?.dispose(); garden?.dispose(); renderer.dispose();
     },
   };
 }

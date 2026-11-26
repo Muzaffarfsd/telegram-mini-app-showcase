@@ -7,7 +7,7 @@ export const roomProducts: PlannerProduct[] = furnitureCatalog.flatMap((p) =>
           id: p.id,
           name: p.name.startsWith(p.brand) ? p.name : p.brand + ' ' + p.name,
           category: p.category,
-          modelUrl: p.plannerModelUrl || p.modelUrl,
+          modelUrl: p.plannerModelUrl ? p.plannerModelUrl + '?maps=webp' : p.modelUrl,
           widthM: p.dimensionsM[0],
           depthM: p.dimensionsM[1],
           heightM: p.dimensionsM[2],

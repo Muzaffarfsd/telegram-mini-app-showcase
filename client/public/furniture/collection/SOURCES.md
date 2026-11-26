@@ -1,6 +1,6 @@
 # Room collection · November 2026
 
-Product photography and models by Amazon.com, from [Amazon Berkeley Objects](https://amazon-berkeley-objects.s3.amazonaws.com/index.html), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The [web-ready GLBs](https://huggingface.co/datasets/codepawl/abo-glb) were converted by CodePawl. The multi-object room uses their lower-detail meshes. Photographs are resized and converted to WebP. The floor-plan images are orthographic renders of those models. The furniture names below are short catalogue labels.
+Product photography and models by Amazon.com, from [Amazon Berkeley Objects](https://amazon-berkeley-objects.s3.amazonaws.com/index.html), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The [web-ready GLBs](https://huggingface.co/datasets/codepawl/abo-glb) were converted by CodePawl. The multi-object room uses their lower-detail meshes and matching original product textures, resized to 512 pixels or less and stored as WebP. Photographs are resized and converted to WebP. The floor-plan images are orthographic renders of those models. The furniture names below are short catalogue labels.
 
 | Product | Archive and 3D source | Original product photographs |
 | --- | --- | --- |

@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import type { PlannerItem, PlannerProduct, PlannerView } from './plannerTypes';
@@ -33,7 +32,7 @@ export async function createFixedInteriorScene(canvas: HTMLCanvasElement, callba
   const top = new THREE.OrthographicCamera(-4.5, 4.5, 10, -10, 0.1, 100); top.position.set(CENTER.x, 16, CENTER.z); top.up.set(0, 0, -1); top.lookAt(CENTER.x, 0, CENTER.z);
   const controls = new OrbitControls(camera, canvas); controls.target.set(-.35, .70, -.95); controls.enablePan = false;
   controls.minDistance = 1.5; controls.maxDistance = 9; controls.maxPolarAngle = Math.PI / 2.05; controls.update();
-  const loader = new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder); const basis=new KTX2Loader().setTranscoderPath('/furniture/basis/').detectSupport(renderer); loader.setKTX2Loader(basis);
+  const loader = new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder);
   const objects = new THREE.Group(); scene.add(objects);
   const instances = new Map<string, THREE.Group>(), models = new Map<string, THREE.Group>(), cached = new Map<string, Promise<THREE.Group>>();
   let state: FixedSceneState = { items: [], products: [], selected: null, view: 'perspective' };
@@ -78,7 +77,7 @@ export async function createFixedInteriorScene(canvas: HTMLCanvasElement, callba
       }
     });
     scene.add(room);
-  } catch (error) { basis.dispose(); renderer.dispose(); shadowTexture.dispose(); controls.dispose(); throw error; }
+  } catch (error) { renderer.dispose(); shadowTexture.dispose(); controls.dispose(); throw error; }
 
   function setHighlight() {
     if (highlight) { scene.remove(highlight); highlight.geometry.dispose(); (highlight.material as THREE.Material).dispose(); highlight = null; }
@@ -188,6 +187,6 @@ export async function createFixedInteriorScene(canvas: HTMLCanvasElement, callba
       canvas.removeEventListener('pointerdown', down); canvas.removeEventListener('pointermove', move); canvas.removeEventListener('pointerup', end); canvas.removeEventListener('pointercancel', end); canvas.removeEventListener('lostpointercapture', end); canvas.removeEventListener('webglcontextlost', lost);
       if (highlight) { highlight.geometry.dispose(); (highlight.material as THREE.Material).dispose(); } if (room) dispose(room);
       instances.forEach(a => { const shadow = a.children[0] as THREE.Mesh; shadow.geometry.dispose(); (shadow.material as THREE.Material).dispose(); });
-      cached.forEach(p => { void p.then(dispose).catch(() => {}); }); shadowTexture.dispose(); basis.dispose(); renderer.dispose();
+      cached.forEach(p => { void p.then(dispose).catch(() => {}); }); shadowTexture.dispose(); renderer.dispose();
     } };
 }

@@ -4,6 +4,11 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 — Native room textures on the public storefront
+
+- The hosted security policy blocked the Basis JavaScript decoder during the first public smoke test. Repacked 29 reduced-detail meshes with the same SKU's native WebP base-colour, normal and material maps, preserving the compressed geometry, UVs and material bindings. All 30 room models now decode through the browser's native image path.
+- The room integration test now runs under the hosted restriction on dynamic JavaScript. Verified all 30 scene files and the drawing for each piece. Asset URLs carry a new revision so visitors can replace a cached copy.
+
 ## 2026-11-26 — Furniture catalogue, room planning and art direction
 
 - Rebuilt the bilingual store around the Ian dining setting. The photograph, hotspot, catalogue and editable dining room all lead to the corresponding real product. Added catalogue search by size and material, scale comparison, model evidence, product drawing, room associations and a reachable mobile checkout.

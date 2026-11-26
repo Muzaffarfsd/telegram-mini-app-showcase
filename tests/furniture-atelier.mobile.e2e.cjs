@@ -13,6 +13,21 @@ const url = new URL('/#/demos/furniture-studio/app', base).href;
       locale: 'ru-RU',
       serviceWorkers: 'block',
     });
+    // Exercise the room decoder under the same restriction on dynamic JavaScript as the hosted app.
+    if (['localhost', '127.0.0.1'].includes(new URL(url).hostname)) {
+      await context.route('**/*', async (route) => {
+        if (route.request().resourceType() !== 'document') return route.continue();
+        const res = await route.fetch();
+        return route.fulfill({
+          response: res,
+          headers: {
+            ...res.headers(),
+            'content-security-policy':
+              "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://telegram.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' https: data: blob:; connect-src 'self' blob: ws: wss:; worker-src 'self' blob:",
+          },
+        });
+      });
+    }
     const page = await context.newPage();
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
