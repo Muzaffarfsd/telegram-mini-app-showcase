@@ -16,3 +16,7 @@ These assets are used in the interactive furniture planner. The sources below ar
 | `wood-floor-diff.jpg`, `wood-floor-normal.jpg` | [Wood Floor](https://polyhaven.com/a/wood_floor) | Original 1K texture maps, repeated and tinted in the scene. |
 
 The cabinet, vase and plant are decorative context, not products for sale. The cabinet and vase are hidden when their floor footprint overlaps an editable product or the room is too small. The product models use separate source and licensing records.
+
+## Authored bookshelf module
+
+`baked-bookshelf.glb` and `baked-bookshelf.webp` are a procedural bookshelf and books created for this project, exported with meshopt compression. Their baked colour and lighting include modified [Oak Veneer 03](https://polyhaven.com/a/oak_veneer_03) texture and [Meadow HDRI](https://polyhaven.com/a/meadow) lighting from Poly Haven ([CC0](https://polyhaven.com/license)); the texture was baked and converted to a 1024 px WebP. The source scene and bake script are retained in the accompanying work directory. The shelf is decorative and is hidden on collisions and in plan view.

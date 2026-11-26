@@ -4,7 +4,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import gardenImage from '../../../assets/furniture/house.webp';
-import { cabinetPlacement, footprint, type PlannerItem, type PlannerProduct, type PlannerRoom, type PlannerView } from './plannerTypes';
+import { bookshelfPlacement, cabinetPlacement, footprint, roomOpenings, type PlannerItem, type PlannerProduct, type PlannerRoom, type PlannerView } from './plannerTypes';
 
 type SceneState = { room: PlannerRoom; items: PlannerItem[]; products: readonly PlannerProduct[]; selected: string | null; view: PlannerView };
 type Callbacks = { onSelect: (id: string | null) => void; onMove: (id: string, x: number, z: number) => void; onDragStart: () => void; onDragEnd: () => void; onError: (text: string) => void; onModelError: (id: string, text: string) => void; onBounds: (id: string, size: { widthM: number; depthM: number; heightM: number }) => void };
@@ -36,6 +36,7 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
   const perspective = new THREE.PerspectiveCamera(52, 1, 0.05, 80);
   const top = new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 80);
   top.up.set(0, 0, -1);
+  top.position.set(0, 14, 0); top.lookAt(0, 0, 0);
   const controls = new OrbitControls(perspective, canvas);
   controls.enableDamping = false; controls.enablePan = false; controls.minDistance = 1.2; controls.maxDistance = 20;
   controls.minPolarAngle = 0.22; controls.maxPolarAngle = Math.PI / 2.18;
@@ -52,7 +53,11 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
   let wood: THREE.Texture | null = null, normal: THREE.Texture | null = null, environment: THREE.Texture | null = null, rugTexture: THREE.Texture | null = null, rugNormal: THREE.Texture | null = null, plaster: THREE.Texture | null = null, garden: THREE.Texture | null = null, linen: THREE.Texture | null = null, linenNormal: THREE.Texture | null = null;
   let plant: THREE.Group | null = null, plantRequested = false;
   let decor: THREE.Group | null = null, decorRequested = false, decorClear = false;
+  let bookshelf: THREE.Group | null = null, bookshelfRequested = false, bookshelfClear = false;
+  let perspectiveResourcesRequested = false;
   let dragging: { pointer: number; id: string; x: number; z: number } | null = null;
+  const planTouches = new Map<number, { x: number; y: number }>();
+  let planPinch: { distance: number; midpoint: { x: number; y: number } } | null = null;
   let highlight: THREE.BoxHelper | null = null;
   const camera = () => state.view === 'top' ? top : perspective;
   const draw = () => { if (!destroyed && !frame) frame = requestAnimationFrame(() => {
@@ -65,6 +70,7 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
       if (rightWall) rightWall.visible = state.view === 'perspective' && perspective.position.x < state.room.width / 2 - 0.04;
       if (ceiling) ceiling.visible = state.view === 'perspective' && perspective.position.y < 2.58;
       if (decor) decor.visible = decorClear && state.view === 'perspective' && perspective.position.x < state.room.width / 2 - 0.04;
+      if (bookshelf) bookshelf.visible = bookshelfClear && state.view === 'perspective' && perspective.position.z > -state.room.depth / 2 + 0.04;
       renderer.render(scene, camera());
     }
   }); };
@@ -125,60 +131,95 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
     rug.rotation.x = -Math.PI / 2; rug.position.set(0, 0.014, Math.min(0.2, (d - rugDepth) / 2)); architecture.add(rug);
     if (rugTexture) { const map = rugTexture.clone(); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(rugWidth / 1.8, rugDepth / 0.9); map.needsUpdate = true; (rug.material as THREE.MeshStandardMaterial).map = map; }
     if (rugNormal) { const map = rugNormal.clone(); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(rugWidth / 1.8, rugDepth / 0.9); map.needsUpdate = true; (rug.material as THREE.MeshStandardMaterial).normalMap = map; (rug.material as THREE.MeshStandardMaterial).normalScale.set(0.3, 0.3); }
+    if (view === 'top') {
+      // The gaps on the back wall use the same coordinates as the 3D mesh.
+      const openings = roomOpenings(room), z = -d / 2;
+      const spans = [openings.window, openings.door].filter((opening): opening is NonNullable<typeof opening> => Boolean(opening)).sort((a, b) => a.start - b.start);
+      const lines: number[] = [-w / 2, 0.04, z, -w / 2, 0.04, d / 2, w / 2, 0.04, z, w / 2, 0.04, d / 2, -w / 2, 0.04, d / 2, w / 2, 0.04, d / 2];
+      let cursor = -w / 2;
+      for (const opening of spans) { const a = -w / 2 + opening.start; lines.push(cursor, 0.04, z, a, 0.04, z); cursor = a + opening.width; }
+      lines.push(cursor, 0.04, z, w / 2, 0.04, z);
+      const outline = new THREE.BufferGeometry(); outline.setAttribute('position', new THREE.Float32BufferAttribute(lines, 3));
+      architecture.add(new THREE.LineSegments(outline, new THREE.LineBasicMaterial({ color: '#403b35' })));
+      for (const [opening, color] of [[openings.window, '#568794'], [openings.door, '#b07442']] as const) {
+        if (!opening) continue;
+        const marker = new THREE.Mesh(new THREE.PlaneGeometry(opening.width, 0.055), new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide }));
+        marker.rotation.x = -Math.PI / 2; marker.position.set(-w / 2 + opening.start + opening.width / 2, 0.045, z); architecture.add(marker);
+      }
+    }
     if (view === 'perspective') {
       // A cutaway room: its shell is architectural geometry, not a picture.
       // Window and trim scale with available wall space, but never stretch the
       // movable furniture or occupy its floor footprint.
-      const h = 2.6, wall = '#e7e0d5', windowWidth = Math.min(1.9, w * 0.56), side = (w - windowWidth) / 2;
-      const windowX = -Math.min(0.3, side * 0.22), leftSide = side + windowX, rightSide = side - windowX;
-      const backZ = -d / 2;
+      const h = 2.6, wall = '#e7e0d5', backZ = -d / 2;
+      const openings = roomOpenings(room);
+      const windowWidth = openings.window?.width ?? 0;
+      const windowX = openings.window ? -w / 2 + openings.window.start + windowWidth / 2 : 0;
+      const side = (w - windowWidth) / 2;
       windowFill.position.set(windowX, 2.0, backZ + 0.7);
       backWall = new THREE.Group(); sideWall = new THREE.Group(); rightWall = new THREE.Group(); ceiling = new THREE.Group(); architecture.add(backWall, sideWall, rightWall, ceiling);
-      const leftWall = block(backWall, leftSide, h, 0.10, -w / 2 + leftSide / 2, h / 2, backZ, wall);
-      const rightBackWall = block(backWall, rightSide, h, 0.10, w / 2 - rightSide / 2, h / 2, backZ, wall);
+      const backWallGroup = backWall;
+      const wallPieces: THREE.Mesh[] = [];
+      const segment = (a: number, b: number, y: number, height: number) => {
+        if (b - a > 0.001) wallPieces.push(block(backWallGroup, b - a, height, 0.10, (a + b) / 2, y, backZ, wall));
+      };
+      const spans = [openings.window && { ...openings.window, kind: 'window' }, openings.door && { ...openings.door, kind: 'door' }].filter((opening): opening is { start: number; width: number; kind: string } => Boolean(opening)).sort((a, b) => a.start - b.start);
+      let cursor = -w / 2;
+      for (const opening of spans) {
+        const left = -w / 2 + opening.start, right = left + opening.width;
+        segment(cursor, left, h / 2, h);
+        if (opening.kind === 'window') { segment(left, right, 0.215, 0.43); segment(left, right, h - 0.19, 0.38); }
+        else segment(left, right, 2.35, 0.5);
+        cursor = right;
+      }
+      segment(cursor, w / 2, h / 2, h);
       const returnWall = block(sideWall, 0.10, h, d, -w / 2, h / 2, 0, wall);
       const rightReturnWall = block(rightWall, 0.10, h, d, w / 2, h / 2, 0, wall);
-      [leftWall, rightBackWall, returnWall, rightReturnWall].forEach((mesh, i) => {
+      [...wallPieces, returnWall, rightReturnWall].forEach(mesh => {
         mesh.receiveShadow = true;
         if (plaster) {
           const texture = plaster.clone(); texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-          texture.repeat.set((i >= 2 ? d : side) / 1.5, h / 1.5); texture.needsUpdate = true;
+          texture.repeat.set((mesh === returnWall || mesh === rightReturnWall ? d : w) / 1.5, h / 1.5); texture.needsUpdate = true;
           (mesh.material as THREE.MeshStandardMaterial).bumpMap = texture;
           (mesh.material as THREE.MeshStandardMaterial).bumpScale = 0.025;
         }
       });
-      block(backWall, windowWidth, 0.38, 0.10, windowX, h - 0.19, backZ, wall);
-      block(backWall, windowWidth, 0.43, 0.10, windowX, 0.215, backZ, wall);
-      const pane = block(backWall, windowWidth, 1.79, 0.025, windowX, 1.325, backZ - 0.07, '#d1d6cf');
-      pane.material.dispose();
-      if (garden) {
-        const map = garden.clone(); map.repeat.set(0.20, 0.70); map.offset.set(0.12, 0.29); map.needsUpdate = true;
-        (pane as THREE.Mesh<THREE.BoxGeometry, THREE.Material>).material = new THREE.MeshBasicMaterial({ map, color: '#b9b9b0' });
-      } else (pane as THREE.Mesh<THREE.BoxGeometry, THREE.Material>).material = new THREE.MeshBasicMaterial({ color: '#d9dfd9' });
-      const frameColor = '#6f6a60';
-      for (const x of [-windowWidth / 2, 0, windowWidth / 2]) block(backWall, 0.045, 1.82, 0.065, windowX + x, 1.325, backZ, frameColor);
-      for (const y of [0.43, 2.22]) block(backWall, windowWidth, 0.045, 0.065, windowX, y, backZ, frameColor);
-      block(backWall, windowWidth + 0.12, 0.035, 0.16, windowX, 0.412, backZ + 0.035, '#f4efe6');
-      // A restrained linen curtain, modelled in shallow folds, stays against
-      // the wall and does not compete with items placed in the room.
-      for (const sign of [-1, 1]) {
-        const curtainWidth = Math.min(0.42, side * 0.6);
-        const geometry = new THREE.PlaneGeometry(curtainWidth, 2.46, 48, 8);
-        const positions = geometry.attributes.position as THREE.BufferAttribute;
-        for (let i = 0; i < positions.count; i++) {
-          const u = positions.getX(i) / curtainWidth + 0.5, v = positions.getY(i) / 2.46 + 0.5;
-          positions.setZ(i, Math.cos(u * Math.PI * 7) * 0.032 + Math.sin(u * Math.PI * 15 + v * 1.4) * 0.006);
+      if (openings.window) {
+        const pane = block(backWall, windowWidth, 1.79, 0.025, windowX, 1.325, backZ - 0.07, '#d1d6cf');
+        pane.material.dispose();
+        if (garden) {
+          const map = garden.clone(); map.repeat.set(0.20, 0.70); map.offset.set(0.12, 0.29); map.needsUpdate = true;
+          (pane as THREE.Mesh<THREE.BoxGeometry, THREE.Material>).material = new THREE.MeshBasicMaterial({ map, color: '#b9b9b0' });
+        } else (pane as THREE.Mesh<THREE.BoxGeometry, THREE.Material>).material = new THREE.MeshBasicMaterial({ color: '#d9dfd9' });
+        const frameColor = '#6f6a60';
+        for (const x of [-windowWidth / 2, 0, windowWidth / 2]) block(backWall, 0.045, 1.82, 0.065, windowX + x, 1.325, backZ, frameColor);
+        for (const y of [0.43, 2.22]) block(backWall, windowWidth, 0.045, 0.065, windowX, y, backZ, frameColor);
+        block(backWall, windowWidth + 0.12, 0.035, 0.16, windowX, 0.412, backZ + 0.035, '#f4efe6');
+        // Each curtain is clamped to the actual available wall beside the opening.
+        for (const sign of [-1, 1]) {
+          let available = sign < 0 ? openings.window.start : w - openings.window.start - windowWidth;
+          if (openings.door && sign < 0 && openings.door.start < openings.window.start) available = Math.min(available, openings.window.start - openings.door.start - openings.door.width);
+          if (openings.door && sign > 0 && openings.door.start > openings.window.start) available = Math.min(available, openings.door.start - openings.window.start - windowWidth);
+          const curtainWidth = Math.min(0.42, Math.max(0, available - 0.04));
+          if (curtainWidth < 0.04) continue;
+          const geometry = new THREE.PlaneGeometry(curtainWidth, 2.46, 48, 8);
+          const positions = geometry.attributes.position as THREE.BufferAttribute;
+          for (let i = 0; i < positions.count; i++) {
+            const u = positions.getX(i) / curtainWidth + 0.5, v = positions.getY(i) / 2.46 + 0.5;
+            positions.setZ(i, Math.cos(u * Math.PI * 7) * 0.032 + Math.sin(u * Math.PI * 15 + v * 1.4) * 0.006);
+          }
+          geometry.computeVertexNormals();
+          const cloth = new THREE.MeshStandardMaterial({ color: '#e9e0d2', roughness: 1, side: THREE.DoubleSide });
+          if (linen) { const map = linen.clone(); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(0.65, 2.6); map.needsUpdate = true; cloth.map = map; }
+          if (linenNormal) { const map = linenNormal.clone(); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(0.65, 2.6); map.needsUpdate = true; cloth.normalMap = map; cloth.normalScale.set(0.2, 0.2); }
+          const curtain = new THREE.Mesh(geometry, cloth);
+          curtain.position.set(windowX + sign * (windowWidth / 2 + curtainWidth * 0.35), 1.25, backZ + 0.105); curtain.receiveShadow = true; backWall.add(curtain);
         }
-        geometry.computeVertexNormals();
-        const cloth = new THREE.MeshStandardMaterial({ color: '#e9e0d2', roughness: 1, side: THREE.DoubleSide });
-        if (linen) { const map = linen.clone(); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(0.65, 2.6); map.needsUpdate = true; cloth.map = map; }
-        if (linenNormal) { const map = linenNormal.clone(); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(0.65, 2.6); map.needsUpdate = true; cloth.normalMap = map; cloth.normalScale.set(0.2, 0.2); }
-        const curtain = new THREE.Mesh(geometry, cloth);
-        curtain.position.set(windowX + sign * (windowWidth / 2 + curtainWidth * 0.35), 1.25, backZ + 0.105); curtain.receiveShadow = true; backWall.add(curtain);
       }
-      const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, windowWidth + 0.8, 10), new THREE.MeshStandardMaterial({ color: '#615b53', metalness: 0.5, roughness: 0.5 }));
-      rod.rotation.z = Math.PI / 2; rod.position.set(windowX, 2.48, backZ + 0.095); backWall.add(rod);
-      block(backWall, w, 0.085, 0.035, 0, 0.0425, backZ + 0.07, '#f1ede5');
+      if (openings.door) {
+        const doorLeft = -w / 2 + openings.door.start, doorRight = doorLeft + openings.door.width;
+        for (const [a, b] of [[-w / 2, doorLeft], [doorRight, w / 2]]) if (b - a > 0.001) block(backWall, b - a, 0.085, 0.035, (a + b) / 2, 0.0425, backZ + 0.07, '#f1ede5');
+      } else block(backWall, w, 0.085, 0.035, 0, 0.0425, backZ + 0.07, '#f1ede5');
       block(sideWall, 0.035, 0.085, d, -w / 2 + 0.07, 0.0425, 0, '#f1ede5');
       block(rightWall, 0.035, 0.085, d, w / 2 - 0.07, 0.0425, 0, '#f1ede5');
       // Ceiling edge gives the room a finished architectural boundary while
@@ -193,11 +234,11 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
         const mesh = new THREE.Mesh(new THREE.PlaneGeometry(length, 0.3), new THREE.MeshBasicMaterial({ map: wallFadeTexture.clone(), transparent: true, depthWrite: false, side: THREE.DoubleSide }));
         mesh.position.set(x, 0.15, z); mesh.rotation.y = angle; parent.add(mesh);
       };
-      fade(backWall, w, 0, backZ + 0.061);
+      if (!openings.door) fade(backWall, w, 0, backZ + 0.061);
       fade(sideWall, d, -w / 2 + 0.061, 0, Math.PI / 2);
       fade(rightWall, d, w / 2 - 0.061, 0, -Math.PI / 2);
     }
-    architectureKey = `${w}:${d}:${view}`;
+    architectureKey = `${w}:${d}:${view}:${JSON.stringify(room.openings ?? null)}`;
   }
   function resize() {
     const width = Math.max(canvas.clientWidth, 1), height = Math.max(canvas.clientHeight, 1), aspect = width / height;
@@ -212,7 +253,6 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
     if (!force && key === cameraKey) return;
     cameraKey = key;
     controls.enabled = state.view === 'perspective';
-    top.position.set(0, 14, 0); top.lookAt(0, 0, 0);
     const selected = state.items.find(item => item.id === state.selected);
     const product = selected && state.products.find(p => p.id === selected.productId);
     const horizontalBounds = state.items.flatMap(item => { const p = state.products.find(product => product.id === item.productId); if (!p) return []; const half = footprint(p, item.rotation).x; return [item.x - half, item.x + half]; });
@@ -267,8 +307,16 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
   }
   function update(next: SceneState) {
     if (destroyed) return;
-    const oldSelection = state.selected; state = next;
-    if (architectureKey !== `${next.room.width}:${next.room.depth}:${next.view}`) rebuildRoom(next.room, next.view);
+    const oldSelection = state.selected;
+    if (state.view !== next.view || state.room.width !== next.room.width || state.room.depth !== next.room.depth) {
+      planTouches.clear(); planPinch = null;
+      if (state.room.width !== next.room.width || state.room.depth !== next.room.depth) {
+        top.zoom = 1; top.position.set(0, 14, 0); top.updateProjectionMatrix();
+      }
+    }
+    state = next;
+    if (architectureKey !== `${next.room.width}:${next.room.depth}:${next.view}:${JSON.stringify(next.room.openings ?? null)}`) rebuildRoom(next.room, next.view);
+    if (next.view === 'perspective') loadPerspectiveResources();
     if (next.view === 'perspective' && !plantRequested) {
       plantRequested = true;
       void loader.loadAsync('/furniture/materials/potted-plant/potted_plant_02_1k.gltf').then(gltf => {
@@ -304,6 +352,48 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
       decor.position.set(x, 0, z);
       decorClear = clear;
     }
+    // Fixed-scale decorative geometry: its baked light is on the module only.
+    // Loading failure leaves the original room and product layout untouched.
+    if (next.view === 'perspective' && !bookshelfRequested) {
+      bookshelfRequested = true;
+      void Promise.allSettled([
+        loader.loadAsync('/furniture/materials/baked-bookshelf.glb'),
+        new THREE.TextureLoader().loadAsync('/furniture/materials/baked-bookshelf.webp')
+      ]).then(([modelResult, textureResult]) => {
+        if (modelResult.status !== 'fulfilled' || textureResult.status !== 'fulfilled') {
+          if (modelResult.status === 'fulfilled') disposeGroup(modelResult.value.scene);
+          if (textureResult.status === 'fulfilled') textureResult.value.dispose();
+          return;
+        }
+        const gltf = modelResult.value, texture = textureResult.value;
+        if (destroyed) { disposeGroup(gltf.scene); texture.dispose(); return; }
+        texture.flipY = false; texture.colorSpace = THREE.SRGBColorSpace;
+        const bounds = new THREE.Box3().setFromObject(gltf.scene), center = bounds.getCenter(new THREE.Vector3());
+        gltf.scene.position.x -= center.x; gltf.scene.position.y -= bounds.min.y; gltf.scene.position.z -= center.z;
+        const baked = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide, toneMapped: false });
+        const originalMaterials = new Set<THREE.Material>();
+        gltf.scene.traverse(node => { if (node instanceof THREE.Mesh) { (Array.isArray(node.material) ? node.material : [node.material]).forEach(material => originalMaterials.add(material)); node.material = baked; node.castShadow = false; node.receiveShadow = false; } });
+        originalMaterials.forEach(material => { for (const value of Object.values(material)) if (value instanceof THREE.Texture) value.dispose(); material.dispose(); });
+        bookshelf = new THREE.Group();
+        const contact = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.62), new THREE.MeshBasicMaterial({ map: shadowTexture, transparent: true, depthWrite: false, opacity: 0.7 }));
+        contact.rotation.x = -Math.PI / 2; contact.position.y = 0.018;
+        bookshelf.add(contact, gltf.scene); scene.add(bookshelf);
+        update(state); refreshAfterResourceChange();
+      }).catch(() => {});
+    }
+    if (bookshelf) {
+      const { x, z, clear } = bookshelfPlacement(next.room, next.items, next.products);
+      bookshelf.position.set(x, 0, z);
+      bookshelfClear = clear;
+    }
+    // The existing cabinet occupies this back-right corner; show one module.
+    if (bookshelfClear) decorClear = false;
+    const doorway = roomOpenings(next.room).door;
+    const doorCenter = doorway ? -next.room.width / 2 + doorway.start + doorway.width / 2 : 0;
+    if (doorway && decor) {
+      const placement = cabinetPlacement(next.room, next.items, next.products);
+      if (Math.abs(placement.x - doorCenter) < doorway.width / 2 + 0.3 && placement.z - 1.26 < -next.room.depth / 2 + 0.8) decorClear = false;
+    }
     if (plant) {
       const x = -next.room.width / 2 + 0.32, z = -next.room.depth / 2 + 0.32;
       plant.position.x = x; plant.position.z = z;
@@ -315,7 +405,8 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
         const half = footprint(product, item.rotation);
         return Math.abs(item.x - x) < half.x + 0.28 && Math.abs(item.z - z) < half.z + 0.28;
       });
-      plant.visible = next.view === 'perspective' && !occupied;
+      const blocksDoor = doorway && Math.abs(x - doorCenter) < doorway.width / 2 + 0.28 && z - 0.28 < -next.room.depth / 2 + 0.8;
+      plant.visible = next.view === 'perspective' && !occupied && !blocksDoor;
     }
     configureCamera();
     const live = new Set(next.items.map(item => item.id));
@@ -332,14 +423,34 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
   void new THREE.TextureLoader().loadAsync('/furniture/materials/wood-floor-normal.jpg').then(texture => { if (destroyed) { texture.dispose(); return; } normal = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
   void new THREE.TextureLoader().loadAsync('/furniture/materials/carpet-color.jpg').then(texture => { if (destroyed) { texture.dispose(); return; } texture.colorSpace = THREE.SRGBColorSpace; rugTexture = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
   void new THREE.TextureLoader().loadAsync('/furniture/materials/carpet-normal.jpg').then(texture => { if (destroyed) { texture.dispose(); return; } rugNormal = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
-  void new THREE.TextureLoader().loadAsync('/furniture/materials/painted-plaster.jpg').then(texture => { if (destroyed) { texture.dispose(); return; } plaster = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
-  void new THREE.TextureLoader().loadAsync('/furniture/materials/linen-color.jpg').then(texture => { if (destroyed) { texture.dispose(); return; } texture.colorSpace = THREE.SRGBColorSpace; linen = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
-  void new THREE.TextureLoader().loadAsync('/furniture/materials/linen-normal.jpg').then(texture => { if (destroyed) { texture.dispose(); return; } linenNormal = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
-  void new THREE.TextureLoader().loadAsync(gardenImage).then(texture => { if (destroyed) { texture.dispose(); return; } texture.colorSpace = THREE.SRGBColorSpace; garden = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
-  void new RGBELoader().loadAsync('/furniture/materials/lebombo_1k.hdr').then(texture => { if (destroyed) { texture.dispose(); return; } environment = texture; texture.mapping = THREE.EquirectangularReflectionMapping; scene.environment = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
-  function point(e: PointerEvent) { const rect = canvas.getBoundingClientRect(); ndc.set(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1); raycaster.setFromCamera(ndc, camera()); }
+  function loadPerspectiveResources() {
+    if (perspectiveResourcesRequested || destroyed) return;
+    perspectiveResourcesRequested = true;
+    void new THREE.TextureLoader().loadAsync('/furniture/materials/painted-plaster.jpg').then(texture => { if (destroyed) { texture.dispose(); return; } plaster = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
+    void new THREE.TextureLoader().loadAsync('/furniture/materials/linen-color.jpg').then(texture => { if (destroyed) { texture.dispose(); return; } texture.colorSpace = THREE.SRGBColorSpace; linen = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
+    void new THREE.TextureLoader().loadAsync('/furniture/materials/linen-normal.jpg').then(texture => { if (destroyed) { texture.dispose(); return; } linenNormal = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
+    void new THREE.TextureLoader().loadAsync(gardenImage).then(texture => { if (destroyed) { texture.dispose(); return; } texture.colorSpace = THREE.SRGBColorSpace; garden = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
+    void new RGBELoader().loadAsync('/furniture/materials/lebombo_1k.hdr').then(texture => { if (destroyed) { texture.dispose(); return; } environment = texture; texture.mapping = THREE.EquirectangularReflectionMapping; scene.environment = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
+  }
+  function pointAt(x: number, y: number, viewCamera = camera()) { const rect = canvas.getBoundingClientRect(); ndc.set(((x - rect.left) / rect.width) * 2 - 1, -((y - rect.top) / rect.height) * 2 + 1); raycaster.setFromCamera(ndc, viewCamera); }
+  function point(e: PointerEvent) { pointAt(e.clientX, e.clientY); }
+  function pair() {
+    const [a, b] = Array.from(planTouches.values());
+    if (!a || !b) return null;
+    return { distance: Math.hypot(a.x - b.x, a.y - b.y), midpoint: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } };
+  }
   function onDown(e: PointerEvent) {
-    if (state.view !== 'top' || !e.isPrimary || e.button !== 0) return;
+    if (state.view !== 'top') return;
+    if (e.pointerType === 'touch') {
+      planTouches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (planTouches.size === 2) {
+        if (dragging) { dragging = null; callbacks.onDragEnd(); }
+        planPinch = pair();
+        canvas.setPointerCapture(e.pointerId); e.preventDefault(); return;
+      }
+      if (planTouches.size > 1) return;
+    }
+    if (!e.isPrimary || e.button !== 0) return;
     point(e);
     const hit = raycaster.intersectObjects(Array.from(models.values()), true)[0];
     if (!hit) { callbacks.onSelect(null); return; }
@@ -349,19 +460,68 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
     if (!id || !item || !p) return;
     callbacks.onSelect(id); callbacks.onDragStart(); dragging = { pointer: e.pointerId, id, x: item.x - p.x, z: item.z - p.z }; canvas.setPointerCapture(e.pointerId); e.preventDefault();
   }
-  function onMove(e: PointerEvent) { if (!dragging || dragging.pointer !== e.pointerId || state.view !== 'top') return; point(e); const p = raycaster.ray.intersectPlane(ground, new THREE.Vector3()); if (p) callbacks.onMove(dragging.id, p.x + dragging.x, p.z + dragging.z); e.preventDefault(); }
-  function onEnd(e: PointerEvent) { if (dragging?.pointer === e.pointerId) { dragging = null; callbacks.onDragEnd(); } }
+  function onMove(e: PointerEvent) {
+    if (state.view !== 'top') return;
+    if (planTouches.has(e.pointerId)) planTouches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (planPinch && planTouches.size === 2) {
+      const current = pair();
+      if (!current || !planPinch.distance || !current.distance) return;
+      pointAt(planPinch.midpoint.x, planPinch.midpoint.y, top);
+      const before = raycaster.ray.intersectPlane(ground, new THREE.Vector3());
+      top.zoom = THREE.MathUtils.clamp(top.zoom * current.distance / planPinch.distance, 1, 2.5);
+      top.updateProjectionMatrix();
+      pointAt(current.midpoint.x, current.midpoint.y, top);
+      const after = raycaster.ray.intersectPlane(ground, new THREE.Vector3());
+      if (before && after) {
+        top.position.x = THREE.MathUtils.clamp(top.position.x + before.x - after.x, -state.room.width / 2, state.room.width / 2);
+        top.position.z = THREE.MathUtils.clamp(top.position.z + before.z - after.z, -state.room.depth / 2, state.room.depth / 2);
+      }
+      if (top.zoom === 1) { top.position.x = 0; top.position.z = 0; }
+      top.updateMatrixWorld();
+      planPinch = current; draw(); e.preventDefault(); return;
+    }
+    if (!dragging || dragging.pointer !== e.pointerId) return;
+    point(e); const p = raycaster.ray.intersectPlane(ground, new THREE.Vector3()); if (p) callbacks.onMove(dragging.id, p.x + dragging.x, p.z + dragging.z); e.preventDefault();
+  }
+  function onEnd(e: PointerEvent) {
+    planTouches.delete(e.pointerId);
+    if (planTouches.size < 2) planPinch = null;
+    if (dragging?.pointer === e.pointerId) { dragging = null; callbacks.onDragEnd(); }
+  }
   function lost(e: Event) { e.preventDefault(); callbacks.onError('Графический контекст недоступен. Планировка сохранена на устройстве.'); }
   canvas.addEventListener('pointerdown', onDown); canvas.addEventListener('pointermove', onMove); canvas.addEventListener('pointerup', onEnd); canvas.addEventListener('pointercancel', onEnd); canvas.addEventListener('lostpointercapture', onEnd); canvas.addEventListener('webglcontextlost', lost);
   resize();
   return {
     update,
+    resetPlanView() { top.zoom = 1; top.position.set(0, 14, 0); top.updateProjectionMatrix(); draw(); },
+    showRoomOverview() { if (state.view === 'perspective') configureCamera(true); },
+    showInside() {
+      if (state.view !== 'perspective') return false;
+      const { width, depth } = state.room;
+      const positions = [
+        { x: width * 0.3, z: depth / 2 - 0.3 },
+        { x: -width * 0.3, z: depth / 2 - 0.3 },
+        { x: 0, z: depth / 2 - 0.3 },
+      ];
+      const position = positions.find(point => state.items.every(item => {
+        const product = state.products.find(p => p.id === item.productId);
+        if (!product) return true;
+        const half = footprint(product, item.rotation);
+        return Math.abs(item.x - point.x) >= half.x + 0.2 || Math.abs(item.z - point.z) >= half.z + 0.2;
+      }));
+      if (!position) return false;
+      const selected = state.items.find(item => item.id === state.selected);
+      perspective.position.set(position.x, 1.45, position.z);
+      controls.target.set(selected?.x ?? 0, 0.75, selected?.z ?? 0);
+      controls.update(); draw();
+      return true;
+    },
     dispose() {
       destroyed = true; cancelAnimationFrame(frame); cancelAnimationFrame(resourceFrame); observer.disconnect(); controls.removeEventListener('change', draw); controls.dispose();
       canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerup', onEnd); canvas.removeEventListener('pointercancel', onEnd); canvas.removeEventListener('lostpointercapture', onEnd); canvas.removeEventListener('webglcontextlost', lost);
       if (highlight) { highlight.geometry.dispose(); (highlight.material as THREE.Material).dispose(); }
       architecture.children.forEach(disposeGroup); instances.forEach(group => { const shadow = group.children[0] as THREE.Mesh; shadow?.geometry?.dispose(); (shadow?.material as THREE.Material | undefined)?.dispose(); });
-      cached.forEach(promise => { void promise.then(disposeGroup).catch(() => {}); }); if (plant) disposeGroup(plant); if (decor) disposeGroup(decor); shadowTexture.dispose(); wallFadeTexture.dispose(); wood?.dispose(); normal?.dispose(); environment?.dispose(); rugTexture?.dispose(); rugNormal?.dispose(); plaster?.dispose(); linen?.dispose(); linenNormal?.dispose(); garden?.dispose(); renderer.dispose();
+      cached.forEach(promise => { void promise.then(disposeGroup).catch(() => {}); }); if (plant) disposeGroup(plant); if (decor) disposeGroup(decor); if (bookshelf) disposeGroup(bookshelf); shadowTexture.dispose(); wallFadeTexture.dispose(); wood?.dispose(); normal?.dispose(); environment?.dispose(); rugTexture?.dispose(); rugNormal?.dispose(); plaster?.dispose(); linen?.dispose(); linenNormal?.dispose(); garden?.dispose(); renderer.dispose();
     },
   };
 }

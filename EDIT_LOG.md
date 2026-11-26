@@ -1253,6 +1253,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 
 **Follow-up:** The production store and planner mobile tests passed after deployment. The planner test was updated to poll saved state without JavaScript string evaluation, which production CSP correctly blocks.
 
+## 2026-11-26 · Furniture mobile experience and planner refinement
+
+**What:** Redesigned the furniture home and showcase card; improved catalog search, filters, comparison, resilience and demo checkout; added a full-screen touch-first 3D viewer and a compact room planner with pinch, camera controls, window and doorway configuration, undo/redo and saved-state protection. Added a licensed baked shelf and retained the existing sourced product models.
+**Why:** User requested the audited mobile UX and spatial experience to be improved, with an independent furniture-store identity.
+**Files:** Furniture home, store, viewer and planner components and styles; showcase artwork and local assets; mobile and planner tests; materials attribution.
+**Checkpoint:** Previous commit `dec95d24`; unrelated working-tree files preserved.
+**Verification:** Mobile Chromium and WebKit tests cover store, comparison, 3D interactions and fallbacks; planner tests cover gestures, furniture collision, legacy saves, room dimensions and openings. Captures include `work/home-refresh-390-first.png`, `work/planner-inside-390.png` and `work/premium-room-bake/opening-room-390.png` in the parent workspace. Product models and room are still not photorealistic. Physical phones and Telegram WebView were not tested. The invitation JPEG still shows the prior home. Project-wide TypeScript has pre-existing errors outside the furniture code.
+
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description

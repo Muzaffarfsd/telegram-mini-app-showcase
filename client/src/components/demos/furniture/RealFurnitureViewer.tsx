@@ -1,16 +1,57 @@
-import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Minus, Plus, RotateCcw } from 'lucide-react';
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { createPortal } from 'react-dom';
+import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Minus, Plus, RotateCcw, X } from 'lucide-react';
 import './RealFurnitureViewer.css';
 
-type Props = { modelUrl: string; posterUrl: string; name: string; ru: boolean; backgrounds?: readonly string[] };
-type ViewerControls = { orbit: (horizontal: number, vertical: number) => void; zoom: (factor: number) => void; reset: () => void };
+type Props = { modelUrl: string; posterUrl: string; name: string; ru: boolean; onClose: () => void; onPlaceInRoom?: () => void };
+type ViewerControls = { orbit: (horizontal: number, vertical: number) => void; zoom: (factor: number) => void; reset: () => void; preset: (view: 'front' | 'side' | 'back' | 'top') => void };
 
 /** Product-only 3D inspection; the separate room planner handles placement. */
-export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru }: Props) {
+export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru, onClose, onPlaceInRoom }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null);
+  const dialog = useRef<HTMLElement>(null);
+  const close = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef(onClose); closeRef.current = onClose;
+  const [portalHost] = useState(() => document.createElement('div'));
   const controls = useRef<ViewerControls | null>(null);
-  const pointer = useRef<{ id: number; x: number; y: number; dragging: boolean; touch: boolean } | null>(null);
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  const [attempt, setAttempt] = useState(0);
+  const [activeView, setActiveView] = useState<'front' | 'side' | 'back' | 'top' | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading');
+
+  // A separate portal keeps the viewer above the app shell, while preserving
+  // the product page and its exact scroll position underneath it.
+  useLayoutEffect(() => {
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const root = document.getElementById('root');
+    const oldOverflow = root?.style.overflow ?? '';
+    document.body.appendChild(portalHost);
+    const background = Array.from(document.body.children).filter(node => node !== portalHost);
+    const inertBefore = background.map(node => node.hasAttribute('inert'));
+    background.forEach(node => node.setAttribute('inert', ''));
+    if (root) root.style.overflow = 'hidden';
+    close.current?.focus({ preventScroll: true });
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') { event.preventDefault(); closeRef.current(); return; }
+      if (event.key !== 'Tab' || !dialog.current) return;
+      const focusable = Array.from(dialog.current.querySelectorAll<HTMLElement>('button:not(:disabled), summary, [tabindex="0"]')).filter(node => node.getClientRects().length > 0);
+      if (!focusable.length) return;
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && (document.activeElement === first || !dialog.current.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && (document.activeElement === last || !dialog.current.contains(document.activeElement))) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      background.forEach((node, index) => { if (!inertBefore[index]) node.removeAttribute('inert'); });
+      if (root) root.style.overflow = oldOverflow;
+      portalHost.remove();
+      const restoreTarget = previousFocus?.isConnected && previousFocus !== document.body && previousFocus !== document.documentElement
+        ? previousFocus
+        : document.querySelector<HTMLElement>('.fs-view-toggle');
+      if (restoreTarget?.isConnected && !restoreTarget.closest('[inert]')) restoreTarget.focus({ preventScroll: true });
+    };
+  }, [portalHost]);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,7 +111,8 @@ export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru }: P
       floor.renderOrder = 1;
       scene.add(floor);
       let disposed = false;
-      let raf = 0;
+      let renderFrame = 0, readyFrame = 0;
+      let width = 1, height = 1;
       let targetY = 0;
       let radius = 1;
       let azimuth = -0.35;
@@ -87,15 +129,8 @@ export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru }: P
           });
         });
       };
-      const draw = () => {
+      const drawNow = () => {
         if (disposed) return;
-        const width = Math.max(1, element.clientWidth);
-        const height = Math.max(1, element.clientHeight);
-        renderer.setSize(width, height, false);
-        camera.aspect = width / height;
-        // Leave room for the controls below the model, including tall chairs.
-        camera.setViewOffset(width, height, 0, height * 0.055, width, height);
-        camera.updateProjectionMatrix();
         const verticalFov = THREE.MathUtils.degToRad(camera.fov);
         const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * camera.aspect);
         const distance = radius / Math.sin(Math.min(verticalFov, horizontalFov) / 2) * 1.05 / zoom;
@@ -107,13 +142,27 @@ export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru }: P
         camera.lookAt(0, targetY, 0);
         renderer.render(scene, camera);
       };
-      const resize = new ResizeObserver(draw);
+      const draw = () => {
+        if (disposed || renderFrame) return;
+        renderFrame = requestAnimationFrame(() => { renderFrame = 0; drawNow(); });
+      };
+      const resizeCanvas = () => {
+        const nextWidth = Math.max(1, element.clientWidth), nextHeight = Math.max(1, element.clientHeight);
+        if (nextWidth === width && nextHeight === height) return;
+        width = nextWidth; height = nextHeight;
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        draw();
+      };
+      const resize = new ResizeObserver(resizeCanvas);
       resize.observe(element);
+      resizeCanvas();
       const contextLost = (event: Event) => { event.preventDefault(); if (!disposed) setStatus('unavailable'); };
       element.addEventListener('webglcontextlost', contextLost);
       cleanup = () => {
         disposed = true;
-        cancelAnimationFrame(raf);
+        cancelAnimationFrame(renderFrame); cancelAnimationFrame(readyFrame);
         resize.disconnect();
         element.removeEventListener('webglcontextlost', contextLost);
         disposeObject(scene);
@@ -167,63 +216,92 @@ export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru }: P
         radius = Math.max(0.4, size.length() * scale / 2);
         controls.current = {
           orbit: (horizontal, vertical) => { azimuth += horizontal; polar = THREE.MathUtils.clamp(polar + vertical, 0.12, Math.PI - 0.12); draw(); },
-          zoom: factor => { zoom = THREE.MathUtils.clamp(zoom * factor, 0.7, 2); draw(); },
+          zoom: factor => { zoom = THREE.MathUtils.clamp(zoom * factor, 0.7, 2.5); draw(); },
           reset: () => { azimuth = -0.35; polar = Math.PI * 0.40; zoom = 1; draw(); },
+          preset: view => { azimuth = view === 'side' ? -Math.PI / 2 : view === 'back' ? Math.PI : 0; polar = view === 'top' ? 0.12 : Math.PI * 0.40; zoom = 1; draw(); },
         };
         draw();
-        raf = requestAnimationFrame(() => { if (!disposed) setStatus('ready'); });
+        readyFrame = requestAnimationFrame(() => { if (!disposed) setStatus('ready'); });
       } catch {
         if (!disposed) setStatus('unavailable');
       }
     }).catch(() => { if (!cancelled) setStatus('unavailable'); });
-    return () => { cancelled = true; controls.current = null; pointer.current = null; cleanup(); };
-  }, [modelUrl]);
+    return () => { cancelled = true; controls.current = null; pointers.current.clear(); cleanup(); };
+  }, [modelUrl, attempt]);
 
-  const move = (event: PointerEvent<HTMLDivElement>) => {
-    const active = pointer.current;
-    if (!active || active.id !== event.pointerId) return;
-    const dx = event.clientX - active.x, dy = event.clientY - active.y;
-    if (!active.dragging) {
-      if (Math.max(Math.abs(dx), Math.abs(dy)) < 7) return;
-      // Vertical touch gestures belong to the page. Start 3D interaction with a horizontal swipe.
-      if (active.touch && Math.abs(dy) > Math.abs(dx)) { pointer.current = null; return; }
-      active.dragging = true;
-      event.currentTarget.setPointerCapture(event.pointerId);
-    }
-    controls.current?.orbit(-dx * 0.012, dy * 0.012);
-    active.x = event.clientX;
-    active.y = event.clientY;
-  };
   const start = (event: PointerEvent<HTMLDivElement>) => {
-    if (status === 'ready' && event.isPrimary && event.button === 0) {
-      pointer.current = { id: event.pointerId, x: event.clientX, y: event.clientY, dragging: false, touch: event.pointerType !== 'mouse' };
-    }
+    if (status !== 'ready' || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    event.currentTarget.setPointerCapture(event.pointerId);
   };
-  const button = (label: string, icon: ReactNode, action: () => void) => (
-    <button type="button" aria-label={label} title={label} onClick={action}>{icon}</button>
-  );
-  return (
-    <section className="rfv" aria-label={ru ? `3D-модель: ${name}` : `3D model: ${name}`}>
+  const move = (event: PointerEvent<HTMLDivElement>) => {
+    const previous = pointers.current.get(event.pointerId);
+    if (!previous) return;
+    const points = Array.from(pointers.current.entries());
+    if (points.length === 1) {
+      setActiveView(null);
+      controls.current?.orbit(-(event.clientX - previous.x) * 0.012, (event.clientY - previous.y) * 0.012);
+    } else {
+      const other = points.find(([id]) => id !== event.pointerId)?.[1];
+      if (other) {
+        const before = Math.hypot(previous.x - other.x, previous.y - other.y);
+        const after = Math.hypot(event.clientX - other.x, event.clientY - other.y);
+        if (before > 4 && after > 4) controls.current?.zoom(after / before);
+      }
+    }
+    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+  };
+  const end = (event: PointerEvent<HTMLDivElement>) => { pointers.current.delete(event.pointerId); };
+  const keyView = (event: KeyboardEvent<HTMLDivElement>) => {
+    const actions: Record<string, () => void> = {
+      ArrowLeft: () => controls.current?.orbit(-Math.PI / 12, 0),
+      ArrowRight: () => controls.current?.orbit(Math.PI / 12, 0),
+      ArrowUp: () => controls.current?.orbit(0, -Math.PI / 12),
+      ArrowDown: () => controls.current?.orbit(0, Math.PI / 12),
+      '+': () => controls.current?.zoom(1.2), '=': () => controls.current?.zoom(1.2),
+      '-': () => controls.current?.zoom(1 / 1.2), '0': () => controls.current?.reset(),
+    };
+    if (status === 'ready' && actions[event.key]) { event.preventDefault(); if (event.key.startsWith('Arrow') || event.key === '0') setActiveView(null); actions[event.key](); }
+  };
+  return createPortal(
+    <section ref={dialog} className="rfv" role="dialog" aria-modal="true" aria-label={ru ? `3D-модель: ${name}` : `3D model: ${name}`}>
+      <header className="rfv-header">
+        <div><span>{ru ? 'ОБЗОР ПРЕДМЕТА / 360°' : 'PRODUCT VIEW / 360°'}</span><h2>{name}</h2></div>
+        <button ref={close} type="button" className="rfv-close" onClick={onClose} aria-label={ru ? 'Закрыть 3D-обзор' : 'Close 3D view'}><X size={22} /></button>
+      </header>
       <div className="rfv-stage">
-        <div className="rfv-drag" onPointerDown={start} onPointerMove={move} onPointerCancel={() => { pointer.current = null; }} onPointerUp={() => { pointer.current = null; }} onLostPointerCapture={() => { pointer.current = null; }}>
+        <div className="rfv-drag" tabIndex={status === 'ready' ? 0 : -1} role="group" aria-label={ru ? '3D-модель. Стрелки вращают, плюс и минус меняют масштаб.' : '3D model. Arrow keys rotate; plus and minus zoom.'} onKeyDown={keyView} onPointerDown={start} onPointerMove={move} onPointerCancel={end} onPointerUp={end} onLostPointerCapture={end}>
           {status !== 'ready' && <img className="rfv-poster" src={posterUrl} alt="" />}
           <canvas ref={canvas} aria-hidden="true" style={{ opacity: status === 'ready' ? 1 : 0 }} />
         </div>
-        <span className="rfv-badge">{ru ? 'ОБЗОР 360°' : '360° VIEW'}</span>
-        {status === 'ready' && <div className="rfv-controls" role="group" aria-label={ru ? 'Управление 3D' : '3D controls'}>
-          {button(ru ? 'Повернуть влево' : 'Rotate left', <ChevronLeft size={19}/>, () => controls.current?.orbit(-Math.PI / 6, 0))}
-          {button(ru ? 'Повернуть вправо' : 'Rotate right', <ChevronRight size={19}/>, () => controls.current?.orbit(Math.PI / 6, 0))}
-          <span className="rfv-divider" />
-          {button(ru ? 'Посмотреть сверху' : 'View from above', <ChevronUp size={19}/>, () => controls.current?.orbit(0, -Math.PI / 9))}
-          {button(ru ? 'Посмотреть снизу' : 'View from below', <ChevronDown size={19}/>, () => controls.current?.orbit(0, Math.PI / 9))}
-          <span className="rfv-divider" />
-          {button(ru ? 'Уменьшить' : 'Zoom out', <Minus size={18}/>, () => controls.current?.zoom(0.8))}
-          {button(ru ? 'Увеличить' : 'Zoom in', <Plus size={18}/>, () => controls.current?.zoom(1.25))}
-          {button(ru ? 'Вернуть исходный вид' : 'Reset view', <RotateCcw size={17}/>, () => controls.current?.reset())}
+        {status === 'loading' && <p className="rfv-status" role="status">{ru ? 'Загружаем 3D-модель…' : 'Loading 3D model…'}</p>}
+        {status === 'unavailable' && <div className="rfv-status" role="status"><span>{ru ? '3D недоступно. Показываем фотографию.' : '3D unavailable. Showing a photograph.'}</span><button type="button" onClick={() => setAttempt(value => value + 1)}>{ru ? 'Повторить' : 'Try again'}</button></div>}
+        {status === 'ready' && <div className="rfv-zoom" role="group" aria-label={ru ? 'Масштаб' : 'Zoom'}>
+          <button type="button" onClick={() => controls.current?.zoom(1.25)} aria-label={ru ? 'Увеличить' : 'Zoom in'}><Plus size={18} /></button>
+          <button type="button" onClick={() => controls.current?.zoom(0.8)} aria-label={ru ? 'Уменьшить' : 'Zoom out'}><Minus size={18} /></button>
         </div>}
-        {status === 'unavailable' && <span className="rfv-status" role="status">{ru ? '3D недоступно. Показываем фотографию.' : '3D unavailable. Showing a photograph.'}</span>}
       </div>
-      <p>{ru ? 'Проведите влево или вправо, чтобы повернуть предмет. Масштаб и ракурс можно изменить кнопками.' : 'Swipe left or right to rotate the object. Use the buttons to change zoom and angle.'}</p>
-    </section>
+      <div className="rfv-footer">
+        {status === 'ready' && <>
+          <p className="rfv-hint">{ru ? 'Поверните одним пальцем · приблизьте двумя' : 'Drag to rotate · pinch to zoom'}</p>
+          <div className="rfv-presets" role="group" aria-label={ru ? 'Быстрые ракурсы' : 'Quick views'}>
+            <button type="button" aria-pressed={activeView === 'front'} onClick={() => { setActiveView('front'); controls.current?.preset('front'); }}>{ru ? 'Спереди' : 'Front'}</button>
+            <button type="button" aria-pressed={activeView === 'side'} onClick={() => { setActiveView('side'); controls.current?.preset('side'); }}>{ru ? 'Сбоку' : 'Side'}</button>
+            <button type="button" aria-pressed={activeView === 'back'} onClick={() => { setActiveView('back'); controls.current?.preset('back'); }}>{ru ? 'Сзади' : 'Back'}</button>
+            <button type="button" aria-pressed={activeView === 'top'} onClick={() => { setActiveView('top'); controls.current?.preset('top'); }}>{ru ? 'Сверху' : 'Top'}</button>
+          </div>
+          <details className="rfv-precise"><summary>{ru ? 'Точное управление' : 'Precise controls'}</summary>
+            <div className="rfv-controls" role="group" aria-label={ru ? 'Управление 3D' : '3D controls'}>
+              <button type="button" onClick={() => { setActiveView(null); controls.current?.orbit(-Math.PI / 12, 0); }} aria-label={ru ? 'Повернуть влево' : 'Rotate left'}><ChevronLeft size={19} /></button>
+              <button type="button" onClick={() => { setActiveView(null); controls.current?.orbit(Math.PI / 12, 0); }} aria-label={ru ? 'Повернуть вправо' : 'Rotate right'}><ChevronRight size={19} /></button>
+              <button type="button" onClick={() => { setActiveView(null); controls.current?.orbit(0, -Math.PI / 12); }} aria-label={ru ? 'Посмотреть сверху' : 'View from above'}><ChevronUp size={19} /></button>
+              <button type="button" onClick={() => { setActiveView(null); controls.current?.orbit(0, Math.PI / 12); }} aria-label={ru ? 'Посмотреть снизу' : 'View from below'}><ChevronDown size={19} /></button>
+              <button type="button" onClick={() => { setActiveView(null); controls.current?.reset(); }} aria-label={ru ? 'Вернуть исходный вид' : 'Reset view'}><RotateCcw size={18} /></button>
+            </div>
+          </details>
+        </>}
+        {onPlaceInRoom && <button type="button" className="rfv-place" onClick={onPlaceInRoom}>{ru ? 'Разместить в комнате' : 'Place in a room'} <ArrowRight size={18} /></button>}
+      </div>
+    </section>, portalHost
   );
 }

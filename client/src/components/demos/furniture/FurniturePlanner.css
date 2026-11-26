@@ -54,3 +54,57 @@
   .fpl-history button { width:36px; }
   .fpl-stage { margin-inline:-36px; height:clamp(320px,105vw,370px); }
 }
+
+/* The planner is a focused workspace: the scene and object controls remain
+   together instead of sitting below the surrounding storefront chrome. */
+.fpl {
+  position:fixed;
+  z-index:11000;
+  inset:0 0 auto;
+  width:100%;
+  height:min(100dvh, var(--tg-viewport-height, 100dvh));
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding-top:max(14px, env(safe-area-inset-top, 0px), var(--csat, 0px));
+  padding-bottom:calc(32px + max(env(safe-area-inset-bottom, 0px), var(--csab, 0px)));
+  box-shadow:0 0 0 100vmax #eeeae4;
+}
+.fpl-stage { margin-inline:-20px; height:clamp(225px,40dvh,410px); }
+.fpl-items { padding:8px 0 2px; }
+.fpl-items button { min-height:44px; }
+.fpl-edit { margin-top:8px; padding:10px; }
+.fpl-edit-title { min-height:38px; }
+.fpl-edit-title > div { gap:2px; }
+.fpl-edit-title span { font-size:10px; }
+.fpl-edit-title button { width:44px; height:44px; }
+.fpl-edit-caption { display:none; }
+.fpl-edit-controls { grid-template-columns:repeat(4,minmax(44px,1fr)); margin-top:6px; }
+.fpl-drag-feedback { position:absolute; z-index:2; left:50%; bottom:12px; transform:translateX(-50%); max-width:calc(100% - 24px); padding:9px 14px; border-radius:20px; background:#292522; color:#fff; font-size:12px; line-height:1.25; text-align:center; pointer-events:none; box-shadow:0 4px 14px #0002; }
+.fpl-reset-view { position:absolute; top:12px; right:12px; display:grid; place-items:center; width:44px; height:44px; border:1px solid #e3ded7; border-radius:50%; background:#fffefbf0; color:#292522; box-shadow:0 4px 12px #0001; }
+.fpl-inside-view { position:absolute; top:12px; right:12px; min-height:44px; padding:0 16px; border:1px solid #e3ded7; border-radius:22px; background:#fffefbf0; color:#292522; font-size:12px; font-weight:700; box-shadow:0 4px 12px #0001; }
+@media(max-width:350px) {
+  .fpl-stage { margin-inline:-16px; height:clamp(225px,40dvh,370px); }
+  .fpl-history button { width:44px; }
+}
+@media(max-height:650px) {
+  .fpl-room-meta { padding-block:7px; }
+  .fpl-toolbar { margin-bottom:6px; }
+  .fpl-stage { height:clamp(205px,36dvh,240px); }
+}
+.fpl-openings { margin-top:20px; border:1px solid #e3dfd9; padding:0 14px 14px; background:#faf8f5; }
+.fpl-openings summary { min-height:48px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-size:14px; font-weight:700; list-style:none; }
+.fpl-openings summary::-webkit-details-marker { display:none; }
+.fpl-openings summary::after { content:'+'; font-size:20px; font-weight:400; }
+.fpl-openings[open] summary::after { content:'−'; }
+.fpl-openings summary:focus-visible { outline:2px solid #171717; outline-offset:2px; }
+.fpl-openings p { color:#625c55; font-size:11px; line-height:1.5; }
+.fpl-openings fieldset { border:0; border-top:1px solid #e8e4df; padding:12px 0; margin:14px 0 0; min-width:0; }
+.fpl-openings legend { padding:0 5px 0 0; font-size:12px; font-weight:700; }
+.fpl-openings-toggle { display:flex; align-items:center; gap:9px; min-height:44px; font-size:12px; }
+.fpl-openings-toggle input { width:20px; height:20px; accent-color:#242321; }
+.fpl-openings-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.fpl-openings-fields label { display:grid; gap:6px; color:#625c55; font-size:11px; font-weight:700; }
+.fpl-openings-fields input { width:100%; min-width:0; height:44px; padding:0 10px; border:1px solid #dedad5; background:#fff; font-size:16px; }
+.fpl-openings > button { width:100%; min-height:44px; margin-top:14px; border:0; background:#242321; color:#fff; font-size:12px; font-weight:700; }
+.fpl-openings .fpl-opening-error { margin-top:10px; color:#79442b; }

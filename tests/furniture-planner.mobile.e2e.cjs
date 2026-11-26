@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict');
 const { chromium } = require('playwright');
+const sharp = require('sharp');
 
 // Start the local Vite server first; never sends a Telegram message or submits an order.
 const site = process.env.PLANNER_TEST_URL || 'http://127.0.0.1:41755/';
@@ -48,19 +49,61 @@ async function dragSofa(page, context) {
     await cdp.detach();
   }
 }
+async function checkPinch(page, context) {
+  const canvas = page.locator('.fpl-stage canvas');
+  const beforeLayout = await layout(page);
+  const before = await sharp(await canvas.screenshot()).ensureAlpha().raw().toBuffer();
+  const box = await canvas.boundingBox();
+  const x = box.x + box.width * 0.5, y = box.y + box.height * 0.5;
+  const cdp = await context.newCDPSession(page);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x - 30, y, id: 1 }, { x: x + 30, y, id: 2 }] });
+  for (let i = 1; i <= 6; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x - 30 - i * 8, y, id: 1 }, { x: x + 30 + i * 8, y, id: 2 }] });
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await cdp.detach();
+  const after = await sharp(await canvas.screenshot()).ensureAlpha().raw().toBuffer();
+  let changed = 0;
+  for (let i = 0; i < Math.min(before.length, after.length); i += 4) if (Math.abs(before[i] - after[i]) + Math.abs(before[i + 1] - after[i + 1]) + Math.abs(before[i + 2] - after[i + 2]) > 20) changed++;
+  assert.ok(changed > 1000, 'two-finger pinch should zoom the visible plan');
+  assert.deepEqual(await layout(page), beforeLayout, 'pinch must not move or save furniture');
+  await page.getByRole('button', { name: 'Сбросить вид плана' }).click();
+}
+async function checkCollisionFeedback(page, context, initial) {
+  const box = await page.locator('.fpl-stage canvas').boundingBox();
+  const x = box.x + box.width * 0.5, y = box.y + box.height * 0.32;
+  const cdp = await context.newCDPSession(page);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+  for (let i = 1; i <= 20; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y + i * 8 }] });
+  await page.getByText('Здесь недостаточно места', { exact: true }).waitFor();
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await cdp.detach();
+  await page.getByRole('button', { name: 'Отменить действие' }).click();
+  await waitSaved(page, state => state.items.some(entry => entry.productId === 'rivet-revolve-sofa' && Math.abs(entry.z - item(initial).z) < 0.001));
+  assert.deepEqual(await layout(page), initial, 'undo should restore the layout after an obstructed drag');
+}
 async function exercise(browser, width) {
   const context = await browser.newContext({ viewport: { width, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: 'block', locale: 'ru-RU' });
   const page = await context.newPage();
-  const errors = [], missingModels = [];
+  const errors = [], missingModels = [], requestedUrls = [];
   page.on('pageerror', error => errors.push(error.message));
+  page.on('request', request => requestedUrls.push(request.url()));
   page.on('response', response => { if (response.url().includes('/furniture/') && response.status() >= 400) missingModels.push(`${response.status()} ${response.url()}`); });
   try {
     await openHome(page);
     await openPlanner(page);
+    assert.equal(await page.locator('#root').evaluate(root => root.inert), true, 'store should be inert while the planner is open');
+    assert.equal(await page.evaluate(() => document.activeElement?.getAttribute('aria-label')), 'Закрыть планировщик');
+    await page.keyboard.press('Shift+Tab');
+    assert.equal(await page.evaluate(() => !!document.activeElement?.closest('.fpl')), true, 'keyboard focus stays in the planner');
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(() => document.activeElement?.getAttribute('aria-label')), 'Закрыть планировщик');
+    await page.locator('.fpl').evaluate(node => { node.scrollTop = 0; });
     const initial = await layout(page);
     assert.equal(initial.items.length, 3, 'initial room should contain sofa, chair and table');
     assert.deepEqual(initial.room, { width: 4.8, depth: 4 });
+    assert.ok(!requestedUrls.some(url => /lebombo_1k\.hdr|painted-plaster\.jpg|linen-color\.jpg/.test(url)), 'perspective-only materials must not block the initial floor plan');
     assert.equal(await page.getByRole('button', { name: 'Вид сверху', exact: true }).getAttribute('aria-pressed'), 'true');
+    await checkPinch(page, context);
+    if (width === 390) await checkCollisionFeedback(page, context, initial);
     await dragSofa(page, context);
     const dragged = await waitSaved(page, state => state.items.some(entry => entry.productId === 'rivet-revolve-sofa' && entry.x > 0.2));
     assert.ok(item(dragged).x > item(initial).x, 'touch drag should move sofa');
@@ -78,8 +121,21 @@ async function exercise(browser, width) {
     await waitSaved(page, state => state.items.some(entry => entry.productId === 'rivet-revolve-sofa' && entry.rotation === 0));
     await page.getByRole('button', { name: 'Повторить действие' }).click();
     await waitSaved(page, state => state.items.some(entry => entry.productId === 'rivet-revolve-sofa' && entry.rotation > 0.2));
+    const environmentLoaded = page.waitForResponse(response => response.url().includes('lebombo_1k.hdr') && response.status() === 200, { timeout: 30000 });
     await page.getByRole('button', { name: 'Интерьер', exact: true }).click();
+    await environmentLoaded;
     assert.equal(await page.getByRole('button', { name: 'Интерьер', exact: true }).getAttribute('aria-pressed'), 'true');
+    if (width === 390) {
+      const canvas = page.locator('.fpl-stage canvas');
+      const beforeView = await canvas.screenshot();
+      const beforeLayout = await layout(page);
+      await page.getByRole('button', { name: 'Вид из комнаты', exact: true }).click();
+      await page.getByRole('button', { name: 'Общий вид', exact: true }).waitFor();
+      const insideView = await canvas.screenshot();
+      assert.notDeepEqual(insideView, beforeView, 'inside viewpoint should change the rendered room');
+      assert.deepEqual(await layout(page), beforeLayout, 'changing viewpoint must not move furniture');
+      await page.getByRole('button', { name: 'Общий вид', exact: true }).click();
+    }
     await page.getByRole('button', { name: 'Вид сверху', exact: true }).click();
     assert.equal(await page.getByRole('button', { name: 'Вид сверху', exact: true }).getAttribute('aria-pressed'), 'true');
 
@@ -106,7 +162,8 @@ async function exercise(browser, width) {
     await page.getByRole('button', { name: 'Применить', exact: true }).click();
     const expanded = await waitSaved(page, state => state.room.width === 7 && state.room.depth === 7);
     await page.getByRole('button', { name: 'Закрыть планировщик' }).click();
-    await page.locator('.fs-home').waitFor();
+    await page.locator('.fhome').waitFor();
+    assert.equal(await page.locator('#root').evaluate(root => root.inert), false, 'store must be interactive after closing the planner');
     await page.locator('.fs-card-open').nth(2).click();
     await page.getByRole('button', { name: /Посмотреть в комнате/ }).click();
     await page.locator('[data-testid=furniture-planner]').waitFor();
@@ -136,7 +193,7 @@ async function fallback(browser) {
     await page.getByRole('button', { name: 'Открыть планировщик', exact: true }).click();
     await page.getByText('3D недоступно на этом устройстве. Сохранённый план останется на устройстве.').waitFor();
     await page.getByRole('button', { name: 'Закрыть планировщик' }).click();
-    await page.locator('.fs-home').waitFor();
+    await page.locator('.fhome').waitFor();
     console.log('PASS planner: WebGL fallback and return');
   } finally { await context.close(); }
 }

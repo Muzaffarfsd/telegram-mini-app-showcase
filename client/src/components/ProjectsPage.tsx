@@ -73,7 +73,7 @@ const ProjectCard = memo(function ProjectCard({ project, ru, index, saved, onSav
       <span className="ps-description">{project.description[languageIndex]}</span>
     </span>
     <span className="ps-artwork-layer" aria-hidden="true">
-      <ShowcaseArtwork id={project.id} index={index} />
+      <ShowcaseArtwork id={project.id} index={index} ru={ru} />
     </span>
     <span className="ps-card-footer" aria-hidden="true"><span className="ps-open">{action}<ArrowUpRight size={16}/></span></span>
   </button>

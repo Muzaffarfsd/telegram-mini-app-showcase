@@ -7,11 +7,11 @@ import {
   Check,
   Heart,
   Home,
+  LayoutGrid,
   Minus,
   Plus,
   Search,
   ShoppingBag,
-  SlidersHorizontal,
   Trash2,
   UserRound,
   X,
@@ -22,15 +22,17 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 import { restoreTelegramChrome } from '../../../lib/telegramChrome';
 import { scrollToTop } from '../../../hooks/useScrollToTop';
 import { furnitureCatalog, type FurnitureProduct } from './storeCatalog';
+import FurnitureHome from './FurnitureHome';
 import { useFurnitureHistory } from './useFurnitureHistory';
 import './FurnitureStore.css';
 
-type Screen = 'home' | 'catalog' | 'product' | 'planner' | 'account' | 'checkout' | 'success';
+type Screen = 'home' | 'catalog' | 'product' | 'planner' | 'compare' | 'account' | 'checkout' | 'success';
 type Sheet = 'cart' | null;
 type SortOrder = 'featured' | 'name';
+type MaterialFilter = 'all' | 'polyester' | 'oak';
 type CartLine = { id: string; quantity: number };
 type OrderLine = CartLine & { name: string; brand: string };
-type DemoOrder = { id: string; date: string; items: OrderLine[] };
+type DemoOrder = { id: string; date: string; items: OrderLine[]; delivery?: 'pickup' | 'courier' };
 type Snapshot = {
   screen: Screen;
   previous: Screen;
@@ -39,6 +41,8 @@ type Snapshot = {
   category: string;
   query: string;
   sort: SortOrder;
+  maxWidth: string;
+  material: MaterialFilter;
   photo: number;
   viewing3D: boolean;
 };
@@ -47,7 +51,7 @@ type StoreProps = {
   /** Populate only with real, sourced products and supplied photographs. */
   products?: readonly FurnitureProduct[];
   /** Optional real 3D viewer, mounted only when the visitor chooses it. */
-  render3D?: (product: FurnitureProduct) => ReactNode;
+  render3D?: (product: FurnitureProduct, onClose: () => void, onPlaceInRoom?: () => void) => ReactNode;
   /** Optional spatial planner, mounted on its own screen with a history-aware close action. */
   renderPlanner?: (product: FurnitureProduct, onClose: () => void) => ReactNode;
 };
@@ -83,6 +87,7 @@ function savedState(products: readonly FurnitureProduct[]): {
   orders: number;
   orderHistory: DemoOrder[];
   recent: string[];
+  comparison: string[];
 } {
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey) || '{}');
@@ -111,6 +116,9 @@ function savedState(products: readonly FurnitureProduct[]): {
         Number.isInteger(saved.orders) && saved.orders >= 0 ? Math.min(saved.orders, 10000) : 0,
       recent: Array.isArray(saved.recent)
         ? Array.from(new Set<string>(saved.recent.filter(exists))).slice(0, 8)
+        : [],
+      comparison: Array.isArray(saved.comparison)
+        ? Array.from(new Set<string>(saved.comparison.filter(exists))).slice(0, 3)
         : [],
       orderHistory: Array.isArray(saved.orderHistory)
         ? saved.orderHistory
@@ -142,6 +150,7 @@ function savedState(products: readonly FurnitureProduct[]): {
             .map((order: DemoOrder) => ({
               id: order.id,
               date: order.date,
+              ...(order.delivery === 'pickup' || order.delivery === 'courier' ? { delivery: order.delivery } : {}),
               items: order.items.map((line) => ({
                 id: line.id,
                 name: line.name,
@@ -152,7 +161,7 @@ function savedState(products: readonly FurnitureProduct[]): {
         : [],
     };
   } catch {
-    return { favorites: [], cart: [], orders: 0, orderHistory: [], recent: [] };
+    return { favorites: [], cart: [], orders: 0, orderHistory: [], recent: [], comparison: [] };
   }
 }
 
@@ -165,16 +174,21 @@ function ProductImage({
 }) {
   const { language } = useLanguage();
   const t = (r: string, e: string) => (language === 'ru' ? r : e);
-  return product.images[0] ? (
+  const [imageIndex, setImageIndex] = useState(0);
+  useEffect(() => setImageIndex(0), [product.id]);
+  return product.images[imageIndex] ? (
     <img
       className={className}
-      src={product.images[0]}
+      src={product.images[imageIndex]}
       alt={product.name}
       loading="lazy"
       decoding="async"
+      onError={() => setImageIndex((index) => index + 1)}
     />
   ) : (
-    <span className="fs-image-empty" aria-label={t('Изображение готовится', 'Image coming soon')} />
+    <span className="fs-image-empty fs-image-fallback" role="img" aria-label={t('Фотография недоступна', 'Photo unavailable')}>
+      {t('Фото недоступно', 'Photo unavailable')}
+    </span>
   );
 }
 
@@ -183,11 +197,17 @@ function ProductCard({
   favorite,
   onOpen,
   onFavorite,
+  compared = false,
+  compareFull = false,
+  onCompare,
 }: {
   product: FurnitureProduct;
   favorite: boolean;
   onOpen: () => void;
   onFavorite: () => void;
+  compared?: boolean;
+  compareFull?: boolean;
+  onCompare?: () => void;
 }) {
   const { language } = useLanguage();
   const t = (r: string, e: string) => (language === 'ru' ? r : e);
@@ -216,8 +236,17 @@ function ProductCard({
         <button type="button" onClick={onOpen}>
           {product.name}
         </button>
-        <span>{product.brand}</span>
+        <span>{product.brand} · {language === 'ru' ? product.category : englishCategory[product.category] || product.category}</span>
+        {product.dimensionsM && <span>{product.dimensionsM.map(value => Math.round(value * 100)).join(' × ')} {language === 'ru' ? 'см' : 'cm'}</span>}
         {product.priceLabel && <strong>{product.priceLabel}</strong>}
+        {onCompare && <button
+          type="button"
+          className="fs-card-compare"
+          onClick={onCompare}
+          aria-pressed={compared}
+          aria-label={`${compared ? t('Убрать из сравнения', 'Remove from comparison') : t('Добавить в сравнение', 'Add to comparison')}: ${product.name}, ${language === 'ru' ? product.category : englishCategory[product.category] || product.category}`}
+          disabled={compareFull && !compared}
+        >{compared ? <Check size={14} aria-hidden="true" /> : <Plus size={14} aria-hidden="true" />}{compared ? t('В сравнении', 'Comparing') : t('Сравнить', 'Compare')}</button>}
       </div>
     </article>
   );
@@ -238,6 +267,7 @@ export default function FurnitureStore({
   const [orders, setOrders] = useState(initial.orders);
   const [orderHistory, setOrderHistory] = useState(initial.orderHistory);
   const [recent, setRecent] = useState(initial.recent);
+  const [comparison, setComparison] = useState(initial.comparison);
   const [screen, setScreen] = useState<Screen>('home');
   const [previous, setPrevious] = useState<Screen>('home');
   const [sheet, setSheet] = useState<Sheet>(null);
@@ -245,6 +275,8 @@ export default function FurnitureStore({
   const [category, setCategory] = useState('Все');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortOrder>('featured');
+  const [maxWidth, setMaxWidth] = useState('');
+  const [material, setMaterial] = useState<MaterialFilter>('all');
   const [photo, setPhoto] = useState(0);
   const [zoomed, setZoomed] = useState(false);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
@@ -253,28 +285,38 @@ export default function FurnitureStore({
   const [viewing3D, setViewing3D] = useState(false);
   const [notice, setNotice] = useState('');
   const [storageError, setStorageError] = useState(false);
-  const [customer, setCustomer] = useState('');
-  const [phone, setPhone] = useState('');
+  const [storageRetry, setStorageRetry] = useState(0);
+  const [galleryError, setGalleryError] = useState(false);
   const [delivery, setDelivery] = useState<'pickup' | 'courier'>('pickup');
   const [completedDelivery, setCompletedDelivery] = useState<'pickup' | 'courier' | null>(null);
-  const [submitted, setSubmitted] = useState(false);
-  const nameField = useRef<HTMLInputElement>(null),
-    phoneField = useRef<HTMLInputElement>(null);
   const checkoutOrigin = useRef<Screen>('home');
   const plannerOrigin = useRef<Screen>('home');
+  const compareHeading = useRef<HTMLHeadingElement>(null);
+  const lastScreen = useRef<Screen>(screen);
   const selected = products.find((product) => product.id === selectedId);
+  const comparedProducts = comparison.map(id => products.find(product => product.id === id)).filter((product): product is FurnitureProduct => !!product);
   const categories = useMemo(
     () => Array.from(new Set(products.map((product) => product.category))),
     [products]
   );
   const filtered = useMemo(() => {
-    const matches = products.filter(
-      (product) =>
-        (category === 'Все' || product.category === category) &&
-        `${product.name} ${product.brand} ${product.category} ${englishCategory[product.category] || ''}`
-          .toLocaleLowerCase()
-          .includes(query.trim().toLocaleLowerCase())
-    );
+    const normalize = (value: string) => value.toLocaleLowerCase().replace(/[×х]/g, 'x').replace(/(\d)\s*x\s*(?=\d)/g, '$1x').replace(/\s+/g, ' ').trim();
+    const needle = normalize(query);
+    const matches = products.filter((product) => {
+      if (category !== 'Все' && product.category !== category) return false;
+      const widthLimit = Number(maxWidth);
+      if (maxWidth && Number.isFinite(widthLimit) && widthLimit > 0 && (!product.dimensionsM || product.dimensionsM[0] * 100 > widthLimit)) return false;
+      const mainMaterial = product.details?.find(detail => detail.label.ru === 'Обивка' || detail.label.ru === 'Материал');
+      const materialText = normalize(`${mainMaterial?.value.ru || ''} ${mainMaterial?.value.en || ''}`);
+      if (material === 'polyester' && !/полиэстер|polyester/.test(materialText)) return false;
+      if (material === 'oak' && !/дуб|oak/.test(materialText)) return false;
+      const terms = [product.name, product.brand, product.category, englishCategory[product.category] || '',
+        product.description?.ru || '', product.description?.en || '',
+        ...(product.facts || []).flatMap(fact => [fact.label, fact.value]),
+        ...(product.details || []).flatMap(detail => [detail.label.ru, detail.label.en, detail.value.ru, detail.value.en]),
+        ...(product.dimensionsM ? [product.dimensionsM.map(value => Math.round(value * 100)).join(' x ')] : [])];
+      return normalize(terms.join(' ')).includes(needle);
+    });
     if (sort === 'name') {
       const collator = new Intl.Collator(language === 'ru' ? 'ru' : 'en', { sensitivity: 'base' });
       matches.sort(
@@ -282,7 +324,7 @@ export default function FurnitureStore({
       );
     }
     return matches;
-  }, [products, category, query, sort, language]);
+  }, [products, category, query, sort, language, maxWidth, material]);
   const cartProducts = cart
     .map((line) => ({ line, product: products.find((product) => product.id === line.id) }))
     .filter((row): row is { line: CartLine; product: FurnitureProduct } => !!row.product);
@@ -309,6 +351,8 @@ export default function FurnitureStore({
     category,
     query,
     sort,
+    maxWidth,
+    material,
     photo,
     viewing3D,
   });
@@ -320,6 +364,8 @@ export default function FurnitureStore({
     setCategory(next.category);
     setQuery(next.query);
     setSort(next.sort ?? 'featured');
+    setMaxWidth(next.maxWidth ?? '');
+    setMaterial(next.material ?? 'all');
     setPhoto(next.photo);
     setViewing3D(next.viewing3D);
   };
@@ -334,6 +380,8 @@ export default function FurnitureStore({
     category,
     query,
     sort,
+    maxWidth,
+    material,
     photo,
     viewing3D,
     history.replaceCurrent,
@@ -342,13 +390,22 @@ export default function FurnitureStore({
     try {
       localStorage.setItem(
         storageKey,
-        JSON.stringify({ favorites, cart, orders, orderHistory, recent })
+        JSON.stringify({ favorites, cart, orders, orderHistory, recent, comparison })
       );
       setStorageError(false);
     } catch {
       setStorageError(true);
     }
-  }, [favorites, cart, orders, orderHistory, recent]);
+  }, [favorites, cart, orders, orderHistory, recent, comparison, storageRetry]);
+  useEffect(() => {
+    const before = lastScreen.current;
+    lastScreen.current = screen;
+    const frame = requestAnimationFrame(() => {
+      if (screen === 'compare') compareHeading.current?.focus({ preventScroll: true });
+      else if (before === 'compare' && screen === 'catalog') document.querySelector<HTMLButtonElement>('.fs-open-comparison')?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [screen]);
   useEffect(() => {
     if (
       screen !== 'product' ||
@@ -365,12 +422,10 @@ export default function FurnitureStore({
   useEffect(() => {
     if (screen !== 'product' || viewing3D) setZoomed(false);
   }, [screen, selectedId, viewing3D]);
+  useEffect(() => setGalleryError(false), [selectedId, photo]);
   useEffect(() => {
     if (screen !== 'checkout') {
-      setCustomer('');
-      setPhone('');
       setDelivery('pickup');
-      setSubmitted(false);
     }
   }, [screen]);
   useEffect(() => {
@@ -540,13 +595,16 @@ export default function FurnitureStore({
     if (patch.category !== undefined) setCategory(patch.category);
     if (patch.query !== undefined) setQuery(patch.query);
     if (patch.sort !== undefined) setSort(patch.sort);
+    if (patch.maxWidth !== undefined) setMaxWidth(patch.maxWidth);
+    if (patch.material !== undefined) setMaterial(patch.material);
     if (patch.photo !== undefined) setPhoto(patch.photo);
     if (patch.viewing3D !== undefined) setViewing3D(patch.viewing3D);
     if (!preserveScroll) scrollToTop();
   }
   const go = (next: Screen) => transition({ screen: next, sheet: null, viewing3D: false });
   const openCatalog = (next = 'Все') =>
-    transition({ screen: 'catalog', sheet: null, category: next, query: '', viewing3D: false });
+    transition({ screen: 'catalog', sheet: null, category: next, query: '', maxWidth: '', material: 'all', viewing3D: false });
+  const openComparison = () => transition({ screen: 'compare', previous: screen, sheet: null, viewing3D: false });
   const openProduct = (product: FurnitureProduct) =>
     transition({
       screen: 'product',
@@ -569,7 +627,7 @@ export default function FurnitureStore({
         setScreen(checkoutOrigin.current);
         setSheet('cart');
       } else {
-        setScreen(screen === 'product' ? previous : 'home');
+        setScreen(screen === 'product' || screen === 'compare' ? previous : 'home');
         setSheet(null);
         scrollToTop();
       }
@@ -578,6 +636,9 @@ export default function FurnitureStore({
     setFavorites((current) =>
       current.includes(id) ? current.filter((item) => item !== id) : [...current, id]
     );
+  const toggleComparison = (id: string) => setComparison(current =>
+    current.includes(id) ? current.filter(item => item !== id) : current.length < 3 ? [...current, id] : current
+  );
   const quantity = (id: string, change: number) =>
     setCart((current) =>
       current
@@ -640,23 +701,12 @@ export default function FurnitureStore({
   const closeSheet = () => history.back(() => setSheet(null));
   const submitDemoOrder = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSubmitted(true);
-    const validName = customer.trim().length >= 2;
-    const digits = phone.replace(/\D/g, '');
-    const validPhone = /^[+\d\s()\-]+$/.test(phone) && digits.length >= 10 && digits.length <= 15;
-    if (!validName) {
-      nameField.current?.focus();
-      return;
-    }
-    if (!validPhone) {
-      phoneField.current?.focus();
-      return;
-    }
     if (!cartProducts.length) return;
     const order: DemoOrder = {
       id:
         globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       date: new Date().toISOString(),
+      delivery,
       items: cartProducts.map(({ line, product }) => ({
         id: line.id,
         name: product.name,
@@ -671,16 +721,22 @@ export default function FurnitureStore({
     go('success');
   };
   const active =
-    screen === 'product' || screen === 'planner'
+    screen === 'compare' ? 'catalog' : screen === 'product' || screen === 'planner'
       ? previous === 'home' || previous === 'account'
         ? previous
         : 'catalog'
       : screen;
 
   return (
-    <div className="fs-store" data-testid="furniture-store" lang={ru ? 'ru' : 'en'}>
+    <div className="fs-store" data-testid="furniture-store" data-screen={screen} lang={ru ? 'ru' : 'en'}>
+      {storageError && !sheet && (
+        <div className="fs-storage-warning" role="alert">
+          <span>{t('Не удалось сохранить подборку. После закрытия она может пропасть.', 'Your selection could not be saved and may be lost when you close the app.')}</span>
+          <button type="button" onClick={() => setStorageRetry(value => value + 1)}>{t('Повторить', 'Retry')}</button>
+        </div>
+      )}
       <main className="fs-main" key={screen}>
-        {(screen === 'product' ||
+        {(screen === 'product' || screen === 'compare' ||
           screen === 'planner' ||
           screen === 'checkout' ||
           screen === 'success') && (
@@ -689,161 +745,33 @@ export default function FurnitureStore({
           </button>
         )}
         {screen === 'home' && (
-          <section className="fs-home">
-            <div className="fs-hero">
-              <p className="fs-hero-kicker">{t('МЕБЕЛЬ / ПРОСТРАНСТВО', 'FURNITURE / SPACE')}</p>
-              <h1 className="fs-hero-headline">{t('Мебель для жизни', 'Furniture for life')}</h1>
-              <p className="fs-hero-intro">
-                {t(
-                  'Выберите предмет и представьте его дома.',
-                  'Find a piece and imagine it at home.'
-                )}
-              </p>
-              {products[0] ? (
-                <>
-                  <button
-                    type="button"
-                    className="fs-hero-photo"
-                    onClick={() => openProduct(products[0])}
-                    aria-label={`${t('Открыть', 'Open')} ${products[0].name}`}
-                  >
-                    {products[0].images[0] ? (
-                      <img src={products[0].images[1] || products[0].images[0]} alt="" />
-                    ) : (
-                      <span className="fs-image-empty" />
-                    )}
-                    <span>{t('ВЫБОР ДЛЯ ГОСТИНОЙ', 'A LIVING ROOM PICK')}</span>
-                  </button>
-                  <div className="fs-hero-meta">
-                    <p>
-                      <strong>{products[0].name}</strong>
-                      <span>
-                        {products[0].brand} ·{' '}
-                        {ru
-                          ? products[0].category
-                          : englishCategory[products[0].category] || products[0].category}
-                      </span>
-                    </p>
-                    <button
-                      type="button"
-                      className="fs-round-link"
-                      onClick={() => openProduct(products[0])}
-                      aria-label={`${t('Открыть', 'Open')} ${products[0].name}`}
-                    >
-                      <ArrowRight size={21} />
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <div className="fs-hero-empty">
-                  <span>{t('КОЛЛЕКЦИЯ', 'COLLECTION')}</span>
-                  <strong>{t('Скоро здесь появится мебель.', 'Furniture is coming soon.')}</strong>
-                </div>
-              )}
-            </div>
-            {renderPlanner && products[0] && (
-              <section className="fs-plan-feature" aria-labelledby="fs-plan-title">
-                <div className="fs-plan-copy">
-                  <span>{t('ПРИМЕРЬТЕ В КОМНАТЕ', 'PLACE IN A ROOM')}</span>
-                  <h2 id="fs-plan-title">{t('Ваше пространство', 'Your space')}</h2>
-                  <p>
-                    {t(
-                      'Посмотрите на мебель в комнате и найдите ей место.',
-                      'See furniture in a room and find its place.'
-                    )}
-                  </p>
-                  <button type="button" onClick={() => openPlanner(products[0])}>
-                    {t('Открыть планировщик', 'Open room planner')} <ArrowRight size={17} />
-                  </button>
-                </div>
-                <div className="fs-plan-diagram" aria-hidden="true">
-                  <span />
-                  <i />
-                  <b />
-                </div>
-              </section>
+          <FurnitureHome
+            products={products}
+            ru={ru}
+            plannerAvailable={!!renderPlanner}
+            onOpenProduct={openProduct}
+            onOpenPlanner={openPlanner}
+            onOpenCatalog={openCatalog}
+            renderCard={(product) => (
+              <ProductCard
+                product={product}
+                favorite={favorites.includes(product.id)}
+                onFavorite={() => toggleFavorite(product.id)}
+                onOpen={() => openProduct(product)}
+              />
             )}
-            <section className="fs-section">
-              <div className="fs-section-head">
-                <h2>{t('КАТЕГОРИИ', 'CATEGORIES')}</h2>
-                <button type="button" className="fs-text-link" onClick={() => openCatalog()}>
-                  {t('Все модели', 'All models')} <ArrowRight size={15} />
-                </button>
-              </div>
-              {categories.length ? (
-                <div className="fs-categories">
-                  {categories.map((item) => {
-                    const featured = products.find((product) => product.category === item)!;
-                    return (
-                      <button
-                        type="button"
-                        className="fs-category"
-                        key={item}
-                        onClick={() => openCatalog(item)}
-                      >
-                        <span>
-                          <ProductImage product={featured} />
-                        </span>
-                        <strong>{ru ? item : englishCategory[item] || item}</strong>
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="fs-muted">
-                  {t('Каталог готовится.', 'The catalogue is coming soon.')}
-                </p>
-              )}
-            </section>
-            {products.length > 0 && (
-              <section className="fs-section fs-collection">
-                <div className="fs-section-head">
-                  <h2>{t('КОЛЛЕКЦИЯ', 'THE COLLECTION')}</h2>
-                  <button type="button" className="fs-text-link" onClick={() => openCatalog()}>
-                    {t('В каталог', 'View catalogue')} <ArrowRight size={15} />
-                  </button>
-                </div>
-                <div className="fs-grid">
-                  {products.slice(0, 4).map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      favorite={favorites.includes(product.id)}
-                      onFavorite={() => toggleFavorite(product.id)}
-                      onOpen={() => openProduct(product)}
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
-            <div className="fs-home-footer">
-              <p>
-                {t('ПРОСТРАНСТВО', 'SPACE')}
-                <br />
-                {t('ДЛЯ ЖИЗНИ.', 'FOR LIVING.')}
-              </p>
-              <button type="button" className="fs-text-link" onClick={() => openCatalog()}>
-                {t('Смотреть коллекцию', 'Explore the collection')} <ArrowRight size={15} />
-              </button>
-            </div>
-            <p className="fs-demo-note">
-              {t(
-                'Демонстрационный каталог. Наличие и стоимость уточняйте.',
-                'Demo catalogue. Check availability and pricing.'
-              )}
-            </p>
-          </section>
+          />
         )}
         {screen === 'catalog' && (
           <section className="fs-section fs-catalog">
             <div className="fs-page-intro">
               <p className="fs-eyebrow">{t('КОЛЛЕКЦИЯ / МЕБЕЛЬ', 'COLLECTION / FURNITURE')}</p>
-              <h1>
-                {t('НАЙДИ', 'FIND')}
-                <br />
-                {t('СВОЁ.', 'YOUR STYLE.')}
-              </h1>
+              <h1>{t('Коллекция.', 'The collection.')}</h1>
               <p>{t('Мебель для вашего пространства.', 'Furniture for your space.')}</p>
+            </div>
+            <div className="fs-comparison-entry">
+              <button type="button" className="fs-open-comparison" onClick={openComparison}>{t('Сравнение', 'Compare')} <span>{comparison.length} / 3</span><ArrowRight size={16} aria-hidden="true" /></button>
+              <p>{t('Выберите до трёх моделей', 'Choose up to three pieces')}</p>
             </div>
             <div className="fs-search">
               <Search size={19} />
@@ -881,6 +809,21 @@ export default function FurnitureStore({
                 </button>
               ))}
             </div>
+            <details className="fs-filters">
+              <summary>{t('Фильтры', 'Filters')}{(maxWidth || material !== 'all') && <span aria-label={t('Фильтры включены', 'Filters active')}>●</span>}</summary>
+              <div className="fs-filter-fields">
+                <label htmlFor="fs-width">{t('Ширина до, см', 'Maximum width, cm')}</label>
+                <input id="fs-width" type="number" inputMode="numeric" min="1" max="1000" value={maxWidth} onChange={event => setMaxWidth(event.target.value)} placeholder={t('Например, 200', 'For example, 200')} aria-invalid={!!maxWidth && Number(maxWidth) <= 0} />
+                {maxWidth && Number(maxWidth) <= 0 && <span className="fs-filter-error">{t('Укажите ширину больше нуля.', 'Enter a width greater than zero.')}</span>}
+                <label htmlFor="fs-material">{t('Основной материал', 'Main material')}</label>
+                <select id="fs-material" value={material} onChange={event => setMaterial(event.target.value as MaterialFilter)}>
+                  <option value="all">{t('Любой', 'Any')}</option>
+                  <option value="polyester">{t('Полиэстер', 'Polyester')}</option>
+                  <option value="oak">{t('Дуб', 'Oak')}</option>
+                </select>
+                {(maxWidth || material !== 'all') && <button type="button" onClick={() => { setMaxWidth(''); setMaterial('all'); }}>{t('Сбросить фильтры', 'Clear filters')}</button>}
+              </div>
+            </details>
             <div className="fs-catalog-tools">
               <p className="fs-result" aria-live="polite" aria-atomic="true">
                 {modelCount(filtered.length, ru)}
@@ -902,6 +845,9 @@ export default function FurnitureStore({
                     favorite={favorites.includes(product.id)}
                     onFavorite={() => toggleFavorite(product.id)}
                     onOpen={() => openProduct(product)}
+                    compared={comparison.includes(product.id)}
+                    compareFull={comparison.length >= 3}
+                    onCompare={() => toggleComparison(product.id)}
                   />
                 ))}
               </div>
@@ -931,6 +877,8 @@ export default function FurnitureStore({
                     onClick={() => {
                       setQuery('');
                       setCategory('Все');
+                      setMaxWidth('');
+                      setMaterial('all');
                     }}
                   >
                     {t('Показать всё', 'Show all')}
@@ -940,12 +888,51 @@ export default function FurnitureStore({
             )}
           </section>
         )}
+        {screen === 'compare' && (
+          <section className="fs-section fs-compare" aria-labelledby="fs-compare-title">
+            <p className="fs-eyebrow">{t('КОЛЛЕКЦИЯ / ВАШ ВЫБОР', 'COLLECTION / YOUR SELECTION')}</p>
+            <h1 id="fs-compare-title" ref={compareHeading} tabIndex={-1}>{t('Сравнение.', 'Compare.')}</h1>
+            <p className="fs-compare-intro">{t('Сравните до трёх моделей по характеристикам из каталога.', 'Compare up to three pieces using the catalogue specifications.')}</p>
+            {comparedProducts.length === 0 ? (
+              <div className="fs-compare-empty">
+                <h2>{t('Пока ничего не выбрано', 'No pieces selected yet')}</h2>
+                <p>{t('Добавьте модели из каталога, чтобы сравнить их рядом.', 'Add pieces from the catalogue to compare them side by side.')}</p>
+                <button type="button" className="fs-secondary" onClick={() => openCatalog()}>{t('В каталог', 'Browse catalogue')}</button>
+              </div>
+            ) : (
+              <>
+                <p className="fs-compare-hint" aria-live="polite">{comparedProducts.length === 1 ? t('Добавьте ещё модель для сравнения.', 'Add another piece to compare.') : comparedProducts.length === 3 ? t('Проведите по таблице, чтобы увидеть все модели.', 'Swipe the table to see all pieces.') : t('Выбрано 2 из 3 моделей.', '2 of 3 pieces selected.')}</p>
+                <div className="fs-compare-scroll" role="region" tabIndex={0} aria-label={t('Таблица сравнения моделей', 'Comparison table')}>
+                  <table className="fs-compare-table" data-count={comparedProducts.length}>
+                    <caption className="fs-sr">{t('Характеристики выбранных моделей', 'Specifications of selected pieces')}</caption>
+                    <thead><tr><th scope="col">{t('Параметр', 'Feature')}</th>{comparedProducts.map(product => (
+                      <th scope="col" key={product.id}>
+                        <button type="button" className="fs-compare-model" onClick={() => openProduct(product)} aria-label={`${t('Открыть', 'Open')} ${product.name}, ${ru ? product.category : englishCategory[product.category] || product.category}`}>
+                          <span className="fs-compare-photo"><ProductImage product={product} /></span>
+                          <strong>{product.name}</strong><span>{ru ? product.category : englishCategory[product.category] || product.category}</span>
+                        </button>
+                        <button type="button" className="fs-compare-remove" onClick={() => { toggleComparison(product.id); requestAnimationFrame(() => (document.querySelector<HTMLElement>('.fs-compare-scroll') || compareHeading.current)?.focus({ preventScroll: true })); }} aria-label={`${t('Убрать из сравнения', 'Remove from comparison')}: ${product.name}, ${ru ? product.category : englishCategory[product.category] || product.category}`}><X size={15} aria-hidden="true" /> {t('Убрать', 'Remove')}</button>
+                      </th>
+                    ))}</tr></thead>
+                    <tbody>
+                      {[
+                        { label: t('Тип', 'Type'), value: (product: FurnitureProduct) => ru ? product.category : englishCategory[product.category] || product.category },
+                        { label: t('Бренд', 'Brand'), value: (product: FurnitureProduct) => product.brand },
+                        { label: t('Размеры, Ш × Г × В', 'Size, W × D × H'), value: (product: FurnitureProduct) => { const fact = product.facts?.find(item => item.label === 'Размер')?.value; return fact ? (ru ? fact : fact.replace('см', 'cm')) : product.dimensionsM ? `≈ ${product.dimensionsM.map(value => Math.round(value * 100)).join(' × ')} ${ru ? 'см' : 'cm'}` : '—'; } },
+                        { label: t('Материал', 'Material'), value: (product: FurnitureProduct) => product.details?.find(detail => detail.label.ru === 'Обивка' || detail.label.ru === 'Материал')?.value[ru ? 'ru' : 'en'] || '—' },
+                      ].map(row => <tr key={row.label}><th scope="row">{row.label}</th>{comparedProducts.map(product => <td key={product.id}>{row.value(product)}</td>)}</tr>)}
+                    </tbody>
+                  </table>
+                </div>
+                {comparedProducts.length < 3 && <button type="button" className="fs-compare-add" onClick={() => openCatalog()}><Plus size={16} aria-hidden="true" /> {t('Добавить модель', 'Add a piece')}</button>}
+              </>
+            )}
+          </section>
+        )}
         {screen === 'product' && selected && (
           <section className="fs-product">
             <div className="fs-gallery">
-              {viewing3D && render3D ? (
-                render3D(selected)
-              ) : selected.images[photo] ? (
+              {selected.images[photo] && !galleryError ? (
                 <div
                   className="fs-gallery-photo"
                   role="group"
@@ -997,10 +984,14 @@ export default function FurnitureStore({
                     alt={`${selected.name}, ${t('фотография', 'photo')} ${photo + 1} / ${selected.images.length}`}
                     decoding="async"
                     draggable={false}
+                    onError={() => setGalleryError(true)}
                   />
                 </div>
               ) : (
-                <span className="fs-image-empty" />
+                <div className="fs-gallery-fallback" role="status">
+                  <span>{t('Не удалось загрузить фотографию.', 'The photo could not be loaded.')}</span>
+                  <button type="button" onClick={() => setGalleryError(false)}>{t('Попробовать снова', 'Try again')}</button>
+                </div>
               )}
               <button
                 type="button"
@@ -1011,7 +1002,7 @@ export default function FurnitureStore({
               >
                 <Heart size={20} fill={favorites.includes(selected.id) ? 'currentColor' : 'none'} />
               </button>
-              {!viewing3D && selected.images[photo] && (
+              {!galleryError && selected.images[photo] && (
                 <button
                   type="button"
                   className="fs-gallery-zoom fs-icon"
@@ -1021,7 +1012,7 @@ export default function FurnitureStore({
                   <ZoomIn size={19} />
                 </button>
               )}
-              {!viewing3D && selected.images.length > 1 && (
+              {selected.images.length > 1 && (
                 <>
                   <div className="fs-gallery-thumbs">
                     {selected.images.map((src, i) => (
@@ -1046,13 +1037,14 @@ export default function FurnitureStore({
                 <button
                   type="button"
                   className="fs-view-toggle"
-                  onClick={() => setViewing3D((value) => !value)}
+                  onClick={() => transition({ viewing3D: true }, true)}
                   aria-pressed={viewing3D}
                 >
-                  {viewing3D ? t('Фотографии', 'Photos') : t('3D-обзор', '3D view')}
+                  {t('3D-обзор', '3D view')}
                 </button>
               )}
             </div>
+            {viewing3D && render3D && render3D(selected, () => history.back(() => setViewing3D(false)), renderPlanner ? () => openPlanner(selected) : undefined)}
             <div className="fs-product-info">
               <p className="fs-eyebrow">
                 {ru ? selected.category : englishCategory[selected.category] || selected.category} /{' '}
@@ -1089,6 +1081,11 @@ export default function FurnitureStore({
                   <ArrowRight size={17} aria-hidden="true" />
                 </button>
               )}
+              <div className="fs-product-comparison">
+                <button type="button" aria-pressed={comparison.includes(selected.id)} disabled={comparison.length >= 3 && !comparison.includes(selected.id)} onClick={() => toggleComparison(selected.id)}>{comparison.includes(selected.id) ? <Check size={16} aria-hidden="true" /> : <Plus size={16} aria-hidden="true" />}{comparison.includes(selected.id) ? t('В сравнении', 'Comparing') : t('Сравнить', 'Compare')}</button>
+                <button type="button" onClick={openComparison}>{t('К сравнению', 'View comparison')} · {comparison.length} / 3 <ArrowRight size={15} aria-hidden="true" /></button>
+              </div>
+              {comparison.length >= 3 && !comparison.includes(selected.id) && <p className="fs-compare-limit">{t('В сравнении уже три модели. Уберите одну, чтобы добавить эту.', 'Three pieces are selected. Remove one to add this piece.')}</p>}
               <button type="button" className="fs-primary" onClick={() => add(selected)}>
                 <ShoppingBag size={17} /> {t('ДОБАВИТЬ В КОРЗИНУ', 'ADD TO BAG')}{' '}
                 <ArrowRight size={16} />
@@ -1304,6 +1301,7 @@ export default function FurnitureStore({
                             </li>
                           ))}
                         </ul>
+                        {order.delivery && <p className="fs-history-note">{t('Способ получения (демо)', 'Delivery preference (demo)')}: {order.delivery === 'pickup' ? t('самовывоз', 'pickup') : t('курьер', 'courier')}</p>}
                         <button
                           type="button"
                           className="fs-secondary"
@@ -1355,73 +1353,10 @@ export default function FurnitureStore({
               noValidate
               autoComplete="off"
             >
-              <h2>{t('КОНТАКТЫ', 'CONTACT DETAILS')}</h2>
+              <h2>{t('ВАША ПОДБОРКА', 'YOUR SELECTION')}</h2>
               <p className="fs-checkout-note">
-                {t(
-                  'Данные используются только в этом примере и не сохраняются.',
-                  'Details are used only in this demo and are not saved.'
-                )}
+                {t('Это демонстрация: контактные данные не нужны и заказ не отправляется.', 'This is a demo: no contact details are needed and no order is sent.')}
               </p>
-              <div className="fs-field">
-                <label htmlFor="fs-customer">{t('Имя', 'Name')}</label>
-                <input
-                  id="fs-customer"
-                  ref={nameField}
-                  value={customer}
-                  onChange={(event) => setCustomer(event.target.value)}
-                  maxLength={80}
-                  autoComplete="off"
-                  placeholder={t('Как к вам обращаться', 'Your name')}
-                  aria-invalid={submitted && customer.trim().length < 2}
-                  aria-describedby={
-                    submitted && customer.trim().length < 2 ? 'fs-name-error' : undefined
-                  }
-                />
-                {submitted && customer.trim().length < 2 && (
-                  <span className="fs-field-error" id="fs-name-error">
-                    {t(
-                      'Укажите имя: не менее двух символов.',
-                      'Enter a name of at least two characters.'
-                    )}
-                  </span>
-                )}
-              </div>
-              <div className="fs-field">
-                <label htmlFor="fs-phone">{t('Телефон', 'Phone')}</label>
-                <input
-                  id="fs-phone"
-                  ref={phoneField}
-                  type="tel"
-                  inputMode="tel"
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                  maxLength={25}
-                  autoComplete="off"
-                  placeholder={t('Номер телефона', 'Phone number')}
-                  aria-invalid={
-                    submitted &&
-                    (!/^[+\d\s()\-]+$/.test(phone) ||
-                      phone.replace(/\D/g, '').length < 10 ||
-                      phone.replace(/\D/g, '').length > 15)
-                  }
-                  aria-describedby={
-                    submitted &&
-                    (!/^[+\d\s()\-]+$/.test(phone) ||
-                      phone.replace(/\D/g, '').length < 10 ||
-                      phone.replace(/\D/g, '').length > 15)
-                      ? 'fs-phone-error'
-                      : undefined
-                  }
-                />
-                {submitted &&
-                  (!/^[+\d\s()\-]+$/.test(phone) ||
-                    phone.replace(/\D/g, '').length < 10 ||
-                    phone.replace(/\D/g, '').length > 15) && (
-                    <span className="fs-field-error" id="fs-phone-error">
-                      {t('Укажите номер из 10–15 цифр.', 'Enter a phone number with 10–15 digits.')}
-                    </span>
-                  )}
-              </div>
               <fieldset className="fs-delivery">
                 <legend>{t('СПОСОБ ПОЛУЧЕНИЯ · ДЕМО', 'DELIVERY PREFERENCE · DEMO')}</legend>
                 <label>
@@ -1467,8 +1402,8 @@ export default function FurnitureStore({
                   </a>
                   <p className="fs-chat-note">
                     {t(
-                      'Telegram откроется с перечнем товаров. Данные формы не передаются; сообщение отправляется только вами.',
-                      'Telegram opens with the item list. Form details are not included; only you can send the message.'
+                      'Telegram откроется с перечнем товаров. Сообщение отправляется только вами.',
+                      'Telegram opens with the item list. Only you can send the message.'
                     )}
                   </p>
                 </>
@@ -1527,7 +1462,7 @@ export default function FurnitureStore({
               aria-label={t('Каталог', 'Catalogue')}
               aria-current={active === 'catalog' && !sheet ? 'page' : undefined}
             >
-              <SlidersHorizontal size={19} />
+              <LayoutGrid size={19} />
               <span>{t('Каталог', 'Catalogue')}</span>
             </button>
             <button
@@ -1640,6 +1575,10 @@ export default function FurnitureStore({
                   </button>
                 </div>
                 <div className="fs-sheet-body">
+                  {storageError && <div className="fs-storage-warning" role="alert">
+                    <span>{t('Не удалось сохранить подборку. После закрытия она может пропасть.', 'Your selection could not be saved and may be lost when you close the app.')}</span>
+                    <button type="button" onClick={() => setStorageRetry(value => value + 1)}>{t('Повторить', 'Retry')}</button>
+                  </div>}
                   {cartProducts.length ? (
                     <>
                       <p className="fs-muted">
@@ -1739,12 +1678,7 @@ export default function FurnitureStore({
         document.body
       )}
       <span className="fs-sr" role="status" aria-live="polite">
-        {storageError
-          ? t(
-              'Не удалось сохранить данные на этом устройстве.',
-              'Could not save data on this device.'
-            )
-          : notice}
+        {notice}
       </span>
     </div>
   );

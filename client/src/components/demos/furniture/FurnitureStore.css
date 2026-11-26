@@ -21,6 +21,22 @@
   padding-top: calc(max(env(safe-area-inset-top, 0px), var(--csat, 0px), 12px) + 72px);
 }
 
+/* Keep the existing consultant available in the header rather than floating
+   across the photographs, product actions and room controls. */
+#root.fs-scroll-root .home-ai-surface .alex-fab-breathing {
+  width: 44px !important;
+  height: 44px !important;
+  top: calc(max(env(safe-area-inset-top, 0px), var(--csat, 0px), 12px) + 24px) !important;
+  right: max(20px, calc((100vw - 430px) / 2)) !important;
+  bottom: auto !important;
+  background: rgba(255,255,255,.9) !important;
+  border: 1px solid rgba(36,36,40,.12) !important;
+  box-shadow: 0 4px 16px rgba(55,45,60,.08) !important;
+  animation: none !important;
+}
+#root.fs-scroll-root .home-ai-surface[inert],
+body:has(.rfv) .home-ai-surface .alex-fab-breathing { visibility: hidden !important; pointer-events: none !important; }
+
 /* The room editor has its own close control; floating shop/AI controls must
    not cover its canvas, fields, or manipulation buttons on small screens. */
 body:has(.fs-planner) .home-ai-surface,
@@ -93,8 +109,8 @@ body:has(.fs-planner) .fs-nav {
 .fs-icon {
   display: inline-grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   flex: none;
   padding: 0;
   border: 0;
@@ -327,6 +343,7 @@ body:has(.fs-planner) .fs-nav {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  min-height: 44px;
   padding: 7px 0;
   border: 0;
   background: none;
@@ -386,7 +403,7 @@ body:has(.fs-planner) .fs-nav {
 }
 .fs-card-image {
   position: relative;
-  background: #f5f5f5;
+  background: #f3f1ed;
   overflow: hidden;
 }
 .fs-card-open {
@@ -465,6 +482,12 @@ body:has(.fs-planner) .fs-nav {
   font-weight: 900;
   letter-spacing: -0.055em;
 }
+.fs-catalog .fs-page-intro h1 {
+  font-size: clamp(30px, 8vw, 37px);
+  line-height: 1.08;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+}
 .fs-page-intro p:not(.fs-eyebrow),
 .fs-lead {
   margin-top: 12px !important;
@@ -498,7 +521,7 @@ body:has(.fs-planner) .fs-nav {
   margin: 26px 0 14px;
   padding: 0 12px;
   min-height: 48px;
-  background: #f5f5f5;
+  background: #f3f1ed;
 }
 .fs-search input {
   min-width: 0;
@@ -526,9 +549,9 @@ body:has(.fs-planner) .fs-nav {
   font-size: 12px !important;
 }
 .fs-chip.is-active {
-  border-color: #1b1b1b;
+  border-color: #1f3027;
   color: #fff;
-  background: #1b1b1b;
+  background: #1f3027;
 }
 .fs-catalog-tools {
   display: flex;
@@ -694,6 +717,51 @@ body:has(.fs-planner) .fs-nav {
   height: 100%;
   background: #f5f5f5;
 }
+.fs-image-fallback, .fs-gallery-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px;
+  background: #f0eee9;
+  color: #5d5a54;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+}
+.fs-filters { border-bottom: 1px solid #e4e1da; }
+.fs-filters summary { min-height: 48px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-weight: 700; }
+.fs-filters summary::after { content: ''; width: 7px; height: 7px; margin-left: auto; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg) translateY(-2px); }
+.fs-filters[open] summary::after { transform: rotate(225deg) translate(-2px, -1px); }
+.fs-filters summary span { color: #72654f; font-size: 11px; }
+.fs-filter-fields { display: grid; gap: 8px; padding: 4px 0 16px; }
+.fs-filter-fields label { font-size: 12px; font-weight: 700; }
+.fs-filter-fields input, .fs-filter-fields select { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid #d8d4cb; background: #fff; font-size: 16px; }
+.fs-filter-fields button { justify-self: start; min-height: 44px; border: 0; padding: 0; background: none; text-decoration: underline; font-size: 12px; }
+.fs-filter-error { color: #8a3030; font-size: 12px; }
+.fs-gallery-fallback { position: absolute; inset: 0; }
+.fs-gallery-fallback button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #bdb7ac;
+  background: #fff;
+  color: #242424;
+}
+.fs-storage-warning {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 20px 0;
+  padding: 12px 14px;
+  background: #f5eee2;
+  color: #513b23;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.fs-storage-warning button { min-height: 44px; flex: none; padding: 0 8px; border: 0; background: none; color: inherit; text-decoration: underline; }
+.fs-sheet-body .fs-storage-warning { margin: 0 0 14px; }
 .fs-gallery-heart {
   position: absolute;
   top: 8px;
@@ -739,7 +807,7 @@ body:has(.fs-planner) .fs-nav {
   left: 50%;
   bottom: 16px;
   transform: translateX(-50%);
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 16px;
   border: 0;
   border-radius: 24px;
@@ -915,7 +983,8 @@ body:has(.fs-planner) .fs-nav {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  background: #171717;
+  background: #1f3027;
+  border-color: #1f3027;
   color: #fff;
 }
 .fs-primary:disabled {
@@ -1295,8 +1364,8 @@ body:has(.fs-planner) .fs-nav {
 .fs-qty button {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border: 1px solid #ddd;
   background: #fff;
 }
@@ -1328,3 +1397,36 @@ body:has(.fs-planner) .fs-nav {
     -webkit-backdrop-filter: none;
   }
 }
+
+/* Product comparison stays in the page flow; only its table scrolls sideways. */
+.fs-comparison-entry { margin: 20px 0 18px; border-block: 1px solid #deded8; }
+.fs-open-comparison { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 5px 0; border: 0; background: transparent; color: #20382b; text-align: left; font-weight: 700; font-size: 14px; }
+.fs-open-comparison span { margin-left: auto; font-size: 12px; color: #5a685d; }
+.fs-comparison-entry p { margin: -1px 0 12px !important; color: #66716a; font-size: 11px; }
+.fs-card-meta .fs-card-compare { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; padding: 4px 3px; color: #294b38; font-size: 11px; font-weight: 700; }
+.fs-card-meta .fs-card-compare[aria-pressed='true'] { color: #173d29; }
+.fs-card-meta .fs-card-compare:disabled, .fs-product-comparison button:disabled { opacity: .45; }
+.fs-product-comparison { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.fs-product-comparison button, .fs-compare-add { display: inline-flex; justify-content: center; align-items: center; gap: 6px; min-height: 44px; padding: 8px 12px; border: 1px solid #aab7a9; background: #f7f8f3; color: #294b38; font-size: 12px; font-weight: 700; }
+.fs-compare-limit { margin: -8px 0 14px !important; color: #625f55; font-size: 12px; line-height: 1.45; }
+.fs-compare { margin-top: 28px; }
+.fs-compare h1 { font-size: clamp(30px, 8vw, 37px); line-height: 1.08; font-weight: 700; letter-spacing: -.045em; }
+.fs-compare-intro { margin: 12px 0 0 !important; max-width: 42ch; color: #606960; font-size: 13px; line-height: 1.5; }
+.fs-compare-empty { margin-top: 28px; padding: 26px 20px; background: #f3f4ee; }
+.fs-compare-empty h2 { font-size: 17px; }
+.fs-compare-empty p { margin: 10px 0 20px !important; font-size: 13px; line-height: 1.5; color: #606960; }
+.fs-compare-hint { margin: 24px 0 10px !important; font-size: 12px; line-height: 1.4; color: #606960; }
+.fs-compare-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; border: 1px solid #deded8; }
+.fs-compare-table { width: 100%; min-width: 280px; table-layout: fixed; border-collapse: separate; border-spacing: 0; font-size: 11px; line-height: 1.4; text-align: left; }
+.fs-compare-table[data-count='3'] { min-width: 410px; }
+.fs-compare-table th, .fs-compare-table td { padding: 10px 8px; vertical-align: top; border-bottom: 1px solid #e6e7e0; overflow-wrap: anywhere; }
+.fs-compare-table tr:last-child th, .fs-compare-table tr:last-child td { border-bottom: 0; }
+.fs-compare-table th:first-child { position: sticky; left: 0; z-index: 1; width: 72px; background: #f6f7f2; color: #5b665c; font-weight: 600; }
+.fs-compare-table thead th:not(:first-child) { background: #fff; font-weight: 400; }
+.fs-compare-model { display: flex; flex-direction: column; align-items: stretch; gap: 5px; width: 100%; min-height: 44px; padding: 0; border: 0; background: transparent; color: #1e3025; text-align: left; font-size: 11px; }
+.fs-compare-model strong { font-size: 12px; line-height: 1.25; }
+.fs-compare-model > span:last-child { color: #68726a; }
+.fs-compare-photo { position: relative; display: block; width: 100%; aspect-ratio: 1 / .8; background: #f2f0ea; overflow: hidden; }
+.fs-compare-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fs-compare-remove { display: inline-flex; align-items: center; gap: 3px; min-height: 44px; padding: 4px 0; border: 0; background: transparent; color: #526258; font-size: 11px; }
+.fs-compare-add { margin-top: 16px; }

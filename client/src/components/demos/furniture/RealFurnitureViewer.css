@@ -1,14 +1,46 @@
-.rfv { width: 100%; }
-.rfv-stage { position: relative; overflow: hidden; height: min(96vw, 460px); min-height: 310px; background: radial-gradient(ellipse at 50% 38%, #faf9f7 0%, #eeece9 78%, #e9e7e4 100%); }
-.rfv-drag { position: absolute; inset: 0; touch-action: pan-y; cursor: grab; }
+.rfv {
+  position: fixed;
+  z-index: 12000;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #f6f4f0;
+  color: #1c1c1b;
+  font-family: 'Google Sans App', system-ui, sans-serif;
+  padding: max(12px, env(safe-area-inset-top, 0px), var(--tg-content-safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(14px, env(safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.rfv *, .rfv *::before, .rfv *::after { box-sizing: border-box; }
+.rfv button { font: inherit; cursor: pointer; }
+.rfv button:focus-visible, .rfv summary:focus-visible, .rfv-drag:focus-visible { outline: 2px solid #252423; outline-offset: 2px; }
+.rfv-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex: 0 0 auto; padding-bottom: 10px; }
+.rfv-header > div { min-width: 0; padding-top: 3px; }
+.rfv-header span { display: block; color: #696762; font-size: 10px; font-weight: 700; letter-spacing: .11em; }
+.rfv-header h2 { margin: 5px 0 0; font-size: clamp(20px, 6vw, 26px); line-height: 1.1; font-weight: 700; letter-spacing: -.04em; }
+.rfv-close, .rfv-zoom button, .rfv-controls button { display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 44px; padding: 0; color: #252423; border: 0; border-radius: 50%; background: #fff; }
+.rfv-close { background: #eae8e3; }
+.rfv-stage { position: relative; flex: 1 1 auto; min-height: 140px; overflow: hidden; background: radial-gradient(ellipse at 50% 37%, #fbfaf8 0%, #ece9e4 80%, #e8e4de 100%); border-radius: 4px; }
+.rfv-drag { position: absolute; inset: 0; touch-action: none; cursor: grab; }
 .rfv-drag:active { cursor: grabbing; }
 .rfv-drag canvas { display: block; width: 100%; height: 100%; }
 .rfv-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
-.rfv-badge { position: absolute; top: 14px; left: 14px; border-radius: 999px; padding: 8px 11px; color: #393939; background: #ffffffdf; font-size: 10px; font-weight: 700; letter-spacing: .06em; pointer-events: none; }
-.rfv-controls { position: absolute; right: 50%; bottom: 12px; transform: translateX(50%); display: flex; align-items: center; max-width: calc(100% - 16px); background: #fffffff0; border: 1px solid #e4e1dc; border-radius: 999px; box-shadow: 0 5px 20px #00000012; }
-.rfv-controls button { flex: 0 0 auto; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; background: none; color: #1b1b1b; cursor: pointer; }
-.rfv-controls button:focus-visible { outline: 2px solid #111; outline-offset: -3px; border-radius: 50%; }
-.rfv-divider { width: 1px; height: 18px; background: #dedbd7; }
-.rfv-status { position: absolute; bottom: 12px; left: 12px; max-width: calc(100% - 24px); border-radius: 10px; background: #fff; color: #333; padding: 9px 11px; font-size: 12px; }
-.rfv > p { margin: 9px 0 0; color: #666; font-size: 12px; line-height: 1.45; }
-@media (max-width: 340px) { .rfv-controls button { width: 38px; } }
+.rfv-zoom { position: absolute; right: 12px; bottom: 12px; display: flex; flex-direction: column; gap: 6px; }
+.rfv-zoom button { box-shadow: 0 2px 12px #29231a12; }
+.rfv-status { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0; padding: 10px 12px; border-radius: 10px; background: #fff; color: #333; font-size: 12px; line-height: 1.4; }
+.rfv-status button { min-height: 40px; padding: 0 10px; border: 0; background: none; color: #1b1b1b; font-weight: 700; white-space: nowrap; }
+.rfv-footer { flex: 0 0 auto; max-height: 49%; overflow-y: auto; overscroll-behavior: contain; }
+.rfv-hint { margin: 11px 0 9px; text-align: center; color: #696762; font-size: 12px; line-height: 1.35; }
+.rfv-presets { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.rfv-presets::-webkit-scrollbar { display: none; }
+.rfv-presets button { flex: 1 1 0; min-width: 0; min-height: 44px; padding: 0 4px; border: 1px solid #dfddd8; border-radius: 999px; background: #fff; color: #292826; font-size: 12px; white-space: nowrap; }
+.rfv-presets button[aria-pressed="true"] { background: #292826; color: #fff; border-color: #292826; }
+.rfv-precise { margin-top: 2px; }
+.rfv-precise summary { display: flex; align-items: center; justify-content: center; min-height: 40px; color: #5d5b57; font-size: 12px; cursor: pointer; list-style: none; }
+.rfv-precise summary::-webkit-details-marker { display: none; }
+.rfv-precise summary::after { content: '+'; margin-left: 8px; font-size: 16px; line-height: 1; }
+.rfv-precise[open] summary::after { content: '−'; }
+.rfv-controls { display: flex; justify-content: center; gap: 6px; padding: 0 0 9px; }
+.rfv-controls button { border: 1px solid #dfddd8; }
+.rfv-place { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 52px; margin-top: 1px; padding: 0 16px; border: 0; background: #1c1c1b; color: #fff; font-size: 13px !important; font-weight: 700 !important; text-align: left; }
+@media (max-height: 650px) { .rfv-header h2 { font-size: 20px; } .rfv-header { padding-bottom: 7px; } .rfv-hint { margin: 7px 0 5px; } .rfv-place { min-height: 48px; } }
+@media (prefers-reduced-motion: reduce) { .rfv * { scroll-behavior: auto !important; } }

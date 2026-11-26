@@ -29,18 +29,32 @@ function watchDetail(image: HTMLImageElement) {
   return () => detailObserver?.unobserve(image);
 }
 
-export function ShowcaseArtwork({ id, index }: { id: string; index: number }) {
-  const [ready, setReady] = useState(false);
+export function ShowcaseArtwork({ id, index, ru }: { id: string; index: number; ru: boolean }) {
+  const [coverReady, setCoverReady] = useState(false);
+  const [screenReady, setScreenReady] = useState('');
+  const [coverFailed, setCoverFailed] = useState(false);
+  const [screenFailure, setScreenFailure] = useState('');
   const image = useRef<HTMLImageElement>(null);
   const art = artwork.get(id)!;
-  const eager = index < 2 || ready;
+  const furniture = id === 'furniture-studio';
+  const screenSource = `/showcase/screens/furniture-studio-v4${ru ? '' : '-en'}.png`;
+  const screenFailed = screenFailure === screenSource;
+  const ready = (coverReady || coverFailed) && (!furniture || screenReady === screenSource || screenFailed);
+  const source = furniture ? '/showcase/covers/furniture-studio-v4.webp' : art.src;
+  const eager = index < 2 || coverReady || coverFailed;
   useEffect(() => {
     if (!eager && image.current) return watchDetail(image.current);
   }, [eager, id]);
-  return <span className={ready ? 'ps-art ps-art-ready' : 'ps-art'} aria-hidden="true"
+  return <span className={`ps-art${ready ? ' ps-art-ready' : ''}${furniture ? ' ps-art-furniture' : ''}${coverFailed ? ' ps-furniture-no-cover' : ''}${screenFailed ? ' ps-furniture-no-screen' : ''}`} aria-hidden="true"
     style={{ backgroundPosition: art.position, backgroundSize: `400% ${rows * 100}%` }}>
-    <img ref={image} src={eager ? art.src : undefined} data-detail={art.src} width={612} height={816}
+    {furniture ? <span className="ps-furniture-layer">
+      <img ref={image} className="ps-furniture-cover" src={eager ? source : undefined} data-detail={source}
+        alt="" draggable={false} decoding="async" onLoad={event => { void event.currentTarget.decode().then(() => setCoverReady(true), () => setCoverFailed(true)); }} onError={() => setCoverFailed(true)} />
+      <span className="ps-furniture-screen"><img src={eager || coverReady ? screenSource : undefined}
+        alt="" draggable={false} decoding="async" onLoad={event => { void event.currentTarget.decode().then(() => setScreenReady(screenSource), () => setScreenFailure(screenSource)); }} onError={() => setScreenFailure(screenSource)} /></span>
+      {screenFailed && <img className="ps-furniture-fallback" src="/furniture/real-products/sofa-main.webp" alt="" draggable={false} decoding="async" />}
+    </span> : <img ref={image} src={eager ? source : undefined} data-detail={source} width={612} height={816}
       alt="" draggable={false} fetchPriority={index === 0 ? 'high' : 'auto'} decoding="async"
-      onLoad={event => { void event.currentTarget.decode().then(() => setReady(true), () => {}); }} />
+      onLoad={event => { void event.currentTarget.decode().then(() => setCoverReady(true), () => {}); }} />}
   </span>;
 }
