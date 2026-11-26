@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { HomeEdit } from './HomeEdit';
 import {
-  ArrowRight,
   Bookmark,
   ChevronRight,
   Coffee,
@@ -12,7 +11,7 @@ import {
   Stamp,
   Ticket,
 } from 'lucide-react';
-import { drinkById, money, price, say, type Locale, type Recipe } from './menu';
+import { money, say, type Locale, type Recipe } from './menu';
 import {
   clubBalance,
   dateOf,
@@ -26,7 +25,7 @@ import {
   type Cabinet,
   type Ticket as CoffeeTicket,
 } from './orders';
-import { Cup, DailyShelf, Sheet } from './MenuView';
+import { Sheet } from './MenuView';
 
 import { Campaign, type FeaturedDrink } from './Campaign';
 type GuestProps = { lang: Locale; data: Cabinet };
@@ -92,12 +91,10 @@ export function CoffeeHome({
   build,
   menu,
   openClub,
-  browse,
+  arc,
+  setArc,
   openBag,
-  saved,
-  openCup,
   receipt,
-  repeat,
   slide,
   setSlide,
   featured,
@@ -106,23 +103,18 @@ export function CoffeeHome({
   build: (r: Recipe) => void;
   menu: () => void;
   openClub: () => void;
-  browse: (query: string) => void;
+  arc: number;
+  setArc: (n: number) => void;
   openBag: () => void;
-  saved: () => void;
-  openCup: (r: Recipe) => void;
   receipt: (t: CoffeeTicket) => void;
-  repeat: (t: CoffeeTicket) => void;
   slide: number;
   setSlide: (n: number) => void;
   featured?: FeaturedDrink;
   feature: (drink: FeaturedDrink) => void;
 }) {
-  const ru = lang === 'ru';
   const active = data.orders.find((t) =>
     ['received', 'brewing', 'ready'].includes(stageOf(t)),
   );
-  const previous = data.orders.find((t) => stageOf(t) === 'collected');
-  const favorite = data.saved[0];
   return (
     <div className="tk-home-page">
       {active && (
@@ -146,52 +138,17 @@ export function CoffeeHome({
         build={build}
         menu={menu}
       />
-      <HomeEdit lang={lang} browse={browse} openBag={openBag} />
-      <DailyShelf
+      <HomeEdit
         lang={lang}
+        bag={data.bag}
         build={build}
+        catalogue={menu}
+        openBag={openBag}
         slide={slide}
         setSlide={setSlide}
-        catalogue={menu}
+        arc={arc}
+        setArc={setArc}
       />
-      {(favorite || previous) && (
-        <section className="tk-usual">
-          <div className="tk-section-title">
-            <h2>{ru ? 'Ваш обычный заказ' : 'Your usual'}</h2>
-          </div>
-          {favorite && (
-            <button onClick={() => openCup(favorite)}>
-              <Cup id={favorite.drink} />
-              <span>
-                <strong>{say(drinkById[favorite.drink].name, lang)}</strong>
-                <small>
-                  {(ru ? 'Сохранённый рецепт · ' : 'Saved recipe · ') +
-                    money(price(favorite), lang)}
-                </small>
-              </span>
-              <Bookmark size={18} />
-            </button>
-          )}
-          {previous && (
-            <button onClick={() => repeat(previous)}>
-              <RotateCcw size={22} />
-              <span>
-                <strong>{ru ? 'Повторить заказ' : 'Order again'}</strong>
-                <small>
-                  № {ticketNumber(previous)} · {dateOf(previous.pickup, lang)}
-                </small>
-              </span>
-              <ArrowRight size={18} />
-            </button>
-          )}
-          {data.saved.length > 1 && (
-            <button className="tk-text-button" onClick={saved}>
-              {ru ? 'Все мои рецепты' : 'All my recipes'}{' '}
-              <ChevronRight size={16} />
-            </button>
-          )}
-        </section>
-      )}
       <div className="tk-home-extras">
         <ClubCard lang={lang} data={data} open={openClub} />
       </div>

@@ -29,7 +29,6 @@ import {
   isBakery,
   type MenuSelection,
   say,
-  specials,
   type Locale,
   type Recipe,
 } from './menu';
@@ -112,98 +111,6 @@ export function Sheet({
     </dialog>
   );
 }
-export function DailyShelf({
-  lang,
-  build,
-  slide,
-  setSlide,
-  catalogue,
-}: {
-  lang: Locale;
-  build: (r: Recipe) => void;
-  slide: number;
-  setSlide: (n: number) => void;
-  catalogue: () => void;
-}) {
-  const ru = lang === 'ru';
-  const rail = useRef<HTMLDivElement>(null);
-  const initial = useRef(slide);
-  useLayoutEffect(() => {
-    const el = rail.current;
-    const child = el?.children[initial.current] as HTMLElement | undefined;
-    if (el && child) el.scrollLeft = child.offsetLeft;
-  }, []);
-  useEffect(() => {
-    const el = rail.current;
-    if (!el) return;
-    let frame = 0;
-    function update() {
-      if (!el) return;
-      const first = el.children[0] as HTMLElement,
-        second = el.children[1] as HTMLElement;
-      if (second && first)
-        setSlide(
-          Math.min(
-            specials.length - 1,
-            Math.round(el.scrollLeft / (second.offsetLeft - first.offsetLeft)),
-          ),
-        );
-    }
-    function scroll() {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(update);
-    }
-    el.addEventListener('scroll', scroll, { passive: true });
-    return () => {
-      cancelAnimationFrame(frame);
-      el.removeEventListener('scroll', scroll);
-    };
-  }, [setSlide]);
-  return (
-    <section className="tk-daily">
-      <div className="tk-section-title">
-        <h2>{ru ? 'Выбор бариста' : 'Barista picks'}</h2>
-        <button onClick={catalogue}>
-          {ru ? 'В каталог' : 'Full menu'} <ChevronRight size={16} />
-        </button>
-      </div>
-      <div
-        className="tk-rail"
-        ref={rail}
-        data-first={slide}
-        tabIndex={0}
-        role="region"
-        aria-label={ru ? 'Рецепты бариста' : 'Barista picks'}
-      >
-        {specials.map((s, i) => {
-          const d = drinkById[s.recipe.drink];
-          return (
-            <button
-              key={d.id}
-              className="tk-pick"
-              onClick={() => build(s.recipe)}
-              aria-label={
-                (ru ? 'Собрать ' : 'Build ') +
-                say(d.name, lang) +
-                ' · ' +
-                money(price(s.recipe), lang)
-              }
-            >
-              <span className="tk-product-image">
-                <Cup id={d.id} eager={i < 3} />
-              </span>
-              <span className="tk-product-copy">
-                <strong>{say(d.name, lang)}</strong>
-                <b>{money(price(s.recipe), lang)}</b>
-              </span>
-            </button>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
 export type Filter =
   | 'all'
   | 'lemonade'

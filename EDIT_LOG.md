@@ -4,6 +4,13 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-26 22:05 MSK — Rebuild the coffee home shelves around swipeable drinks and an opal-glass counter
+
+- Retained the seasonal campaign and guest club. The house-specials shelf opens a recipe or adds one drink with the plus button. The new-arrivals display moves the drinks along a curved counter, quotes the total for the chosen quantity and adds those portions to the bag. Photos, prices and saved carousel positions connect both shelves to the existing shop.
+- Applied an original opal-glass texture in three WebP sizes, with soft light behind the caption, individual glass stands and reflective backplates in each drink's colour. Refreshed the Russian and English showcase artwork.
+- The seasonal campaign and both shelves now share touch, mouse, keyboard and horizontal-wheel navigation. They settle immediately when reduced motion is enabled. The guest club, order history and the original store dock remain accessible.
+- Checkpoint `refs/checkpoints/before-coffee-home-rails` points to `8024da8b`. Verified the production build, 19 recipe and sharing tests, Chromium and WebKit shop flows, bilingual home shelves, actual track positions for both motion preferences, checkout quantities, Telegram touch scrolling and dock geometry. Static browser smoke reported zero console errors, page errors and failed requests. The three texture files decoded at their intended sizes. The project-wide TypeScript findings match the 61 baseline diagnostics. Screenshots and a mobile recording are in the November 26 workspace as `Coffee-home-glass.png` and `Coffee-home-motion.mp4`.
+
 ## 2026-11-26 21:34 MSK — Restore the photographic drink card and expand the coffee menu
 
 - Restored the ingredient map, native option sheets, cup-size selector and large photographic order portrait. The finished recipe lists choices and their total. Removed the ingredient animation and its rendering assets.

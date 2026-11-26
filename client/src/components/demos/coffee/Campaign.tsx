@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useDrinkCarousel } from './useDrinkCarousel';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -120,8 +120,11 @@ export function Campaign({
     collection[(index + collection.length - 1) % collection.length];
   const next = collection[(index + 1) % collection.length];
   const pageStart = Math.max(0, Math.min(collection.length - 5, index - 2));
-  const touch = useRef<{ x: number; y: number } | null>(null);
-  const swiped = useRef(false);
+  const { viewport, api, keyboard } = useDrinkCarousel(
+    index,
+    (i) => select(collection[i].id),
+    'hero',
+  );
   const name = say(drink.name, lang);
   const customLabel = (ru ? 'Настроить ' : 'Customize ') + name;
   return (
@@ -135,89 +138,84 @@ export function Campaign({
         <span className="tk-season-label">
           {ru ? 'Сезонная коллекция' : 'Seasonal collection'}
         </span>
-        <h1 id="tk-campaign-name">{name}</h1>
-        <p>{say(current.description, lang)}</p>
+        <h1 key={current.id} id="tk-campaign-name">
+          {name}
+        </h1>
+        <p key={'notes-' + current.id}>{say(current.description, lang)}</p>
       </div>
       <div
-        className="tk-campaign-stage"
-        onTouchStart={(event) => {
-          const p = event.touches[0];
-          touch.current = { x: p.clientX, y: p.clientY };
-          swiped.current = false;
-        }}
-        onPointerDown={() => {
-          swiped.current = false;
-        }}
-        onTouchCancel={() => {
-          touch.current = null;
-        }}
-        onTouchEnd={(event) => {
-          const origin = touch.current;
-          touch.current = null;
-          if (!origin) return;
-          const end = event.changedTouches[0],
-            dx = end.clientX - origin.x,
-            dy = end.clientY - origin.y;
-          if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.35) {
-            swiped.current = true;
-            select(dx < 0 ? next.id : previous.id);
-          }
-        }}
-        onClickCapture={(event) => {
-          if (swiped.current) {
-            event.stopPropagation();
-            swiped.current = false;
-          }
-        }}
+        className="tk-campaign-stage coffee-hero-window"
+        ref={viewport}
+        onKeyDown={keyboard}
+        role="region"
+        aria-label={
+          ru ? 'Карусель сезонных напитков' : 'Seasonal drink carousel'
+        }
+        data-ready={!!api}
       >
+        <div
+          className="coffee-hero-track"
+          data-layout-transform=""
+          aria-hidden="true"
+        >
+          {collection.map((item, i) => {
+            const active = i === index,
+              nearby = active || item === previous || item === next;
+            const splash = item.id === 'cherry-mocha';
+            const small = splash
+              ? '/takt-coffee/editorial/cherry-mocha-480.webp'
+              : art(item.id);
+            const large = splash
+              ? '/takt-coffee/editorial/cherry-mocha-900.webp'
+              : art(item.id, true);
+            return (
+              <div
+                className="coffee-hero-slide"
+                data-layout-transform=""
+                key={item.id}
+                data-id={item.id}
+              >
+                <div className="coffee-hero-pose" data-layout-transform="">
+                  <img
+                    className={
+                      'coffee-hero-photo' + (active ? ' tk-hero-cutout' : '')
+                    }
+                    alt=""
+                    src={small}
+                    srcSet={
+                      nearby
+                        ? small +
+                          (splash ? ' 480w, ' : ' 320w, ') +
+                          large +
+                          (splash ? ' 900w' : ' 800w')
+                        : undefined
+                    }
+                    sizes="(min-width: 700px) 420px, 72vw"
+                    width="430"
+                    height="560"
+                    draggable={false}
+                    fetchPriority={active ? 'high' : 'auto'}
+                    loading={nearby ? 'eager' : 'lazy'}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
         <button
           className="tk-hero-product"
           onClick={() => build(classic(drink.id))}
           aria-label={customLabel}
-        >
-          {current.id === 'cherry-mocha' ? (
-            <img
-              alt=""
-              className="tk-hero-cutout with-splash"
-              src="/takt-coffee/editorial/cherry-mocha-480.webp"
-              srcSet="/takt-coffee/editorial/cherry-mocha-480.webp 480w, /takt-coffee/editorial/cherry-mocha-900.webp 900w"
-              sizes="(min-width: 700px) 470px, 90vw"
-              width="480"
-              height="600"
-              fetchPriority="high"
-              draggable={false}
-            />
-          ) : (
-            <img
-              className="tk-hero-cutout"
-              alt=""
-              src={art(current.id, true)}
-              srcSet={
-                art(current.id) + ' 320w, ' + art(current.id, true) + ' 800w'
-              }
-              sizes="(min-width: 700px) 470px, 90vw"
-              width="430"
-              height="560"
-              draggable={false}
-            />
-          )}
-        </button>
+        />
         {[previous, next].map((item, i) => (
           <button
             key={i}
             className={'tk-neighbour ' + (i ? 'is-next' : 'is-previous')}
-            onClick={() => select(item.id)}
+            onClick={() => (i ? api?.scrollNext() : api?.scrollPrev())}
             aria-label={
               (ru ? 'Показать ' : 'Show ') + say(drinkById[item.id].name, lang)
             }
           >
-            <img
-              alt=""
-              src={art(item.id)}
-              width="56"
-              height="75"
-              draggable={false}
-            />
             <span>
               {i ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
             </span>
@@ -250,7 +248,7 @@ export function Campaign({
               key={item.id}
               aria-pressed={item.id === current.id}
               aria-label={say(drinkById[item.id].name, lang)}
-              onClick={() => select(item.id)}
+              onClick={() => api?.scrollTo(collection.indexOf(item))}
             >
               <span />
             </button>

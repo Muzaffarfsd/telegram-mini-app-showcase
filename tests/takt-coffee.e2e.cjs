@@ -513,6 +513,8 @@ async function mixedOrder(browser) {
     await tab(p, 'profile');
     await p.getByText(/Stamps · 1 \/ 5/).waitFor();
     await tab(p, 'home');
+    await p.locator('.tk-bell').click();
+    await p.locator('.tk-order-link').first().click();
     await p.getByRole('button', { name: /Order again/ }).click();
     assert.equal(await p.locator('.tk-line').count(), 2);
     assert.match(await p.locator('.tk-total').textContent(), /365 KGS/);
@@ -538,7 +540,7 @@ async function rewardsAndDock(browser) {
     assert.ok(await inside(p.locator('.tk-campaign-link')));
     for (const t of ['home', 'menu', 'bag', 'profile'])
       assert.ok(await inside(nav.locator('[data-tab=' + t + ']')));
-    await p.locator('.tk-pick').first().click();
+    await p.locator('.coffee-signature-product').first().click();
     assert.ok(
       await inside(p.locator('.tk-brew-next')),
       'builder CTA clears tabs on a short phone',

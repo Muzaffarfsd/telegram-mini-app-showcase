@@ -4,7 +4,6 @@ import {
   type Locale,
   type Recipe,
   type MenuSelection,
-  type BakerySelection,
   isBakery,
   validSelection,
   price,
@@ -185,27 +184,28 @@ function combine(bag: Line[], recipe: MenuSelection, qty: number): Line[] {
       )
     : [...bag, { recipe, qty }];
 }
-export function addRecipe(recipe: MenuSelection, editing?: string) {
+export function addRecipe(
+  recipe: MenuSelection,
+  editing?: string,
+  quantity = 1,
+) {
+  let added = false;
   update((s) => {
     const line = editing && s.bag.find((i) => recipeKey(i.recipe) === editing);
     const rest = line ? s.bag.filter((i) => i !== line) : s.bag;
-    return { ...s, bag: combine(rest, recipe, line ? line.qty : 1) };
-  });
-}
-export function addPair(drink: Recipe, pastry: BakerySelection) {
-  let added = false;
-  update((s) => {
+    const amount = line ? line.qty : quantity;
+    const existing = rest.find(
+      (i) => recipeKey(i.recipe) === recipeKey(recipe),
+    );
     if (
-      [drink, pastry].some((item) =>
-        s.bag.some(
-          (line) =>
-            recipeKey(line.recipe) === recipeKey(item) && line.qty >= 99,
-        ),
-      )
+      !Number.isInteger(amount) ||
+      amount < 1 ||
+      amount > 99 ||
+      (!line && (existing?.qty ?? 0) + amount > 99)
     )
       return s;
     added = true;
-    return { ...s, bag: combine(combine(s.bag, drink, 1), pastry, 1) };
+    return { ...s, bag: combine(rest, recipe, amount) };
   });
   return added;
 }

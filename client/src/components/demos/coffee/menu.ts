@@ -640,14 +640,5 @@ export function recipeParts(r: MenuSelection, lang: Locale) {
     ),
   ];
 }
-export const specials = [
-  { recipe: classic('cappuccino') },
-  { recipe: classic('yuzu-lemonade') },
-  { recipe: classic('espresso') },
-  { recipe: classic('orange-bumble') },
-  { recipe: { ...classic('flat-white'), beans: 'fruit' } },
-  { recipe: { ...classic('iced-latte'), milk: 'oat' } },
-  { recipe: classic('raspberry-lime') },
-];
 export const art = (id: string, large = false) =>
   '/takt-coffee/press/' + id + (large ? '-800' : '-320') + '.webp?v=paper2';

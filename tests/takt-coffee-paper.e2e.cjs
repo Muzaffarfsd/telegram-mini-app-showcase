@@ -16,6 +16,60 @@ const editions = [
   'cucumber-elderflower',
   'hibiscus-berry',
 ];
+async function verifyMotion(page) {
+  const rails = [
+    ['.tk-campaign', '.coffee-hero-track', '.tk-neighbour.is-next'],
+    [
+      '.coffee-signatures',
+      '.coffee-signature-track',
+      '.coffee-rail-arrows button:last-child',
+    ],
+    [
+      '.coffee-arrivals',
+      '.coffee-arc-track',
+      '.coffee-rail-arrows button:last-child',
+    ],
+  ];
+  for (const reduced of [false, true]) {
+    await page.emulateMedia({
+      reducedMotion: reduced ? 'reduce' : 'no-preference',
+    });
+    for (const [section, track, action] of rails) {
+      const stage = page.locator(section);
+      await stage.scrollIntoViewIfNeeded();
+      const positions = await stage.evaluate(
+        async (el, { track, action }) => {
+          const container = el.querySelector(track);
+          const x = () =>
+            new DOMMatrixReadOnly(getComputedStyle(container).transform).m41;
+          const points = [x()];
+          el.querySelector(action).click();
+          for (let i = 0; i < 28; i++) {
+            await new Promise(requestAnimationFrame);
+            points.push(x());
+          }
+          return points;
+        },
+        { track, action },
+      );
+      const end = positions.at(-1);
+      assert.ok(
+        Math.abs(end - positions[0]) > 24,
+        section + ' changes the actual visible position',
+      );
+      assert.ok(
+        positions.slice(-3).every((x) => Math.abs(x - end) < 1),
+        section + ' settles in 28 frames',
+      );
+      const steps = new Set(positions.map(Math.round)).size;
+      assert.ok(
+        reduced ? steps <= 2 : steps >= 3,
+        section + ' honours motion preference, positions ' + steps,
+      );
+    }
+  }
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+}
 async function check(browser, width, lang) {
   const ru = lang === 'ru',
     mobile = width < 700;
@@ -46,8 +100,11 @@ async function check(browser, width, lang) {
     const home = p.locator('.tk-campaign'),
       nav = p.locator('.mf-nav.tk-dock');
     const tab = (id) => nav.locator('[data-tab=' + id + ']').click();
-    const closeSheet = () => p.locator('dialog .tk-sheet-done').click();
-    await home.waitFor();
+    const closeSheet = async () => {
+      await p.locator('dialog .tk-sheet-done').click();
+      await p.locator('dialog').waitFor({ state: 'detached' });
+    };
+    await home.locator('.coffee-hero-window[data-ready=true]').waitFor();
     const next = home.locator('.tk-neighbour.is-next'),
       previous = home.locator('.tk-neighbour.is-previous');
     const action = home.locator('.tk-campaign-link');
@@ -55,17 +112,19 @@ async function check(browser, width, lang) {
     for (const id of editions) {
       assert.equal(await home.getAttribute('data-featured'), id);
       const photo = home.locator('.tk-hero-cutout');
-      const allLoaded = await home.locator('img').evaluateAll((images) =>
-        Promise.all(
-          images.map(async (img) => {
-            await img.decode();
-            return (
-              img.naturalWidth > 0 &&
-              getComputedStyle(img).objectFit === 'contain'
-            );
-          }),
-        ),
-      );
+      const allLoaded = await home
+        .locator('img[loading=eager]')
+        .evaluateAll((images) =>
+          Promise.all(
+            images.map(async (img) => {
+              await img.decode();
+              return (
+                img.naturalWidth > 0 &&
+                getComputedStyle(img).objectFit === 'contain'
+              );
+            }),
+          ),
+        );
       assert.ok(
         allLoaded.every(Boolean),
         'hero and both miniatures keep their natural proportions for ' + id,
@@ -83,19 +142,19 @@ async function check(browser, width, lang) {
     await next.click();
     if (mobile) {
       const stage = home.locator('.tk-campaign-stage');
-      await stage.evaluate((el) => {
-        function touch(type, x) {
-          const point = { identifier: 1, target: el, clientX: x, clientY: 160 };
-          const event = new Event(type, { bubbles: true });
-          Object.assign(event, {
-            touches: type === 'touchstart' ? [point] : [],
-            changedTouches: [point],
-          });
-          el.dispatchEvent(event);
-        }
-        touch('touchstart', 200);
-        touch('touchend', 95);
-      });
+      const rect = await stage.boundingBox(),
+        x = rect.x + rect.width * 0.58,
+        y = rect.y + rect.height * 0.48;
+      await p.waitForTimeout(280);
+      await p.mouse.move(x, y);
+      await p.mouse.down();
+      await p.mouse.move(x - rect.width * 0.39, y, { steps: 7 });
+      await p.mouse.up();
+      await p.waitForFunction(
+        () =>
+          document.querySelector('.tk-campaign')?.dataset.featured ===
+          'caramel-frappe',
+      );
       assert.equal(await home.getAttribute('data-featured'), 'caramel-frappe');
     }
     await tab('menu');
@@ -169,33 +228,78 @@ async function check(browser, width, lang) {
       ru ? /Лимонад юдзу/ : /Yuzu lemonade/,
     );
     assert.match(await p.locator('.tk-ticket').innerText(), /280/);
-    if (lang === 'en' && width === 390) {
+    await tab('home');
+    await p.locator('.coffee-signatures').waitFor();
+    assert.equal(
+      await p.locator('.coffee-edits,.tk-daily,.tk-usual').count(),
+      0,
+    );
+    const shelf = p.locator('.coffee-signature-window[data-ready=true]'),
+      arc = p.locator('.coffee-arc-window[data-ready=true]');
+    const first = p.locator('.coffee-signature-card').first();
+    await first.locator('.coffee-signature-add').click();
+    assert.equal(
+      await first.locator('.coffee-signature-add b').innerText(),
+      '1',
+    );
+    await shelf.press('ArrowRight');
+    await p.locator('.coffee-signature-window[data-first="1"]').waitFor();
+    await p
+      .locator('.coffee-signature-product[data-drink=raspberry-lime]')
+      .click();
+    await p.locator('.tk-builder').waitFor();
+    await p.goBack();
+    await shelf.waitFor();
+    assert.equal(await shelf.getAttribute('data-first'), '1');
+    const surfaces = await p.evaluate(async () => {
+      const imageURL = (el, pseudo) => {
+        const background = getComputedStyle(el, pseudo).backgroundImage;
+        return background.match(/url\(["']?([^"')]+)["']?\)/)?.[1];
+      };
+      const urls = [
+        imageURL(document.querySelector('.coffee-arc')),
+        imageURL(document.querySelector('.coffee-card-wash'), '::before'),
+      ];
+      return Promise.all(
+        urls.map(async (url) => {
+          const im = new Image();
+          im.src = url;
+          await im.decode();
+          return [new URL(im.src).pathname, im.naturalWidth];
+        }),
+      );
+    });
+    const pixelWidth = width >= 650 ? 1280 : 640;
+    assert.deepEqual(surfaces, [
+      ['/takt-coffee/editorial/opal-arc-' + pixelWidth + '.webp', pixelWidth],
+      ['/takt-coffee/editorial/opal-wash-320.webp', 320],
+    ]);
+    await arc.press('ArrowRight');
+    await p.locator('.coffee-arc-window[data-index="1"]').waitFor();
+    await p.locator('.coffee-portions button').last().click();
+    assert.equal(await p.locator('.coffee-portions output').innerText(), '2');
+    assert.match(await p.locator('.coffee-arc-add').innerText(), /500/);
+    await p.locator('.coffee-arc-add').click();
+    await p.locator('.coffee-arc-add').click();
+    await p.locator('.tk-line').first().waitFor();
+    assert.equal(await p.locator('.tk-line').count(), 2);
+    assert.match(await p.locator('.tk-total').innerText(), /780/);
+    await tab('home');
+    assert.equal(await arc.getAttribute('data-index'), '1');
+    await p.locator('.tk-home-extras .tk-club-card').click();
+    await p.locator('dialog .tk-club-rules').waitFor();
+    await closeSheet();
+    await arc.press('End');
+    await p.locator('.coffee-arc-window[data-index="7"]').waitFor();
+    await p.locator('.coffee-arc-title').click();
+    await p.locator('.tk-build-title').waitFor();
+    assert.match(
+      await p.locator('.tk-build-title').innerText(),
+      ru ? /каркаде/i : /hibiscus/i,
+    );
+    if (width === 390) {
       await tab('home');
-      await p.getByRole('button', { name: 'After lunch', exact: true }).click();
-      await p.getByRole('button', { name: 'Add pairing to bag' }).click();
-      assert.equal(await p.locator('.tk-line').count(), 2);
-      assert.match(await p.locator('.tk-total').innerText(), /265 KGS/);
-      await tab('home');
-      await p
-        .getByRole('button', { name: 'Morning duet', exact: true })
-        .click();
-      await p.getByRole('button', { name: 'Add pairing to bag' }).click();
-      assert.equal(await p.locator('.tk-line').count(), 4);
-      assert.match(await p.locator('.tk-total').innerText(), /640 KGS/);
-      await tab('home');
-      for (const [label, id] of [
-        ['Berry', 'cherry-mocha'],
-        ['Nutty', 'cappuccino'],
-        ['Chocolate', 'chocolate-cookie'],
-      ]) {
-        await p
-          .locator('.coffee-tastes')
-          .getByRole('button', { name: label })
-          .click();
-        await p.locator('.tk-card[data-drink=' + id + ']').waitFor();
-        assert.ok(await p.getByRole('searchbox').inputValue());
-        await tab('home');
-      }
+      await verifyMotion(p);
     }
     assert.deepEqual(errors, []);
     assert.deepEqual(assetErrors, []);

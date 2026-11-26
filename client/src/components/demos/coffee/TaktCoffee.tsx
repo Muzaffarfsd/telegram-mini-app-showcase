@@ -75,6 +75,7 @@ type Route = {
   sort?: Sort;
   tab?: CoffeeTab;
   slide: number;
+  arc?: number;
   recipe?: Recipe;
   editKey?: string;
   bakeryId?: BakeryId;
@@ -133,6 +134,7 @@ export default function TaktCoffee() {
           sort: latest.sort,
           query: latest.query,
           slide: latest.slide,
+          arc: latest.arc,
         });
       } else setRoute(entry);
     },
@@ -149,6 +151,7 @@ export default function TaktCoffee() {
       filter: route.filter,
       featured: route.featured,
       slide: route.slide,
+      arc: route.arc,
       ...next,
     };
     history.push(target);
@@ -330,17 +333,12 @@ export default function TaktCoffee() {
               build={build}
               menu={menu}
               openClub={() => panel('club')}
-              browse={(query) =>
-                go('menu', { filter: 'all', query, sort: 'house' })
-              }
               openBag={() => go('bag')}
-              saved={() => go('saved')}
-              openCup={(r) => go('cup', { recipe: r })}
               receipt={(t) => go('receipt', { orderId: t.id })}
-              repeat={(t) => {
-                repeatOrder(t);
-                go('bag');
-              }}
+              arc={route.arc ?? 0}
+              setArc={(arc) =>
+                setRoute((v) => (v.arc === arc ? v : { ...v, arc }))
+              }
               slide={route.slide}
               setSlide={setSlide}
               featured={route.featured}

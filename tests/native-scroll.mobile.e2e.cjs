@@ -116,10 +116,10 @@ async function checkCoffeeHost(browser) {
       document.querySelector('.tk-edition-pages [aria-pressed="true"]')?.getAttribute('aria-label') === document.getElementById('tk-campaign-name')?.textContent,
     );
     assert.equal(await p.locator('.tk-app').getAttribute('data-screen'), 'home', 'swiping the campaign selects the next drink without opening it');
-    await p.locator('.tk-rail').evaluate(el => el.scrollIntoView({block:'center'}));
-    const hero = await p.locator('.tk-rail').boundingBox();
+    await p.locator('.coffee-signature-window').evaluate(el => el.scrollIntoView({block:'center'}));
+    const hero = await p.locator('.coffee-signature-window').boundingBox();
     await swipe(cdp, [hero.x + hero.width - 24, hero.y + hero.height / 2], [hero.x + 20, hero.y + hero.height / 2]);
-    await p.waitForFunction(() => Number(document.querySelector('.tk-rail').dataset.first) > 0);
+    await p.waitForFunction(() => Number(document.querySelector('.coffee-signature-window').dataset.first) > 0);
     assert.equal(await p.locator('.tk-app').getAttribute('data-screen'), 'home', 'swiping does not select a drink');
     await dock.locator('[data-tab=menu]').tap();
     await p.locator('.tk-filter-trigger').click();
