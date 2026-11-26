@@ -80,6 +80,7 @@ async function exercise(width, height) {
     assert.ok(Math.abs(await page.evaluate(() => document.getElementById('root').scrollTop) - initialScroll) < 2, 'browser back preserves the product scroll position');
     await page.getByRole('button', { name: '3D-обзор', exact: true }).click();
     await page.locator('.rfv').getByRole('button', { name: 'Разместить в комнате' }).click();
+    await page.getByRole('button', { name: /^Своя комната/ }).click();
     await page.locator('[data-testid=furniture-planner]').waitFor({ timeout: 60000 });
     await page.keyboard.press('Escape');
     await page.locator('.rfv[role=dialog]').waitFor({ timeout: 30000 });

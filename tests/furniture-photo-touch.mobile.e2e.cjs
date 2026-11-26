@@ -1,0 +1,73 @@
+const assert = require('node:assert/strict');
+const { chromium, webkit } = require('playwright');
+
+(async () => {
+  const browser = await chromium.launch();
+  try {
+    const context = await browser.newContext({ viewport: { width: 320, height: 568 }, isMobile: true, hasTouch: true, locale: 'ru-RU', serviceWorkers: 'block' });
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await page.goto(new URL('/#/demos/furniture-studio/app', process.env.FURNITURE_TEST_URL || 'http://127.0.0.1:41755/').href);
+    await page.getByRole('button', { name: 'В каталог', exact: true }).first().click();
+    await page.locator('.fs-card-open').first().click();
+    const fourth = page.locator('.fs-gallery-thumbs button').nth(3);
+    await fourth.click();
+    assert.equal(await fourth.getAttribute('aria-pressed'), 'true', '3D action must not cover gallery thumbnails');
+    await page.locator('.fs-gallery-thumbs button').first().click();
+    await page.getByRole('button', { name: 'Увеличить фотографию' }).click();
+    const viewport = page.locator('.fs-zoom-viewport');
+    await viewport.waitFor();
+    if (process.env.PHOTO_TEST_SCREENSHOT) await page.screenshot({ path: process.env.PHOTO_TEST_SCREENSHOT });
+    const image = viewport.locator('img');
+    const initial = await image.getAttribute('src');
+    const rect = await viewport.boundingBox();
+    const cdp = await context.newCDPSession(page);
+    const send = (type, touchPoints) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints });
+    const cx = rect.x + rect.width / 2, cy = rect.y + rect.height / 2;
+    await send('touchStart', [{ x: cx - 35, y: cy, id: 1 }, { x: cx + 35, y: cy, id: 2 }]);
+    await send('touchMove', [{ x: cx - 75, y: cy, id: 1 }, { x: cx + 75, y: cy, id: 2 }]);
+    await send('touchEnd', []);
+    await page.waitForTimeout(100);
+    const scaled = await image.evaluate(el => new DOMMatrix(getComputedStyle(el).transform).a);
+    assert.ok(scaled > 1.3, `pinch should zoom the photo, got ${scaled}`);
+    await send('touchStart', [{ x: cx, y: cy, id: 1 }]);
+    await send('touchMove', [{ x: cx + 45, y: cy + 25, id: 1 }]);
+    await send('touchEnd', []);
+    await page.waitForTimeout(100);
+    const moved = await image.evaluate(el => new DOMMatrix(getComputedStyle(el).transform).e);
+    assert.ok(Math.abs(moved) > 5, `drag should move the enlarged photo, got ${moved}`);
+    await viewport.press('0');
+    await send('touchStart', [{ x: cx + 65, y: cy, id: 1 }]);
+    await send('touchMove', [{ x: cx - 30, y: cy, id: 1 }]);
+    await send('touchEnd', []);
+    await page.waitForFunction(previous => document.querySelector('.fs-zoom-viewport img')?.getAttribute('src') !== previous, initial);
+    await viewport.focus();
+    await viewport.press('ArrowLeft');
+    await page.waitForFunction(previous => document.querySelector('.fs-zoom-viewport img')?.getAttribute('src') === previous, initial);
+    assert.equal(await viewport.evaluate(el => document.activeElement === el), true, 'keyboard focus should stay on the photo while browsing');
+    assert.deepEqual(errors, []);
+    console.log('PASS photo zoom: pinch, pan, reset and swipe in mobile Chromium');
+    await context.close();
+  } finally { await browser.close(); }
+  const safari = await webkit.launch();
+  try {
+    const context = await safari.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, locale: 'ru-RU', serviceWorkers: 'block' });
+    const page = await context.newPage();
+    await page.goto(new URL('/#/demos/furniture-studio/app', process.env.FURNITURE_TEST_URL || 'http://127.0.0.1:41755/').href);
+    await page.getByRole('button', { name: 'В каталог', exact: true }).first().click();
+    await page.locator('.fs-card-open').first().click();
+    await page.getByRole('button', { name: 'Увеличить фотографию' }).click();
+    const viewport = page.locator('.fs-zoom-viewport');
+    await viewport.focus();
+    await viewport.press('+');
+    await page.waitForFunction(() => new DOMMatrix(getComputedStyle(document.querySelector('.fs-zoom-viewport img')).transform).a > 1);
+    await viewport.press('0');
+    const original = await viewport.locator('img').getAttribute('src');
+    await viewport.press('ArrowRight');
+    await page.waitForFunction(previous => document.querySelector('.fs-zoom-viewport img')?.getAttribute('src') !== previous, original);
+    assert.equal(await viewport.evaluate(el => document.activeElement === el), true);
+    console.log('PASS photo view: WebKit keyboard zoom, navigation and focus');
+    await Promise.race([context.close(), new Promise(resolve => setTimeout(resolve, 5000))]);
+  } finally { await Promise.race([safari.close(), new Promise(resolve => setTimeout(resolve, 5000))]); }
+})().then(() => process.exit(0)).catch(error => { console.error(error); process.exit(1); });

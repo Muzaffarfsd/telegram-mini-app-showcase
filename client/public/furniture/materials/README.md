@@ -14,8 +14,13 @@ These assets are used in the interactive furniture planner. The sources below ar
 | `lebombo_1k.hdr` | [Lebombo](https://polyhaven.com/a/lebombo) | Original 1K HDR environment. |
 | `potted-plant/` | [Potted Plant 02](https://polyhaven.com/a/potted_plant_02) | Original 1K glTF and texture files; scaled in the scene. |
 | `wood-floor-diff.jpg`, `wood-floor-normal.jpg` | [Wood Floor](https://polyhaven.com/a/wood_floor) | Original 1K texture maps, repeated and tinted in the scene. |
+| `laminate-floor-diff.jpg`, `laminate-floor-normal.jpg` | [Laminate Floor 02](https://polyhaven.com/a/laminate_floor_02), Charlotte Baglioni and Dario Barresi | Original 1K maps, tiled to the published 1.7 m × 1.7 m scale in the plan and interior. |
+| `ceiling-pendant/` | [Modern Ceiling Lamp 01](https://polyhaven.com/a/modern_ceiling_lamp_01), James Ray Cock | Original 1K glTF and texture files; scaled as a decorative fixed ceiling pendant. Only requested in the interior view. |
+| `pissarro-landscape.jpg` | [Landscape](https://www.metmuseum.org/art/collection/search/339645), Camille Pissarro, The Metropolitan Museum of Art | Original publicly available museum image, marked public domain by The Met; placed in a simple 3D frame as decorative context. Only requested in the interior view. |
 
 The cabinet, vase and plant are decorative context, not products for sale. The cabinet and vase are hidden when their floor footprint overlaps an editable product or the room is too small. The product models use separate source and licensing records.
+
+The picture is placed only on a free section of wall after openings, curtains, the shelf and tall products are considered; the left wall is a fallback. A directional shadow map is only refreshed when the room or products change. An optional variance shadow map is enabled only when the browser reports at least 4 GB of device memory and supports the required float render target; other devices use PCF shadows. These heuristics are not a substitute for testing performance on physical phones.
 
 ## Authored bookshelf module
 

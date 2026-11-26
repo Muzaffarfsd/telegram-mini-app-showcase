@@ -38,6 +38,7 @@ const site = process.env.PLANNER_TEST_URL || "http://127.0.0.1:41755/",
       await p
         .getByRole("button", { name: "Открыть планировщик", exact: true })
         .click();
+      await p.getByRole("button", { name: /^Своя комната/ }).click();
       await p.locator("[data-testid=furniture-planner]").waitFor();
       await p.waitForFunction(
         () =>

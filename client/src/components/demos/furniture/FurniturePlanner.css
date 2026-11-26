@@ -98,6 +98,11 @@
 .fpl-openings summary::after { content:'+'; font-size:20px; font-weight:400; }
 .fpl-openings[open] summary::after { content:'−'; }
 .fpl-openings summary:focus-visible { outline:2px solid #171717; outline-offset:2px; }
+.fpl-stage canvas:focus-visible { outline:3px solid #242321; outline-offset:-3px; }
+.fpl-item-actions { display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:14px; }
+.fpl-item-actions button { min-height:44px; padding:0; border:0; background:none; color:#524d47; font-size:12px; text-decoration:underline; text-underline-offset:3px; }
+.fpl-hint { color:#4f4a44; font-size:12px; line-height:1.55; }
+.fpl-hint strong { color:#292622; font-weight:650; }
 .fpl-openings p { color:#625c55; font-size:11px; line-height:1.5; }
 .fpl-openings fieldset { border:0; border-top:1px solid #e8e4df; padding:12px 0; margin:14px 0 0; min-width:0; }
 .fpl-openings legend { padding:0 5px 0 0; font-size:12px; font-weight:700; }

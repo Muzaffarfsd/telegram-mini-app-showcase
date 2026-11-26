@@ -12,20 +12,22 @@ const key = 'web4tg-furniture-planner-v1';
     await page.goto(new URL('/#/demos/furniture-studio/app', base).href, { waitUntil: 'domcontentloaded' });
     await page.getByTestId('furniture-store').waitFor();
     await page.getByRole('button', { name: 'Открыть планировщик', exact: true }).tap();
+    await page.getByRole('button', { name: /^Своя комната/ }).tap();
     await page.getByTestId('furniture-planner').waitFor();
     await page.waitForFunction(storageKey => {
-      const button = document.querySelector('[aria-label="Повернуть вправо на 15 градусов"]');
-      return button && !button.disabled && localStorage.getItem(storageKey);
+      const canvas = document.querySelector('.fpl-stage canvas');
+      const loading = Array.from(document.querySelectorAll('.fpl-status')).some(node => node.textContent.includes('Загружаем'));
+      return canvas && !loading && localStorage.getItem(storageKey);
     }, key, { timeout: 45000 });
     await page.waitForTimeout(500);
     const readPlan = () => page.evaluate(storageKey => JSON.parse(localStorage.getItem(storageKey)), key);
     const before = await readPlan();
     const initialSofa = before.items.find(item => item.productId === 'rivet-revolve-sofa');
     assert(initialSofa, 'initial plan should contain the selected sofa');
-    // Click and native browser Back in the same task, deliberately before the
+    // Rotate and native browser Back in the same task, deliberately before the
     // debounce timer can save. The unmount must persist the latest layout.
     await page.evaluate(() => {
-      document.querySelector('[aria-label="Повернуть вправо на 15 градусов"]').click();
+      document.querySelector('.fpl-stage canvas').dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', shiftKey: true, bubbles: true }));
       history.back();
     });
     await page.getByTestId('furniture-planner').waitFor({ state: 'detached' });
@@ -35,10 +37,12 @@ const key = 'web4tg-furniture-planner-v1';
     assert(savedSofa, 'the sofa is retained after Back');
     assert(Math.abs(savedSofa.rotation - initialSofa.rotation - Math.PI / 12) < 1e-4, 'Back persists the most recent rotation');
     await page.getByRole('button', { name: 'Открыть планировщик', exact: true }).tap();
+    await page.getByRole('button', { name: /^Своя комната/ }).tap();
     await page.getByTestId('furniture-planner').waitFor();
     await page.waitForFunction(storageKey => {
-      const button = document.querySelector('[aria-label="Повернуть вправо на 15 градусов"]');
-      return button && !button.disabled && JSON.parse(localStorage.getItem(storageKey)).items.length > 0;
+      const canvas = document.querySelector('.fpl-stage canvas');
+      const loading = Array.from(document.querySelectorAll('.fpl-status')).some(node => node.textContent.includes('Загружаем'));
+      return canvas && !loading && JSON.parse(localStorage.getItem(storageKey)).items.length > 0;
     }, key, { timeout: 45000 });
     const reopened = await readPlan();
     assert(Math.abs(reopened.items.find(item => item.id === initialSofa.id).rotation - savedSofa.rotation) < 1e-4, 'reopened plan retains the saved orientation');

@@ -22,8 +22,9 @@ async function openHome(page) {
 }
 async function openPlanner(page) {
   await page.getByRole('button', { name: 'Открыть планировщик', exact: true }).click();
+  await page.getByRole('button', { name: /^Своя комната/ }).click();
   await page.locator('[data-testid=furniture-planner]').waitFor();
-  await page.getByRole('button', { name: 'Повернуть вправо на 15 градусов' }).waitFor({ timeout: 45000 });
+  await page.locator('.fpl-stage canvas').waitFor({ timeout: 45000 });
   await page.waitForFunction(() => !Array.from(document.querySelectorAll('.fpl-status')).some(e => e.textContent.includes('Загружаем')), null, { timeout: 45000 });
   await waitSaved(page, value => value.items.length >= 1);
 }
@@ -54,7 +55,7 @@ async function checkPinch(page, context) {
   const beforeLayout = await layout(page);
   const before = await sharp(await canvas.screenshot()).ensureAlpha().raw().toBuffer();
   const box = await canvas.boundingBox();
-  const x = box.x + box.width * 0.5, y = box.y + box.height * 0.5;
+  const x = box.x + box.width * 0.20, y = box.y + box.height * 0.90;
   const cdp = await context.newCDPSession(page);
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x - 30, y, id: 1 }, { x: x + 30, y, id: 2 }] });
   for (let i = 1; i <= 6; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x - 30 - i * 8, y, id: 1 }, { x: x + 30 + i * 8, y, id: 2 }] });
@@ -107,14 +108,15 @@ async function exercise(browser, width) {
     await dragSofa(page, context);
     const dragged = await waitSaved(page, state => state.items.some(entry => entry.productId === 'rivet-revolve-sofa' && entry.x > 0.2));
     assert.ok(item(dragged).x > item(initial).x, 'touch drag should move sofa');
-    await page.getByRole('button', { name: 'Сдвинуть вправо на 10 см' }).click();
+    await page.locator('.fpl-stage canvas').focus();
+    await page.keyboard.press('ArrowRight');
     await page.waitForFunction(({ key, previous }) => {
       const state = JSON.parse(localStorage.getItem(key));
       return state.items.some(entry => entry.productId === 'rivet-revolve-sofa' && entry.x > previous + 0.05);
     }, { key, previous: item(dragged).x }, { timeout: 15000 });
     const moved = await layout(page);
-    assert.ok(item(moved).x > item(dragged).x, 'move button should change position');
-    await page.getByRole('button', { name: 'Повернуть вправо на 15 градусов' }).click();
+    assert.ok(item(moved).x > item(dragged).x, 'keyboard alternative should change position');
+    await page.keyboard.press('Shift+ArrowRight');
     const rotated = await waitSaved(page, state => state.items.some(entry => entry.productId === 'rivet-revolve-sofa' && entry.rotation > 0.2));
     assert.ok(Math.abs(item(rotated).rotation - Math.PI / 12) < 0.001);
     await page.getByRole('button', { name: 'Отменить действие' }).click();
@@ -151,7 +153,8 @@ async function exercise(browser, width) {
     await page.locator('.fpl-items button').first().click();
     let collision = false;
     for (let n = 0; n < 30; n++) {
-      await page.getByRole('button', { name: 'Сдвинуть вниз на 10 см' }).click();
+      await page.locator('.fpl-stage canvas').focus();
+      await page.keyboard.press('ArrowDown');
       if (await page.getByText('Здесь недостаточно места: проверьте границы и соседние предметы.').isVisible()) { collision = true; break; }
     }
     assert.ok(collision, 'collision should be rejected');
@@ -166,6 +169,7 @@ async function exercise(browser, width) {
     assert.equal(await page.locator('#root').evaluate(root => root.inert), false, 'store must be interactive after closing the planner');
     await page.locator('.fs-card-open').nth(2).click();
     await page.getByRole('button', { name: /Посмотреть в комнате/ }).click();
+    await page.getByRole('button', { name: /^Своя комната/ }).click();
     await page.locator('[data-testid=furniture-planner]').waitFor();
     const withWestview = await waitSaved(page, state => state.items.some(entry => entry.productId === 'stone-beam-westview'));
     for (const old of expanded.items) assert.deepEqual(withWestview.items.find(entry => entry.id === old.id), old, 'existing piece must be preserved');
@@ -191,6 +195,7 @@ async function fallback(browser) {
   try {
     await openHome(page);
     await page.getByRole('button', { name: 'Открыть планировщик', exact: true }).click();
+    await page.getByRole('button', { name: /^Своя комната/ }).click();
     await page.getByText('3D недоступно на этом устройстве. Сохранённый план останется на устройстве.').waitFor();
     await page.getByRole('button', { name: 'Закрыть планировщик' }).click();
     await page.locator('.fhome').waitFor();

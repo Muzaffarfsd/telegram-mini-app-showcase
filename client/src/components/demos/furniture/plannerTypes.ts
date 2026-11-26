@@ -84,6 +84,56 @@ export function bookshelfPlacement(room: PlannerRoom, items: readonly PlannerIte
   return { x, z, clear };
 }
 
+/** Find an actual free span on the back wall for an optional framed picture.
+ * Curtains, openings, the bookshelf and tall movable items all take precedence.
+ */
+export function picturePlacement(room: PlannerRoom, items: readonly PlannerItem[], products: readonly PlannerProduct[], shelfVisible: boolean): number | null {
+  const margin = 0.1, pictureHalf = 0.3;
+  const blocked: Array<[number, number]> = [];
+  const openings = roomOpenings(room);
+  if (openings.window) blocked.push([-room.width / 2 + openings.window.start - 0.44, -room.width / 2 + openings.window.start + openings.window.width + 0.44]);
+  if (openings.door) blocked.push([-room.width / 2 + openings.door.start - 0.08, -room.width / 2 + openings.door.start + openings.door.width + 0.08]);
+  if (shelfVisible) {
+    const shelf = bookshelfPlacement(room, items, products);
+    blocked.push([shelf.x - 0.68, shelf.x + 0.68]);
+  }
+  for (const item of items) {
+    const product = products.find(p => p.id === item.productId);
+    if (!product || product.heightM < 1.1) continue;
+    const half = footprint(product, item.rotation);
+    if (item.z - half.z <= -room.depth / 2 + 0.18) blocked.push([item.x - half.x - 0.05, item.x + half.x + 0.05]);
+  }
+  blocked.sort((a, b) => a[0] - b[0]);
+  let start = -room.width / 2 + margin;
+  let best: { length: number; x: number } | null = null;
+  for (const [left, right] of [...blocked, [room.width / 2 - margin, room.width / 2 - margin] as [number, number]]) {
+    const end = Math.min(left, room.width / 2 - margin);
+    if (end - start >= pictureHalf * 2 + 0.1 && (!best || end - start > best.length)) best = { length: end - start, x: (start + end) / 2 };
+    start = Math.max(start, right);
+  }
+  return best?.x ?? null;
+}
+
+/** A left-wall fallback when openings and shelves leave no usable back wall. */
+export function sidePicturePlacement(room: PlannerRoom, items: readonly PlannerItem[], products: readonly PlannerProduct[]): number | null {
+  const blocked: Array<[number, number]> = [];
+  for (const item of items) {
+    const product = products.find(p => p.id === item.productId);
+    if (!product || product.heightM < 1.1) continue;
+    const half = footprint(product, item.rotation);
+    if (item.x - half.x <= -room.width / 2 + 0.18) blocked.push([item.z - half.z - 0.05, item.z + half.z + 0.05]);
+  }
+  blocked.sort((a, b) => a[0] - b[0]);
+  let start = -room.depth / 2 + 0.1;
+  let best: { length: number; z: number } | null = null;
+  for (const [left, right] of [...blocked, [room.depth / 2 - 0.1, room.depth / 2 - 0.1] as [number, number]]) {
+    const end = Math.min(left, room.depth / 2 - 0.1);
+    if (end - start >= 0.7 && (!best || end - start > best.length)) best = { length: end - start, z: (start + end) / 2 };
+    start = Math.max(start, right);
+  }
+  return best?.z ?? null;
+}
+
 /** Room containment uses a conservative rotated bounding rectangle. */
 export function contain(item: PlannerItem, product: PlannerProduct, room: PlannerRoom): PlannerItem | null {
   const half = footprint(product, item.rotation);

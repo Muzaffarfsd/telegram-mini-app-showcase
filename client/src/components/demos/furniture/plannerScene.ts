@@ -4,10 +4,10 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import gardenImage from '../../../assets/furniture/house.webp';
-import { bookshelfPlacement, cabinetPlacement, footprint, roomOpenings, type PlannerItem, type PlannerProduct, type PlannerRoom, type PlannerView } from './plannerTypes';
+import { bookshelfPlacement, cabinetPlacement, footprint, picturePlacement, roomOpenings, sidePicturePlacement, type PlannerItem, type PlannerProduct, type PlannerRoom, type PlannerView } from './plannerTypes';
 
 type SceneState = { room: PlannerRoom; items: PlannerItem[]; products: readonly PlannerProduct[]; selected: string | null; view: PlannerView };
-type Callbacks = { onSelect: (id: string | null) => void; onMove: (id: string, x: number, z: number) => void; onDragStart: () => void; onDragEnd: () => void; onError: (text: string) => void; onModelError: (id: string, text: string) => void; onBounds: (id: string, size: { widthM: number; depthM: number; heightM: number }) => void };
+type Callbacks = { onSelect: (id: string | null) => void; onMove: (id: string, x: number, z: number) => void; onRotate: (id: string, rotation: number) => void; onDragStart: () => void; onDragEnd: () => void; onDragCancel: () => void; onError: (text: string) => void; onModelError: (id: string, text: string) => void; onBounds: (id: string, size: { widthM: number; depthM: number; heightM: number }) => void };
 
 /** One renderer, one shared GLB per product, rendered only on interaction/change. */
 export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbacks) {
@@ -17,21 +17,32 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1;
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  // VSM uses additional float render targets. Only opt in when a browser
+  // explicitly reports enough memory; unknown or constrained devices use PCF.
+  const reportedMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+  const canUseSoftShadows = reportedMemory !== undefined && reportedMemory >= 4 && renderer.capabilities.isWebGL2 && renderer.extensions.has('EXT_color_buffer_float');
+  renderer.shadowMap.type = canUseSoftShadows ? THREE.VSMShadowMap : THREE.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = false;
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#eeeae4');
   const architecture = new THREE.Group(), objects = new THREE.Group();
   scene.add(architecture, objects);
-  scene.add(new THREE.HemisphereLight('#f8f7f1', '#8d8275', 0.8));
-  const sun = new THREE.DirectionalLight('#fff8ed', 1.4); sun.position.set(-4, 7, -5);
-  const windowFill = new THREE.PointLight('#fff4df', 1.8, 7, 2); scene.add(windowFill);
+  scene.add(new THREE.HemisphereLight('#faf9f5', '#b5a89b', 0.85));
+  // A plan is viewed from a cutaway above the room, so it needs independent
+  // fill light rather than inheriting the much darker inside-room exposure.
+  const planFill = new THREE.HemisphereLight('#ffffff', '#d2c4b4', 1.05);
+  scene.add(planFill);
+  const sun = new THREE.DirectionalLight('#fff2dd', 2.6); sun.position.set(3.5, 6, -9);
+  const windowFill = new THREE.PointLight('#fff4df', 0.65, 7, 2); scene.add(windowFill);
   sun.castShadow = true;
   sun.shadow.mapSize.set(1024, 1024);
+  sun.shadow.radius = 4;
+  sun.shadow.blurSamples = 8;
   sun.shadow.camera.left = -8; sun.shadow.camera.right = 8;
   sun.shadow.camera.top = 8; sun.shadow.camera.bottom = -8;
   sun.shadow.camera.near = 0.5; sun.shadow.camera.far = 25;
-  sun.shadow.bias = -0.00015; sun.shadow.normalBias = 0.02;
-  sun.shadow.intensity = 0.3;
+  sun.shadow.bias = -0.00012; sun.shadow.normalBias = 0.015;
+  sun.shadow.intensity = 0.65;
   scene.add(sun);
   const perspective = new THREE.PerspectiveCamera(52, 1, 0.05, 80);
   const top = new THREE.OrthographicCamera(-3, 3, 3, -3, 0.1, 80);
@@ -54,11 +65,15 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
   let plant: THREE.Group | null = null, plantRequested = false;
   let decor: THREE.Group | null = null, decorRequested = false, decorClear = false;
   let bookshelf: THREE.Group | null = null, bookshelfRequested = false, bookshelfClear = false;
+  let pendant: THREE.Group | null = null, pendantRequested = false;
+  let wallPicture: THREE.Group | null = null, wallPictureRequested = false, pictureClear = false, pictureOnSide = false;
   let perspectiveResourcesRequested = false;
-  let dragging: { pointer: number; id: string; x: number; z: number } | null = null;
+  let dragging: { pointer: number; id: string; x: number; z: number; startX: number; startY: number; moved: boolean } | null = null;
+  let panning: { pointer: number; x: number; y: number } | null = null;
+  let rotating: { id: string; angle: number; rotation: number } | null = null;
   const planTouches = new Map<number, { x: number; y: number }>();
   let planPinch: { distance: number; midpoint: { x: number; y: number } } | null = null;
-  let highlight: THREE.BoxHelper | null = null;
+  let highlight: THREE.LineLoop | null = null;
   const camera = () => state.view === 'top' ? top : perspective;
   const draw = () => { if (!destroyed && !frame) frame = requestAnimationFrame(() => {
     frame = 0;
@@ -71,6 +86,13 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
       if (ceiling) ceiling.visible = state.view === 'perspective' && perspective.position.y < 2.58;
       if (decor) decor.visible = decorClear && state.view === 'perspective' && perspective.position.x < state.room.width / 2 - 0.04;
       if (bookshelf) bookshelf.visible = bookshelfClear && state.view === 'perspective' && perspective.position.z > -state.room.depth / 2 + 0.04;
+      if (pendant) pendant.visible = state.view === 'perspective' && perspective.position.y < 2.58;
+      if (wallPicture) wallPicture.visible = pictureClear && state.view === 'perspective' && (pictureOnSide ? perspective.position.x > -state.room.width / 2 + 0.04 : perspective.position.z > -state.room.depth / 2 + 0.04);
+      planFill.visible = state.view === 'top';
+      sun.intensity = state.view === 'top' ? 1.15 : 2.6;
+      sun.shadow.intensity = state.view === 'top' ? 0.15 : 0.6;
+      renderer.toneMappingExposure = state.view === 'top' ? 1.22 : 1;
+      (scene.background as THREE.Color).set(state.view === 'top' ? '#d8d4ce' : '#eeeae4');
       renderer.render(scene, camera());
     }
   }); };
@@ -113,11 +135,15 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
     architecture.children.slice().forEach(node => { architecture.remove(node); disposeGroup(node); });
     backWall = null; sideWall = null; rightWall = null; ceiling = null;
     const { width: w, depth: d } = room;
+    const shadowExtent = Math.max(4, Math.hypot(w, d) / 2 + 2);
+    sun.shadow.camera.left = -shadowExtent; sun.shadow.camera.right = shadowExtent;
+    sun.shadow.camera.top = shadowExtent; sun.shadow.camera.bottom = -shadowExtent;
+    sun.shadow.camera.updateProjectionMatrix();
     const floor = block(architecture, w, 0.06, d, 0, -0.031, 0, '#c3ae9c');
     floor.receiveShadow = true;
     const floorMaterial = floor.material as THREE.MeshStandardMaterial;
-    if (wood) { const texture = wood.clone(); texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.repeat.set(w / 2, d / 2); texture.needsUpdate = true; floorMaterial.map = texture; floorMaterial.color.set('#c9dce8'); floorMaterial.roughness = 0.86; }
-    if (normal) { const texture = normal.clone(); texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.repeat.set(w / 2, d / 2); texture.needsUpdate = true; floorMaterial.normalMap = texture; floorMaterial.normalScale.set(0.35, 0.35); }
+    if (wood) { const texture = wood.clone(); texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.repeat.set(w / 1.7, d / 1.7); texture.needsUpdate = true; floorMaterial.map = texture; floorMaterial.color.set('#fffdf9'); floorMaterial.roughness = 0.86; }
+    if (normal) { const texture = normal.clone(); texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.repeat.set(w / 1.7, d / 1.7); texture.needsUpdate = true; floorMaterial.normalMap = texture; floorMaterial.normalScale.set(0.25, 0.25); }
     const points: number[] = [];
     for (let x = -w / 2 + 0.22; x < w / 2; x += 0.22) points.push(x, 0.001, -d / 2, x, 0.001, d / 2);
     const grid = new THREE.BufferGeometry(); grid.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
@@ -132,15 +158,30 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
     if (rugTexture) { const map = rugTexture.clone(); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(rugWidth / 1.8, rugDepth / 0.9); map.needsUpdate = true; (rug.material as THREE.MeshStandardMaterial).map = map; }
     if (rugNormal) { const map = rugNormal.clone(); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(rugWidth / 1.8, rugDepth / 0.9); map.needsUpdate = true; (rug.material as THREE.MeshStandardMaterial).normalMap = map; (rug.material as THREE.MeshStandardMaterial).normalScale.set(0.3, 0.3); }
     if (view === 'top') {
-      // The gaps on the back wall use the same coordinates as the 3D mesh.
+      // Show a physical cut through walls on the exterior side of the room
+      // boundary.  This keeps the advertised floor area and product footprints
+      // unchanged; the gaps use exactly the perspective room's coordinates.
       const openings = roomOpenings(room), z = -d / 2;
       const spans = [openings.window, openings.door].filter((opening): opening is NonNullable<typeof opening> => Boolean(opening)).sort((a, b) => a.start - b.start);
-      const lines: number[] = [-w / 2, 0.04, z, -w / 2, 0.04, d / 2, w / 2, 0.04, z, w / 2, 0.04, d / 2, -w / 2, 0.04, d / 2, w / 2, 0.04, d / 2];
+      const wallDepth = 0.12, wallHeight = 0.14;
+      const planWall = (width: number, depth: number, x: number, wallZ: number) => {
+        if (width < 0.001 || depth < 0.001) return;
+        const part = block(architecture, width, wallHeight, depth, x, wallHeight / 2, wallZ, '#f1eee8');
+        part.castShadow = true; part.receiveShadow = true;
+      };
+      planWall(w + 2 * wallDepth, wallDepth, 0, d / 2 + wallDepth / 2);
+      planWall(wallDepth, d, -w / 2 - wallDepth / 2, 0);
+      planWall(wallDepth, d, w / 2 + wallDepth / 2, 0);
       let cursor = -w / 2;
-      for (const opening of spans) { const a = -w / 2 + opening.start; lines.push(cursor, 0.04, z, a, 0.04, z); cursor = a + opening.width; }
-      lines.push(cursor, 0.04, z, w / 2, 0.04, z);
-      const outline = new THREE.BufferGeometry(); outline.setAttribute('position', new THREE.Float32BufferAttribute(lines, 3));
-      architecture.add(new THREE.LineSegments(outline, new THREE.LineBasicMaterial({ color: '#403b35' })));
+      for (const opening of spans) {
+        const start = -w / 2 + opening.start;
+        planWall(start - cursor, wallDepth, (cursor + start) / 2, z - wallDepth / 2);
+        cursor = start + opening.width;
+      }
+      planWall(w / 2 - cursor, wallDepth, (cursor + w / 2) / 2, z - wallDepth / 2);
+      // Close the outside corners without bridging door or window openings.
+      planWall(wallDepth, wallDepth, -w / 2 - wallDepth / 2, z - wallDepth / 2);
+      planWall(wallDepth, wallDepth, w / 2 + wallDepth / 2, z - wallDepth / 2);
       for (const [opening, color] of [[openings.window, '#568794'], [openings.door, '#b07442']] as const) {
         if (!opening) continue;
         const marker = new THREE.Mesh(new THREE.PlaneGeometry(opening.width, 0.055), new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide }));
@@ -176,7 +217,7 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
       const returnWall = block(sideWall, 0.10, h, d, -w / 2, h / 2, 0, wall);
       const rightReturnWall = block(rightWall, 0.10, h, d, w / 2, h / 2, 0, wall);
       [...wallPieces, returnWall, rightReturnWall].forEach(mesh => {
-        mesh.receiveShadow = true;
+        mesh.receiveShadow = true; mesh.castShadow = true;
         if (plaster) {
           const texture = plaster.clone(); texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
           texture.repeat.set((mesh === returnWall || mesh === rightReturnWall ? d : w) / 1.5, h / 1.5); texture.needsUpdate = true;
@@ -188,12 +229,18 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
         const pane = block(backWall, windowWidth, 1.79, 0.025, windowX, 1.325, backZ - 0.07, '#d1d6cf');
         pane.material.dispose();
         if (garden) {
-          const map = garden.clone(); map.repeat.set(0.20, 0.70); map.offset.set(0.12, 0.29); map.needsUpdate = true;
-          (pane as THREE.Mesh<THREE.BoxGeometry, THREE.Material>).material = new THREE.MeshBasicMaterial({ map, color: '#b9b9b0' });
+          // Keep the outdoor view behind this window only.  A large unmasked
+          // backdrop would incorrectly appear through doors and cutaway walls.
+          const map = garden.clone();
+          const crop = Math.min(1, windowWidth / 1.79 / (1100 / 329));
+          map.repeat.set(crop, 1); map.offset.set((1 - crop) / 2, 0); map.needsUpdate = true;
+          const landscape = new THREE.Mesh(new THREE.PlaneGeometry(windowWidth, 1.79), new THREE.MeshBasicMaterial({ map, side: THREE.DoubleSide, toneMapped: false }));
+          landscape.position.set(windowX, 1.325, backZ - 0.22); backWall.add(landscape);
+          (pane as THREE.Mesh<THREE.BoxGeometry, THREE.Material>).material = new THREE.MeshPhysicalMaterial({ color: '#e5eeec', transparent: true, opacity: 0.12, roughness: 0.12, metalness: 0, depthWrite: false });
         } else (pane as THREE.Mesh<THREE.BoxGeometry, THREE.Material>).material = new THREE.MeshBasicMaterial({ color: '#d9dfd9' });
         const frameColor = '#6f6a60';
-        for (const x of [-windowWidth / 2, 0, windowWidth / 2]) block(backWall, 0.045, 1.82, 0.065, windowX + x, 1.325, backZ, frameColor);
-        for (const y of [0.43, 2.22]) block(backWall, windowWidth, 0.045, 0.065, windowX, y, backZ, frameColor);
+        for (const x of [-windowWidth / 2, 0, windowWidth / 2]) block(backWall, 0.045, 1.82, 0.065, windowX + x, 1.325, backZ, frameColor).castShadow = true;
+        for (const y of [0.43, 2.22]) block(backWall, windowWidth, 0.045, 0.065, windowX, y, backZ, frameColor).castShadow = true;
         block(backWall, windowWidth + 0.12, 0.035, 0.16, windowX, 0.412, backZ + 0.035, '#f4efe6');
         // Each curtain is clamped to the actual available wall beside the opening.
         for (const sign of [-1, 1]) {
@@ -213,12 +260,20 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
           if (linen) { const map = linen.clone(); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(0.65, 2.6); map.needsUpdate = true; cloth.map = map; }
           if (linenNormal) { const map = linenNormal.clone(); map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(0.65, 2.6); map.needsUpdate = true; cloth.normalMap = map; cloth.normalScale.set(0.2, 0.2); }
           const curtain = new THREE.Mesh(geometry, cloth);
-          curtain.position.set(windowX + sign * (windowWidth / 2 + curtainWidth * 0.35), 1.25, backZ + 0.105); curtain.receiveShadow = true; backWall.add(curtain);
+          curtain.position.set(windowX + sign * (windowWidth / 2 + curtainWidth * 0.35), 1.25, backZ + 0.105); curtain.receiveShadow = true; curtain.castShadow = true; backWall.add(curtain);
         }
       }
       if (openings.door) {
         const doorLeft = -w / 2 + openings.door.start, doorRight = doorLeft + openings.door.width;
         for (const [a, b] of [[-w / 2, doorLeft], [doorRight, w / 2]]) if (b - a > 0.001) block(backWall, b - a, 0.085, 0.035, (a + b) / 2, 0.0425, backZ + 0.07, '#f1ede5');
+        // Doorway casing stays outside the stated clear opening. The passage
+        // remains empty: there is deliberately no invented door or swing.
+        for (const x of [doorLeft - 0.025, doorRight + 0.025]) {
+          const jamb = block(backWall, 0.05, 2.1, 0.14, x, 1.05, backZ - 0.01, '#e8e2d9');
+          jamb.castShadow = true; jamb.receiveShadow = true;
+        }
+        const lintel = block(backWall, openings.door.width + 0.1, 0.05, 0.14, (doorLeft + doorRight) / 2, 2.125, backZ - 0.01, '#e8e2d9');
+        lintel.castShadow = true; lintel.receiveShadow = true;
       } else block(backWall, w, 0.085, 0.035, 0, 0.0425, backZ + 0.07, '#f1ede5');
       block(sideWall, 0.035, 0.085, d, -w / 2 + 0.07, 0.0425, 0, '#f1ede5');
       block(rightWall, 0.035, 0.085, d, w / 2 - 0.07, 0.0425, 0, '#f1ede5');
@@ -289,7 +344,13 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
     promise.then(source => {
       if (destroyed) return;
       if (!instances.has(item.id) || instances.get(item.id) !== anchor) return;
-      const model = source.clone(true), box = new THREE.Box3().setFromObject(model), size = box.getSize(new THREE.Vector3()), center = box.getCenter(new THREE.Vector3());
+      const model = source.clone(true);
+      // Product GLBs may contain studio lights for individual inspection.
+      // Room lighting belongs to the room, so copies must not add extra lights.
+      const embeddedLights: THREE.Light[] = [];
+      model.traverse(node => { if (node instanceof THREE.Light) embeddedLights.push(node); });
+      embeddedLights.forEach(light => light.removeFromParent());
+      const box = new THREE.Box3().setFromObject(model), size = box.getSize(new THREE.Vector3()), center = box.getCenter(new THREE.Vector3());
       // Preserve dynamic floor shadows while avoiding self-shadow acne on
       // the highly detailed catalog meshes at mobile shadow-map resolution.
       model.traverse(node => { if (node instanceof THREE.Mesh) { node.castShadow = true; node.receiveShadow = false; } });
@@ -302,14 +363,27 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
   }
   function updateHighlight() {
     if (highlight) { scene.remove(highlight); highlight.geometry.dispose(); (highlight.material as THREE.Material).dispose(); highlight = null; }
-    const target = state.view === 'top' && state.selected ? models.get(state.selected) : undefined;
-    if (target) { target.updateWorldMatrix(true, true); highlight = new THREE.BoxHelper(target, '#242424'); scene.add(highlight); }
+    const selected = state.view === 'top' ? state.items.find(item => item.id === state.selected) : undefined;
+    const product = selected && state.products.find(entry => entry.id === selected.productId);
+    if (selected && product && models.has(selected.id)) {
+      const x = product.widthM / 2 + 0.055, z = product.depthM / 2 + 0.055;
+      const geometry = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-x, 0, -z), new THREE.Vector3(x, 0, -z),
+        new THREE.Vector3(x, 0, z), new THREE.Vector3(-x, 0, z),
+      ]);
+      highlight = new THREE.LineLoop(geometry, new THREE.LineBasicMaterial({ color: '#34483f', transparent: true, opacity: 0.86 }));
+      highlight.position.set(selected.x, 0.045, selected.z);
+      highlight.rotation.y = -selected.rotation;
+      scene.add(highlight);
+    }
   }
   function update(next: SceneState) {
     if (destroyed) return;
     const oldSelection = state.selected;
     if (state.view !== next.view || state.room.width !== next.room.width || state.room.depth !== next.room.depth) {
-      planTouches.clear(); planPinch = null;
+      planTouches.clear(); planPinch = null; panning = null;
+      if (dragging || rotating) callbacks.onDragEnd();
+      dragging = null; rotating = null;
       if (state.room.width !== next.room.width || state.room.depth !== next.room.depth) {
         top.zoom = 1; top.position.set(0, 14, 0); top.updateProjectionMatrix();
       }
@@ -317,6 +391,39 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
     state = next;
     if (architectureKey !== `${next.room.width}:${next.room.depth}:${next.view}:${JSON.stringify(next.room.openings ?? null)}`) rebuildRoom(next.room, next.view);
     if (next.view === 'perspective') loadPerspectiveResources();
+    if (next.view === 'perspective' && !pendantRequested) {
+      pendantRequested = true;
+      void loader.loadAsync('/furniture/materials/ceiling-pendant/modern_ceiling_lamp_01_1k.gltf').then(gltf => {
+        if (destroyed) { disposeGroup(gltf.scene); return; }
+        const box = new THREE.Box3().setFromObject(gltf.scene), size = box.getSize(new THREE.Vector3()), center = box.getCenter(new THREE.Vector3());
+        if (!(size.y > 0)) { disposeGroup(gltf.scene); return; }
+        const scale = 0.62 / size.y;
+        gltf.scene.scale.setScalar(scale);
+        gltf.scene.position.set(-center.x * scale, 2.58 - box.max.y * scale, -center.z * scale);
+        pendant = new THREE.Group(); pendant.add(gltf.scene); scene.add(pendant);
+        update(state); refreshAfterResourceChange();
+      }).catch(() => {});
+    }
+    if (next.view === 'perspective' && !wallPictureRequested) {
+      wallPictureRequested = true;
+      void new THREE.TextureLoader().loadAsync('/furniture/materials/pissarro-landscape.jpg').then(texture => {
+        if (destroyed) { texture.dispose(); return; }
+        texture.colorSpace = THREE.SRGBColorSpace;
+        wallPicture = new THREE.Group();
+        // A real public-domain artwork on a shallow, physical frame and mat.
+        const mat = new THREE.Mesh(new THREE.PlaneGeometry(0.57, 0.817), new THREE.MeshStandardMaterial({ color: '#f4f0e8', roughness: 0.9 }));
+        wallPicture.add(mat);
+        const print = new THREE.Mesh(new THREE.PlaneGeometry(0.50, 0.661), new THREE.MeshBasicMaterial({ map: texture, toneMapped: false }));
+        print.position.z = 0.002; wallPicture.add(print);
+        const frameMaterial = new THREE.MeshStandardMaterial({ color: '#3d352e', roughness: 0.6 });
+        for (const [width, height, x, y] of [[0.594, 0.012, 0, 0.414], [0.594, 0.012, 0, -0.414], [0.012, 0.817, -0.291, 0], [0.012, 0.817, 0.291, 0]]) {
+          const edge = new THREE.Mesh(new THREE.BoxGeometry(width, height, 0.016), frameMaterial);
+          edge.position.set(x, y, 0.005); wallPicture.add(edge);
+        }
+        scene.add(wallPicture);
+        update(state); refreshAfterResourceChange();
+      }).catch(() => {});
+    }
     if (next.view === 'perspective' && !plantRequested) {
       plantRequested = true;
       void loader.loadAsync('/furniture/materials/potted-plant/potted_plant_02_1k.gltf').then(gltf => {
@@ -388,6 +495,13 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
     }
     // The existing cabinet occupies this back-right corner; show one module.
     if (bookshelfClear) decorClear = false;
+    if (wallPicture) {
+      const position = picturePlacement(next.room, next.items, next.products, bookshelfClear);
+      const side = position === null ? sidePicturePlacement(next.room, next.items, next.products) : null;
+      pictureClear = position !== null || side !== null; pictureOnSide = position === null;
+      if (position !== null) { wallPicture.position.set(position, 1.55, -next.room.depth / 2 + 0.055); wallPicture.rotation.y = 0; }
+      else if (side !== null) { wallPicture.position.set(-next.room.width / 2 + 0.055, 1.55, side); wallPicture.rotation.y = Math.PI / 2; }
+    }
     const doorway = roomOpenings(next.room).door;
     const doorCenter = doorway ? -next.room.width / 2 + doorway.start + doorway.width / 2 : 0;
     if (doorway && decor) {
@@ -417,10 +531,11 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
       const instance = instances.get(item.id)!; instance.position.set(item.x, 0, item.z); instance.rotation.y = -item.rotation;
     }
     if (oldSelection !== next.selected || next.selected) updateHighlight();
+    renderer.shadowMap.needsUpdate = true;
     draw();
   }
-  void new THREE.TextureLoader().loadAsync('/furniture/materials/wood-floor-diff.jpg').then(texture => { if (destroyed) { texture.dispose(); return; } texture.colorSpace = THREE.SRGBColorSpace; wood = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
-  void new THREE.TextureLoader().loadAsync('/furniture/materials/wood-floor-normal.jpg').then(texture => { if (destroyed) { texture.dispose(); return; } normal = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
+  void new THREE.TextureLoader().loadAsync('/furniture/materials/laminate-floor-diff.jpg').then(texture => { if (destroyed) { texture.dispose(); return; } texture.colorSpace = THREE.SRGBColorSpace; wood = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
+  void new THREE.TextureLoader().loadAsync('/furniture/materials/laminate-floor-normal.jpg').then(texture => { if (destroyed) { texture.dispose(); return; } normal = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
   void new THREE.TextureLoader().loadAsync('/furniture/materials/carpet-color.jpg').then(texture => { if (destroyed) { texture.dispose(); return; } texture.colorSpace = THREE.SRGBColorSpace; rugTexture = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
   void new THREE.TextureLoader().loadAsync('/furniture/materials/carpet-normal.jpg').then(texture => { if (destroyed) { texture.dispose(); return; } rugNormal = texture; architectureKey = ''; update(state); refreshAfterResourceChange(); }).catch(() => {});
   function loadPerspectiveResources() {
@@ -437,15 +552,18 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
   function pair() {
     const [a, b] = Array.from(planTouches.values());
     if (!a || !b) return null;
-    return { distance: Math.hypot(a.x - b.x, a.y - b.y), midpoint: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } };
+    return { distance: Math.hypot(a.x - b.x, a.y - b.y), angle: Math.atan2(b.y - a.y, b.x - a.x), midpoint: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } };
   }
   function onDown(e: PointerEvent) {
     if (state.view !== 'top') return;
     if (e.pointerType === 'touch') {
       planTouches.set(e.pointerId, { x: e.clientX, y: e.clientY });
       if (planTouches.size === 2) {
-        if (dragging) { dragging = null; callbacks.onDragEnd(); }
-        planPinch = pair();
+        const gesture = pair();
+        const item = dragging && state.items.find(i => i.id === dragging?.id);
+        if (gesture && item) rotating = { id: item.id, angle: gesture.angle, rotation: item.rotation };
+        else planPinch = gesture;
+        dragging = null; panning = null;
         canvas.setPointerCapture(e.pointerId); e.preventDefault(); return;
       }
       if (planTouches.size > 1) return;
@@ -453,16 +571,25 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
     if (!e.isPrimary || e.button !== 0) return;
     point(e);
     const hit = raycaster.intersectObjects(Array.from(models.values()), true)[0];
-    if (!hit) { callbacks.onSelect(null); return; }
+    if (!hit) { panning = { pointer: e.pointerId, x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); e.preventDefault(); return; }
     let node: THREE.Object3D | null = hit.object;
     while (node && !node.userData.plannerId) node = node.parent;
     const id = node?.userData.plannerId as string | undefined, item = state.items.find(i => i.id === id), p = raycaster.ray.intersectPlane(ground, new THREE.Vector3());
     if (!id || !item || !p) return;
-    callbacks.onSelect(id); callbacks.onDragStart(); dragging = { pointer: e.pointerId, id, x: item.x - p.x, z: item.z - p.z }; canvas.setPointerCapture(e.pointerId); e.preventDefault();
+    callbacks.onSelect(id); callbacks.onDragStart(); dragging = { pointer: e.pointerId, id, x: item.x - p.x, z: item.z - p.z, startX: e.clientX, startY: e.clientY, moved: false }; canvas.setPointerCapture(e.pointerId); e.preventDefault();
   }
   function onMove(e: PointerEvent) {
     if (state.view !== 'top') return;
     if (planTouches.has(e.pointerId)) planTouches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (rotating && planTouches.size === 2) {
+      const current = pair();
+      if (!current) return;
+      let delta = current.angle - rotating.angle;
+      if (delta > Math.PI) delta -= Math.PI * 2;
+      if (delta < -Math.PI) delta += Math.PI * 2;
+      rotating.rotation += delta; rotating.angle = current.angle;
+      callbacks.onRotate(rotating.id, rotating.rotation); e.preventDefault(); return;
+    }
     if (planPinch && planTouches.size === 2) {
       const current = pair();
       if (!current || !planPinch.distance || !current.distance) return;
@@ -476,16 +603,40 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
         top.position.x = THREE.MathUtils.clamp(top.position.x + before.x - after.x, -state.room.width / 2, state.room.width / 2);
         top.position.z = THREE.MathUtils.clamp(top.position.z + before.z - after.z, -state.room.depth / 2, state.room.depth / 2);
       }
-      if (top.zoom === 1) { top.position.x = 0; top.position.z = 0; }
       top.updateMatrixWorld();
       planPinch = current; draw(); e.preventDefault(); return;
     }
+    if (panning?.pointer === e.pointerId) {
+      pointAt(panning.x, panning.y, top);
+      const before = raycaster.ray.intersectPlane(ground, new THREE.Vector3());
+      pointAt(e.clientX, e.clientY, top);
+      const after = raycaster.ray.intersectPlane(ground, new THREE.Vector3());
+      if (before && after) {
+        top.position.x = THREE.MathUtils.clamp(top.position.x + before.x - after.x, -state.room.width / 2, state.room.width / 2);
+        top.position.z = THREE.MathUtils.clamp(top.position.z + before.z - after.z, -state.room.depth / 2, state.room.depth / 2);
+        top.updateMatrixWorld(); draw();
+      }
+      panning.x = e.clientX; panning.y = e.clientY; e.preventDefault(); return;
+    }
     if (!dragging || dragging.pointer !== e.pointerId) return;
+    if (!dragging.moved) {
+      if (Math.hypot(e.clientX - dragging.startX, e.clientY - dragging.startY) < 7) return;
+      dragging.moved = true;
+    }
     point(e); const p = raycaster.ray.intersectPlane(ground, new THREE.Vector3()); if (p) callbacks.onMove(dragging.id, p.x + dragging.x, p.z + dragging.z); e.preventDefault();
   }
   function onEnd(e: PointerEvent) {
+    const cancelled = e.type === 'pointercancel' || (e.type === 'lostpointercapture' && (dragging?.pointer === e.pointerId || (rotating && planTouches.has(e.pointerId))));
+    if (cancelled) {
+      if (dragging || rotating) callbacks.onDragCancel();
+      dragging = null; rotating = null; panning = null; planPinch = null; planTouches.clear(); return;
+    }
     planTouches.delete(e.pointerId);
-    if (planTouches.size < 2) planPinch = null;
+    if (planTouches.size < 2) {
+      planPinch = null;
+      if (rotating) { rotating = null; callbacks.onDragEnd(); }
+    }
+    if (panning?.pointer === e.pointerId) panning = null;
     if (dragging?.pointer === e.pointerId) { dragging = null; callbacks.onDragEnd(); }
   }
   function lost(e: Event) { e.preventDefault(); callbacks.onError('Графический контекст недоступен. Планировка сохранена на устройстве.'); }
@@ -521,7 +672,7 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
       canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointermove', onMove); canvas.removeEventListener('pointerup', onEnd); canvas.removeEventListener('pointercancel', onEnd); canvas.removeEventListener('lostpointercapture', onEnd); canvas.removeEventListener('webglcontextlost', lost);
       if (highlight) { highlight.geometry.dispose(); (highlight.material as THREE.Material).dispose(); }
       architecture.children.forEach(disposeGroup); instances.forEach(group => { const shadow = group.children[0] as THREE.Mesh; shadow?.geometry?.dispose(); (shadow?.material as THREE.Material | undefined)?.dispose(); });
-      cached.forEach(promise => { void promise.then(disposeGroup).catch(() => {}); }); if (plant) disposeGroup(plant); if (decor) disposeGroup(decor); if (bookshelf) disposeGroup(bookshelf); shadowTexture.dispose(); wallFadeTexture.dispose(); wood?.dispose(); normal?.dispose(); environment?.dispose(); rugTexture?.dispose(); rugNormal?.dispose(); plaster?.dispose(); linen?.dispose(); linenNormal?.dispose(); garden?.dispose(); renderer.dispose();
+      cached.forEach(promise => { void promise.then(disposeGroup).catch(() => {}); }); if (plant) disposeGroup(plant); if (decor) disposeGroup(decor); if (bookshelf) disposeGroup(bookshelf); if (pendant) disposeGroup(pendant); if (wallPicture) disposeGroup(wallPicture); shadowTexture.dispose(); wallFadeTexture.dispose(); wood?.dispose(); normal?.dispose(); environment?.dispose(); rugTexture?.dispose(); rugNormal?.dispose(); plaster?.dispose(); linen?.dispose(); linenNormal?.dispose(); garden?.dispose(); renderer.dispose();
     },
   };
 }

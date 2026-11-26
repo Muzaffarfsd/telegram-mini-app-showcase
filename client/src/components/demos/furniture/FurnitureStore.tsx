@@ -23,6 +23,7 @@ import { restoreTelegramChrome } from '../../../lib/telegramChrome';
 import { scrollToTop } from '../../../hooks/useScrollToTop';
 import { furnitureCatalog, type FurnitureProduct } from './storeCatalog';
 import FurnitureHome from './FurnitureHome';
+import FurniturePhotoSurface from './FurniturePhotoSurface';
 import { useFurnitureHistory } from './useFurnitureHistory';
 import './FurnitureStore.css';
 
@@ -67,6 +68,7 @@ const englishFact: Record<string, string> = {
   Цвет: 'Colour',
   Модель: 'Model',
 };
+const englishFactValue: Record<string, string> = { 'Светло-серый': 'Light grey', 'Песочный': 'Sand', 'Орех': 'Walnut' };
 function modelCount(count: number, ru: boolean) {
   if (!ru) return `${count} ${count === 1 ? 'piece' : 'pieces'}`;
   const remainder = count % 100;
@@ -281,7 +283,6 @@ export default function FurnitureStore({
   const [zoomed, setZoomed] = useState(false);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const zoomClose = useRef<HTMLButtonElement>(null);
-  const zoomViewport = useRef<HTMLDivElement>(null);
   const [viewing3D, setViewing3D] = useState(false);
   const [notice, setNotice] = useState('');
   const [storageError, setStorageError] = useState(false);
@@ -306,7 +307,7 @@ export default function FurnitureStore({
       if (category !== 'Все' && product.category !== category) return false;
       const widthLimit = Number(maxWidth);
       if (maxWidth && Number.isFinite(widthLimit) && widthLimit > 0 && (!product.dimensionsM || product.dimensionsM[0] * 100 > widthLimit)) return false;
-      const mainMaterial = product.details?.find(detail => detail.label.ru === 'Обивка' || detail.label.ru === 'Материал');
+      const mainMaterial = product.details?.find(detail => ['Обивка', 'Материал', 'Материалы'].includes(detail.label.ru));
       const materialText = normalize(`${mainMaterial?.value.ru || ''} ${mainMaterial?.value.en || ''}`);
       if (material === 'polyester' && !/полиэстер|polyester/.test(materialText)) return false;
       if (material === 'oak' && !/дуб|oak/.test(materialText)) return false;
@@ -438,15 +439,7 @@ export default function FurnitureStore({
     const old = nodes.map((node) => node.hasAttribute('inert'));
     const focus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     nodes.forEach((node) => node.setAttribute('inert', ''));
-    const frame = requestAnimationFrame(() => {
-      const viewport = zoomViewport.current;
-      if (viewport)
-        viewport.scrollTo({
-          left: (viewport.scrollWidth - viewport.clientWidth) / 2,
-          top: (viewport.scrollHeight - viewport.clientHeight) / 2,
-        });
-      zoomClose.current?.focus({ preventScroll: true });
-    });
+    const frame = requestAnimationFrame(() => zoomClose.current?.focus({ preventScroll: true }));
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
@@ -919,7 +912,7 @@ export default function FurnitureStore({
                         { label: t('Тип', 'Type'), value: (product: FurnitureProduct) => ru ? product.category : englishCategory[product.category] || product.category },
                         { label: t('Бренд', 'Brand'), value: (product: FurnitureProduct) => product.brand },
                         { label: t('Размеры, Ш × Г × В', 'Size, W × D × H'), value: (product: FurnitureProduct) => { const fact = product.facts?.find(item => item.label === 'Размер')?.value; return fact ? (ru ? fact : fact.replace('см', 'cm')) : product.dimensionsM ? `≈ ${product.dimensionsM.map(value => Math.round(value * 100)).join(' × ')} ${ru ? 'см' : 'cm'}` : '—'; } },
-                        { label: t('Материал', 'Material'), value: (product: FurnitureProduct) => product.details?.find(detail => detail.label.ru === 'Обивка' || detail.label.ru === 'Материал')?.value[ru ? 'ru' : 'en'] || '—' },
+                        { label: t('Материал', 'Material'), value: (product: FurnitureProduct) => product.details?.find(detail => ['Обивка', 'Материал', 'Материалы'].includes(detail.label.ru))?.value[ru ? 'ru' : 'en'] || '—' },
                       ].map(row => <tr key={row.label}><th scope="row">{row.label}</th>{comparedProducts.map(product => <td key={product.id}>{row.value(product)}</td>)}</tr>)}
                     </tbody>
                   </table>
@@ -1061,7 +1054,7 @@ export default function FurnitureStore({
                 <div className="fs-product-detail" key={fact.label}>
                   <span>{ru ? fact.label : englishFact[fact.label] || fact.label}</span>
                   <strong>
-                    {ru ? fact.value : fact.value.replace(/(^|\s)см(?=\s|$)/g, '$1cm')}
+                    {ru ? fact.value : englishFactValue[fact.value] || fact.value.replace(/(^|\s)см(?=\s|$)/g, '$1cm')}
                   </strong>
                 </div>
               ))}
@@ -1135,7 +1128,7 @@ export default function FurnitureStore({
                     </div>
                   )}
                   <p className="fs-story-note">
-                    {t(
+                    {selected.sourceDescription?.[ru ? 'ru' : 'en'] || t(
                       'Сведения — из архивного описания Amazon Berkeley Objects. Актуальные характеристики и комплектацию уточняйте у продавца.',
                       'Details are from the archived Amazon Berkeley Objects listing. Check current specifications and contents with the seller.'
                     )}
@@ -1509,22 +1502,14 @@ export default function FurnitureStore({
                     <X size={21} />
                   </button>
                 </div>
-                <div
-                  ref={zoomViewport}
-                  className="fs-zoom-viewport"
-                  tabIndex={0}
-                  role="region"
-                  aria-label={t(
-                    'Увеличенная фотография, можно прокручивать',
-                    'Enlarged photo, scroll to explore'
-                  )}
-                >
-                  <img
-                    src={selected.images[photo]}
-                    alt={`${selected.name}, ${t('фотография', 'photo')} ${photo + 1} / ${selected.images.length}`}
-                    draggable={false}
-                  />
-                </div>
+                <FurniturePhotoSurface
+                  src={selected.images[photo]}
+                  alt={`${selected.name}, ${t('фотография', 'photo')} ${photo + 1} / ${selected.images.length}`}
+                  ru={ru}
+                  onPrevious={() => setPhoto(current => Math.max(0, current - 1))}
+                  onNext={() => setPhoto(current => Math.min(selected.images.length - 1, current + 1))}
+                />
+                <p className="fs-zoom-hint">{t('Листайте одним пальцем · увеличивайте двумя', 'Swipe to browse · pinch to zoom')}</p>
                 <div className="fs-zoom-actions">
                   <button
                     type="button"

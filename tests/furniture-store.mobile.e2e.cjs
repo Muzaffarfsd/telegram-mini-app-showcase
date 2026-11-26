@@ -53,8 +53,10 @@ async function exercise(engine, live3D, width) {
       `${stage}: root overflows ${JSON.stringify(geometry)}`
     );
   }
-  async function tapFirstProduct() {
-    const card = page.locator('.fs-card-open').first();
+  async function tapFirstProduct(name) {
+    const card = name
+      ? page.locator('.fs-catalog .fs-card').filter({ has: page.locator('.fs-card-meta > button', { hasText: name }) }).first().locator('.fs-card-open')
+      : page.locator('.fs-card-open').first();
     // The app scrolls its #root rather than the document; WebKit's automatic
     // scrollIntoView does not reliably scroll that container on a 320px screen.
     await card.evaluate((element) => {
@@ -74,30 +76,36 @@ async function exercise(engine, live3D, width) {
 
     await page.getByRole('button', { name: 'Каталог', exact: true }).tap();
     await page.locator('.fs-catalog').waitFor();
-    assert.equal((await page.locator('.fs-result').textContent()).trim(), '4 модели');
+    assert.equal((await page.locator('.fs-result').textContent()).trim(), '10 моделей');
     await page.getByRole('button', { name: 'Диваны', exact: true }).tap();
-    assert.equal((await page.locator('.fs-result').textContent()).trim(), '2 модели');
+    assert.equal((await page.locator('.fs-result').textContent()).trim(), '5 моделей');
     await page.getByRole('button', { name: 'Кресла', exact: true }).tap();
-    assert.equal((await page.locator('.fs-result').textContent()).trim(), '1 модель');
+    assert.equal((await page.locator('.fs-result').textContent()).trim(), '3 модели');
     await page.getByRole('button', { name: 'Все', exact: true }).tap();
     const sort = page.getByLabel('Сортировка');
     await sort.selectOption('name');
     assert.deepEqual(await page.locator('.fs-catalog .fs-card-meta > button:not(.fs-card-compare)').allTextContents(), [
+      'Adrienne',
+      'Frankie',
+      'Morat',
+      'Ribe',
       'Rivet Revolve',
       'Rivet Revolve',
+      'Round Coffee Table',
+      'Scutari',
       'Waverly Oak',
       'Westview',
     ]);
     await page.getByLabel('Поиск по коллекции').fill('Westview');
     assert.equal((await page.locator('.fs-result').textContent()).trim(), '1 модель');
     await page.getByLabel('Поиск по коллекции').fill('полиэстер');
-    assert.equal((await page.locator('.fs-result').textContent()).trim(), '3 модели');
+    assert.equal((await page.locator('.fs-result').textContent()).trim(), '5 моделей');
     await page.getByLabel('Очистить поиск').tap();
     await page.locator('.fs-filters summary').tap();
     await page.getByLabel('Ширина до, см').fill('200');
-    assert.equal((await page.locator('.fs-result').textContent()).trim(), '2 модели');
+    assert.equal((await page.locator('.fs-result').textContent()).trim(), '6 моделей');
     await page.getByLabel('Основной материал').selectOption('polyester');
-    assert.equal((await page.locator('.fs-result').textContent()).trim(), '1 модель');
+    assert.equal((await page.locator('.fs-result').textContent()).trim(), '2 модели');
     await tapFirstProduct();
     await page.locator('.fs-product-info').waitFor();
     await page.getByRole('button', { name: 'Назад', exact: true }).tap();
@@ -106,11 +114,11 @@ async function exercise(engine, live3D, width) {
     assert.equal(await page.getByLabel('Ширина до, см').inputValue(), '200');
     assert.equal(await page.getByLabel('Основной материал').inputValue(), 'polyester');
     await page.getByRole('button', { name: 'Сбросить фильтры' }).tap();
-    assert.equal((await page.locator('.fs-result').textContent()).trim(), '4 модели');
+    assert.equal((await page.locator('.fs-result').textContent()).trim(), '10 моделей');
     await page.locator('.fs-filters summary').tap();
     await noHorizontalOverflow('catalogue');
 
-    await tapFirstProduct();
+    await tapFirstProduct('Rivet Revolve');
     await page.locator('.fs-product-info').waitFor();
     const favorite = page.locator('.fs-gallery-heart');
     await favorite.tap();
@@ -120,7 +128,7 @@ async function exercise(engine, live3D, width) {
     await page.getByRole('button', { name: 'Назад', exact: true }).tap();
     await page.locator('.fs-catalog').waitFor();
     assert.equal(await sort.inputValue(), 'name');
-    assert.equal(await page.locator('.fs-card-heart').first().getAttribute('aria-pressed'), 'true');
+    assert.equal(await page.locator('.fs-catalog .fs-card').filter({ has: page.locator('.fs-card-meta > button', { hasText: 'Rivet Revolve' }) }).first().locator('.fs-card-heart').getAttribute('aria-pressed'), 'true');
     await page.getByRole('button', { name: 'Профиль', exact: true }).tap();
     await page.locator('.fs-account').waitFor();
     assert.equal(await page.locator('.fs-account .fs-grid').first().locator('.fs-card').count(), 1);
@@ -135,7 +143,7 @@ async function exercise(engine, live3D, width) {
     await page.getByRole('button', { name: 'Каталог', exact: true }).tap();
     await page.locator('.fs-catalog').waitFor();
     assert.equal(await sort.inputValue(), 'name');
-    await tapFirstProduct();
+    await tapFirstProduct('Rivet Revolve');
     await page.locator('.fs-product-info').waitFor();
     await page.getByRole('button', { name: '3D-обзор' }).tap();
     const viewer = page.locator('.rfv');

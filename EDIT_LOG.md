@@ -1261,6 +1261,14 @@ build memory + a11y + CI auto-fix that empower the single agent.
 **Checkpoint:** Previous commit `dec95d24`; unrelated working-tree files preserved.
 **Verification:** Mobile Chromium and WebKit tests cover store, comparison, 3D interactions and fallbacks; planner tests cover gestures, furniture collision, legacy saves, room dimensions and openings. Captures include `work/home-refresh-390-first.png`, `work/planner-inside-390.png` and `work/premium-room-bake/opening-room-390.png` in the parent workspace. Product models and room are still not photorealistic. Physical phones and Telegram WebView were not tested. The invitation JPEG still shows the prior home. Project-wide TypeScript has pre-existing errors outside the furniture code.
 
+## 2026-11-26 · Furniture touch planning and detailed interior
+
+**What:** Replaced the movement-button grid with touch gestures and protected saved layouts; expanded the catalogue to ten sourced products with more photos and smaller room models; added touch photo zoom. Added a separately saved, fixed-size Three.js interior adapted from the img2interior living-room scene, with a plan view, movable catalogue furniture and access to the existing custom-size room. The scene's light was rebaked without its original movable furniture.
+**Why:** User rejected the previous room and asked for a higher-quality ready-made 3D interior, finger-first controls, more real furniture and mobile optimization.
+**Files:** Furniture store, photo viewer, shop, both room experiences and their tests; product and interior asset sources; showcase screenshots.
+**Checkpoint:** Previous commit `a894b8eb`; unrelated working-tree files preserved.
+**Verification:** Build and mobile browser regression tests; 320/390 touch gestures, save/restore, old planner and new fixed-room scenarios. Visual comparison and references documented in `work/furniture-3d-visual-benchmark-2026-11-26.md` in the parent workspace. The fixed room is approximately 8 × 9.1 m and cannot be resized; actual products remain imperfect 3D representations and archive availability is unverified. Physical phones and Telegram WebView were not tested. Third-party source and use limitations are recorded beside the assets.
+
 <!-- Future entries appended ABOVE this line by the AI agent. Template:
 
 ## YYYY-MM-DD HH:MM · short description

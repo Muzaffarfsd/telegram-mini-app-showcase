@@ -1,0 +1,55 @@
+const assert = require('node:assert/strict');
+const { chromium } = require('playwright');
+const site = process.env.FURNITURE_TEST_URL || 'http://127.0.0.1:41755/';
+const key = 'web4tg-fixed-interior-v1';
+const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+  try {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, locale: 'ru-RU', serviceWorkers: 'block' });
+    const page = await context.newPage(), errors = [];
+    page.on('pageerror', e => errors.push(e.message));
+    await page.goto(new URL('/#/demos/furniture-studio/app', site).href);
+    await page.getByRole('button', { name: 'Открыть планировщик', exact: true }).click();
+    await page.locator('.fint-block').waitFor({ state: 'hidden', timeout: 90000 });
+    await page.getByRole('button', { name: 'Вид сверху', exact: true }).click();
+    await pause(500);
+    const read = () => page.evaluate(k => JSON.parse(localStorage.getItem(k)), key);
+    await page.waitForFunction(k => Boolean(localStorage.getItem(k)), key);
+    const initial = await read(), sofa = initial.items.find(item => item.productId === 'rivet-revolve-sofa'), chair = initial.items.find(item => item.productId === 'rivet-revolve-chair');
+    assert.ok(sofa && chair);
+    const canvas = page.locator('.fint-stage canvas'), rect = await canvas.boundingBox(), aspect = rect.width / rect.height;
+    const span = Math.max(9.8, 8.7 / aspect), wide = span * aspect, cx = .81, cz = 1.85;
+    const pixel = item => ({ x: rect.x + (item.x - cx + wide / 2) / wide * rect.width, y: rect.y + (item.z - cz + span / 2) / span * rect.height });
+    const cdp = await context.newCDPSession(page);
+    const send = (type, points) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: points });
+    const point = pixel(sofa);
+    await send('touchStart', [point]);
+    await send('touchMove', [{ x: point.x + 12, y: point.y + 12 }]);
+    await send('touchEnd', []);
+    await page.waitForFunction(({ key, id, x }) => JSON.parse(localStorage.getItem(key)).items.find(i => i.id === id).x > x + .1, { key, id: sofa.id, x: sofa.x });
+    const moved = await read();
+    assert.ok(moved.items.find(i => i.id === sofa.id).z > sofa.z + .1);
+    await page.getByRole('button', { name: 'Отменить', exact: true }).click();
+    await page.waitForFunction(({ key, id, x }) => Math.abs(JSON.parse(localStorage.getItem(key)).items.find(i => i.id === id).x - x) < .001, { key, id: sofa.id, x: sofa.x });
+    const chairPoint = pixel(chair);
+    await send('touchStart', [chairPoint]);
+    await send('touchStart', [chairPoint, { x: chairPoint.x + 28, y: chairPoint.y }]);
+    await send('touchMove', [chairPoint, { x: chairPoint.x + 24, y: chairPoint.y + 16 }]);
+    await send('touchEnd', [chairPoint]);
+    await send('touchEnd', []);
+    await page.waitForFunction(({ key, id }) => Math.abs(JSON.parse(localStorage.getItem(key)).items.find(i => i.id === id).rotation) > .1, { key, id: chair.id });
+    const rotated = await read();
+    const now = pixel(rotated.items.find(i => i.id === sofa.id));
+    await send('touchStart', [now]);
+    await send('touchMove', [{ x: now.x + 12, y: now.y + 12 }]);
+    await send('touchCancel', []);
+    await pause(350);
+    const cancelled = await read();
+    assert.deepEqual(cancelled.items, rotated.items, 'cancelled gesture must restore every item');
+    assert.deepEqual(errors, []);
+    console.log('PASS fixed room: real touch drag, rotate, undo and cancelled gesture rollback');
+    await context.close();
+  } finally { await browser.close(); }
+})().catch(e => { console.error(e); process.exitCode = 1; });

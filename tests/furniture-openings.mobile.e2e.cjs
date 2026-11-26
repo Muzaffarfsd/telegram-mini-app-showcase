@@ -26,6 +26,7 @@ const key = "web4tg-furniture-planner-v1";
       await p
         .getByRole("button", { name: "Открыть планировщик", exact: true })
         .click();
+      await p.getByRole("button", { name: /^Своя комната/ }).click();
       await p.locator("[data-testid=furniture-planner]").waitFor();
       await p.waitForFunction(
         () =>
@@ -107,6 +108,7 @@ const key = "web4tg-furniture-planner-v1";
       await p
         .getByRole("button", { name: "Открыть планировщик", exact: true })
         .click();
+      await p.getByRole("button", { name: /^Своя комната/ }).click();
       await p.locator("[data-testid=furniture-planner]").waitFor();
       assert.deepEqual(
         (await p.evaluate((k) => JSON.parse(localStorage.getItem(k)), key)).room

@@ -49,6 +49,7 @@ const assert = require("node:assert/strict"),
   await p
     .getByRole("button", { name: "Открыть планировщик", exact: true })
     .click();
+  await p.getByRole("button", { name: /^Своя комната/ }).click();
   await p.locator("[data-testid=furniture-planner]").waitFor();
   await p.locator(".fpl-openings summary").click();
   await p.getByText("Мебель находится у проёма.", { exact: false }).waitFor();

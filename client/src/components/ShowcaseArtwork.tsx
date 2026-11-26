@@ -37,7 +37,7 @@ export function ShowcaseArtwork({ id, index, ru }: { id: string; index: number; 
   const image = useRef<HTMLImageElement>(null);
   const art = artwork.get(id)!;
   const furniture = id === 'furniture-studio';
-  const screenSource = `/showcase/screens/furniture-studio-v4${ru ? '' : '-en'}.png`;
+  const screenSource = `/showcase/screens/furniture-studio-v5${ru ? '' : '-en'}.png`;
   const screenFailed = screenFailure === screenSource;
   const ready = (coverReady || coverFailed) && (!furniture || screenReady === screenSource || screenFailed);
   const source = furniture ? '/showcase/covers/furniture-studio-v4.webp' : art.src;
