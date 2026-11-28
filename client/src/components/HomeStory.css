@@ -46,7 +46,7 @@ html .hs-final h2 { color:#fff; max-width:17ch; }
 .studio-home .hs-final button { padding:0 16px; border:0; border-radius:24px; color:#202020; -webkit-text-fill-color:currentColor; background:white; }
 .hs-final .studio-contact { padding:0 15px; border:1px solid #777; border-radius:24px; color:#fff; }
 .hs-final :is(button,a):focus-visible { outline-color:#fff; }
-@media(min-width:800px) {
+@media(min-width:720px) {
   .hs-content { grid-template-columns:repeat(2,minmax(0,1fr)); gap:58px clamp(32px,5vw,68px); margin-top:68px; border-top:1px solid var(--line); padding-top:48px; align-items:start; }
   .hs-final { grid-column:1/-1; display:grid; grid-template-columns:1.25fr 1fr; align-items:center; gap:30px; }
   .hs-final__actions { margin:0; flex-direction:column; align-items:flex-start; justify-self:end; }

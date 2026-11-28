@@ -53,3 +53,14 @@
 .project-story-screen-language { margin:4px 0 12px; color:#60615f; font-size:11px; }
 .project-story-gallery-stage { position:relative; width:100%; border:0; cursor:zoom-in; }
 .project-story-zoom { position:absolute; top:12px; right:12px; display:grid; place-items:center; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.92); color:#252624; }
+@media (min-width:700px) {
+  .project-story-intro h1 { max-width:20ch; }
+  .project-story-hero { min-height:280px; }
+  .project-story-hero-copy { max-width:440px; padding-left:28px; }
+  .project-story-value-list { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .project-story-value-list li { grid-template-columns:1fr; align-content:start; }
+  .project-story-gallery-item { flex-basis:calc((100% - 20px) / 3); }
+  .project-story-features ul { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .project-story-contact { padding:28px; }
+  .project-story-contact button { max-width:390px; }
+}

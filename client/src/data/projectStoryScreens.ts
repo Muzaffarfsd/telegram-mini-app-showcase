@@ -1,4 +1,4 @@
-export type ProjectStoryScreen = { src: string; caption: [string, string]; language: 'ru' | 'en' };
+export type ProjectStoryScreen = { src: string; src3x?: string; caption: [string, string]; language: 'ru' | 'en' };
 /** Each image is a captured screen of the corresponding project. */
 const secondScreens: Record<string, [string, string]> = {
   'apple-store': ['Каталог iPhone', 'iPhone catalog'],
@@ -44,5 +44,8 @@ for (const id of ['takt-coffee', 'furniture-studio', 'china-buyer']) {
 
 // The original 1× captures may already be cached on the user's device.
 for (const screens of Object.values(projectStoryScreens)) {
-  for (const screen of screens) screen.src += '?v=20261127-hd';
+  for (const screen of screens) {
+    screen.src3x = screen.src.replace(/\.webp$/, '-3x.webp') + '?v=20261128-3x';
+    screen.src += '?v=20261127-hd';
+  }
 }

@@ -23,7 +23,7 @@ export function ProjectScreenViewer({ screen, ru, onClose }: ProjectScreenViewer
     aria-label={`${ru ? 'Экран проекта' : 'Project screen'}: ${screen.caption[locale]}`} onClose={onClose}>
     <div className="project-screen-viewer-content">
       <div className="project-screen-viewer-title">{screen.caption[locale]}</div>
-      <div className="project-screen-viewer-image"><img src={screen.src} alt={screen.caption[locale]} /></div>
+      <div className="project-screen-viewer-image"><img src={screen.src} srcSet={screen.src3x ? `${screen.src} 780w, ${screen.src3x} 1170w` : undefined} sizes="(max-width: 422px) calc(100vw - 32px), 390px" alt={screen.caption[locale]} /></div>
       <div className="project-screen-viewer-actions">
         <button type="button" onClick={() => dialog.current?.close()} aria-label={ru ? 'Закрыть' : 'Close'} data-testid="project-screen-close"><X size={18} />{ru ? 'Закрыть' : 'Close'}</button>
       </div>

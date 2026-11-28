@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { currentFurniturePixelRatio } from './renderQuality';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
@@ -19,8 +20,7 @@ const CENTER = { x: (FIXED_BOUNDS.left + FIXED_BOUNDS.right) / 2, z: (FIXED_BOUN
 /** Fixed architectural scene. Camera and products are independent of the light bake. */
 export async function createFixedInteriorScene(canvas: HTMLCanvasElement, callbacks: Callbacks) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-  const deviceMemory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, deviceMemory !== undefined && deviceMemory <= 2 ? 1 : 1.5));
+  renderer.setPixelRatio(currentFurniturePixelRatio('fixed', canvas.clientWidth, canvas.clientHeight));
   renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene(); scene.background = new THREE.Color('#d5cec5');
@@ -171,7 +171,8 @@ export async function createFixedInteriorScene(canvas: HTMLCanvasElement, callba
   }
   const lost = (e: Event) => { e.preventDefault(); callbacks.onError('webgl'); };
   canvas.addEventListener('pointerdown', down); canvas.addEventListener('pointermove', move); canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end); canvas.addEventListener('lostpointercapture', end); canvas.addEventListener('webglcontextlost', lost);
-  const resize = () => { const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight), aspect = w / h; renderer.setSize(w, h, false);
+  const resize = () => { const w = Math.max(1, canvas.clientWidth), h = Math.max(1, canvas.clientHeight), aspect = w / h;
+    const ratio = currentFurniturePixelRatio('fixed', w, h); if (renderer.getPixelRatio() !== ratio) renderer.setPixelRatio(ratio); renderer.setSize(w, h, false);
     camera.aspect = aspect; camera.updateProjectionMatrix(); const span = Math.max(9.8, 8.7 / aspect); top.left = -span * aspect / 2; top.right = span * aspect / 2; top.top = span / 2; top.bottom = -span / 2; top.updateProjectionMatrix(); draw(); };
   const observer = new ResizeObserver(resize); observer.observe(canvas); resize();
   async function measureProduct(product: PlannerProduct) {

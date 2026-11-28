@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { currentFurniturePixelRatio } from './renderQuality';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
@@ -15,7 +16,7 @@ type Callbacks = { onSelect: (id: string | null) => void; onMove: (id: string, x
 /** One renderer, one shared GLB per product, rendered only on interaction/change. */
 export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbacks, theme='custom') {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  renderer.setPixelRatio(currentFurniturePixelRatio('planner', canvas.clientWidth, canvas.clientHeight));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1;
@@ -307,6 +308,8 @@ export function createPlannerScene(canvas: HTMLCanvasElement, callbacks: Callbac
   }
   function resize() {
     const width = Math.max(canvas.clientWidth, 1), height = Math.max(canvas.clientHeight, 1), aspect = width / height;
+    const ratio = currentFurniturePixelRatio('planner', width, height);
+    if (renderer.getPixelRatio() !== ratio) renderer.setPixelRatio(ratio);
     renderer.setSize(width, height, false);
     perspective.aspect = aspect; perspective.updateProjectionMatrix();
     const span = Math.max(state.room.depth + 0.7, (state.room.width + 0.7) / aspect);

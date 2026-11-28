@@ -15,7 +15,7 @@ html .studio-editorial h1 { margin:0; color:var(--ink); font-family:inherit; fon
 .studio-intro-actions :is(a,button):active, .hs-final :is(a,button):active { opacity:.8; }
 @media(max-width:430px) { .studio-intro-actions button { font-size:13px; } }
 @media(max-width:365px) { .studio-intro-actions button { font-size:12px; gap:4px; } }
-@media(min-width:800px) {
+@media(min-width:720px) {
   .studio-home__inner { width:min(100%,1060px); padding-inline:40px; }
   .studio-editorial { display:grid; grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr); align-items:start; column-gap:clamp(28px,5vw,68px); }
   html .studio-editorial h1 { font-size:clamp(49px,6vw,78px); }
@@ -23,7 +23,7 @@ html .studio-editorial h1 { margin:0; color:var(--ink); font-family:inherit; fon
 }
 @media(prefers-reduced-motion:reduce) { .studio-home *, .studio-home *::before, .studio-home *::after { animation:none !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
 .home-ai-surface .alex-fab-breathing { width:44px !important; height:44px !important; top:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 24px) !important; bottom:auto !important; right:max(20px,calc((100vw - 430px) / 2)) !important; background:rgba(255,255,255,.84) !important; border:1px solid rgba(255,255,255,.9) !important; box-shadow:0 4px 16px rgba(0,0,0,.1) !important; animation:none !important; }
-@media(min-width:800px) {
+@media(min-width:720px) {
   html.studio-home-theme .w4-topbar > div { max-width:1060px; padding-inline:40px; }
   html.studio-home-theme .home-ai-surface .alex-fab-breathing { right:max(40px,calc((100vw - 980px) / 2)) !important; }
 }

@@ -12,6 +12,31 @@
 .as-store button,.as-portal button { cursor:pointer; -webkit-tap-highlight-color:transparent; }
 .as-store button:focus-visible,.as-store input:focus-visible,.as-store select:focus-visible,.as-store h1:focus-visible,.as-portal button:focus-visible { outline:2px solid #5855ed; outline-offset:3px; }
 .as-store img,.as-portal img { display:block; max-width:100%; }
+
+/* Tablet storefronts use the available width for collections and comparison,
+   while keeping product descriptions and controls comfortably readable. */
+@media (min-width:700px) {
+  .as-store.as-store { max-width:1100px; }
+  .as-store .as-home { padding-inline:24px; }
+  .as-store .as-hero { min-height:380px; }
+  .as-store .as-hero-copy { width:45%; padding:48px 0 40px 36px; }
+  .as-store .as-hero-copy h1 { font-size:clamp(48px,6vw,68px); }
+  .as-store .as-category-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+  .as-store .as-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:28px 14px; }
+  .as-store .as-content { padding-inline:32px; }
+  .as-product { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); align-items:start; gap:0 24px; padding-inline:32px; }
+  .as-product .as-product-intro { grid-column:1 / -1; padding-inline:0; }
+  .as-product-media { min-width:0; }
+  .as-product .as-gallery-layout { margin-inline:0; }
+  .as-product .as-gallery-note { margin-inline:0!important; }
+  .as-product .as-product-info { min-width:0; padding:12px 0 0; }
+  .as-product-info .as-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .as-checkout, .as-success { max-width:720px; margin-inline:auto; }
+}
+@media (min-width:950px) {
+  .as-store .as-category-grid, .as-store .as-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .as-store .as-product-info .as-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
 .as-sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
 .as-main { min-height:calc(100svh - 72px); padding-bottom:max(180px,var(--as-clearance,0px),calc(90px + var(--as-safe))); }
 [data-scroll="main"] .as-store :is(section,article) { content-visibility:visible; contain-intrinsic-size:none; }

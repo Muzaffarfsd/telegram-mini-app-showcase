@@ -38,8 +38,8 @@ async function openProfile(page) {
         const ai=page.getByRole('button',{name:'Chat with Alex'});
         const aiBox=await ai.boundingBox();const identityBox=await page.locator('.profile-identity').boundingBox();assert.ok(aiBox.y+aiBox.height<=identityBox.y);
         await ai.tap();
-        await page.getByRole('button',{name:'Close',exact:true}).waitFor({timeout:12000});
-        await page.getByRole('button',{name:'Close',exact:true}).tap();
+        await page.getByRole('button',{name:'Закрыть',exact:true}).waitFor({timeout:12000});
+        await page.getByRole('button',{name:'Закрыть',exact:true}).tap();
         const language=page.locator('#profile-language');await language.selectOption('en');
         await page.waitForFunction(()=>document.querySelector('.profile-page h1')?.textContent==='Profile');
         await language.selectOption('ru');await page.waitForFunction(()=>document.querySelector('.profile-page h1')?.textContent==='Профиль');

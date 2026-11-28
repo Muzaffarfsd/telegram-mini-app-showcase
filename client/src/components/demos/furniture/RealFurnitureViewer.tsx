@@ -2,6 +2,7 @@ import { lockBackground } from './modalBackground';
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Minus, Plus, RotateCcw, X } from 'lucide-react';
+import { currentFurniturePixelRatio } from './renderQuality';
 import './RealFurnitureViewer.css';
 
 type Props = { modelUrl: string; dimensions?:readonly [number,number,number]; placement?:string; detailUrl?:string; posterUrl: string; name: string; ru: boolean; onClose: () => void; onPlaceInRoom?: () => void };
@@ -82,7 +83,7 @@ export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru, dim
         if (!cancelled) setStatus('unavailable');
         return;
       }
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+      renderer.setPixelRatio(currentFurniturePixelRatio('viewer', element.clientWidth, element.clientHeight));
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 0.64;
@@ -161,6 +162,8 @@ export default function RealFurnitureViewer({ modelUrl, posterUrl, name, ru, dim
         const nextWidth = Math.max(1, element.clientWidth), nextHeight = Math.max(1, element.clientHeight);
         if (nextWidth === width && nextHeight === height) return;
         width = nextWidth; height = nextHeight;
+        const ratio = currentFurniturePixelRatio('viewer', width, height);
+        if (renderer.getPixelRatio() !== ratio) renderer.setPixelRatio(ratio);
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
         camera.updateProjectionMatrix();

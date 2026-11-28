@@ -55,3 +55,12 @@
 .lumi-settings-toggle{display:flex;align-items:center;gap:10px;min-height:44px;margin:9px 0 11px;color:#4d4048;font-size:13px}
 .lumi-settings-toggle input{width:19px;height:19px;margin:0;accent-color:var(--lumi-accent)}
 .lumi-service-settings>.lumi-secondary{min-height:46px}
+
+@media (min-width:700px){
+  .lumi{max-width:920px}
+  .lumi :is(.lumi-v4-home,.lumi-v4-catalog){padding-inline:clamp(24px,4vw,36px)}
+  .lumi .lumi-v4-hero-grid{height:440px}
+  .lumi .lumi-v4-categories{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .lumi .lumi-v4-service-list{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px}
+  .lumi :is(.lumi-v4-detail,.lumi-page:not(:has(>.lumi-brandbar))){max-width:680px;margin-inline:auto}
+}

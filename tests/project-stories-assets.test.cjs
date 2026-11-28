@@ -18,9 +18,14 @@ const english = new Set(['takt-coffee', 'furniture-studio', 'china-buyer']);
       const { width, height, format } = await sharp(file).metadata();
       assert.equal(format, 'webp', `${project}/${name} format`);
       assert.ok(width >= 780 && height >= 1688, `${project}/${name} needs a real high-density capture, got ${width}×${height}`);
+      const highDensityName = name.replace(/\.webp$/, '-3x.webp');
+      const highDensity = await sharp(path.join(root, project, highDensityName)).metadata();
+      assert.equal(highDensity.format, 'webp', `${project}/${highDensityName} format`);
+      assert.equal(highDensity.width, 1170, `${project}/${highDensityName} width`);
+      assert.equal(highDensity.height, 2532, `${project}/${highDensityName} height`);
       count++;
     }
   }
   assert.equal(count, 48);
-  console.log(`PASS ${count} high-density project captures`);
+  console.log(`PASS ${count} project captures at 2× and 3×`);
 })().catch(error => { console.error(error); process.exit(1); });

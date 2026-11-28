@@ -21,6 +21,7 @@
 .ps-filters button { min-width:0; }
 .ps-order { color:white; background:#202124; }
 .ps-collection { display: grid; gap: var(--projects-list-gap); list-style: none; margin: 0; padding: 0; }
+@media (min-width: 700px) { .ps-collection { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .ps-item { position: relative; min-width: 0; }
 .ps-card {
   position: relative;

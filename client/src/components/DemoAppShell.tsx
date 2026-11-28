@@ -360,7 +360,7 @@ const DemoAppShell = memo(function DemoAppShell({ demoId, onClose }: DemoAppShel
       {/* ALWAYS add 'dark' class to force dark CSS variables for ALL demos, regardless of main app theme */}
       <div className="demo-app-shell dark min-h-screen flex flex-col" style={{ backgroundColor: theme.background }}>
         {/* Mobile Container - Max width for desktop view */}
-        <div className="w-full max-w-md mx-auto min-h-screen flex flex-col relative shadow-2xl" style={{ backgroundColor: theme.background }}>
+        <div className={`w-full max-w-md mx-auto min-h-screen flex flex-col relative shadow-2xl${demoId === 'skincare-aura' ? ' aura-shell' : ''}`} style={{ backgroundColor: theme.background }}>
           
           {/* Demo Content Area - Telegram safe area bottom with GPU optimization */}
           <div 

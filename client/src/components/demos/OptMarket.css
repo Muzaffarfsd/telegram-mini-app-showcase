@@ -267,3 +267,16 @@ body:has(.partiya-save-form input:focus) .opt-portal .opt-nav{visibility:hidden}
 
 /* Six controls need their full touch targets on narrow phones. */
 @media(max-width:380px){.opt-portal .opt-nav>button.active{gap:0;padding-inline:0}.opt-portal .opt-nav>button.active small{display:none}}
+@media(max-width:350px){.opt-chips{margin-inline:-12px;padding-inline:12px}}
+
+/* Tablet layouts use the additional width without changing phone screens. */
+@media (min-width:700px){
+  .opt-store{max-width:900px}
+  .opt-page{padding-inline:24px}
+  .opt-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:stretch}
+  .opt-hero-image{height:100%;min-height:300px;aspect-ratio:auto}
+  .opt-hero-copy{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:32px}
+  .opt-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+  .opt-product-page{max-width:700px;margin-inline:auto}
+}
+@media (min-width:980px){.opt-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}

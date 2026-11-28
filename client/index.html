@@ -19,6 +19,31 @@
   <style>html.demo-boot-theme,html.demo-boot-theme body,html.demo-loading-theme,html.demo-loading-theme body{background:#fff!important}</style>
   <script>
     var __initialPath = (location.hash.slice(1) || '/').split('?')[0];
+    // The static projects shell must use the same language as the React route.
+    if (__initialPath === '/projects') {
+      try {
+        var __projectsLang = null;
+        try { __projectsLang = localStorage.getItem('app-language'); } catch (e) { /* Detect the region when preferences are unavailable. */ }
+        if (__projectsLang !== 'ru' && __projectsLang !== 'en') {
+          var __projectsTg = window.Telegram && window.Telegram.WebApp;
+          var __projectsTgLang = __projectsTg && __projectsTg.initDataUnsafe && __projectsTg.initDataUnsafe.user && __projectsTg.initDataUnsafe.user.language_code;
+          if (!__projectsTgLang) {
+            var __projectsStored = {};
+            try { __projectsStored = JSON.parse(sessionStorage.getItem('__telegram__initParams') || '{}') || {}; } catch (e) { /* Continue with the launch URL and browser locale. */ }
+            var __projectsData = new URLSearchParams(location.hash.slice(1)).get('tgWebAppData') || __projectsStored.tgWebAppData || '';
+            var __projectsUser = new URLSearchParams(__projectsData).get('user');
+            try { if (__projectsUser) __projectsTgLang = JSON.parse(__projectsUser).language_code; } catch (e) { /* Fall back to the browser locale. */ }
+          }
+          var __projectsCis = /^(ru|uk|be|kk|uz|ky|tg|az|hy|ka|mo|tk)/;
+          var __projectsBrowserLang = (navigator.language || '').toLowerCase();
+          var __projectsZone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+          var __projectsCisZone = /(?:Moscow|Kiev|Minsk|Almaty|Tashkent|Bishkek|Dushanbe|Baku|Yerevan|Tbilisi)/;
+          __projectsLang = __projectsTgLang ? (__projectsCis.test(__projectsTgLang.toLowerCase()) ? 'ru' : 'en') : (__projectsCis.test(__projectsBrowserLang) || __projectsCisZone.test(__projectsZone) ? 'ru' : 'en');
+        }
+        document.documentElement.lang = __projectsLang;
+        document.documentElement.classList.add('lang-' + __projectsLang);
+      } catch (e) { /* The default Russian shell remains available if storage is restricted. */ }
+    }
     if (__initialPath === '/' || __initialPath === '/constructor' || __initialPath === '/projects') document.documentElement.classList.add('light-route-transition');
     var __nonHomePaths = ['/projects','/about','/constructor','/profile','/help','/review','/checkout','/ai-agent','/ai-process','/photo-gallery','/referral','/rewards','/earning','/notifications','/premium-apps'];
     if (__nonHomePaths.indexOf(__initialPath) === -1 && !/^\/demos\/[^/]+(?:\/app)?$/.test(__initialPath)) {
@@ -299,7 +324,19 @@
     .projects-page-frame { --projects-card-height:278px; --projects-list-gap:14px; box-sizing:border-box; width:min(100%,430px); margin-inline:auto; padding:calc(max(env(safe-area-inset-top,0px),var(--tg-safe-area-inset-top,0px),var(--csat,0px),12px) + 82px) 20px calc(var(--projects-dock-space,80px) + 20px); font-family:'Google Sans App',system-ui,-apple-system,sans-serif; }
     @media(max-width:350px) { .projects-page-frame { padding-inline:15px; } }
     .projects-intro-slot { position:relative; margin:7px 0 0; font-size:14px; line-height:1.45; }
-    .projects-load-content .projects-intro-slot { color:transparent; }
+    /* Reserve the settled Google Sans text height even before its font loads.
+       The hidden fallback text otherwise wraps differently in WebKit and moves
+       the cards when the static shell hands over to React. */
+    .projects-load-content .projects-intro-slot { color:transparent; height:2.9em; }
+    @media(min-width:369px) { .projects-load-content .projects-intro-slot { height:1.45em; } }
+    @media(min-width:291px) { html:is([lang="en"],.lang-en) .projects-load-content .projects-intro-slot { height:1.45em; } }
+    @supports (container-type:inline-size) {
+      /* em-based container thresholds track larger text as well as width. */
+      .projects-load-content { container-type:inline-size; font-size:14px; }
+      .projects-load-content .projects-intro-slot { height:2.9em; }
+      @container (min-width:23.49em) { .projects-load-content .projects-intro-slot { height:1.45em; } }
+      @container (min-width:18.63em) { html:is([lang="en"],.lang-en) .projects-load-content .projects-intro-slot { height:1.45em; } }
+    }
     .projects-intro-en, html:is([lang="en"],.lang-en) .projects-intro-ru { display:none; }
     html:is([lang="en"],.lang-en) .projects-intro-en { display:inline; }
     .projects-load-line { width:45%; height:44px; border-radius:12px; }
@@ -307,6 +344,10 @@
     .projects-load-filters { display:flex; gap:3px; margin:18px 0 16px; padding:3px; background:#f2f2f0; border-radius:17px; }
     .projects-load-filters i { flex:1; height:44px; border-radius:14px; }
     .projects-load-cards { display:grid; gap:var(--projects-list-gap); }
+    @media(min-width:700px) {
+      .projects-page-frame { width:min(100%, 960px); padding-inline:clamp(24px, 4vw, 40px); }
+      .projects-load-cards { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    }
     .projects-load-card { position:relative; height:var(--projects-card-height); border-radius:24px; background:#f2f2f1; animation:none; }
     .projects-load-card::before,.projects-load-card::after { content:''; position:absolute; left:20px; background:#e4e5e2; }
     .projects-load-card::before { top:32%; width:28%; height:18px; border-radius:6px; }

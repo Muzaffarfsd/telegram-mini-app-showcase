@@ -566,7 +566,7 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
       {/* сервисы Aura */}
       <div style={{ padding: "0 20px", marginTop: 26 }}>
         <h2 style={{ fontSize: T.h3, fontWeight: 700, color: INK, letterSpacing: "-0.02em", marginBottom: 12 }}>Сервисы Aura</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div className="aura-services-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           {[
             { icon: Sparkles, chip: LIME, ink: ON_LIME, bg: LIME_TINT, title: "Подбор ухода", sub: "Тест за 30 секунд",
               fn: () => { setQuizStep(0); setQuizAns({}); setQuizOpen(true); } },
@@ -734,7 +734,7 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
           <div style={{ marginTop: 4, fontSize: T.sm }}>Попробуйте изменить запрос или категорию</div>
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, padding: "0 20px" }}>
+        <div className="aura-catalog-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, padding: "0 20px" }}>
           {catProducts.map((p, i) => (
             <ProductCard key={p.id} p={p} idx={i} w="100%" eager={i < 4} fav={favs.has(p.id)} onFav={() => toggleFav(p.id)}
               onOpen={() => setSelected(p)} onAdd={() => addToCart(p.id)} />
@@ -1734,6 +1734,12 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
 .aura.dark .aura-shim{background:linear-gradient(100deg,#212329 28%,#2b2d34 48%,#212329 68%);background-size:220% 100%}
 .aura *:focus-visible{outline:2px solid ${INK};outline-offset:2px;border-radius:6px}
 .aura button,.aura [role=button],.aura input{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media (min-width:700px){
+  .aura-shell{max-width:900px}
+  .aura .aura-services-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .aura .aura-catalog-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media (min-width:980px){.aura .aura-catalog-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
 /* The three blog cards must keep their real height during a vertical fling. */
 html.low-performance .aura .aura-blog-card{content-visibility:visible;contain-intrinsic-size:none}
 .aura-shim{background:linear-gradient(100deg,#ededeb 28%,#f6f6f4 48%,#ededeb 68%);background-size:220% 100%;animation:auraShim 1.25s linear infinite}

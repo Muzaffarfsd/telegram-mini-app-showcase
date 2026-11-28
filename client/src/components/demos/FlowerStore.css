@@ -17,3 +17,22 @@
 .flower-store,.fs-nav,.flower-store :is(h1,h2,h3,h4,p,button,input,textarea,select),html:is(.lang-ru,.lang-en) .flower-store :is(h1,h2,h3,h4),.fs-nav button,.flower-detail__sticky,.flower-lightbox{font-family:'Flora Sans','Google Sans App',system-ui,sans-serif}
 .fs-nav-v2 button{color:#535c54}.fs-nav-v2 button>span:last-child{font-size:10px;color:inherit;line-height:1.1}.flower-store .fs-card-photo-open img{object-fit:contain}.flower-store .fs-card-photo{background:#f6f6f4}
 [data-scroll="main"] .flower-store :is(section,article){content-visibility:visible;contain-intrinsic-size:none}
+
+/* Wider screens show more of the collection without enlarging the phone UI. */
+@media (min-width:700px){
+  .flower-store{max-width:920px}
+  .flower-store :is(.fh4-home,.fc-catalog,.fs-home,.fs-page){padding-inline:clamp(24px,4vw,36px)}
+  .flower-store .fh4-category-list,.flower-store .fh4-gifts-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .flower-store .fh4-category{grid-template-columns:78px minmax(0,1fr) 20px}
+  .flower-store .fh4-category-image img{width:78px}
+  .flower-store .fh4-gift{grid-template-columns:1fr;align-content:start}
+  .flower-store .fh4-gift-image{height:190px}
+  .flower-store .fh4-gift-copy{padding:8px 36px 20px 16px}
+  .flower-store .fc-grid,.flower-store .fs-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 16px}
+  .flower-store .fh4-delivery{display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:24px;gap:20px}
+  .flower-store .fh4-delivery-intro{padding:0}
+  .flower-store .fh4-delivery-steps{margin:0}
+  .flower-store .fh4-delivery:after{display:none}
+  .flower-store :is(.fv-cart,.flower-detail){max-width:680px;margin-inline:auto}
+  .flower-store .fh4-finish button,.flower-store .fh4-gifts-all{max-width:400px}
+}
