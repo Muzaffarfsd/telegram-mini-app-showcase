@@ -53,6 +53,8 @@ function parseHash(): Route {
 }
 
 export function navigate(path: string): void {
+  // Pages with temporary, unsaved data may cancel in-app navigation.
+  if (window.location.hash.slice(1) !== path && !window.dispatchEvent(new CustomEvent('web4tg:before-navigate', { cancelable: true, detail: { path } }))) return;
   warmRoute(path, 'high');
   window.location.hash = path;
   document.documentElement.classList.toggle('light-route-transition', isLightDestinationHash());

@@ -17,23 +17,37 @@ async function start(engine, routeSetup) {
   return {browser, context, page};
 }
 async function tap(locator) {await locator.scrollIntoViewIfNeeded(); await locator.tap();}
+async function toCustomer(page) {
+  await tap(page.getByTestId('contract-direction-furniture-studio'));
+  await tap(page.getByTestId('contract-next'));
+  await tap(page.getByTestId('contract-next'));
+}
+async function toReview(page, name) {
+  await toCustomer(page);
+  if (name) await page.getByTestId('order-contract-name').fill(name);
+  await tap(page.getByTestId('contract-next'));
+}
 
 async function testExportFailure(engine) {
   const {browser,context,page}=await start(engine,ctx=>ctx.route('**/src/components/orderContractExport.ts*',r=>r.abort('failed')));
   try {
-    await tap(page.getByTestId('order-contract-open'));
+    await toReview(page);
     const panel = page.getByTestId('contract-page').getByTestId('order-contract');
     await panel.getByRole('status').waitFor();
     const status = await panel.getByRole('status').innerText();
     assert.match(status, /Не удалось подготовить файл/);
     assert.match(status, /скопир/i);
     assert.match(status, /реквизит|данные/i, 'warn about unsaved details before reopening');
+    await tap(panel.locator('.order-contract-full-text > summary'));
     assert.match(await panel.getByTestId('order-contract-preview').innerText(), /Предмет договора/);
     assert.equal(await panel.getByTestId('order-contract-copy').isEnabled(), true);
     const button=panel.getByTestId('order-contract-download');
     assert.equal(await button.isDisabled(), true, 'a failed dynamic import must not offer a false retry');
     assert.doesNotMatch(await button.innerText(), /Повторить/);
-    await panel.getByTestId('order-contract-name').fill(customerName);
+    await tap(page.getByTestId('contract-back'));
+    await page.getByTestId('order-contract-name').fill(customerName);
+    await tap(page.getByTestId('contract-next'));
+    await tap(panel.locator('.order-contract-full-text > summary'));
     await page.waitForFunction(name => document.querySelector('[data-testid="contract-page"] [data-testid="order-contract-preview"]')?.textContent?.includes(name), customerName);
     await page.evaluate(() => {window.__copiedContract='';Object.defineProperty(navigator,'clipboard',{value:{writeText(value){window.__copiedContract=value;return Promise.resolve();}},configurable:true});});
     await tap(panel.getByTestId('order-contract-copy'));
@@ -47,8 +61,7 @@ async function testNativeDiscussion(engine) {
   const {browser,context,page}=await start(engine);
   try {
     const sent=[]; page.on('request', r=>sent.push({url:r.url(),body:r.postData()||''}));
-    await tap(page.getByTestId('order-contract-open'));
-    await page.getByTestId('order-contract-name').fill(customerName);
+    await toReview(page, customerName);
     await page.evaluate(()=>{window.__discussion=[];window.Telegram=window.Telegram||{};window.Telegram.WebApp=window.Telegram.WebApp||{};window.Telegram.WebApp.openTelegramLink=url=>window.__discussion.push(url)});
     const link=page.getByTestId('contract-discuss');
     assert.equal(await link.getAttribute('href'),'https://t.me/web4tgs');
@@ -65,6 +78,7 @@ async function testNativeDiscussion(engine) {
 async function testBrowserDiscussion(engine, behavior) {
   const {browser,context,page}=await start(engine);
   try {
+    await toReview(page);
     await page.evaluate(behavior => {window.Telegram=window.Telegram||{}; window.Telegram.WebApp=window.Telegram.WebApp||{}; if (behavior==='throws') window.Telegram.WebApp.openTelegramLink=()=>{throw Error('unsupported')}; else window.Telegram.WebApp.openTelegramLink=undefined;},behavior);
     const target='https://t.me/web4tgs';
     await context.route('https://t.me/**',route=>route.fulfill({status:200,body:'Intercepted: no message sent'}));

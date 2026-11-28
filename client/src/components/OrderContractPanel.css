@@ -19,11 +19,26 @@
 .order-contract-fields input:focus-visible,.order-contract-details>summary:focus-visible,.order-contract-download:focus-visible,.order-contract-copy:focus-visible{outline:2px solid #25272a;outline-offset:3px}
 .order-contract-privacy{margin:10px 2px 0}
 .order-contract-text-heading{margin:22px 0 0;font-size:15px;font-weight:650;letter-spacing:-.02em;line-height:1.3}
+.order-contract-full-text{margin-top:18px;border-top:1px solid #ededef}
+.order-contract-full-text>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;list-style:none;cursor:pointer;font-size:15px;font-weight:650;letter-spacing:-.02em}
+.order-contract-full-text>summary::-webkit-details-marker{display:none}
+.order-contract-full-text[open]>summary svg{transform:rotate(180deg)}
+.order-contract-full-text>summary:focus-visible{outline:2px solid #25272a;outline-offset:3px}
 .order-contract-document{margin-top:10px;padding:19px 16px;border:1px solid #e8e9e8;border-radius:16px;background:#fafafa;color:#242624;overflow-wrap:anywhere}
 .order-contract-document h2,.order-contract-document h3{margin:18px 0 8px;color:#202124;font-size:15px;font-weight:650;line-height:1.3;letter-spacing:-.02em}
 .order-contract-document :is(h2,h3):first-child{margin-top:0}
 .order-contract-document p,.order-contract-document li{font-size:13px;line-height:1.55}
 .order-contract-document p{margin:0 0 10px}
+.order-contract-document section h3{scroll-margin-top:calc(100px + env(safe-area-inset-top, 0px))}
+.order-contract-document section h3:focus{outline:none}
+.order-contract-contents{margin:16px 0;padding:0 12px;border:1px solid #e1e2e1;border-radius:12px;background:#fff}
+.order-contract-contents>summary{min-height:46px;display:flex;align-items:center;cursor:pointer;font-size:13px;font-weight:650}
+.order-contract-contents>summary::after{content:'+';margin-left:auto;font-size:19px;font-weight:400}
+.order-contract-contents[open]>summary::after{content:'−'}
+.order-contract-document .order-contract-contents ol{padding:0;margin:0 0 8px;list-style:none}
+.order-contract-contents li{margin:0;border-top:1px solid #f0f0ef}
+.order-contract-contents button{display:block;width:100%;min-height:44px;padding:10px 0;border:0;background:transparent;color:#383a3e;text-align:left;font:inherit;line-height:1.35;cursor:pointer}
+.order-contract-contents :is(summary,button):focus-visible{outline:2px solid #25272a;outline-offset:2px}
 .order-contract-document :is(ul,ol){padding-left:20px;margin:8px 0 12px}
 .order-contract-download{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:52px;margin-top:16px;padding:0 17px;border:0;border-radius:999px;background:#202124;color:#fff;font-size:13px!important;font-weight:650!important;text-align:left}
 .order-contract-download:disabled{opacity:.6;cursor:wait}

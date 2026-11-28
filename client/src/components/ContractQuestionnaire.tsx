@@ -9,6 +9,9 @@ import './ContractQuestionnaire.css';
 type Props = {
   ru: boolean;
   initialSelection?: OrderContractSelection | null;
+  /** A locally restored draft; the project name is deliberately not persisted. */
+  restoredSelection?: OrderContractSelection | null;
+  step?: 'project' | 'features' | 'hidden';
   onSelectionChange: (selection: OrderContractSelection | null) => void;
 };
 type Direction = { key: string; templateId: string | null; ru: string; en: string; labelRu?: string; labelEn?: string; image?: string; projectId?: string; reference?: boolean };
@@ -38,14 +41,27 @@ const legacyDirections: Direction[] = [
 ];
 const allDirections = [...catalogDirections, ...legacyDirections];
 
+const decodeSelection = (selection?: OrderContractSelection | null) => {
+  if (!selection) return null;
+  const direction = allDirections.find(item => item.ru === selection.direction);
+  if (!direction) return null;
+  return {
+    directionKey: direction.key,
+    extras: availableFeaturesBase.filter(feature => selection.extraFeatures.some(extra => extra.name === russianText(feature.nameKey) && extra.price === feature.price)).map(feature => feature.id),
+    planId: selection.support ? subscriptionPlansBase.find(entry => russianText(entry.nameKey) === selection.support?.name)?.id ?? null : null,
+    annual: selection.support?.period === 'year',
+  };
+};
+
 /** The questionnaire uses the same catalogue as the order and never saves customer details. */
-export function ContractQuestionnaire({ ru, initialSelection, onSelectionChange }: Props) {
+export function ContractQuestionnaire({ ru, initialSelection, restoredSelection, step, onSelectionChange }: Props) {
   const { t } = useLanguage();
-  const [directionKey, setDirectionKey] = useState<string | null>(null);
+  const [restored] = useState(() => decodeSelection(restoredSelection));
+  const [directionKey, setDirectionKey] = useState<string | null>(restored?.directionKey ?? null);
   const [projectName, setProjectName] = useState('');
-  const [extras, setExtras] = useState<string[]>([]);
-  const [planId, setPlanId] = useState<string | null>(null);
-  const [annualFromSaved, setAnnualFromSaved] = useState(false);
+  const [extras, setExtras] = useState<string[]>(restored?.extras ?? []);
+  const [planId, setPlanId] = useState<string | null>(restored?.planId ?? null);
+  const [annualFromSaved, setAnnualFromSaved] = useState(restored?.annual ?? false);
   const [appliedSaved, setAppliedSaved] = useState(false);
   const callbackRef = useRef(onSelectionChange);
   callbackRef.current = onSelectionChange;
@@ -91,9 +107,10 @@ export function ContractQuestionnaire({ ru, initialSelection, onSelectionChange 
   const total = selection?.estimatedTotal;
   const nowIncluded = availableFeaturesBase.filter(item => extras.includes(item.id) && includedIds.has(item.id));
 
-  return <section className="contract-questionnaire" aria-labelledby="contract-questionnaire-title" data-testid="contract-questionnaire">
+  return <section className="contract-questionnaire" aria-labelledby="contract-questionnaire-title" data-testid="contract-questionnaire" hidden={step === 'hidden'}>
     <h2 id="contract-questionnaire-title" className="cq-sr">{ru ? 'Параметры проекта' : 'Project details'}</h2>
-    {initialSelection && !appliedSaved && <div className="cq-saved"><div><strong>{ru ? 'Есть сохранённый расчёт' : 'A saved estimate is available'}</strong><p>{ru ? 'Можно использовать его или выбрать параметры заново.' : 'Use it or choose new options.'}</p></div><button type="button" onClick={restore} data-testid="contract-restore-order">{ru ? 'Использовать' : 'Use estimate'}</button></div>}
+    <div hidden={step === 'features'}>
+    {initialSelection && !appliedSaved && !restored && <div className="cq-saved"><div><strong>{ru ? 'Есть сохранённый расчёт' : 'A saved estimate is available'}</strong><p>{ru ? 'Можно использовать его или выбрать параметры заново.' : 'Use it or choose new options.'}</p></div><button type="button" onClick={restore} data-testid="contract-restore-order">{ru ? 'Использовать' : 'Use estimate'}</button></div>}
     <div className="cq-heading"><h3><span>01</span>{ru ? 'Направление' : 'App type'}</h3><p>{ru ? 'Ориентировочная стоимость основы' : 'Estimated base price'}</p></div>
     <div className="cq-directions" role="group" aria-label={ru ? 'Направление приложения' : 'App type'}>
       {visibleDirections.map((item, index) => { const itemTemplate=appTemplatesBase.find(templateItem => templateItem.id === item.templateId); const active=directionKey===item.key; const price = itemTemplate ? `${ru ? (item.reference ? 'основа от' : 'от') : (item.reference ? 'base from' : 'from')} ${money(itemTemplate.estimatedPrice)}` : (ru ? 'По согласованию' : 'To be agreed'); return <button type="button" key={item.key} className={`cq-direction${active ? ' is-selected' : ''}`} aria-pressed={active} aria-label={`${ru ? item.ru : item.en}: ${price}`} onClick={() => setDirection(item)} data-testid={`contract-direction-${item.key}`} data-project-id={item.projectId}><span className="cq-direction-copy"><strong>{ru ? item.labelRu || item.ru : item.labelEn || item.en}</strong><small>{price}</small></span>{item.image && <img src={item.image} alt="" loading={index < 4 ? 'eager' : 'lazy'} decoding="async"/>}<span className="cq-choice" aria-hidden="true">{active && <Check size={13}/>}</span></button>; })}
@@ -101,15 +118,24 @@ export function ContractQuestionnaire({ ru, initialSelection, onSelectionChange 
     {chosen && <>
       {chosen.reference && <p className="cq-reference-note">{ru ? 'Выбранный проект — ориентир. Точный состав и особенности приложения согласуются отдельно.' : 'The selected project is a reference. Its exact scope and features are agreed separately.'}</p>}
       <label className="cq-name" htmlFor="contract-project-name">{ru ? 'Название проекта' : 'Project name'} <span>{ru ? 'необязательно' : 'optional'}</span><input id="contract-project-name" data-testid="contract-project-name" value={projectName} maxLength={80} onChange={event => setProjectName(event.target.value)} placeholder={ru ? 'Например, название бизнеса' : 'For example, your business'} autoComplete="off"/></label>
+    </>}
+    </div>
+    <div hidden={step === 'project'}>
+    {chosen && <>
       <div className="cq-heading"><h3><span>02</span>{ru ? 'Возможности' : 'Features'}</h3><p>{ru ? 'Включённые функции и дополнительные опции' : 'Included features and optional extras'}</p></div>
       {template ? <div className="cq-included"><strong>{ru ? 'Уже включено в основу' : 'Included in the base'}</strong><ul>{availableFeaturesBase.filter(item => includedIds.has(item.id)).map(item => <li key={item.id}>{t(item.nameKey)}</li>)}</ul></div> : <p className="cq-reference-note">{ru ? 'Состав и стоимость проекта определяются после обсуждения. Можно отметить нужные функции ниже.' : 'Project scope and price are agreed after discussion. You can select requested features below.'}</p>}
       {nowIncluded.length > 0 && <p className="cq-reference-note" role="status">{ru ? 'Ранее выбранные функции теперь включены в основу и не добавляются к цене: ' : 'Previously selected features are now included in the base, without an extra charge: '}{nowIncluded.map(item => t(item.nameKey)).join(', ')}.</p>}
       <details className="cq-catalog"><summary><span><strong>{ru ? 'Добавить возможности' : 'Add features'}</strong><small>{selectedExtras.length ? `${ru ? 'Выбрано' : 'Selected'}: ${selectedExtras.length}` : (ru ? 'По желанию' : 'Optional')}</small></span><ChevronDown size={18}/></summary><div className="cq-groups">{categoryKeys.map(key => {const choices=availableFeaturesBase.filter(item => item.categoryKey===key && !includedIds.has(item.id));if (!choices.length) return null;const count=choices.filter(item => extras.includes(item.id)).length;return <details className="cq-group" key={key}><summary><span>{t(key)}{count > 0 && <small>{count}</small>}</span><ChevronDown size={16}/></summary><div>{choices.map(item => {const active=extras.includes(item.id);return <button className="cq-feature" type="button" key={item.id} aria-pressed={active} onClick={() => toggleExtra(item.id)} data-testid={`contract-extra-${item.id}`}><span className={`cq-feature-check${active ? ' is-active' : ''}`} aria-hidden="true">{active ? <Check size={13}/> : <Plus size={13}/>}</span><span className="cq-feature-name">{t(item.nameKey)}</span><strong>+ {money(item.price)}</strong></button>})}</div></details>;})}</div></details>
       <div className="cq-heading"><h3><span>03</span>{ru ? 'Поддержка' : 'Support'}</h3><p>{ru ? 'Оплачивается отдельно; можно выбрать позже' : 'Billed separately; you can choose later'}</p></div>
-      {annualFromSaved && plan && <p className="cq-annual-note">{ru ? `В сохранённом расчёте выбран годовой тариф «${russianText(plan.nameKey)}» — ${money(plan.price * 10)}. Условия годовой оплаты согласуются отдельно. Вы можете выбрать помесячный тариф ниже.` : `Your saved estimate includes yearly support (${money(plan.price * 10)}). Yearly payment terms are agreed separately. You can choose monthly support below.`}</p>}
-      <div className="cq-plans" role="group" aria-label={ru ? 'Поддержка' : 'Support'}><button type="button" className={!plan ? 'is-selected' : ''} aria-pressed={!plan} onClick={() => { setPlanId(null); setAnnualFromSaved(false); }} data-testid="contract-support-none"><span>{ru ? 'Выбрать позже' : 'Choose later'}</span><span className="cq-plan-check" aria-hidden="true">{!plan && <Check size={13}/>}</span></button>{subscriptionPlansBase.map(item => {const active=planId===item.id && !annualFromSaved;return <button type="button" key={item.id} className={active ? 'is-selected' : ''} aria-pressed={active} onClick={() => {setPlanId(item.id);setAnnualFromSaved(false);}} data-testid={`contract-support-${item.id}`}><span><strong>{t(item.nameKey)}</strong><small>{ru ? '100% до начала месяца' : '100% before the month starts'}</small></span><span className="cq-plan-price">{money(item.price)}<small>{ru ? '/ мес' : '/ month'}</small></span><span className="cq-plan-check" aria-hidden="true">{active && <Check size={13}/>}</span></button>})}</div>
+      <div className="cq-period" role="group" aria-label={ru ? 'Период поддержки' : 'Support period'}>
+        <button type="button" aria-pressed={!annualFromSaved} onClick={() => setAnnualFromSaved(false)} data-testid="contract-support-monthly">{ru ? 'В месяц' : 'Monthly'}</button>
+        <button type="button" aria-pressed={annualFromSaved} onClick={() => setAnnualFromSaved(true)} data-testid="contract-support-yearly">{ru ? 'В год' : 'Yearly'}</button>
+      </div>
+      {annualFromSaved && <p className="cq-annual-note">{ru ? `${plan ? `Годовой тариф «${russianText(plan.nameKey)}» — ${money(plan.price * 10)}. ` : ''}Условия годовой оплаты согласуются отдельно.` : `${plan ? `Yearly support: ${money(plan.price * 10)}. ` : ''}Yearly payment terms are agreed separately.`}</p>}
+      <div className="cq-plans" role="group" aria-label={ru ? 'Поддержка' : 'Support'}><button type="button" className={!plan ? 'is-selected' : ''} aria-pressed={!plan} onClick={() => setPlanId(null)} data-testid="contract-support-none"><span>{ru ? 'Выбрать позже' : 'Choose later'}</span><span className="cq-plan-check" aria-hidden="true">{!plan && <Check size={13}/>}</span></button>{subscriptionPlansBase.map(item => {const active=planId===item.id;return <button type="button" key={item.id} className={active ? 'is-selected' : ''} aria-pressed={active} onClick={() => setPlanId(item.id)} data-testid={`contract-support-${item.id}`}><span><strong>{t(item.nameKey)}</strong><small>{annualFromSaved ? (ru ? 'Условия оплаты согласуются' : 'Payment terms to be agreed') : (ru ? '100% до начала месяца' : '100% before the month starts')}</small></span><span className="cq-plan-price">{money(annualFromSaved ? item.price * 10 : item.price)}<small>{annualFromSaved ? (ru ? '/ год' : '/ year') : (ru ? '/ мес' : '/ month')}</small></span><span className="cq-plan-check" aria-hidden="true">{active && <Check size={13}/>}</span></button>})}</div>
       <div className="cq-total" data-testid="contract-estimate"><div><strong>{ru ? 'Разработка' : 'Development'}</strong><small>{total === null ? (ru ? 'Итоговая цена после обсуждения' : 'Final price after discussion') : (ru ? 'Предварительный расчёт' : 'Preliminary estimate')}</small></div><b>{total !== null && total !== undefined ? money(total) : (ru ? 'По согласованию' : 'To be agreed')}</b></div>
       <p className="cq-terms">{ru ? 'Оплата разработки: 50% аванс и 50% после приёмки. Окончательные состав, цена и сроки согласуются отдельно.' : 'Development: 50% in advance and 50% after acceptance. The final scope, price and timeline are agreed separately.'}</p>
     </>}
+    </div>
   </section>;
 }

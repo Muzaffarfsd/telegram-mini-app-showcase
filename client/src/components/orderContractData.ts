@@ -1,3 +1,6 @@
+import { translations } from '../lib/translations';
+import { subscriptionPlansBase } from './orderCatalog';
+
 /** Customer-facing draft. Unsettled terms remain visible until agreed. */
 export type OrderContractCustomer = { name?: string; taxId?: string; address?: string; email?: string };
 export type OrderContractSupport = { name: string; price: number; period: 'month' | 'year' };
@@ -197,6 +200,36 @@ const money = (amount: number) => {
 };
 const text = (value: string | undefined, fallback = '[согласовать]') => value?.trim() || fallback;
 
+const catalogText = (key: string): string | null => {
+  const value = key.split('.').reduce<unknown>((part, item) => part && typeof part === 'object' ? (part as Record<string, unknown>)[item] : undefined, translations.ru);
+  return typeof value === 'string' ? value : null;
+};
+
+/** Catalogue descriptions are a preview, not agreed support obligations. */
+export function getSupportPackagePreview(support: OrderContractSupport | null): string[] {
+  if (!support) return [];
+  const plan = subscriptionPlansBase.find(item => catalogText(item.nameKey) === support.name.trim());
+  if (!plan) return [];
+  const inheritedPlans: Record<string, string> = {
+    'constructor.subscriptionFeatures.allFromMinimal': 'minimal',
+    'constructor.subscriptionFeatures.allFromStandard': 'standard',
+  };
+  const seenPlans = new Set<string>();
+  const keys = new Set<string>();
+  const collect = (id: string) => {
+    if (seenPlans.has(id)) return;
+    seenPlans.add(id);
+    const item = subscriptionPlansBase.find(candidate => candidate.id === id);
+    item?.featuresKeys.forEach(key => {
+      const inherited = inheritedPlans[key];
+      if (inherited) collect(inherited);
+      else keys.add(key);
+    });
+  };
+  collect(plan.id);
+  return Array.from(keys).map(catalogText).filter((item): item is string => item !== null);
+}
+
 /** Preview and export share this complete text. Estimates are not agreed prices. */
 export function buildOrderContract(input: OrderContractInput): OrderContractDraft {
   const sections = TEMPLATE.map(section => ({ heading: section.heading, paragraphs: [...section.paragraphs] }));
@@ -242,6 +275,10 @@ export function buildOrderContract(input: OrderContractInput): OrderContractDraf
   if (input.support) {
     const supportName = text(input.support.name);
     const supportPrice = money(input.support.price);
+    const supportFeatures = getSupportPackagePreview(input.support);
+    replace(supportSection, '2. Включённые операции и объём:', supportFeatures.length
+      ? '2. Предварительный состав по каталогу выбранного тарифа: ' + supportFeatures.join('; ') + '. Это описание предложения, а не согласованные обязательства. Точный состав, объём и лимиты, условия хостинга и резервного копирования, каналы связи, рабочие часы, часовой пояс и показатели обслуживания (SLA) согласуются сторонами до подписания. Указанное в каталоге время ответа относится к первому ответу, а не к сроку устранения; сроки восстановления и устранения согласуются отдельно.'
+      : '2. Состав услуг по выбранному тарифу не определён в каталоге. Включённые операции, объём и лимиты, каналы связи, рабочие часы, часовой пояс, показатели обслуживания (SLA), время ответа и сроки устранения согласуются сторонами до подписания.');
     if (input.support.period === 'month') {
       replace(commercial, '9. Поддержка:', '9. Предварительно выбрана поддержка: ' + supportName + ', ' + supportPrice + ' за месяц. Поддержка оплачивается отдельно от разработки. Состав, окончательная цена и дата начала согласуются в Приложении № 4. Условие оплаты: 100% стоимости каждого месяца до начала соответствующего периода.');
       replace(supportSection, '1. Объект поддержки', '1. Предварительно выбран тариф: ' + supportName + ', ' + supportPrice + ' за месяц. Объект поддержки и окружение [___]; дата начала [___]; стоимость и налоговый режим подлежат согласованию. Продолжительность периода: календарный месяц или иной месячный период с указанием дат [___]. Поддержка оплачивается отдельно от разработки.');

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildOrderContract, type OrderContractInput } from '../client/src/components/orderContractData';
+import { buildOrderContract, getSupportPackagePreview, type OrderContractInput } from '../client/src/components/orderContractData';
 
 const base: OrderContractInput = {
   direction: 'Цветочный магазин', projectName: 'Сад', includedFeatures: ['Каталог', 'Корзина'],
@@ -29,6 +29,28 @@ test('monthly support is separate and prepaid for each period', () => {
   assert.match(section(input, 'Приложение № 2.').paragraphs.join(' '), /100% стоимости каждого месяца до начала/);
   assert.match(section(input, 'Приложение № 4.').paragraphs.join(' '), /100% стоимости первого месяца/);
   assert.match(all(input), /не делает её безусловно невозвратной/);
+});
+test('support previews expand the actual catalogue inheritance and remain preliminary', () => {
+  const minimal = { name: 'Минимальный', price: 9900, period: 'month' as const };
+  const standard = { name: 'Стандартный', price: 14900, period: 'month' as const };
+  const premium = { name: 'Премиум', price: 249000, period: 'year' as const };
+  const minimalFeatures = ['Хостинг 99.9%', 'Мелкие правки', 'Email поддержка', 'Ежемесячные бэкапы'];
+  const standardFeatures = [...minimalFeatures, 'Приоритетная поддержка', 'Бесплатные обновления', 'Еженедельные бэкапы', 'Ответ за 2 часа'];
+  const premiumFeatures = [...standardFeatures, 'Персональный менеджер', 'Бизнес-консультации', 'Ежедневные бэкапы', 'Приоритетные доработки', 'Аналитические отчёты'];
+  assert.deepEqual(getSupportPackagePreview(minimal), minimalFeatures);
+  assert.deepEqual(getSupportPackagePreview(standard), standardFeatures);
+  assert.deepEqual(getSupportPackagePreview(premium), premiumFeatures);
+  assert.deepEqual(getSupportPackagePreview(null), []);
+  assert.deepEqual(getSupportPackagePreview({ ...minimal, name: 'Неизвестный тариф' }), []);
+  const content = section({ ...base, support: premium }, 'Приложение № 4.').paragraphs.join(' ');
+  for (const feature of premiumFeatures) assert.ok(content.includes(feature));
+  assert.match(content, /Предварительный состав по каталогу/);
+  assert.match(content, /не согласованные обязательства/);
+  assert.match(content, /рабочие часы, часовой пояс и показатели обслуживания \(SLA\) согласуются/);
+  assert.match(content, /время ответа относится к первому ответу, а не к сроку устранения/);
+  assert.match(content, /ориентировочно 249\s000 ₽ за год/);
+  assert.match(content, /Месячная предоплата не применяется автоматически/);
+  assert.doesNotMatch(section({ ...base, support: null }, 'Приложение № 4.').paragraphs.join(' '), /Предварительный состав по каталогу/);
 });
 test('yearly support does not silently become monthly billing', () => {
   const input: OrderContractInput = { ...base, support: { name: 'Стандарт', price: 149000, period: 'year' } };

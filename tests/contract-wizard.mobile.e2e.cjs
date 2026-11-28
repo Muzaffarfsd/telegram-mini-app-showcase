@@ -1,0 +1,84 @@
+const assert = require('node:assert/strict');
+const { chromium, webkit } = require('playwright');
+const base = process.env.CONTRACT_TEST_URL || 'http://127.0.0.1:41767/';
+const draftKey = 'web4tg:contract-draft:v1';
+const normalize = value => value.replace(/\s+/g, ' ').trim();
+const tap = async locator => { await locator.scrollIntoViewIfNeeded(); await locator.tap(); };
+
+async function run(engine, width) {
+  const browser = await engine.launch();
+  const context = await browser.newContext({ viewport: { width, height: 844 }, isMobile: true, hasTouch: true, locale: 'ru-RU', serviceWorkers: 'block' });
+  await context.route('https://telegram.org/js/telegram-web-app.js', route => route.fulfill({ body: '' }));
+  await context.route('**/api/**', route => route.fulfill({ json: { data: [] } }));
+  await context.addInitScript(() => localStorage.setItem('app-language', 'ru'));
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  let cancelNavigation = false;
+  let cancelled = false;
+  page.on('dialog', dialog => {
+    if (cancelNavigation && dialog.type() === 'confirm') { cancelled = true; cancelNavigation = false; return dialog.dismiss(); }
+    return dialog.accept();
+  });
+  try {
+    await page.goto(new URL('/#/contract', base).href);
+    await page.getByTestId('contract-questionnaire').waitFor();
+    assert.equal(await page.getByTestId('contract-next').isDisabled(), true);
+    await tap(page.locator('.contract-general'));
+    await page.getByTestId('order-contract-name').waitFor();
+    await tap(page.getByTestId('contract-back'));
+    assert.equal(await page.getByTestId('contract-direction-furniture-studio').isVisible(), true, 'back from a general agreement returns to project selection');
+    assert.ok(await page.locator('.cq-direction').count() >= 13, 'all real project directions remain available');
+    await tap(page.getByTestId('contract-direction-furniture-studio'));
+    await page.getByTestId('contract-project-name').fill('Название приватного проекта');
+    await tap(page.getByTestId('contract-next'));
+    assert.match(normalize(await page.getByTestId('contract-estimate').innerText()), /По согласованию/);
+    await tap(page.locator('.cq-catalog > summary'));
+    await tap(page.locator('.cq-group').filter({ hasText: 'Основные' }).locator('summary'));
+    await tap(page.getByTestId('contract-extra-search'));
+    await tap(page.getByTestId('contract-support-yearly'));
+    await tap(page.getByTestId('contract-support-standard'));
+    assert.equal(await page.getByTestId('contract-support-yearly').getAttribute('aria-pressed'), 'true');
+    assert.match(normalize(await page.locator('.cq-annual-note').innerText()), /149 000 ₽/);
+    await tap(page.getByTestId('contract-back'));
+    assert.equal(await page.getByTestId('contract-project-name').inputValue(), 'Название приватного проекта');
+    assert.equal(await page.getByTestId('contract-direction-furniture-studio').getAttribute('aria-pressed'), 'true');
+    await tap(page.getByTestId('contract-next'));
+    assert.equal(await page.getByTestId('contract-extra-search').getAttribute('aria-pressed'), 'true');
+    assert.equal(await page.getByTestId('contract-support-standard').getAttribute('aria-pressed'), 'true');
+    await tap(page.getByTestId('contract-next'));
+    await page.getByTestId('order-contract-name').fill('Частное имя заказчика');
+    await page.getByTestId('order-contract-tax').fill('123456789012');
+    await page.getByTestId('order-contract-address').fill('Личный адрес заказчика');
+    await page.getByTestId('order-contract-email').fill('private@example.test');
+    cancelNavigation = true;
+    await tap(page.getByTestId('nav-showcase'));
+    assert.equal(cancelled, true, 'leaving with private details asks for confirmation');
+    assert.equal(await page.getByTestId('order-contract-name').inputValue(), 'Частное имя заказчика', 'cancel keeps customer details');
+    assert.equal(await page.getByTestId('order-contract-email').inputValue(), 'private@example.test');
+    const stored = await page.evaluate(() => JSON.stringify(Object.entries(localStorage)));
+    for (const secret of ['Название приватного проекта', 'Частное имя заказчика', '123456789012', 'Личный адрес заказчика', 'private@example.test']) assert.ok(!stored.includes(secret), 'private data is not persisted: ' + secret);
+    assert.ok(await page.evaluate(key => !!localStorage.getItem(key), draftKey), 'draft choices are saved');
+    await tap(page.getByTestId('contract-next'));
+    const summary = normalize(await page.getByTestId('contract-review').innerText());
+    assert.match(summary, /По согласованию/);
+    assert.match(summary, /149 000(?:,00)? ₽\s*\/\s*год/);
+    assert.match(summary, /Поиск/);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'no horizontal overflow');
+    await page.reload();
+    await page.getByTestId('contract-questionnaire').waitFor();
+    assert.equal(await page.getByTestId('contract-direction-furniture-studio').getAttribute('aria-pressed'), 'true', 'direction restored');
+    assert.equal(await page.getByTestId('contract-project-name').inputValue(), '', 'private project name is not restored');
+    await tap(page.getByTestId('contract-next'));
+    assert.equal(await page.getByTestId('contract-support-yearly').getAttribute('aria-pressed'), 'true', 'period restored');
+    assert.equal(await page.getByTestId('contract-support-standard').getAttribute('aria-pressed'), 'true', 'support restored');
+    await tap(page.locator('.cq-catalog > summary'));
+    await tap(page.locator('.cq-group').filter({ hasText: 'Основные' }).locator('summary'));
+    assert.equal(await page.getByTestId('contract-extra-search').getAttribute('aria-pressed'), 'true', 'feature restored');
+    await tap(page.getByTestId('contract-next'));
+    assert.equal(await page.getByTestId('order-contract-name').inputValue(), '', 'customer details are not restored');
+    assert.deepEqual(errors, []);
+    console.log(`PASS ${engine.name()} ${width}: wizard, unknown price, annual support, navigation and private draft`);
+  } finally { await context.close(); await browser.close(); }
+}
+(async () => { const engines = process.env.CONTRACT_TEST_ENGINE === 'webkit' ? [webkit] : process.env.CONTRACT_TEST_ENGINE === 'chromium' ? [chromium] : [chromium, webkit]; const widths = process.env.CONTRACT_TEST_WIDTH ? [Number(process.env.CONTRACT_TEST_WIDTH)] : [320, 390, 768]; for (const engine of engines) for (const width of widths) await run(engine, width); })().catch(error => { console.error(error); process.exitCode = 1; });
