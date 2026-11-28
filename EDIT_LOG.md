@@ -4,6 +4,11 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-28 · Accelerate shared project startup
+
+- Added build-generated, project-specific early module and stylesheet preloads for the 13 published projects on Telegram share launches and direct app routes. They use low priority so the main application and Telegram bridge keep bandwidth. The launch hint respects explicit routes, consumed shares, aliases and unknown IDs. A shared first-image map also fixes the outdated furniture image and the coffee responsive sizes used by the runtime warmer.
+- Checkpoint `refs/checkpoints/before-shared-demo-speed` at `e7bb76e0`. Validated all 13 share/direct links, alias and consumed/invalid launch cases in Chromium/WebKit, Telegram share UI, cold startup and first-image requests at multiple pixel densities. On a simulated slow connection, compared variants using separate cold contexts and an identical local Brotli server; early images slowed some screens, so the final policy avoids them. First-image arrival improved in furniture measurements, while a single-run comparison did not establish faster root rendering for most projects. These local measurements and emulation do not guarantee equal load times on real phones, networks or Telegram clients.
+
 ## 2026-11-28 · Refine scrolling in a simulated Telegram host
 
 - Telegram viewport listeners skip repeated identical style writes and unchanged inset updates; body safe-area padding remains while another Telegram hook consumer is mounted. The flower recommendation rail avoids redundant React updates during a drag. The sidebar overlay and panel have critical fixed positioning immediately on insertion, preventing a measured 435–446 px cold-load page-height jump in WebKit.

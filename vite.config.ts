@@ -4,6 +4,25 @@ import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
 import { compression } from "vite-plugin-compression2";
 import { firstHomePreview, homePreviewSizes, homePreviewSrcSet } from './client/src/data/homePreview';
+import { demoShareEntries } from './shared/demoShare';
+
+// These are the public share destinations, not all of the optional demos in
+// the registry. Their generated chunk names change on every build.
+const sharedDemoSources: Record<keyof typeof demoShareEntries, string> = {
+  'furniture-studio': '/src/components/demos/furniture/FurnitureShop.tsx',
+  'flower-store': '/src/components/demos/FlowerStore.tsx',
+  'takt-coffee': '/src/components/demos/coffee/TaktCoffee.tsx',
+  'china-buyer': '/src/components/demos/ChinaBuyer.tsx',
+  'medical-center': '/src/components/demos/MedicalCenter.tsx',
+  'lumi-studio': '/src/components/demos/LumiStudio.tsx',
+  'opt-market': '/src/components/demos/OptMarket.tsx',
+  'apple-store': '/src/components/demos/AppleStore.tsx',
+  'muraka-fashion': '/src/components/demos/MurakaFashion.tsx',
+  'women-fashion': '/src/components/demos/WomenFashion.tsx',
+  'jewelry-store': '/src/components/demos/JewelryStore.tsx',
+  'nike-sneakers': '/src/components/demos/RoyalStep.tsx',
+  'skincare-aura': '/src/components/demos/SkincareStore.tsx',
+};
 
 export default defineConfig({
   base: '/',
@@ -28,7 +47,8 @@ export default defineConfig({
           );
           const app = findChunk('/src/App.tsx');
           const home = findChunk('/src/components/ShowcasePage.tsx');
-          if (app?.type !== 'chunk' || home?.type !== 'chunk') return;
+          const shell = findChunk('/src/components/DemoAppShell.tsx');
+          if (app?.type !== 'chunk' || home?.type !== 'chunk' || shell?.type !== 'chunk') return;
           // Start only mandatory shell imports while Telegram establishes its bridge.
           const requiredImport = (file: string) => {
             const chunk = bundle[file];
@@ -41,13 +61,24 @@ export default defineConfig({
             ...Array.from(home.viteMetadata?.importedCss ?? [], file => ({ rel: 'preload', as: 'style', href: '/' + file })),
             { rel: 'preload', as: 'image', href: firstHomePreview, srcset: homePreviewSrcSet(firstHomePreview), sizes: homePreviewSizes },
           ];
+          const demoAssets = Object.fromEntries(Object.entries(sharedDemoSources).map(([id, source]) => {
+            const demo = findChunk(source);
+            if (demo?.type !== 'chunk') throw new Error(`Missing shared demo chunk: ${id} (${source})`);
+            const files = new Set([shell.fileName, demo.fileName]);
+            const css = new Set([...Array.from(shell.viteMetadata?.importedCss ?? []), ...Array.from(demo.viteMetadata?.importedCss ?? [])]);
+            return [id, [
+              ...Array.from(files, file => ({ rel: 'modulepreload', href: '/' + file })),
+              ...Array.from(css, file => ({ rel: 'preload', as: 'style', href: '/' + file })),
+            ]];
+          }));
           const tags = [
             ...Array.from(scripts, file => ({ tag: 'link', attrs: { rel: 'modulepreload', crossorigin: '', href: '/' + file } })),
             ...Array.from(app.viteMetadata?.importedCss ?? [], file => ({
               tag: 'link', attrs: { rel: 'preload', as: 'style', crossorigin: '', href: '/' + file }
             })),
           ];
-          return { html: html.replace('/* home-boot-assets */ []', JSON.stringify(homeAssets)), tags };
+          return { html: html.replace('/* home-boot-assets */ []', JSON.stringify(homeAssets))
+            .replace('/* demo-boot-assets */ {}', JSON.stringify(demoAssets)), tags };
         },
       },
     },

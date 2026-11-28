@@ -56,6 +56,7 @@
       var marker = (id === 'royal-step' ? 'nike-sneakers' : id) + '|' + (/^\d{1,12}$/.test(date) ? date : 'no-date');
       try { if (sessionStorage.getItem('web4tg:consumed-demo-start') === marker) return; } catch (e) {}
       document.documentElement.dataset.sharedDemoShell = '1';
+      document.documentElement.dataset.sharedDemoId = id === 'royal-step' ? 'nike-sneakers' : id;
     })();
   </script>
   <!-- CRITICAL: Adaptive viewport for all devices (Telegram Mini App optimized) -->
@@ -75,6 +76,27 @@
   <meta name="application-name" content="WEB4TG Studio">
   
   <script id="telegram-sdk" defer src="https://telegram.org/js/telegram-web-app.js" fetchpriority="high"></script>
+  <script>
+    (function () {
+      // Only fetch the chosen public project: its hashed chunks and CSS can
+      // start while Telegram's bridge and the common shell are still loading.
+      var assets = /* demo-boot-assets */ {};
+      var match = /^\/demos\/([^/]+)\/app$/.exec(__initialPath);
+      var id = match ? match[1] : document.documentElement.dataset.sharedDemoId;
+      if (id === 'royal-step') id = 'nike-sneakers';
+      if (!id || !Object.prototype.hasOwnProperty.call(assets, id)) return;
+      assets[id].forEach(function (asset) {
+        var link = document.createElement('link');
+        link.rel = asset.rel;
+        link.href = asset.href;
+        // Avoid starving the entry script and Telegram bridge on slow networks.
+        link.setAttribute('fetchpriority', 'low');
+        link.crossOrigin = '';
+        if (asset.as) link.as = asset.as;
+        document.head.appendChild(link);
+      });
+    })();
+  </script>
   <script>
     if ((__initialPath === '/' || !__initialPath.startsWith('/')) && !document.documentElement.dataset.sharedDemoShell) {
       // Vite fills in the exact files for this release. Dev loads them normally.
@@ -107,20 +129,6 @@
     })();
   </script>
   <noscript><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&family=Russo+One&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
-
-  <!-- On a direct Apple demo link, prioritize its first illustration instead of unrelated display fonts. -->
-  <script>
-    (function () {
-      if (/^#\/demos\/apple-store\/app(?:\?|$)/.test(location.hash)) {
-        var image = document.createElement('link');
-        image.rel = 'preload'; image.as = 'image'; image.fetchPriority = 'high';
-        image.href = '/apple-store/generated/sizes/hero-iphone18-promax-burgundy-reference-v1-480.webp';
-        image.setAttribute('imagesrcset', '/apple-store/generated/sizes/hero-iphone18-promax-burgundy-reference-v1-160.webp 160w, /apple-store/generated/sizes/hero-iphone18-promax-burgundy-reference-v1-480.webp 480w, /apple-store/generated/hero-iphone18-promax-burgundy-reference-v1.webp 940w');
-        image.setAttribute('imagesizes', '(max-width: 448px) 55vw, 220px');
-        document.head.appendChild(image);
-      }
-    })();
-  </script>
 
   <!-- SEO Meta Tags -->
   <meta name="description" content="WEB4TG Studio - Professional Telegram Mini Apps portfolio. 18 full-featured demos for fashion, restaurants, fitness, real estate & AI agents. 24/7 business automation.">

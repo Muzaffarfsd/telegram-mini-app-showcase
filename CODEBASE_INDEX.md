@@ -4,6 +4,11 @@
 > AI assistants MUST read this file before starting any work.
 > Updated when files are added / removed / significantly refactored.
 
+## Shared project startup
+
+- `vite.config.ts` generates the public-project chunk/CSS preload map in the built HTML. `client/index.html` selects only the direct or unconsumed shared project, using low-priority requests. Project images warm at runtime via `demoImagePreload.ts` and `demoFirstImages.ts`; early HTML image preloads were excluded after slow-network testing showed they could delay the usable interface. Shared start routing and validation remain in `demoShareStart.ts` and `shared/demoShare.ts`.
+- `tests/shared-demo-preload.mobile.e2e.cjs` checks the built production HTML, 13 projects and launch precedence in Chromium and WebKit; `tests/demo-first-image.mobile.e2e.cjs` checks furniture and coffee responsive requests. Use `PRELOAD_TEST_URL` and `FURNITURE_TEST_URL` to target a build or deployment.
+
 ## Touch scrolling
 
 - `client/src/index.css` provides native root scrolling without blanket mobile transitions. Furniture and wholesale rail edge controls avoid React updates when their enabled state has not changed. `SkincareStore.tsx` retains real blog-card height in low-performance mode; fashion-store CSS enables momentum for relevant nested iOS WebView scrollers.
