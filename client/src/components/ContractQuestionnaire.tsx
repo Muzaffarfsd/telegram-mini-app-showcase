@@ -40,6 +40,17 @@ const legacyDirections: Direction[] = [
   { key: 'fitness-center', templateId: 'fitness-center', ru: russianText('constructor.fitnessClub'), en: 'Fitness centre' },
 ];
 const allDirections = [...catalogDirections, ...legacyDirections];
+type DirectionGroup = 'shops' | 'food' | 'services';
+const directionGroups: { key: DirectionGroup; ru: string; en: string }[] = [
+  { key: 'shops', ru: 'Магазины', en: 'Stores' },
+  { key: 'food', ru: 'Еда и напитки', en: 'Food and drinks' },
+  { key: 'services', ru: 'Услуги и бизнес', en: 'Services and business' },
+];
+const groupForDirection = (key?: string | null): DirectionGroup => {
+  if (key === 'restaurant' || key === 'takt-coffee') return 'food';
+  if (key === 'services' || key === 'lumi-studio' || key === 'medical-center' || key === 'china-buyer' || key === 'fitness-center') return 'services';
+  return 'shops';
+};
 
 const decodeSelection = (selection?: OrderContractSelection | null) => {
   if (!selection) return null;
@@ -58,6 +69,7 @@ export function ContractQuestionnaire({ ru, initialSelection, restoredSelection,
   const { t } = useLanguage();
   const [restored] = useState(() => decodeSelection(restoredSelection));
   const [directionKey, setDirectionKey] = useState<string | null>(restored?.directionKey ?? null);
+  const [activeGroup, setActiveGroup] = useState<DirectionGroup>(() => groupForDirection(restored?.directionKey));
   const [projectName, setProjectName] = useState('');
   const [extras, setExtras] = useState<string[]>(restored?.extras ?? []);
   const [planId, setPlanId] = useState<string | null>(restored?.planId ?? null);
@@ -96,6 +108,7 @@ export function ContractQuestionnaire({ ru, initialSelection, restoredSelection,
     const ids = availableFeaturesBase.filter(feature => initialSelection.extraFeatures.some(extra => extra.name === russianText(feature.nameKey) && extra.price === feature.price)).map(feature => feature.id);
     const savedPlan = initialSelection.support ? subscriptionPlansBase.find(entry => russianText(entry.nameKey) === initialSelection.support?.name) : undefined;
     setDirectionKey(item.key);
+    setActiveGroup(groupForDirection(item.key));
     setProjectName(initialSelection.projectName);
     setExtras(ids);
     setPlanId(savedPlan?.id ?? null);
@@ -111,11 +124,24 @@ export function ContractQuestionnaire({ ru, initialSelection, restoredSelection,
     <h2 id="contract-questionnaire-title" className="cq-sr">{ru ? 'Параметры проекта' : 'Project details'}</h2>
     <div hidden={step === 'features'}>
     {initialSelection && !appliedSaved && !restored && <div className="cq-saved"><div><strong>{ru ? 'Есть сохранённый расчёт' : 'A saved estimate is available'}</strong><p>{ru ? 'Можно использовать его или выбрать параметры заново.' : 'Use it or choose new options.'}</p></div><button type="button" onClick={restore} data-testid="contract-restore-order">{ru ? 'Использовать' : 'Use estimate'}</button></div>}
-    <div className="cq-heading"><h3><span>01</span>{ru ? 'Направление' : 'App type'}</h3><p>{ru ? 'Ориентировочная стоимость основы' : 'Estimated base price'}</p></div>
-    <div className="cq-directions" role="group" aria-label={ru ? 'Направление приложения' : 'App type'}>
-      {visibleDirections.map((item, index) => { const itemTemplate=appTemplatesBase.find(templateItem => templateItem.id === item.templateId); const active=directionKey===item.key; const price = itemTemplate ? `${ru ? (item.reference ? 'основа от' : 'от') : (item.reference ? 'base from' : 'from')} ${money(itemTemplate.estimatedPrice)}` : (ru ? 'По согласованию' : 'To be agreed'); return <button type="button" key={item.key} className={`cq-direction${active ? ' is-selected' : ''}`} aria-pressed={active} aria-label={`${ru ? item.ru : item.en}: ${price}`} onClick={() => setDirection(item)} data-testid={`contract-direction-${item.key}`} data-project-id={item.projectId}><span className="cq-direction-copy"><strong>{ru ? item.labelRu || item.ru : item.labelEn || item.en}</strong><small>{price}</small></span>{item.image && <img src={item.image} alt="" loading={index < 4 ? 'eager' : 'lazy'} decoding="async"/>}<span className="cq-choice" aria-hidden="true">{active && <Check size={13}/>}</span></button>; })}
+    <div className="cq-heading"><h3><span>01</span>{ru ? 'Направление' : 'App type'}</h3><p>{ru ? 'Выберите категорию и листайте проекты в сторону' : 'Choose a category and swipe through projects'}</p></div>
+    <div className="cq-categories" role="group" aria-label={ru ? 'Категории проектов' : 'Project categories'}>
+      {directionGroups.map(group => <button type="button" key={group.key} className="cq-category" aria-pressed={activeGroup === group.key} onClick={() => setActiveGroup(group.key)} data-testid={`contract-category-${group.key}`}>{ru ? group.ru : group.en}</button>)}
     </div>
+    {directionGroups.map(group => <div key={group.key} className="cq-directions" role="group" aria-label={ru ? group.ru : group.en} data-category={group.key} hidden={activeGroup !== group.key}>
+      {visibleDirections.filter(item => groupForDirection(item.key) === group.key).map((item, index) => {
+        const itemTemplate = appTemplatesBase.find(templateItem => templateItem.id === item.templateId);
+        const active = directionKey === item.key;
+        const price = itemTemplate ? `${ru ? (item.reference ? 'основа от' : 'от') : (item.reference ? 'base from' : 'from')} ${money(itemTemplate.estimatedPrice)}` : (ru ? 'По согласованию' : 'To be agreed');
+        return <button type="button" key={item.key} className={`cq-direction${active ? ' is-selected' : ''}`} aria-pressed={active} aria-label={`${ru ? item.ru : item.en}: ${price}`} onClick={() => setDirection(item)} data-testid={`contract-direction-${item.key}`} data-project-id={item.projectId}>
+          <span className="cq-direction-art">{item.image && <img className={`cq-direction-image cq-direction-image--${item.key}`} src={item.image} alt="" loading={group.key === 'shops' && index < 3 ? 'eager' : 'lazy'} decoding="async"/>}</span>
+          <span className="cq-direction-copy"><strong>{ru ? item.labelRu || item.ru : item.labelEn || item.en}</strong><small>{price}</small></span>
+          <span className="cq-choice" aria-hidden="true">{active && <Check size={13}/>}</span>
+        </button>;
+      })}
+    </div>)}
     {chosen && <>
+      <p className="cq-current" role="status">{ru ? 'Выбрано:' : 'Selected:'} <strong>{ru ? chosen.labelRu || chosen.ru : chosen.labelEn || chosen.en}</strong></p>
       {chosen.reference && <p className="cq-reference-note">{ru ? 'Выбранный проект — ориентир. Точный состав и особенности приложения согласуются отдельно.' : 'The selected project is a reference. Its exact scope and features are agreed separately.'}</p>}
       <label className="cq-name" htmlFor="contract-project-name">{ru ? 'Название проекта' : 'Project name'} <span>{ru ? 'необязательно' : 'optional'}</span><input id="contract-project-name" data-testid="contract-project-name" value={projectName} maxLength={80} onChange={event => setProjectName(event.target.value)} placeholder={ru ? 'Например, название бизнеса' : 'For example, your business'} autoComplete="off"/></label>
     </>}

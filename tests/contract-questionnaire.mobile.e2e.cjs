@@ -30,6 +30,7 @@ async function run(engine,width){
   await tap(page.getByTestId('contract-back'));
   await tap(page.getByTestId('contract-back'));
   await tap(page.getByTestId('contract-back'));
+  await tap(page.getByTestId('contract-category-services'));
   await tap(page.getByTestId('contract-direction-services'));
   await tap(page.getByTestId('contract-next'));
   assert.match(normalize(await page.getByTestId('contract-estimate').innerText()),/190 000 ₽/,'changing package retains compatible paid additions');
