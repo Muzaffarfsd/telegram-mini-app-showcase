@@ -31,6 +31,8 @@
 .mf-text-link { display:inline-flex; align-items:center; gap:5px; padding:7px 0; border:0; background:none; color:#222; font-size:12px!important; font-weight:700!important; white-space:nowrap; }
 .mf-categories { display:grid; grid-auto-flow:column; grid-auto-columns:calc((100% - 18px) / 3); gap:9px; overflow-x:auto; scrollbar-width:none; padding-bottom:3px; scroll-snap-type:x mandatory; }
 .mf-categories::-webkit-scrollbar, .mf-chips::-webkit-scrollbar, .mf-related-row::-webkit-scrollbar { display:none; }
+/* Keep native momentum in the inner rails, sheets and zoomed image on iOS WebViews. */
+.mf-categories, .mf-chips, .mf-related-row, .mf-sheet-body, .mf-photo-viewport, .mf-gallery-image-viewport.is-zoomed { -webkit-overflow-scrolling:touch; }
 .mf-category { min-width:0; border:0; padding:0; background:none; color:#272727; text-align:left; scroll-snap-align:start; }
 .mf-category > span { display:block; background:#f3f3f3; aspect-ratio:.87; overflow:hidden; }
 .mf-category img { width:100%; height:100%; object-fit:contain; }

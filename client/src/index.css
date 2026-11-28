@@ -4182,7 +4182,6 @@ img, video {
   html {
     /* Enhanced touch scrolling */
     -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
   }
   
   /* Reduce work during scroll */
@@ -4863,14 +4862,6 @@ html.slow-network video[data-optional="true"] {
   [class*="hover:"]:hover {
     transform: none !important;
   }
-  
-  /* Faster transitions on mobile */
-  * {
-    transition-duration: 0.15s !important;
-  }
-  
-  /* Reduce animation complexity */
-  @keyframes none {}
   
   /* Simple touch feedback */
   button:active,

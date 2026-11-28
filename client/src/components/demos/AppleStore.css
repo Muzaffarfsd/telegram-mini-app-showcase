@@ -64,6 +64,8 @@
 .as-search button { display:grid; place-items:center; width:40px; height:40px; padding:0; border:0; background:none; }
 .as-chips { display:flex; gap:7px; overflow-x:auto; margin-top:15px; padding-bottom:4px; scrollbar-width:none; }
 .as-chips::-webkit-scrollbar { display:none; }
+/* These nested scrollers need their own native momentum on older iOS WebViews. */
+.as-chips, .as-sheet-body, .as-photo-viewport, .as-inline-photo.is-zoomed { -webkit-overflow-scrolling:touch; }
 .as-chips button,.as-filter-options button { flex:none; min-height:44px; padding:0 15px; border:1px solid #e0e1e4; border-radius:25px; background:#fff; color:#51525a; font-size:12px; font-weight:650; }
 .as-chips button.is-active,.as-filter-options button.is-active { border-color:#19191e; background:#19191e; color:#fff; }
 .as-catalog-tools { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:12px; }

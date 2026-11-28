@@ -131,11 +131,11 @@ export default function FurnitureHome({
 
   function updateEdges() {
     const el = rail.current;
-    if (el)
-      setRoomEdges({
-        start: el.scrollLeft <= 2,
-        end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 2,
-      });
+    if (!el) return;
+    const start = el.scrollLeft <= 2;
+    const end = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2;
+    // Scrolling fires every frame; only redraw the home when an arrow changes.
+    setRoomEdges(current => current.start === start && current.end === end ? current : { start, end });
   }
   function scrollRoom(direction: number) {
     const el = rail.current;

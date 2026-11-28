@@ -4,6 +4,11 @@
 > AI assistants MUST read this file before starting any work.
 > Updated when files are added / removed / significantly refactored.
 
+## Touch scrolling
+
+- `client/src/index.css` provides native root scrolling without blanket mobile transitions. Furniture and wholesale rail edge controls avoid React updates when their enabled state has not changed. `SkincareStore.tsx` retains real blog-card height in low-performance mode; fashion-store CSS enables momentum for relevant nested iOS WebView scrollers.
+- Touch regression coverage: `tests/main-touch-scroll.mobile.e2e.cjs`, `tests/fashion-inner-scroll.mobile.e2e.cjs`, `tests/commerce-scroll.mobile.e2e.cjs`, `tests/service-native-scroll.mobile.e2e.cjs`, and `tests/skincare-scroll-geometry.mobile.e2e.cjs`. Set `SCROLL_TEST_URL` (or `COMMERCE_SCROLL_URL` for commerce) to target another deployment. Physical-device performance still requires testing.
+
 ## Order cost review
 
 - `OrderExperience.tsx` computes the estimate from the existing template, included features and selected extras; `OrderReviewStep.tsx` and `OrderCostBreakdown.css` present the one-time development total, package, individual extras, separate support and terms to discuss. RUB is authoritative and the USD conversion is informational. No new prices or plan terms are defined in this presentation.

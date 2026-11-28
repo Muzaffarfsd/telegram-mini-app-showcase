@@ -207,6 +207,7 @@
 .rs-related { margin-top:38px; }
 .rs-related h2 { font-size:18px; }
 .rs-related__row { display:grid; grid-auto-flow:column; grid-auto-columns:minmax(135px, 44%); gap:10px; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:6px; }
+.rs-related__row, .rs-sheet__scroll { -webkit-overflow-scrolling:touch; }
 .rs-related__row button { display:flex; flex-direction:column; gap:5px; min-width:0; background:transparent; border:0; padding:0; color:#171817; text-align:left; scroll-snap-align:start; }
 .rs-related__image { display:block; width:100%; aspect-ratio:1.1; background:#f4f5f7; border-radius:12px; }
 .rs-related__row img { width:100%; height:100%; object-fit:contain; padding:6px; }

@@ -4,6 +4,11 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-28 · Improve touch scrolling across the application
+
+- Removed the blanket mobile transition duration, which had applied transitions to every element, while keeping intentional transitions. The application continues to use browser-native vertical scrolling. Furniture and wholesale product rails update React state only when arrow availability changes; the skincare blog keeps its actual height in low-performance mode to avoid a measured 21 px jump during scrolling. Selected nested fashion-store rails, sheets and zoomed photos retain iOS WebView momentum.
+- Checkpoint `refs/checkpoints/before-touch-scroll-quality` at `c9d406d9`. Added mobile Chromium touch regression coverage for six main pages, all 13 projects, inner rails and sheets, and skincare geometry; furniture room gestures and order/navigation also passed. A pre-existing showcase first-load WebKit geometry test still fails at 390 px: the fallback and loaded fonts wrap differently, shifting cards 21 px. Physical Telegram iPhone/Android inertia and frame pacing remain unverified.
+
 ## 2026-11-27 · Clarify project cost and scope
 
 - Reworked the order review to present the one-time development estimate first, followed by the package, selected additional features and separately priced support. The included list opens by default; each selected feature keeps its existing price. Added the existing currency and exchange-rate explanation and a concise note that final scope, cost, timing and third-party conditions are discussed.

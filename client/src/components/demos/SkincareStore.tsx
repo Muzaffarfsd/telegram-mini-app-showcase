@@ -637,7 +637,7 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
         <div className="overflow-x-auto scrollbar-hide">
           <div className="flex" style={{ gap: 12, padding: "0 20px 4px", width: "max-content" }}>
             {BLOG.map((b, i) => (
-              <article key={i} className="flex-shrink-0 active:scale-[0.98] transition-transform" style={{ width: 264 }}>
+              <article key={i} className="aura-blog-card flex-shrink-0 active:scale-[0.98] transition-transform" style={{ width: 264 }}>
                 <div style={{ height: 160, borderRadius: 18, overflow: "hidden" }}>
                   <Img src={b.img} alt={b.title} r={18} />
                 </div>
@@ -1734,6 +1734,8 @@ function SkincareStore({ activeTab, onTabChange, onCartCount, onTheme }: Props) 
 .aura.dark .aura-shim{background:linear-gradient(100deg,#212329 28%,#2b2d34 48%,#212329 68%);background-size:220% 100%}
 .aura *:focus-visible{outline:2px solid ${INK};outline-offset:2px;border-radius:6px}
 .aura button,.aura [role=button],.aura input{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+/* The three blog cards must keep their real height during a vertical fling. */
+html.low-performance .aura .aura-blog-card{content-visibility:visible;contain-intrinsic-size:none}
 .aura-shim{background:linear-gradient(100deg,#ededeb 28%,#f6f6f4 48%,#ededeb 68%);background-size:220% 100%;animation:auraShim 1.25s linear infinite}
 @keyframes auraShim{from{background-position:220% 0}to{background-position:-220% 0}}
 @keyframes auraUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
