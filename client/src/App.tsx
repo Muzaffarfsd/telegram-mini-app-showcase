@@ -162,7 +162,10 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
         className={`fixed bottom-0 left-0 right-0 flex justify-center z-50${route.component === 'projects' ? ' projects-dock' : ''}`}
         style={{ 
           isolation: 'isolate',
-          paddingBottom: route.component === 'projects' ? 0 : 'max(12px, env(safe-area-inset-bottom))',
+          // Telegram's insets may be larger than CSS env() in its WebView.
+          // Use the largest reservation, not a sum: the native button row may
+          // already be reflected in the stable viewport height.
+          paddingBottom: route.component === 'projects' ? 0 : 'max(12px, env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px), var(--tg-safe-area-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px), var(--sab, 0px), var(--csab, 0px), calc(100dvh - var(--tg-viewport-stable-height, 100dvh)))',
           paddingLeft: '12px',
           paddingRight: '12px',
           paddingTop: route.component === 'projects' ? 0 : '8px',
@@ -559,7 +562,7 @@ function AppContent() {
                   </ErrorBoundary>
                 )}
                 
-                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={route.component.includes('demo') || route.component === 'projects' ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'constructor', 'aiProcess', 'aiAgent', 'about'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
+                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={route.component.includes('demo') || route.component === 'projects' || route.component === 'constructor' ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'aiProcess', 'aiAgent', 'about'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
                   {(visitedTabs.has('showcase') || route.component === 'showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
                       <PageBoundary fallback={<StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} />}>

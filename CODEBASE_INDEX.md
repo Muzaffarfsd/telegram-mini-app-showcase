@@ -4,6 +4,11 @@
 > AI assistants MUST read this file before starting any work.
 > Updated when files are added / removed / significantly refactored.
 
+## Mobile safe areas and opt-in diagnostics
+
+- `App.tsx` and `OrderExperience.css` reserve the greatest relevant Telegram/system bottom inset or viewport reduction; `tests/main-nav-telegram-safe-area.mobile.e2e.cjs` checks main-page navigation and order actions across simulated portrait/landscape host configurations. The showcase has its own navigation geometry.
+- `startapp=diag_home` or `startapp=diag_demo_<id>` explicitly activates `performanceDiagnostic.ts`; normal launches do not load it. The local report is copied manually, does not send data to the server, and distinguishes browser metrics from native touch inertia. `tests/performance-diagnostic.mobile.e2e.cjs` tests the opt-in and SDK launch. It does not replace physical-device tests.
+
 ## Shared project startup
 
 - `vite.config.ts` generates the public-project chunk/CSS preload map in the built HTML. `client/index.html` selects only the direct or unconsumed shared project, using low-priority requests. Project images warm at runtime via `demoImagePreload.ts` and `demoFirstImages.ts`; early HTML image preloads were excluded after slow-network testing showed they could delay the usable interface. Shared start routing and validation remain in `demoShareStart.ts` and `shared/demoShare.ts`.

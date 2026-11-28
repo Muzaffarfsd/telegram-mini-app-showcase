@@ -39,12 +39,15 @@ async function check(browser, label, path, expected, stored) {
         await check(browser,`${name} direct ${id}`,`/#/demos/${id}/app`,id);
       }
       await check(browser,`${name} alias`, '/?tgWebAppStartParam=demo_royal-step', 'nike-sneakers');
+      await check(browser,`${name} diagnostic launch`, '/?tgWebAppStartParam=diag_demo_furniture-studio', 'furniture-studio');
       await check(browser,`${name} explicit route wins`, '/?tgWebAppStartParam=demo_apple-store#/demos/flower-store/app', 'flower-store');
       await check(browser,`${name} other explicit page wins`, '/?tgWebAppStartParam=demo_apple-store#/projects', null);
       await check(browser,`${name} invalid`, '/?tgWebAppStartParam=demo___proto__', null);
       await check(browser,`${name} consumed`, '/?tgWebAppStartParam=demo_apple-store', null, {'web4tg:consumed-demo-start':'apple-store|no-date'});
       const data = encodeURIComponent('start_param=demo_china-buyer&auth_date=123456');
       await check(browser,`${name} Telegram initData`, `/#tgWebAppData=${data}&tgWebAppPlatform=ios`, 'china-buyer');
+      const diagnosticData = encodeURIComponent('start_param=diag_demo_china-buyer&auth_date=123456');
+      await check(browser,`${name} diagnostic Telegram initData`, `/#tgWebAppData=${diagnosticData}&tgWebAppPlatform=ios`, 'china-buyer');
       await check(browser,`${name} signed launch wins`, `/?tgWebAppStartParam=demo_apple-store#tgWebAppData=${data}&tgWebAppPlatform=ios`, 'china-buyer');
       await check(browser,`${name} consumed Telegram initData`, `/#tgWebAppData=${data}&tgWebAppPlatform=ios`, null, {'web4tg:consumed-demo-start':'china-buyer|123456'});
       console.log(`PASS ${name}: public shared and direct links select one project; aliases, explicit routes, consumed and invalid launches`);

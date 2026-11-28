@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { demoShareEntries } from '../shared/demoShare';
-import { initializeDemoShareStart } from '../client/src/lib/demoShareStart';
+import { diagnosticDemoIdFromStart, initializeDemoShareStart } from '../client/src/lib/demoShareStart';
 
 function launch(href: string, initData = '') {
   let url = new URL(href);
@@ -41,6 +41,31 @@ test('a different demo can open within the same webview session', () => {
   webApp.initData = 'start_param=demo_flower-store&auth_date=123';
   assert.equal(initializeDemoShareStart(), true);
   assert.equal(location.hash, '#/demos/flower-store/app');
+});
+
+test('explicit diagnostic launch resolves the same public demo and remains opt-in', () => {
+  for (const id of Object.keys(demoShareEntries)) {
+    const { location } = launch(`https://example.test/?tgWebAppStartParam=diag_demo_${id}`);
+    assert.equal(diagnosticDemoIdFromStart(), id);
+    assert.equal(initializeDemoShareStart(), true);
+    assert.equal(location.hash, `#/demos/${id}/app`);
+  }
+  launch('https://example.test/?tgWebAppStartParam=demo_apple-store');
+  assert.equal(diagnosticDemoIdFromStart(), null);
+  launch('https://example.test/?tgWebAppStartParam=diag_home');
+  assert.equal(diagnosticDemoIdFromStart(), 'home');
+  launch('https://example.test/?tgWebAppStartParam=diag_demo_unknown');
+  assert.equal(diagnosticDemoIdFromStart(), null);
+  const signed = launch('https://example.test/?tgWebAppStartParam=diag_demo_apple-store', 'start_param=demo_flower-store');
+  assert.equal(diagnosticDemoIdFromStart(), null, 'signed start data takes precedence over query data');
+  assert.equal(initializeDemoShareStart(), true);
+  assert.equal(signed.location.hash, '#/demos/flower-store/app');
+  const sequential = launch('https://example.test/#/', 'start_param=demo_apple-store&auth_date=123');
+  assert.equal(initializeDemoShareStart(), true);
+  sequential.location.hash = '/';
+  sequential.webApp.initData = 'start_param=diag_demo_apple-store&auth_date=123';
+  assert.equal(initializeDemoShareStart(), true, 'diagnostic launch must not be suppressed by a previously opened normal link');
+  assert.equal(sequential.location.hash, '#/demos/apple-store/app');
 });
 
 test('legacy sneaker alias and Telegram signed start parameter', () => {

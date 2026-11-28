@@ -4,6 +4,11 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-28 · Respect Telegram safe areas and enable opt-in diagnostics
+
+- The main navigation and order action now account for Telegram's reported bottom insets and viewport without adding them twice; removed duplicate order-page bottom spacing and adjusted its compact-height sticky action. The showcase retains its separate navigation geometry. Added an explicitly selected, on-device diagnostic launch for the home page and 13 shared projects; it reports supported browser timings without identifiers or automatic upload and does not claim to measure native scroll inertia.
+- Checkpoint `refs/checkpoints/before-real-device-performance` at `24289f93`. Checked safe insets, an overlaid native row and a resized viewport on five routes at 320×568, 390×844 and 844×390 in Chromium/WebKit, including order actions and image viewer close. All 13 project home screens were checked for horizontal overflow at 320×568, 390×844 and 430×932 in Chromium; selected deeper project flows were checked in Chromium/WebKit. Diagnostic privacy, launch routing and manual copy were tested in both engines. No physical phones were available; the WebKit first-load showcase font shift remains a known issue.
+
 ## 2026-11-28 · Reduce coffee hero transfer
 
 - Added a 640 px version of the existing coffee hero and used it between the 480 px and 900 px variants. At a 390 px viewport and 2× density the browser now selects a 193 KB image instead of 320 KB; 3× retains the original 900 px image. Compared the artwork at its display size and verified responsive selection and a single request. In three throttled file-only tests at 1.5 Mbps it completed about 0.69 s sooner; this is not a full page or real-device measurement.

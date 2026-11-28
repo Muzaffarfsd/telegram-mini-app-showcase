@@ -50,10 +50,12 @@
       var bridge = window.Telegram && window.Telegram.WebApp;
       var data = new URLSearchParams((bridge && bridge.initData) || launch.get('tgWebAppData') || stored.tgWebAppData || '');
       var start = data.get('start_param') || new URLSearchParams(location.search).get('tgWebAppStartParam') || '';
+      var diagnostic = start.startsWith('diag_demo_');
+      if (diagnostic) start = start.slice(5);
       if (!/^demo_[a-z0-9-]+$/.test(start)) return;
       var id = start.slice(5);
       var date = data.get('auth_date') || '';
-      var marker = (id === 'royal-step' ? 'nike-sneakers' : id) + '|' + (/^\d{1,12}$/.test(date) ? date : 'no-date');
+      var marker = (diagnostic ? 'diagnostic|' : '') + (id === 'royal-step' ? 'nike-sneakers' : id) + '|' + (/^\d{1,12}$/.test(date) ? date : 'no-date');
       try { if (sessionStorage.getItem('web4tg:consumed-demo-start') === marker) return; } catch (e) {}
       document.documentElement.dataset.sharedDemoShell = '1';
       document.documentElement.dataset.sharedDemoId = id === 'royal-step' ? 'nike-sneakers' : id;

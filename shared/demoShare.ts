@@ -29,6 +29,7 @@ export function demoShareStartParam(id: DemoShareId): string {
 }
 
 export function demoShareIdFromStartParam(value: string): DemoShareId | null {
+  if (value.startsWith('diag_demo_')) return canonicalDemoShareId(value.slice('diag_demo_'.length));
   if (!value.startsWith('demo_')) return null;
   return canonicalDemoShareId(value.slice('demo_'.length));
 }

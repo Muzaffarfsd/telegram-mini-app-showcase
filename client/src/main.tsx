@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { importWithRecovery } from "./utils/lazyWithRecovery";
-import { initializeDemoShareStart } from './lib/demoShareStart';
+import { diagnosticDemoIdFromStart, initializeDemoShareStart } from './lib/demoShareStart';
 import { cleanupRetiredDemos } from './lib/cleanupRetiredDemos';
 import { ensureTelegramSdk } from './lib/telegramSdk';
 
@@ -11,7 +11,12 @@ const root = createRoot(document.getElementById("root")!);
 void cleanupRetiredDemos();
 const bridgeReady = ensureTelegramSdk();
 void bridgeReady.then(() => {
-  initializeDemoShareStart();
+  const diagnosticId = diagnosticDemoIdFromStart();
+  const openedSharedDemo = initializeDemoShareStart();
+  const homeDiagnostic = diagnosticId === 'home' && (!window.location.hash.startsWith('#/') || window.location.hash.split('?')[0] === '#/');
+  if (diagnosticId && (openedSharedDemo || homeDiagnostic)) {
+    void import('./utils/performanceDiagnostic').then(m => m.startPerformanceDiagnostic(diagnosticId)).catch(() => {});
+  }
   delete document.documentElement.dataset.sharedDemoShell;
   const path = window.location.hash.slice(1);
   warmRoute(path, 'high');
