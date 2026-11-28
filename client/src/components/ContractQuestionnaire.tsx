@@ -4,6 +4,8 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../lib/translations';
 import { appTemplatesBase, availableFeaturesBase, categoryKeys, storeCategories, subscriptionPlansBase } from './orderCatalog';
 import type { OrderContractSelection } from './orderContractSelection';
+import { contractPreviewPlaceholders } from './contractPreviewPlaceholders';
+import { cancelBackgroundContractPreviews, contractPreviewUrl, isContractPreviewReady, subscribeContractPreview, warmContractPreview, warmContractPreviewsInBackground } from '../lib/contractPreviewLoading';
 import './ContractQuestionnaire.css';
 
 type Props = {
@@ -40,6 +42,33 @@ const legacyDirections: Direction[] = [
   { key: 'fitness-center', templateId: 'fitness-center', ru: russianText('constructor.fitnessClub'), en: 'Fitness centre' },
 ];
 const allDirections = [...catalogDirections, ...legacyDirections];
+
+/** The embedded image is the same project while the full preview is prepared. */
+function ContractPreviewArt({ item, urgent }: { item: Direction; urgent: boolean }) {
+  const container = useRef<HTMLSpanElement>(null);
+  const [ready, setReady] = useState(() => isContractPreviewReady(item.key));
+  const small = contractPreviewPlaceholders[item.key];
+  useEffect(() => {
+    const unsubscribe = subscribeContractPreview(item.key, () => setReady(true));
+    if (isContractPreviewReady(item.key)) setReady(true);
+    if (urgent) warmContractPreview(item.key, true);
+    const node = container.current;
+    if (!node || !item.image) return unsubscribe;
+    const rail = node.closest('.cq-directions');
+    if (typeof IntersectionObserver === 'undefined' || !rail) {
+      if (urgent) warmContractPreview(item.key, true);
+      return unsubscribe;
+    }
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) warmContractPreview(item.key, true);
+    }, { root: rail, rootMargin: '0px 180px' });
+    observer.observe(node);
+    return () => { observer.disconnect(); unsubscribe(); };
+  }, [item.key, item.image, urgent]);
+  return <span ref={container} className="cq-direction-art" style={small ? { backgroundImage: `url("${small}")` } : undefined} data-preview-placeholder={small ? item.key : undefined}>
+    {item.image && <img className={`cq-direction-image cq-direction-image--${item.key}`} src={ready ? contractPreviewUrl(item.key) : small} data-full-src={contractPreviewUrl(item.key)} data-preview-ready={ready ? 'true' : 'false'} onError={() => setReady(false)} alt="" decoding="async"/>}
+  </span>;
+}
 type DirectionGroup = 'shops' | 'food' | 'services';
 const directionGroups: { key: DirectionGroup; ru: string; en: string }[] = [
   { key: 'shops', ru: 'Магазины', en: 'Stores' },
@@ -77,6 +106,11 @@ export function ContractQuestionnaire({ ru, initialSelection, restoredSelection,
   const [appliedSaved, setAppliedSaved] = useState(false);
   const callbackRef = useRef(onSelectionChange);
   callbackRef.current = onSelectionChange;
+  useEffect(() => {
+    if (step === 'features' || step === 'hidden') return;
+    const timer = window.setTimeout(() => { if (document.visibilityState !== 'hidden') warmContractPreviewsInBackground(); }, 1000);
+    return () => { window.clearTimeout(timer); cancelBackgroundContractPreviews(); };
+  }, [step]);
   const chosen = allDirections.find(item => item.key === directionKey);
   const template = appTemplatesBase.find(item => item.id === chosen?.templateId);
   const includedIds = useMemo(() => new Set(template ? [
@@ -135,7 +169,7 @@ export function ContractQuestionnaire({ ru, initialSelection, restoredSelection,
         const CategoryIcon = item.key === 'restaurant' ? UtensilsCrossed : item.key === 'services' || item.key === 'fitness-center' ? BriefcaseBusiness : item.key === 'shoes' ? Footprints : Store;
         const price = itemTemplate ? `${ru ? (item.reference ? 'основа от' : 'от') : (item.reference ? 'base from' : 'from')} ${money(itemTemplate.estimatedPrice)}` : (ru ? 'По согласованию' : 'To be agreed');
         return <button type="button" key={item.key} className={`cq-direction${active ? ' is-selected' : ''}`} aria-pressed={active} aria-label={`${ru ? item.ru : item.en}: ${price}`} onClick={() => setDirection(item)} data-testid={`contract-direction-${item.key}`} data-project-id={item.projectId}>
-          <span className="cq-direction-art">{item.image ? <img className={`cq-direction-image cq-direction-image--${item.key}`} src={`${item.image}?v=real-screens-20261128`} alt="" loading={group.key === 'shops' && index < 3 ? 'eager' : 'lazy'} decoding="async"/> : <span className="cq-direction-generic"><CategoryIcon size={34} strokeWidth={1.4} aria-hidden="true"/></span>}</span>
+          {item.image ? <ContractPreviewArt item={item} urgent={activeGroup === group.key && index < 2}/> : <span className="cq-direction-art"><span className="cq-direction-generic"><CategoryIcon size={34} strokeWidth={1.4} aria-hidden="true"/></span></span>}
           <span className="cq-direction-copy"><strong>{ru ? item.labelRu || item.ru : item.labelEn || item.en}</strong><small>{price}</small></span>
           <span className="cq-choice" aria-hidden="true">{active && <Check size={13}/>}</span>
         </button>;

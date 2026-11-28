@@ -61,8 +61,13 @@ async function run(engine, width) {
           assert.equal(await card.locator('.cq-direction-generic').isVisible(), true, `${id}: generic direction uses a neutral icon`);
         }
         if (await img.count()) {
-          assert.equal(await img.evaluate(el => new URL(el.src).searchParams.get('v')), 'real-screens-20261128', `${id}: current previews must use the new cache version`);
-          await img.evaluate(el => { if (el.loading === 'lazy') el.loading = 'eager'; });
+          const fullUrl = await img.getAttribute('data-full-src');
+          assert.ok(fullUrl, `${id}: the full preview has an explicit source`);
+          assert.equal(new URL(fullUrl, base).searchParams.get('v'), 'real-screens-20261128', `${id}: current previews must use the new cache version`);
+          await page.waitForFunction(id => {
+            const image = document.querySelector(`[data-testid="contract-direction-${id}"] img`);
+            return image && image.dataset.previewReady === 'true' && image.complete && image.naturalWidth >= 300 && image.currentSrc === new URL(image.dataset.fullSrc, location.href).href;
+          }, id, { timeout: 20000 });
           await img.evaluate(el => el.decode());
           const geometry = await img.evaluate(el => {
             const box = el.getBoundingClientRect(), style = getComputedStyle(el);
@@ -70,7 +75,7 @@ async function run(engine, width) {
           });
           assert.ok(geometry.naturalWidth > 0 && geometry.naturalHeight > 0 && geometry.width > 0 && geometry.height > 0, `${id}: image loads and is visible`);
           const distortion = Math.abs((geometry.width / geometry.height) / (geometry.naturalWidth / geometry.naturalHeight) - 1);
-          assert.ok(['contain', 'cover', 'scale-down'].includes(geometry.fit) || distortion < 0.02, `${id}: image must preserve source aspect ratio`);
+          assert.ok(distortion < 0.02, `${id}: image must preserve source aspect ratio`);
         }
         await tap(card);
         assert.equal(await card.getAttribute('aria-pressed'), 'true', `${id} must be selectable`);

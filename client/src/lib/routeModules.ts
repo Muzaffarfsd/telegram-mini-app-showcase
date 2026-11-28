@@ -1,6 +1,7 @@
 import { loadablePage } from '../utils/loadablePage';
 import { preloadDemo } from '../components/demos/DemoRegistry';
 import { canSpeculate } from './interactionBudget';
+import { primeContractPreviewEntry } from './contractPreviewLoading';
 
 export const ShowcasePage = loadablePage(() => import('../components/ShowcasePage'));
 export const ProjectsPage = loadablePage(() => import('../components/ProjectsPage'));
@@ -34,6 +35,7 @@ const routes: Record<string, { preload(): Promise<unknown> }> = {
 
 export function warmRoute(rawPath: string, priority: 'high' | 'low' = 'low') {
   const path = rawPath.split('?')[0] || '/';
+  if (path === '/contract') primeContractPreviewEntry();
   const demo = /^\/demos\/([^/]+)(\/app)?$/.exec(path);
   if (demo?.[2]) preloadDemo(demo[1], priority);
   const page = demo ? (demo[2] ? DemoAppShell : DemoAppLanding)
