@@ -4,6 +4,11 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-28 · Refine scrolling in a simulated Telegram host
+
+- Telegram viewport listeners skip repeated identical style writes and unchanged inset updates; body safe-area padding remains while another Telegram hook consumer is mounted. The flower recommendation rail avoids redundant React updates during a drag. The sidebar overlay and panel have critical fixed positioning immediately on insertion, preventing a measured 435–446 px cold-load page-height jump in WebKit.
+- Checkpoint `refs/checkpoints/before-telegram-scroll-refinement` at `ebbf2789`. Verified 19 main/project routes in simulated Telegram iOS and Android hosts at 320, 390 and 412 px, including 4x CPU throttling; the touch input is Chromium emulation. Checked low-performance geometry across 13 project home screens and 13 project stories, sidebar first layout/open/close in WebKit, flower rail, Telegram insets and 3D gestures. WebKit programmatic scrolling is not a test of physical touch or inertia. `telegram-transition-bottom.e2e.cjs` times out on both the prior deployment and the local build; the new viewport regression separately covers bottom-bar restoration. Physical Telegram devices remain unverified.
+
 ## 2026-11-28 · Improve touch scrolling across the application
 
 - Removed the blanket mobile transition duration, which had applied transitions to every element, while keeping intentional transitions. The application continues to use browser-native vertical scrolling. Furniture and wholesale product rails update React state only when arrow availability changes; the skincare blog keeps its actual height in low-performance mode to avoid a measured 21 px jump during scrolling. Selected nested fashion-store rails, sheets and zoomed photos retain iOS WebView momentum.

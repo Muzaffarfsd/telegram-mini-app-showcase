@@ -148,25 +148,34 @@ const applyTelegramTheme = (tg: TelegramWebApp) => {
   }
 };
 
+// Several components use this hook at once. An unmount must not remove the
+// shared body padding while another subscriber is still mounted.
+let activeTelegramConsumers = 0;
+
+const setStyleIfChanged = (style: CSSStyleDeclaration, property: string, value: string) => {
+  if (style.getPropertyValue(property) !== value) style.setProperty(property, value);
+};
+
+const sameInset = (a: SafeAreaInset, b: SafeAreaInset) =>
+  a.top === b.top && a.bottom === b.bottom && a.left === b.left && a.right === b.right;
+
 // Helper to apply safe area padding dynamically (2025 API)
 // Uses CSS variables for better performance and flexibility
 const applySafeAreaPadding = (inset: SafeAreaInset) => {
   const root = document.documentElement;
   
   // Set CSS variables for safe area (can be used anywhere in CSS)
-  root.style.setProperty('--tg-safe-area-top', `${inset.top}px`);
-  root.style.setProperty('--tg-safe-area-bottom', `${inset.bottom}px`);
-  root.style.setProperty('--tg-safe-area-left', `${inset.left}px`);
-  root.style.setProperty('--tg-safe-area-right', `${inset.right}px`);
+  setStyleIfChanged(root.style, '--tg-safe-area-top', `${inset.top}px`);
+  setStyleIfChanged(root.style, '--tg-safe-area-bottom', `${inset.bottom}px`);
+  setStyleIfChanged(root.style, '--tg-safe-area-left', `${inset.left}px`);
+  setStyleIfChanged(root.style, '--tg-safe-area-right', `${inset.right}px`);
   
   // Apply to body for backwards compatibility
   const body = document.body;
-  body.style.paddingTop = `${inset.top}px`;
-  body.style.paddingBottom = `${inset.bottom}px`;
-  body.style.paddingLeft = `${inset.left}px`;
-  body.style.paddingRight = `${inset.right}px`;
-  
-  console.log('[2025 API] Applied safe area padding:', inset);
+  setStyleIfChanged(body.style, 'padding-top', `${inset.top}px`);
+  setStyleIfChanged(body.style, 'padding-bottom', `${inset.bottom}px`);
+  setStyleIfChanged(body.style, 'padding-left', `${inset.left}px`);
+  setStyleIfChanged(body.style, 'padding-right', `${inset.right}px`);
 };
 
 // Helper to reset safe area padding on cleanup
@@ -188,11 +197,11 @@ const applyViewportVariables = (tg: TelegramWebApp) => {
   // @ts-ignore
   const viewportStableHeight = tg.viewportStableHeight || window.innerHeight;
   
-  root.style.setProperty('--tg-viewport-height', `${viewportHeight}px`);
-  root.style.setProperty('--tg-viewport-stable-height', `${viewportStableHeight}px`);
+  setStyleIfChanged(root.style, '--tg-viewport-height', `${viewportHeight}px`);
+  setStyleIfChanged(root.style, '--tg-viewport-stable-height', `${viewportStableHeight}px`);
   
   // Also set to CSS viewport units for better compatibility
-  root.style.setProperty('--vh', `${viewportHeight * 0.01}px`);
+  setStyleIfChanged(root.style, '--vh', `${viewportHeight * 0.01}px`);
 };
 
 // Helper to detect device performance (for adaptive quality)
@@ -233,6 +242,7 @@ export function useTelegram() {
       ensureTelegramPolyfill();
       
       const tg = window.Telegram.WebApp;
+      activeTelegramConsumers += 1;
       setWebApp(tg);
       setUser(tg.initDataUnsafe.user || null);
       setInitData(tg.initData || '');
@@ -257,13 +267,13 @@ export function useTelegram() {
       
       // Initialize Safe Area Insets (2025) - CRITICAL for native UI compatibility
       if (tg.safeAreaInset) {
-        setSafeArea(tg.safeAreaInset);
+        setSafeArea({ ...tg.safeAreaInset });
         applySafeAreaPadding(tg.safeAreaInset);
       }
       
       // Initialize Content Safe Area Inset (2025)
       if (tg.contentSafeAreaInset) {
-        setContentSafeArea(tg.contentSafeAreaInset);
+        setContentSafeArea({ ...tg.contentSafeAreaInset });
       }
       
       // Listen for theme changes and reapply CSS variables
@@ -291,28 +301,31 @@ export function useTelegram() {
       // Listen for safe area changes (2025) - rotation, viewport resize, etc.
       const handleSafeAreaChanged = () => {
         if (tg.safeAreaInset) {
-          setSafeArea(tg.safeAreaInset);
+          const inset = tg.safeAreaInset;
+          setSafeArea(previous => sameInset(previous, inset) ? previous : { ...inset });
           applySafeAreaPadding(tg.safeAreaInset);
           console.log('[2025 API] Safe Area Updated:', tg.safeAreaInset);
         }
         if (tg.contentSafeAreaInset) {
-          setContentSafeArea(tg.contentSafeAreaInset);
+          const inset = tg.contentSafeAreaInset;
+          setContentSafeArea(previous => sameInset(previous, inset) ? previous : { ...inset });
         }
       };
       
       // Listen for viewport changes (2025) - may also affect safe area
       const handleViewportChanged = () => {
         if (tg.safeAreaInset) {
-          setSafeArea(tg.safeAreaInset);
+          const inset = tg.safeAreaInset;
+          setSafeArea(previous => sameInset(previous, inset) ? previous : { ...inset });
           applySafeAreaPadding(tg.safeAreaInset);
         }
         if (tg.contentSafeAreaInset) {
-          setContentSafeArea(tg.contentSafeAreaInset);
+          const inset = tg.contentSafeAreaInset;
+          setContentSafeArea(previous => sameInset(previous, inset) ? previous : { ...inset });
         }
         // Update viewport height variables on viewport change
         applyViewportVariables(tg);
         repairLightBottomBar(tg);
-        console.log('[2025 API] Viewport Changed');
       };
       
       tg.onEvent('themeChanged', handleThemeChange);
@@ -342,7 +355,8 @@ export function useTelegram() {
         tg.offEvent('viewportChanged', handleViewportChanged);
         
         // Cleanup body padding to prevent stale styles
-        resetSafeAreaPadding();
+        activeTelegramConsumers -= 1;
+        if (activeTelegramConsumers === 0) resetSafeAreaPadding();
       };
     }
   }, []);

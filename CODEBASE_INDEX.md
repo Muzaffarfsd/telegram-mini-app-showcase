@@ -7,7 +7,9 @@
 ## Touch scrolling
 
 - `client/src/index.css` provides native root scrolling without blanket mobile transitions. Furniture and wholesale rail edge controls avoid React updates when their enabled state has not changed. `SkincareStore.tsx` retains real blog-card height in low-performance mode; fashion-store CSS enables momentum for relevant nested iOS WebView scrollers.
+- `useTelegram.ts` deduplicates unchanged viewport and safe-area styles and retains shared padding while another hook consumer is mounted. `GlobalSidebar.tsx` places its panel and overlay outside page flow before its CSS applies. `FlowerProductDetail.tsx` updates rail controls only when their availability changes.
 - Touch regression coverage: `tests/main-touch-scroll.mobile.e2e.cjs`, `tests/fashion-inner-scroll.mobile.e2e.cjs`, `tests/commerce-scroll.mobile.e2e.cjs`, `tests/service-native-scroll.mobile.e2e.cjs`, and `tests/skincare-scroll-geometry.mobile.e2e.cjs`. Set `SCROLL_TEST_URL` (or `COMMERCE_SCROLL_URL` for commerce) to target another deployment. Physical-device performance still requires testing.
+- `tests/telegram-scroll-matrix.mobile.e2e.cjs` exercises the 19 main and project routes with Chromium touch and a simulated Telegram host at three mobile sizes. `tests/telegram-viewport-scroll.mobile.e2e.cjs`, `tests/flower-recommend-scroll.mobile.e2e.cjs` and `tests/sidebar-first-layout.webkit.e2e.cjs` cover viewport handling, recommendation edges and the initial WebKit sidebar layout respectively.
 
 ## Order cost review
 

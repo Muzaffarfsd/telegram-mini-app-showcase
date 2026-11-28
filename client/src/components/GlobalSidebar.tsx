@@ -340,6 +340,9 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         onClick={() => closeSidebar()}
         aria-hidden="true"
         style={{
+          // Keep the detached overlay out of document flow before its CSS is applied.
+          position: 'fixed',
+          inset: 0,
           opacity: sidebarOpen ? 1 : swipeOpenOffset > 0 ? swipeOpenOffset / 370 : 0,
           pointerEvents: sidebarOpen ? 'auto' : swipeOpenOffset > 0 ? 'auto' : 'none',
         }}
@@ -355,6 +358,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         aria-hidden={!sidebarOpen}
         inert={!sidebarOpen}
         style={{
+          // WebKit can render the panel before the style tag is applied on a cold load.
+          // These critical properties prevent it from shifting the scrolling page.
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          transform: 'var(--panel-transform, translate3d(-100%,0,0))',
           pointerEvents: sidebarOpen || swipeOpenOffset > 0 ? 'auto' : 'none',
           '--panel-transform': sidebarOpen
             ? `translateX(${-swipeOffset}px)`
