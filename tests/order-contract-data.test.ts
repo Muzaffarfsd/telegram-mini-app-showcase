@@ -1,0 +1,40 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { buildOrderContract, type OrderContractInput } from '../client/src/components/orderContractData';
+
+const base: OrderContractInput = {
+  direction: 'Цветочный магазин', projectName: 'Сад', includedFeatures: ['Каталог', 'Корзина'],
+  extraFeatures: [{ name: 'CRM', price: 25000 }], estimatedTotal: 175000,
+  customer: { name: 'ООО «Сад»', taxId: '1234567890', address: 'Адрес клиента', email: 'client@example.com' },
+  support: null,
+};
+const all = (input: OrderContractInput) => buildOrderContract(input).sections.flatMap(section => section.paragraphs).join('\n');
+const section = (input: OrderContractInput, prefix: string) => buildOrderContract(input).sections.find(item => item.heading.startsWith(prefix))!;
+test('complete draft preserves contract and annexes, customer data and estimated 50/50', () => {
+  const draft = buildOrderContract(base); const joined = all(base);
+  assert.match(draft.title, /Проект договора/);
+  for (let n = 1; n <= 5; n++) assert.ok(draft.sections.some(s => s.heading.startsWith(`Приложение № ${n}.`)));
+  assert.match(joined, /ООО «Сад»/); assert.match(joined, /1234567890/);
+  assert.match(joined, /Каталог; Корзина/); assert.match(joined, /CRM/);
+  assert.match(joined, /предварительн/i); assert.match(joined, /50% согласованной общей цены/);
+  assert.equal((joined.match(/87\s?500\s?₽/g) || []).length, 2);
+  assert.match(joined, /\[Исполнитель: наименование/);
+});
+test('monthly support is separate and prepaid for each period', () => {
+  const input: OrderContractInput = { ...base, support: { name: 'Стандарт', price: 14900, period: 'month' } };
+  assert.match(section(input, 'Приложение № 2.').paragraphs.join(' '), /100% стоимости каждого месяца до начала/);
+  assert.match(section(input, 'Приложение № 4.').paragraphs.join(' '), /100% стоимости первого месяца/);
+  assert.match(all(input), /не делает её безусловно невозвратной/);
+});
+test('yearly support does not silently become monthly billing', () => {
+  const input: OrderContractInput = { ...base, support: { name: 'Стандарт', price: 149000, period: 'year' } };
+  assert.match(section(input, 'Приложение № 2.').paragraphs.join(' '), /за год.*требуют отдельного согласования/);
+  assert.match(section(input, 'Приложение № 4.').paragraphs.join(' '), /Месячная предоплата не применяется автоматически/);
+  assert.doesNotMatch(section(input, '6. Гарантия').paragraphs.join(' '), /100% предоплаты стоимости каждого месяца/);
+});
+test('unselected support is not presented as a commitment; calculations round to kopecks', () => {
+  const input = { ...base, estimatedTotal: 101.01 };
+  assert.match(section(input, 'Приложение № 2.').paragraphs.join(' '), /Поддержка не выбрана/);
+  assert.match(all(input), /аванс 50,51 ₽, итоговый платёж 50,5 ₽/);
+  assert.throws(() => buildOrderContract({ ...base, estimatedTotal: -1 }), RangeError);
+});

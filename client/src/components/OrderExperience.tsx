@@ -20,6 +20,9 @@ import { OrderSkeleton } from './OrderSkeleton';
 import { OrderInfoSheet } from './OrderInfoSheet';
 import { OrderFeaturesStep } from './OrderFeaturesStep';
 import { OrderReviewStep } from './OrderReviewStep';
+import { OrderContractExperience } from './OrderContractExperience';
+import type { Customer as OrderContractCustomer } from './OrderContractPanel';
+import { translations } from '../lib/translations';
 import { OrderDecisionDialog } from './OrderDecisionDialog';
 import { useOrderDraft } from './useOrderDraft';
 import { rubWithUsd } from './orderPrice';
@@ -53,6 +56,11 @@ const featureArt: Record<string, string> = {
 const yearlyPrices: Record<string, number> = { minimal: 99000, standard: 149000, premium: 249000 };
 const priceFormatter = new Intl.NumberFormat('ru-RU');
 const money = (amount: number) => `${priceFormatter.format(amount)} ₽`;
+// The agreement itself is Russian even when the application interface is English.
+const russianText = (key: string): string => {
+  const value = key.split('.').reduce<unknown>((part, item) => part && typeof part === 'object' ? (part as Record<string, unknown>)[item] : undefined, translations.ru);
+  return typeof value === 'string' ? value : key;
+};
 const directionDescriptions: Record<string, { ru: string; en: string }> = {
   'ecommerce-basic': { ru: 'Каталог, корзина и оплата', en: 'Catalog, cart and payments' },
   restaurant: { ru: 'Меню, заказы и бронирование', en: 'Menu, orders and bookings' },
@@ -86,6 +94,7 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
   const [storeCategory, setStoreCategory] = useState<StoreCategoryId | null>(null);
   const [extras, setExtras] = useState<string[]>([]);
   const [projectName, setProjectName] = useState('');
+  const [contractCustomer, setContractCustomer] = useState<OrderContractCustomer>({ name: '', inn: '', address: '', email: '' });
   const [planId, setPlanId] = useState<string | null>(null);
   const [annual, setAnnual] = useState(false);
   const [referenceProject, setReferenceProject] = useState<string | null>(null);
@@ -300,6 +309,15 @@ export default function OrderExperience(_props: { onNavigate: (section: string, 
         {step === 2 && template && <OrderFeaturesStep ru={ru} t={t} template={template} artSrc={selectedArt} directionLabel={directionLabel} projectName={projectName} onProjectNameChange={setProjectName} includedIds={includedIds} extras={extras} onToggleFeature={toggleFeature} onFeatureInfo={(id) => setInfo({ kind: 'feature', id })} onChangeTemplate={() => moveTo(1)} total={total} rubToUsd={rubToUsd} rateLabel={rateLabel} />}
 
         {step === 3 && template && <OrderReviewStep ru={ru} t={t} template={template} artSrc={selectedArt} directionLabel={directionLabel} projectName={projectName} includedIds={includedIds} selectedExtras={selectedExtras} extraTotal={extraTotal} total={total} planId={planId} annual={annual} yearlyPrices={yearlyPrices} onEdit={() => moveTo(2)} onPlan={setPlanId} onAnnual={setAnnual} onPlanInfo={(id) => setInfo({ kind: 'plan', id })} rubToUsd={rubToUsd} rateLabel={rateLabel} />}
+
+        {step === 3 && template && <OrderContractExperience ru={ru} customer={contractCustomer} onCustomerChange={setContractCustomer} selection={{
+          direction: selectedCategory?.fullRu || (template.id === 'restaurant' ? 'Ресторан и доставка' : russianText(template.nameKey)),
+          projectName,
+          includedFeatures: availableFeaturesBase.filter(feature => includedIds.has(feature.id)).map(feature => russianText(feature.nameKey)),
+          extraFeatures: selectedExtras.map(feature => ({ name: russianText(feature.nameKey), price: feature.price })),
+          estimatedTotal: total,
+          support: plan ? { name: russianText(plan.nameKey), price: annual ? yearlyPrices[plan.id] : plan.price, period: annual ? 'year' : 'month' } : null,
+        }} />}
 
         {!draft.storageAvailable && <p className="order-notice" role="status">{ru ? 'Черновик нельзя сохранить на этом устройстве. Заказ можно продолжить.' : 'This device cannot save the draft. You can still continue.'}</p>}
         {step === 2 && <div className="order-sticky-bar"><div className="order-sticky-copy"><small>{ru ? 'Разработка, ориентировочно' : 'Estimated development'}</small><strong aria-live="polite">{rubWithUsd(total, rubToUsd)}</strong></div><button type="button" className="order-sticky-action" onClick={continueOrder} data-testid="order-continue">{ru ? 'К итогу' : 'Review'} <ArrowRight size={17} /></button></div>}
