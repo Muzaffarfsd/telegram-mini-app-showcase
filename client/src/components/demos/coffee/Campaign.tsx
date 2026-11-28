@@ -184,10 +184,9 @@ export function Campaign({
                     src={small}
                     srcSet={
                       nearby
-                        ? small +
-                          (splash ? ' 480w, ' : ' 320w, ') +
-                          large +
-                          (splash ? ' 900w' : ' 800w')
+                        ? splash
+                          ? `${small} 480w, /takt-coffee/editorial/cherry-mocha-640.webp 640w, ${large} 900w`
+                          : `${small} 320w, ${large} 800w`
                         : undefined
                     }
                     sizes="(min-width: 700px) 420px, 72vw"

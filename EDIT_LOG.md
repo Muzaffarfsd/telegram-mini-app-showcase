@@ -4,6 +4,10 @@
 > Latest at TOP. Each entry = one logical change (may be N file-edits).
 > AI reads the last 20-30 entries at the start of every session.
 
+## 2026-11-28 · Reduce coffee hero transfer
+
+- Added a 640 px version of the existing coffee hero and used it between the 480 px and 900 px variants. At a 390 px viewport and 2× density the browser now selects a 193 KB image instead of 320 KB; 3× retains the original 900 px image. Compared the artwork at its display size and verified responsive selection and a single request. In three throttled file-only tests at 1.5 Mbps it completed about 0.69 s sooner; this is not a full page or real-device measurement.
+
 ## 2026-11-28 · Accelerate shared project startup
 
 - Added build-generated, project-specific early module and stylesheet preloads for the 13 published projects on Telegram share launches and direct app routes. They use low priority so the main application and Telegram bridge keep bandwidth. The launch hint respects explicit routes, consumed shares, aliases and unknown IDs. A shared first-image map also fixes the outdated furniture image and the coffee responsive sizes used by the runtime warmer.
