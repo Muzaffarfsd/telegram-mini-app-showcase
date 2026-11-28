@@ -222,12 +222,13 @@ export function buildOrderContract(input: OrderContractInput): OrderContractDraf
   const person = 'Заказчик: ' + text(customer.name) + '; ИНН: ' + text(customer.taxId) + '; адрес: ' + text(customer.address) + '; e-mail: ' + text(customer.email) + '. Остальные реквизиты и полномочия подписанта подлежат согласованию.';
   replace(find('11. Реквизиты'), 'Заказчик:', person);
   const assignment = find('Приложение № 1.');
-  replace(assignment, '1. Проект и цель:', '1. Проект: ' + text(input.projectName) + '. ' + (total === null ? 'Направление' : 'Выбранное направление') + ': ' + text(input.direction) + '. Цель и целевая аудитория: [согласовать].');
+  const hasSelection = !!input.direction.trim() || input.includedFeatures.length > 0 || input.extraFeatures.length > 0;
+  replace(assignment, '1. Проект и цель:', '1. Проект: ' + text(input.projectName) + '. ' + (hasSelection ? 'Выбранное направление' : 'Направление') + ': ' + text(input.direction) + '. Цель и целевая аудитория: [согласовать].');
   const included = input.includedFeatures.length ? input.includedFeatures.join('; ') : 'не указаны';
   const extras = input.extraFeatures.length ? input.extraFeatures.map(feature => text(feature.name) + ' — предварительно ' + money(feature.price)).join('; ') : 'не выбраны';
-  replace(assignment, '3. Функциональность:', total === null
+  replace(assignment, '3. Функциональность:', !hasSelection
     ? '3. Состав функций, описание сценариев, ограничения и критерии приёмки: [согласовать в техническом задании].'
-    : '3. Предварительный выбор функций. В основу включено: ' + included + '. Дополнительно выбрано: ' + extras + '. Описание сценариев, ограничения, критерии и окончательный состав согласуются сторонами в ТЗ.');
+    : '3. Предварительный выбор функций. В основу включено: ' + included + '. Дополнительно выбрано: ' + extras + '. Выбранный пример служит ориентиром; его особенности не включаются автоматически. Описание сценариев, ограничения, критерии и окончательный состав согласуются сторонами в ТЗ.' + (total === null ? ' Общая стоимость проекта и размеры платежей подлежат согласованию.' : ''));
   const commercial = find('Приложение № 2.');
   replace(commercial, '1. Цена разработки:', estimated === null
     ? '1. Стоимость разработки не рассчитана. Окончательная стоимость, налоговый режим и НДС: [согласовать].'

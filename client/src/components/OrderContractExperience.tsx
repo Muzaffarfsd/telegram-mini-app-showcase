@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { OrderContractPanel, type Customer } from './OrderContractPanel';
-import type { OrderContractDraft, OrderContractInput } from './orderContractData';
+import { buildOrderContract, type OrderContractDraft, type OrderContractInput } from './orderContractData';
 import type { PreparedOrderContract } from './orderContractExport';
 
 type Props = { ru: boolean; selection: Omit<OrderContractInput, 'customer'>; customer: Customer; onCustomerChange: (customer: Customer) => void };
@@ -14,7 +14,6 @@ export function OrderContractExperience({ ru, selection, customer, onCustomerCha
   const [message, setMessage] = useState('');
   const [directDownload, setDirectDownload] = useState(false);
   const [generationFailed, setGenerationFailed] = useState(false);
-  const [retry, setRetry] = useState(0);
   const revision = useRef(0);
   const exportModule = useRef<typeof import('./orderContractExport') | null>(null);
   const input = useMemo<OrderContractInput>(() => ({
@@ -30,27 +29,30 @@ export function OrderContractExperience({ ru, selection, customer, onCustomerCha
     setBusy(true); setReady(null); setMessage(''); setDirectDownload(false); setGenerationFailed(false);
     const timer = window.setTimeout(() => {
       void (async () => {
+        let textReady = false;
         try {
-          const data = await import('./orderContractData');
-          const nextDraft = data.buildOrderContract(input);
+          const nextDraft = buildOrderContract(input);
           if (revision.current !== current) return;
           setDraft({ signature, document: nextDraft });
+          textReady = true;
           const exporter = await import('./orderContractExport');
           exportModule.current = exporter;
           const document = await exporter.prepareOrderContract(nextDraft);
           if (revision.current === current) setReady({ signature, document });
         } catch {
-          if (revision.current === current) { setGenerationFailed(true); setMessage(ru ? 'Не удалось подготовить файл. Текст можно скопировать или попробовать ещё раз.' : 'The file could not be prepared. You can copy the text or try again.'); }
+          if (revision.current === current) {
+            setGenerationFailed(true);
+            setMessage(textReady ? (ru ? 'Не удалось подготовить файл. Скопируйте текст или откройте страницу заново; введённые реквизиты при этом не сохранятся.' : 'The file could not be prepared. Copy the text or reopen the page; entered details will not be saved.') : (ru ? 'Не удалось сформировать текст договора. При повторном открытии страницы введённые реквизиты не сохранятся.' : 'The agreement text could not be prepared. Entered details will not be saved if the page is reopened.'));
+          }
         } finally {
           if (revision.current === current) setBusy(false);
         }
       })();
-    }, 250);
+    }, 650);
     return () => { window.clearTimeout(timer); ++revision.current; };
-  }, [signature, open, ru, retry]);
+  }, [signature, open, ru]);
 
   const download = () => {
-    if (generationFailed && !ready) { setRetry(value => value + 1); return; }
     const exporter = exportModule.current;
     if (!ready || ready.signature !== signature || !exporter) return;
     // The export module was loaded during preparation; calling this directly
@@ -70,6 +72,6 @@ export function OrderContractExperience({ ru, selection, customer, onCustomerCha
     if (!navigator.clipboard?.writeText) { setMessage(ru ? 'Копирование недоступно: выделите текст договора на экране.' : 'Copy is unavailable: select the text on screen.'); return; }
     void navigator.clipboard.writeText(text).then(() => setMessage(ru ? 'Текст проекта договора скопирован.' : 'The draft agreement text was copied.'), () => setMessage(ru ? 'Не удалось скопировать. Выделите текст договора на экране.' : 'Could not copy. Select the text on screen.'));
   };
-  const preview = draft ? <><h3>{draft.title}</h3>{draft.sections.map((section, index) => <section key={`${section.heading}-${index}`}><h3>{section.heading}</h3>{section.paragraphs.map((paragraph, paragraphIndex) => <p key={paragraphIndex}>{paragraph}</p>)}</section>)}</> : <p>{ru ? 'Подготавливаем текст договора…' : 'Preparing the agreement text…'}</p>;
-  return <OrderContractPanel ru={ru} customer={customer} onCustomerChange={onCustomerChange} preview={preview} onOpenChange={setOpen} onDownload={download} onCopyText={copy} copyDisabled={!draft} busy={busy || (!generationFailed && (!ready || ready.signature !== signature))} downloadLabel={generationFailed ? (ru ? 'Повторить подготовку файла' : 'Try preparing the file again') : undefined} statusMessage={message} />;
+  const preview = draft ? <><h3>{draft.title}</h3>{draft.sections.map((section, index) => <section key={`${section.heading}-${index}`}><h3>{section.heading}</h3>{section.paragraphs.map((paragraph, paragraphIndex) => <p key={paragraphIndex}>{paragraph}</p>)}</section>)}</> : <p>{generationFailed ? (ru ? 'Текст договора не загружен.' : 'The agreement text could not be loaded.') : (ru ? 'Подготавливаем текст договора…' : 'Preparing the agreement text…')}</p>;
+  return <OrderContractPanel ru={ru} customer={customer} onCustomerChange={onCustomerChange} preview={preview} onOpenChange={setOpen} onDownload={download} onCopyText={copy} copyDisabled={!draft} busy={busy || !ready || ready.signature !== signature} downloadLabel={generationFailed ? (ru ? 'Файл временно недоступен' : 'File temporarily unavailable') : undefined} statusMessage={message} />;
 }

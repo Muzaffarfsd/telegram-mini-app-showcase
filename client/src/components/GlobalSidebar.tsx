@@ -1,5 +1,5 @@
 import { useEdgeSwipeOpen } from '@/hooks/useEdgeSwipeOpen';
-import { useState, useCallback, useEffect, useRef, forwardRef, memo, type CSSProperties } from "react";
+import { useState, useCallback, useEffect, useRef, forwardRef, memo, type CSSProperties, type MouseEvent } from "react";
 import { ChevronRight, ArrowUpRight, Send, X } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { SiInstagram, SiTelegram, SiYoutube, SiTiktok } from "react-icons/si";
@@ -218,6 +218,20 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
     onNavigate(section);
   }, [onNavigate, closeSidebar]);
 
+  const handleDiscuss = useCallback((event: MouseEvent<HTMLAnchorElement>) => {
+    closeSidebar();
+    // Preserve the native link for modified clicks and browser / older Telegram
+    // fallback. Calling Telegram directly keeps the chat inside the native app.
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    try {
+      const openTelegramLink = window.Telegram?.WebApp?.openTelegramLink;
+      if (typeof openTelegramLink === 'function') {
+        window.Telegram!.WebApp!.openTelegramLink('https://t.me/web4tgs');
+        event.preventDefault();
+      }
+    } catch { /* The anchor remains usable if the native API rejects the link. */ }
+  }, [closeSidebar]);
+
   return (
     <>
       <style>{`
@@ -307,7 +321,7 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
         .w4m-cta{
           display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;
           border-radius:999px;background:transparent;border:1px solid #d6d6d6;cursor:pointer;
-          transition:transform .18s cubic-bezier(.22,1,.36,1);-webkit-tap-highlight-color:transparent;
+          transition:transform .18s cubic-bezier(.22,1,.36,1);-webkit-tap-highlight-color:transparent;text-decoration:none;
         }
         .w4m-cta:active{transform:scale(.975);}
         .w4m-soc{
@@ -460,12 +474,12 @@ export default function GlobalSidebar({ currentRoute, onNavigate, user }: Global
 
         {/* bottom */}
         <div className="w4m-footer">
-          <button onClick={() => handleNavClick('constructor')} className="w4m-cta" data-testid="button-discuss-project">
+          <a href="https://t.me/web4tgs" target="_blank" rel="noopener noreferrer" onClick={handleDiscuss} className="w4m-cta" data-testid="button-discuss-project">
             <span style={{ fontFamily: FONT, fontSize: '0.95rem', fontWeight: 700, color: '#28282d', letterSpacing: '-0.01em' }}>
               {language === 'ru' ? 'Обсудить проект' : 'Discuss a project'}
             </span>
             <ArrowUpRight size={17} color="#28282d" strokeWidth={2.6} />
-          </button>
+          </a>
           <div className="w4m-footer-links">
             {socialLinks.map((s) => (
               <a key={s.label} href={s.url}

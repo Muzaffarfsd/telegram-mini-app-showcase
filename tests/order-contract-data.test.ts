@@ -55,3 +55,16 @@ test('general contract without a selected order never invents an estimate or fee
   assert.doesNotMatch(content, /(?:^|\s)0(?:[,.]0+)?\s*₽/);
   for (let n = 1; n <= 5; n++) assert.ok(buildOrderContract(input).sections.some(s => s.heading.startsWith(`Приложение № ${n}.`)));
 });
+
+test('selected custom project retains requested features without fabricating a total', () => {
+  const input: OrderContractInput = { ...base, direction:'Мебельный салон', includedFeatures:[], extraFeatures:[{name:'Поиск',price:20000}], estimatedTotal:null, support:null };
+  const content = all(input);
+  const assignment = section(input,'Приложение № 1.').paragraphs.join(' ');
+  const commercial = section(input,'Приложение № 2.').paragraphs.join(' ');
+  assert.match(assignment,/Выбранное направление: Мебельный салон/);
+  assert.match(assignment,/Поиск — предварительно 20\s000 ₽/);
+  assert.match(assignment,/Общая стоимость проекта и размеры платежей подлежат согласованию/);
+  assert.match(commercial,/Стоимость разработки не рассчитана/);
+  assert.match(commercial,/50% согласованной общей цены/);
+  assert.doesNotMatch(content,/(?:^|\s)0(?:[,.]0+)?\s*₽/);
+});

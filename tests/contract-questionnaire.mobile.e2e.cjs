@@ -26,7 +26,8 @@ async function run(engine,width){
   const doc=normalize(await page.getByTestId('order-contract-preview').textContent());assert.match(doc,/Мой букет/);assert.match(doc,/50%/);assert.match(doc,/14 900 ₽ за месяц/);assert.match(doc,/Поиск/);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   await tap(page.getByTestId('contract-direction-services'));
-  assert.match(normalize(await page.getByTestId('contract-estimate').innerText()),/170 000 ₽/,'changing package clears old paid additions');
+  assert.match(normalize(await page.getByTestId('contract-estimate').innerText()),/190 000 ₽/,'changing package retains compatible paid additions');
+  assert.equal(await page.getByTestId('contract-extra-search').getAttribute('aria-pressed'),'true');
   assert.deepEqual(errors,[]); console.log(`PASS ${engine.name()} ${width}: contract selection, price, support, update`);
  } finally {await context.close();await browser.close()}
 }

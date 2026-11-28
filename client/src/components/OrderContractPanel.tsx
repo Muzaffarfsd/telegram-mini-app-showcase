@@ -47,9 +47,9 @@ export function OrderContractPanel({ ru, customer, onCustomerChange, preview, on
           <label htmlFor={`${formId}-address`}>{ru ? 'Адрес' : 'Address'}<input id={`${formId}-address`} data-testid="order-contract-address" value={customer.address} maxLength={240} onChange={event => update('address', event.target.value)} autoComplete="street-address" placeholder={ru ? 'Юридический или почтовый' : 'Legal or mailing address'}/></label>
           <label htmlFor={`${formId}-email`}>E-mail<input id={`${formId}-email`} data-testid="order-contract-email" value={customer.email} maxLength={120} onChange={event => update('email', event.target.value)} type="email" autoComplete="email" placeholder="name@example.com"/></label>
         </div>
-        <p className="order-contract-privacy">{ru ? 'Эти данные остаются на устройстве и не сохраняются в черновике заказа.' : 'These details stay on this device and are not saved in the order draft.'}</p>
+        <p className="order-contract-privacy">{ru ? 'При подготовке данные не отправляются на сервер и не сохраняются в черновике заказа. Если отправите файл, данные будут доступны выбранному получателю.' : 'Your details are not sent to the server during preparation or saved in the order draft. If you share the file, the recipient can see them.'}</p>
         <button className="order-contract-download" type="button" data-testid="order-contract-download" onClick={onDownload} disabled={busy}>
-          <span>{busy ? (ru ? 'Подготавливаем…' : 'Preparing…') : (downloadLabel || (ru ? 'Скачать проект договора' : 'Download draft agreement'))}</span><ArrowDownToLine size={18} aria-hidden="true"/>
+          <span>{downloadLabel || (busy ? (ru ? 'Подготавливаем…' : 'Preparing…') : (ru ? 'Скачать проект договора' : 'Download draft agreement'))}</span><ArrowDownToLine size={18} aria-hidden="true"/>
         </button>
         <button className="order-contract-copy" type="button" data-testid="order-contract-copy" onClick={onCopyText} disabled={copyDisabled}><span>{ru ? 'Копировать текст' : 'Copy text'}</span><Copy size={16} aria-hidden="true"/></button>
         {statusMessage && <p className="order-contract-status" role="status">{statusMessage}</p>}

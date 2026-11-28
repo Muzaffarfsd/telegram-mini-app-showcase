@@ -19,7 +19,7 @@ async function check(engine, theme, height) {
     await drawer.waitFor();
     if (theme === 'light') await page.locator('html.light').waitFor();
     assert.deepEqual(await drawer.locator('.w4m-row').evaluateAll(rows => rows.map(row => row.dataset.testid)),
-      ['button-nav-home', 'button-nav-projects', 'button-nav-ai-process', 'button-nav-about', 'button-nav-constructor']);
+      ['button-nav-home', 'button-nav-projects', 'button-nav-ai-process', 'button-nav-about', 'button-nav-constructor', 'button-nav-contract']);
     const cta = drawer.getByTestId('button-discuss-project');
     await cta.scrollIntoViewIfNeeded();
     const gap = await drawer.evaluate(el => {
@@ -35,10 +35,17 @@ async function check(engine, theme, height) {
       const pixels = await sharp(strip).removeAlpha().raw().toBuffer();
       assert.ok(pixels.every(channel => channel >= 253), 'the space between navigation and footer must be white');
     }
+    await page.evaluate(() => {
+      window.__drawerContactCalls = [];
+      if (!window.Telegram) window.Telegram = {};
+      if (!window.Telegram.WebApp) window.Telegram.WebApp = {};
+      window.Telegram.WebApp.openTelegramLink = url => window.__drawerContactCalls.push(url);
+    });
     await cta.tap();
-    await page.getByTestId('order-page').waitFor();
+    await page.waitForFunction(() => document.querySelector('.w4m-panel')?.getAttribute('aria-hidden') === 'true');
+    assert.deepEqual(await page.evaluate(() => window.__drawerContactCalls), ['https://t.me/web4tgs']);
     assert.ok(!requests.some(path => /\/assets\/analytics-[^/]*\.js$|\/api\/analytics\/dashboard$/.test(path)));
-    console.log(engine.name(), theme, height, 'retired link, drawer surface and order action passed');
+    console.log(engine.name(), theme, height, 'retired link, drawer surface and contact action passed');
   } finally { await browser.close(); }
 }
 
