@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { chromium, webkit } = require('playwright');
-const base = process.env.CONTRACT_TEST_URL || 'http://127.0.0.1:41767/';
+const base = process.env.CONTRACT_TEST_URL || 'http://127.0.0.1:41755/';
 const draftKey = 'web4tg:contract-draft:v1';
 const normalize = value => value.replace(/\s+/g, ' ').trim();
 const tap = async locator => { await locator.scrollIntoViewIfNeeded(); await locator.tap(); };
