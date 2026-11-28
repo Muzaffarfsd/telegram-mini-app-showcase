@@ -1,5 +1,5 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowUpRight, ChevronRight, Copy, Plus, Share2, Users } from 'lucide-react';
+import { ArrowUpRight, ChevronRight, Copy, FileText, Plus, Share2, Users } from 'lucide-react';
 import { useTelegram } from '../hooks/useTelegram';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
@@ -582,6 +582,20 @@ function ProfilePage({ onNavigate, active }: Props) {
               </div>
             )}
           </div>
+        </section>
+
+        <section className="profile-section profile-contract-section" aria-labelledby="profile-contract-title">
+          <div className="profile-section-heading">
+            <h2 id="profile-contract-title">{ru ? 'Документы' : 'Documents'}</h2>
+          </div>
+          <button className="profile-contract-card" type="button" onClick={() => onNavigate('contract')} data-testid="profile-contract">
+            <span className="profile-contract-icon" aria-hidden="true"><FileText size={22} strokeWidth={1.7} /></span>
+            <span className="profile-contract-copy">
+              <strong>{ru ? 'Проект договора' : 'Draft agreement'}</strong>
+              <span>{ru ? 'Условия разработки и поддержки' : 'Development and support terms'}</span>
+              <span className="profile-contract-link">{ru ? 'Ознакомиться' : 'Review'} <ArrowUpRight size={15} aria-hidden="true" /></span>
+            </span>
+          </button>
         </section>
 
         <section className="profile-section" aria-labelledby="profile-rewards-title">

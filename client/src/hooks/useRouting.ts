@@ -30,6 +30,7 @@ function parseHash(): Route {
     '/projects': 'projects',
     '/about': 'about',
     '/constructor': 'constructor',
+    '/contract': 'contract',
     '/profile': 'profile',
     '/help': 'help',
     '/review': 'review',

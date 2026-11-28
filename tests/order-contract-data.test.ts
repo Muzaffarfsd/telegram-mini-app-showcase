@@ -18,7 +18,11 @@ test('complete draft preserves contract and annexes, customer data and estimated
   assert.match(joined, /Каталог; Корзина/); assert.match(joined, /CRM/);
   assert.match(joined, /предварительн/i); assert.match(joined, /50% согласованной общей цены/);
   assert.equal((joined.match(/87\s?500\s?₽/g) || []).length, 2);
-  assert.match(joined, /\[Исполнитель: наименование/);
+  assert.match(joined, /Музапаров Музаффар Шерзодович/);
+  assert.match(joined, /плательщик налога на профессиональный доход/);
+  assert.match(section(base, '11. Реквизиты').paragraphs.join(' '), /ИНН \[заполнить\]/);
+  assert.match(section(base, '4. Цена').paragraphs.join(' '), /Исполнитель применяет налог на профессиональный доход/);
+  assert.doesNotMatch(section(base, '4. Цена').paragraphs.join(' '), /Применяется только если|Неприменимый абзац удалить/);
 });
 test('monthly support is separate and prepaid for each period', () => {
   const input: OrderContractInput = { ...base, support: { name: 'Стандарт', price: 14900, period: 'month' } };
@@ -37,4 +41,17 @@ test('unselected support is not presented as a commitment; calculations round to
   assert.match(section(input, 'Приложение № 2.').paragraphs.join(' '), /Поддержка не выбрана/);
   assert.match(all(input), /аванс 50,51 ₽, итоговый платёж 50,5 ₽/);
   assert.throws(() => buildOrderContract({ ...base, estimatedTotal: -1 }), RangeError);
+});
+test('general contract without a selected order never invents an estimate or fees', () => {
+  const input: OrderContractInput = { ...base, direction: '', projectName: '', includedFeatures: [], extraFeatures: [], estimatedTotal: null, customer: {}, support: null };
+  const content = all(input);
+  const commercial = section(input, 'Приложение № 2.').paragraphs.join(' ');
+  const assignment = section(input, 'Приложение № 1.').paragraphs.join(' ');
+  assert.match(commercial, /Стоимость разработки не рассчитана/);
+  assert.match(commercial, /50% согласованной общей цены/);
+  assert.match(commercial, /остальные 50%/);
+  assert.match(commercial, /Суммы платежей определяются после согласования стоимости/);
+  assert.match(assignment, /Состав функций.*согласовать в техническом задании/);
+  assert.doesNotMatch(content, /(?:^|\s)0(?:[,.]0+)?\s*₽/);
+  for (let n = 1; n <= 5; n++) assert.ok(buildOrderContract(input).sections.some(s => s.heading.startsWith(`Приложение № ${n}.`)));
 });

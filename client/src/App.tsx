@@ -13,7 +13,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useRouting, navigate } from "./hooks/useRouting";
 import { afterScrollLayout } from "./lib/afterScrollLayout";
 import {
-  ShowcasePage, PremiumAppsPage, ProjectsPage, AboutPage, DemoAppLanding, ConstructorPage,
+  ShowcasePage, PremiumAppsPage, ProjectsPage, AboutPage, DemoAppLanding, ConstructorPage, ContractPage,
   ProfilePage, CheckoutPage, DemoAppShell, HelpPage, ReviewPage, AIAgentPage, PhotoGallery,
   ReferralProgram, GamificationHub, EarningPage, NotificationsPage, CoinShopPage,
   hintRoute,
@@ -172,7 +172,7 @@ const LiquidGlassNav = memo(({ route, user, hapticFeedback }: { route: any; user
         }}
       >
         <nav 
-          className={`relative flex items-center rounded-[22px] gpu-layer ${isProfile ? 'profile-nav' : route.component === 'constructor' ? 'order-nav' : isAI ? 'consultant-nav' : route.component === 'showcase' ? 'home-nav' : route.component === 'projects' || route.component === 'about' ? 'projects-nav' : ''}`}
+          className={`relative flex items-center rounded-[22px] gpu-layer ${isProfile ? 'profile-nav' : route.component === 'constructor' || route.component === 'contract' ? 'order-nav' : isAI ? 'consultant-nav' : route.component === 'showcase' ? 'home-nav' : route.component === 'projects' || route.component === 'about' ? 'projects-nav' : ''}`}
           style={{
             padding: '5px 6px',
             gap: '2px',
@@ -300,6 +300,7 @@ const NonCachedRoute = memo(({
   handleCloseDemo, 
   returnToStory,
   handleCheckoutBack, 
+  handleContractBack,
   handlePaymentSuccess, 
   orderData 
 }: {
@@ -308,12 +309,15 @@ const NonCachedRoute = memo(({
   handleCloseDemo: () => void;
   returnToStory: boolean;
   handleCheckoutBack: () => void;
+  handleContractBack: () => void;
   handlePaymentSuccess: () => void;
   orderData: any;
 }) => {
   switch (route.component) {
     case 'about':
       return <AboutPage onNavigate={handleNavigate} />;
+    case 'contract':
+      return <ContractPage onBack={handleContractBack} onNavigate={handleNavigate} />;
     case 'demoLanding': {
       const demoId = route.params?.id;
       if (!demoId) {
@@ -377,6 +381,7 @@ function AppContent() {
     if (route.component === 'demoApp') pauseBackgroundPrefetch();
   }, [route.component, route.params?.id]);
   const demoReturnPath = useRef<string>('/');
+  const contractReturnPath = useRef<string>('/profile');
   const projectsReturnScroll = useRef<number | null>(null);
   const pendingDemoHash = useRef<string | null>(null);
   const isProfile = isProfileRoute(route.component);
@@ -455,6 +460,10 @@ function AppContent() {
   }, [route.component]);
 
   const handleNavigate = useCallback((section: string, data?: any) => {
+    if (section === 'contract') {
+      const previous = window.location.hash.slice(1) || '/';
+      contractReturnPath.current = previous.split('?')[0] === '/contract' ? '/profile' : previous;
+    }
     if (data) {
       setOrderData(data);
     } else if (section !== 'checkout') {
@@ -505,6 +514,11 @@ function AppContent() {
   const handleCheckoutBack = useCallback(() => {
     setOrderData(null);
     navigate('/constructor');
+    queueMicrotask(() => hapticFeedback.light());
+  }, [hapticFeedback]);
+
+  const handleContractBack = useCallback(() => {
+    navigate(contractReturnPath.current);
     queueMicrotask(() => hapticFeedback.light());
   }, [hapticFeedback]);
 
@@ -562,7 +576,7 @@ function AppContent() {
                   </ErrorBoundary>
                 )}
                 
-                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={route.component.includes('demo') || route.component === 'projects' || route.component === 'constructor' ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'aiProcess', 'aiAgent', 'about'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
+                <div className={`pb-36${isProfile ? ' profile-route-surface' : ''}`} data-scroll="main" style={route.component.includes('demo') || route.component === 'projects' || route.component === 'constructor' || route.component === 'contract' ? { backgroundColor: '#fff', paddingBottom: 0 } : ['showcase', 'aiProcess', 'aiAgent', 'about'].includes(route.component) ? { backgroundColor: '#fff' } : undefined}>
                   {(visitedTabs.has('showcase') || route.component === 'showcase') && (
                     <div style={{ display: route.component === 'showcase' ? 'block' : 'none' }}>
                       <PageBoundary fallback={<StudioHomeSkeleton label={language === 'ru' ? 'Загрузка главной страницы' : 'Loading home page'} />}>
@@ -608,6 +622,7 @@ function AppContent() {
                             handleCloseDemo={handleCloseDemo}
                             returnToStory={demoReturnPath.current.startsWith('/projects?project=')}
                             handleCheckoutBack={handleCheckoutBack}
+                            handleContractBack={handleContractBack}
                             handlePaymentSuccess={handlePaymentSuccess}
                             orderData={orderData}
                           />
@@ -637,7 +652,7 @@ function AppContent() {
               
               {(shouldShowBottomNav || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore) && route.component !== 'aiProcess' && route.component !== 'aiAgent' && (
                 <PageBoundary fallback={null}>
-                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' ? 'order-ai-surface' : route.component === 'projects' || route.component === 'about' ? 'projects-ai-surface' : route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore ? 'home-ai-surface' : undefined}><AIAgentButton route={route} profileMode={isProfile || route.component === 'constructor' || route.component === 'projects' || route.component === 'about' || route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore} /></div>
+                  <div className={isProfile ? 'profile-ai-surface' : route.component === 'constructor' || route.component === 'contract' ? 'order-ai-surface' : route.component === 'projects' || route.component === 'about' ? 'projects-ai-surface' : route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore ? 'home-ai-surface' : undefined}><AIAgentButton route={route} profileMode={isProfile || route.component === 'constructor' || route.component === 'contract' || route.component === 'projects' || route.component === 'about' || route.component === 'showcase' || isRoyalStep || isFashionDemo || isAppleStore || isOptMarket || isLumiStudio || isMedicalCenter || isChinaBuyer || isFlowerStore} /></div>
                 </PageBoundary>
               )}
 

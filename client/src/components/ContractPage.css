@@ -1,0 +1,13 @@
+.contract-page{min-height:100dvh;box-sizing:border-box;padding:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 82px) 20px calc(130px + max(12px,env(safe-area-inset-bottom,0px),var(--sab,0px),var(--csab,0px)));background:#fff;color:#202124;font-family:'Google Sans App',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+.contract-page *,.contract-page *::before,.contract-page *::after{box-sizing:border-box}
+.contract-page-inner{width:100%;max-width:640px;margin:auto}
+.contract-page button,.contract-page input{font:inherit;-webkit-tap-highlight-color:transparent}
+.contract-page button:focus-visible,.contract-page input:focus-visible,.contract-page summary:focus-visible{outline:2px solid #25272a;outline-offset:3px}
+.contract-back{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 10px 0 0;border:0;background:transparent;color:#242523;font-size:14px!important;font-weight:600!important}
+.contract-header{margin:18px 0 25px}.contract-header>span{color:#747671;font-size:10px;font-weight:700;letter-spacing:.12em}.contract-header h1{margin:9px 0 0;color:#191a1c;font-size:clamp(29px,8.5vw,38px);font-weight:680;line-height:1.08;letter-spacing:-.05em}.contract-header p{max-width:52ch;margin:10px 0 0;color:#60615f;font-size:14px;line-height:1.5}
+.contract-signing{display:flex;align-items:flex-start;gap:12px;margin:18px 0 0;padding:16px;border:1px solid #e7e7e6;border-radius:18px;background:#f7f7f6}.contract-signing>svg{flex:none;margin-top:1px;color:#454a45}.contract-signing h2{margin:0;font-size:14px;line-height:1.3;font-weight:650}.contract-signing p{margin:6px 0 0;color:#60615f;font-size:12px;line-height:1.5}
+@media(max-width:350px){.contract-page{padding-inline:15px}}
+.order-ai-surface .alex-fab-breathing{width:44px!important;height:44px!important;top:calc(max(env(safe-area-inset-top,0px),var(--csat,0px),12px) + 24px)!important;bottom:auto!important;right:max(20px,calc((100vw - 430px) / 2))!important;background:rgba(255,255,255,.84)!important;border:1px solid rgba(255,255,255,.9)!important;box-shadow:0 4px 16px rgba(55,45,60,.1)!important;animation:none!important}
+.order-ai-surface .alex-fab-breathing>*{opacity:0}
+.order-ai-surface .alex-fab-breathing::after{content:'AI';position:absolute;color:#303036;font-family:'Google Sans App',sans-serif;font-size:13px;font-weight:700}
+.order-ai-surface .alex-fab-breathing[aria-label="Close menu"]::after{content:'×';font-size:24px;font-weight:400}

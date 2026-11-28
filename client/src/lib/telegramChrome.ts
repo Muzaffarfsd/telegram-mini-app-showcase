@@ -13,7 +13,7 @@ export type TelegramChromeColors = { background?: string; header?: string; botto
 export function isLightDestinationHash(): boolean {
   if (typeof window === 'undefined') return false;
   const path = window.location.hash.slice(1).split('?')[0] || '/';
-  return path === '/' || path === '/constructor' || path === '/projects';
+  return path === '/' || path === '/constructor' || path === '/projects' || path === '/contract';
 }
 
 /** Restore the host colours appropriate to the destination. */

@@ -5,6 +5,7 @@ import { canSpeculate } from './interactionBudget';
 export const ShowcasePage = loadablePage(() => import('../components/ShowcasePage'));
 export const ProjectsPage = loadablePage(() => import('../components/ProjectsPage'));
 export const ConstructorPage = loadablePage(() => import('../components/OrderExperience'));
+export const ContractPage = loadablePage(() => import('../components/ContractPage'));
 export const ProfilePage = loadablePage(() => import('../components/ProfilePage'));
 export const AIAgentPage = loadablePage(() => import('../components/AIConsultantPage'));
 export const AboutPage = loadablePage(() => import('../components/AboutPage'));
@@ -23,6 +24,7 @@ export const CoinShopPage = loadablePage(() => import('../components/CoinShopPag
 
 const routes: Record<string, { preload(): Promise<unknown> }> = {
   '/': ShowcasePage, '/projects': ProjectsPage, '/constructor': ConstructorPage,
+  '/contract': ContractPage,
   '/profile': ProfilePage, '/ai-agent': AIAgentPage, '/ai-process': AIAgentPage,
   '/about': AboutPage, '/help': HelpPage, '/review': ReviewPage,
   '/checkout': CheckoutPage, '/photo-gallery': PhotoGallery,

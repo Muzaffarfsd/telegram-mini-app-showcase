@@ -44,8 +44,8 @@
         document.documentElement.classList.add('lang-' + __projectsLang);
       } catch (e) { /* The default Russian shell remains available if storage is restricted. */ }
     }
-    if (__initialPath === '/' || __initialPath === '/constructor' || __initialPath === '/projects') document.documentElement.classList.add('light-route-transition');
-    var __nonHomePaths = ['/projects','/about','/constructor','/profile','/help','/review','/checkout','/ai-agent','/ai-process','/photo-gallery','/referral','/rewards','/earning','/notifications','/premium-apps'];
+    if (__initialPath === '/' || __initialPath === '/constructor' || __initialPath === '/projects' || __initialPath === '/contract') document.documentElement.classList.add('light-route-transition');
+    var __nonHomePaths = ['/projects','/about','/constructor','/contract','/profile','/help','/review','/checkout','/ai-agent','/ai-process','/photo-gallery','/referral','/rewards','/earning','/notifications','/premium-apps'];
     if (__nonHomePaths.indexOf(__initialPath) === -1 && !/^\/demos\/[^/]+(?:\/app)?$/.test(__initialPath)) {
       document.documentElement.classList.add('studio-home-theme');
     }

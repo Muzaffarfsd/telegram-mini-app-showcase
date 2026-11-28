@@ -1,7 +1,7 @@
 /** Customer-facing draft. Unsettled terms remain visible until agreed. */
 export type OrderContractCustomer = { name?: string; taxId?: string; address?: string; email?: string };
 export type OrderContractSupport = { name: string; price: number; period: 'month' | 'year' };
-export type OrderContractInput = { direction: string; projectName: string; includedFeatures: string[]; extraFeatures: { name: string; price: number }[]; estimatedTotal: number; support: OrderContractSupport | null; customer: OrderContractCustomer };
+export type OrderContractInput = { direction: string; projectName: string; includedFeatures: string[]; extraFeatures: { name: string; price: number }[]; estimatedTotal: number | null; support: OrderContractSupport | null; customer: OrderContractCustomer };
 export type OrderContractSection = { heading: string; paragraphs: string[] };
 export type OrderContractDraft = { title: string; sections: OrderContractSection[] };
 
@@ -50,7 +50,7 @@ const TEMPLATE: OrderContractSection[] = [
       "4.1. Общая цена разработки, состав платежей и даты указаны в Приложении № 2. Условия НДС и реквизиты счёта определяются применительно к фактическому статусу Исполнителя и указанным в Приложении № 2 налоговым условиям. Цену изменений и дополнительных работ Стороны согласуют отдельно.",
       "4.2. Стоимость хостинга, домена, сервисов Telegram/платёжных систем, SMS, AI/API, лицензий, электронной почты и иных сторонних услуг [включена / не включена — указать по каждой позиции]. Владелец соответствующего аккаунта, плательщик и сроки продления указаны в Приложении № 2. Исполнитель не вправе самостоятельно оформлять платные подписки за счёт Заказчика без его согласия.",
       "4.3. Оплата осуществляется безналично по указанным реквизитам. Обязательство по оплате считается исполненным [с момента зачисления средств на счёт Исполнителя / иной согласованный момент]. При изменении реквизитов Сторона уведомляет другую Сторону способом, позволяющим проверить подлинность уведомления.",
-      "4.4. Применяется только если Исполнитель — плательщик НПД: Исполнитель сообщает о применении НПД, своевременно формирует и передаёт Заказчику чек согласно применимому закону, а при утрате статуса незамедлительно уведомляет Заказчика; дальнейшие налоговые последствия определяются законом и соглашением Сторон. Неприменимый абзац удалить."
+      "4.4. Исполнитель применяет налог на профессиональный доход, своевременно формирует и передаёт Заказчику чек согласно применимому закону, а при утрате статуса незамедлительно уведомляет Заказчика; дальнейшие налоговые последствия определяются законом и соглашением Сторон."
     ]
   },
   {
@@ -210,24 +210,32 @@ export function buildOrderContract(input: OrderContractInput): OrderContractDraf
     if (i < 0) throw new Error('Contract template paragraph is missing: ' + prefix);
     section.paragraphs[i] = value;
   };
-  const total = Math.round(input.estimatedTotal * 100);
-  if (!Number.isSafeInteger(total) || total < 0) throw new RangeError('Invalid estimate');
-  const firstHalf = Math.round(total / 2);
-  const secondHalf = total - firstHalf;
-  const estimated = money(total / 100);
+  const total = input.estimatedTotal === null ? null : Math.round(input.estimatedTotal * 100);
+  if (total !== null && (!Number.isSafeInteger(total) || total < 0)) throw new RangeError('Invalid estimate');
+  const firstHalf = total === null ? null : Math.round(total / 2);
+  const secondHalf = total === null || firstHalf === null ? null : total - firstHalf;
+  const estimated = total === null ? null : money(total / 100);
   const customer = input.customer || {};
   find('на разработку').paragraphs.unshift('Проект для ознакомления и последующего согласования. Выбор услуг и получение документа сами по себе не означают подписание договора.');
-  replace(find('на разработку'), '[Полное наименование', '[Исполнитель: наименование, ИНН, регистрационные данные и представитель подлежат согласованию], именуемый далее «Исполнитель», с одной стороны, и ' + text(customer.name) + ', ИНН ' + text(customer.taxId) + ', [регистрационные данные и представитель подлежат согласованию], именуемый далее «Заказчик», с другой стороны, совместно «Стороны», подготовили настоящий проект договора для дальнейшего согласования.');
+  replace(find('на разработку'), '[Полное наименование', 'Музапаров Музаффар Шерзодович, плательщик налога на профессиональный доход, ИНН [заполнить], именуемый далее «Исполнитель», с одной стороны, и ' + text(customer.name) + ', ИНН ' + text(customer.taxId) + ', [регистрационные данные и представитель подлежат согласованию], именуемый далее «Заказчик», с другой стороны, совместно «Стороны», подготовили настоящий проект договора для дальнейшего согласования.');
+  replace(find('11. Реквизиты'), 'Исполнитель:', 'Исполнитель: Музапаров Музаффар Шерзодович; плательщик налога на профессиональный доход; ИНН [заполнить]; адрес [заполнить]; банковские реквизиты [заполнить]; e-mail [заполнить]; телефон [заполнить]; подпись [___].');
   const person = 'Заказчик: ' + text(customer.name) + '; ИНН: ' + text(customer.taxId) + '; адрес: ' + text(customer.address) + '; e-mail: ' + text(customer.email) + '. Остальные реквизиты и полномочия подписанта подлежат согласованию.';
   replace(find('11. Реквизиты'), 'Заказчик:', person);
   const assignment = find('Приложение № 1.');
-  replace(assignment, '1. Проект и цель:', '1. Проект: ' + text(input.projectName) + '. Выбранное направление: ' + text(input.direction) + '. Цель и целевая аудитория: [согласовать].');
+  replace(assignment, '1. Проект и цель:', '1. Проект: ' + text(input.projectName) + '. ' + (total === null ? 'Направление' : 'Выбранное направление') + ': ' + text(input.direction) + '. Цель и целевая аудитория: [согласовать].');
   const included = input.includedFeatures.length ? input.includedFeatures.join('; ') : 'не указаны';
   const extras = input.extraFeatures.length ? input.extraFeatures.map(feature => text(feature.name) + ' — предварительно ' + money(feature.price)).join('; ') : 'не выбраны';
-  replace(assignment, '3. Функциональность:', '3. Предварительный выбор функций. В основу включено: ' + included + '. Дополнительно выбрано: ' + extras + '. Описание сценариев, ограничения, критерии и окончательный состав согласуются сторонами в ТЗ.');
+  replace(assignment, '3. Функциональность:', total === null
+    ? '3. Состав функций, описание сценариев, ограничения и критерии приёмки: [согласовать в техническом задании].'
+    : '3. Предварительный выбор функций. В основу включено: ' + included + '. Дополнительно выбрано: ' + extras + '. Описание сценариев, ограничения, критерии и окончательный состав согласуются сторонами в ТЗ.');
   const commercial = find('Приложение № 2.');
-  replace(commercial, '1. Цена разработки:', '1. Предварительная оценка стоимости разработки: ' + estimated + '. Окончательная стоимость, налоговый режим и НДС: [согласовать]. Расчёт конструктора не является согласованной ценой.');
-  replace(commercial, '3. Порядок оплаты:', '3. Порядок оплаты разработки: 50% согласованной общей цены — аванс в течение [___] рабочих дней после подписания договора и получения счёта, если счёт предусмотрен; остальные 50% — в течение [___] рабочих дней после приёмки полного результата. По предварительному расчёту: аванс ' + money(firstHalf / 100) + ', итоговый платёж ' + money(secondHalf / 100) + '. Эти суммы ориентировочны и изменятся при согласовании окончательной цены. Исполнитель приступает к работе после поступления аванса и предоставления согласованных для старта материалов и доступов.');
+  replace(commercial, '1. Цена разработки:', estimated === null
+    ? '1. Стоимость разработки не рассчитана. Окончательная стоимость, налоговый режим и НДС: [согласовать].'
+    : '1. Предварительная оценка стоимости разработки: ' + estimated + '. Окончательная стоимость, налоговый режим и НДС: [согласовать]. Расчёт конструктора не является согласованной ценой.');
+  const paymentEstimate = firstHalf === null || secondHalf === null
+    ? 'Суммы платежей определяются после согласования стоимости.'
+    : 'По предварительному расчёту: аванс ' + money(firstHalf / 100) + ', итоговый платёж ' + money(secondHalf / 100) + '. Эти суммы ориентировочны и изменятся при согласовании окончательной цены.';
+  replace(commercial, '3. Порядок оплаты:', '3. Порядок оплаты разработки: 50% согласованной общей цены — аванс в течение [___] рабочих дней после подписания договора и получения счёта, если счёт предусмотрен; остальные 50% — в течение [___] рабочих дней после приёмки полного результата. ' + paymentEstimate + ' Исполнитель приступает к работе после поступления аванса и предоставления согласованных для старта материалов и доступов.');
   const supportSection = find('Приложение № 4.');
   const warranty = find('6. Гарантия');
   if (input.support) {

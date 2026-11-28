@@ -103,6 +103,28 @@ html.profile-detail-theme body,
   font-size: 21px;
 }
 
+.profile-contract-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  width: 100%;
+  min-height: 142px;
+  padding: 20px;
+  border: 0;
+  border-radius: 20px;
+  background: #f6f7f8;
+  color: #202124;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.profile-contract-card:focus-visible { outline: 2px solid #242529; outline-offset: 3px; }
+.profile-contract-icon { display:grid; place-items:center; flex:none; width:44px; height:44px; border-radius:14px; background:#fff; color:#292a2c; }
+.profile-contract-copy { display:grid; gap:7px; min-width:0; padding-top:1px; }
+.profile-contract-copy strong { font-size:16px; line-height:1.2; font-weight:650; letter-spacing:-.025em; }
+.profile-contract-copy > span:not(.profile-contract-link) { color:#62656b; font-size:13px; line-height:1.4; }
+.profile-contract-copy .profile-contract-link { display:inline-flex; align-items:center; gap:6px; min-height:32px; color:#242529; font-size:12px; font-weight:650; }
+
 .profile-page .profile-project-card,
 .profile-page .profile-invite-card,
 .profile-page .profile-list {
