@@ -56,7 +56,12 @@ async function run(engine, width) {
         assert.equal(await card.isVisible(), true, `${id} must be available`);
         assert.match(norm(await card.innerText()), price, `price for ${id}`);
         const img = card.locator('img');
+        if (id === 'restaurant' || id === 'services') {
+          assert.equal(await img.count(), 0, `${id}: generic directions must not display an unrelated app`);
+          assert.equal(await card.locator('.cq-direction-generic').isVisible(), true, `${id}: generic direction uses a neutral icon`);
+        }
         if (await img.count()) {
+          assert.equal(await img.evaluate(el => new URL(el.src).searchParams.get('v')), 'real-screens-20261128', `${id}: current previews must use the new cache version`);
           await img.evaluate(el => { if (el.loading === 'lazy') el.loading = 'eager'; });
           await img.evaluate(el => el.decode());
           const geometry = await img.evaluate(el => {
@@ -78,10 +83,33 @@ async function run(engine, width) {
     await rail.evaluate(el => { el.scrollLeft = 0; });
     const dimensions = await rail.evaluate(el => ({ clientWidth: el.clientWidth, scrollWidth: el.scrollWidth }));
     assert.ok(dimensions.scrollWidth > dimensions.clientWidth + 20, 'shop cards form a genuinely scrollable horizontal rail');
+    assert.equal(await rail.evaluate(el => getComputedStyle(el).scrollSnapType), 'none', 'the carousel must not force a snap after a gesture');
+    await rail.evaluate(el => { el.scrollLeft = 137; });
+    await page.waitForTimeout(350);
+    assert.ok(Math.abs(await rail.evaluate(el => el.scrollLeft) - 137) <= 1, 'a free position must not be pulled toward a card');
+    await rail.evaluate(el => { el.scrollLeft = 0; });
     const rect = await rail.boundingBox();
     const x = rect.x + rect.width * 0.73, y = rect.y + rect.height * 0.5;
     if (engine.name() === 'chromium') {
       const cdp = await context.newCDPSession(page);
+      const cardRect = await page.getByTestId('contract-direction-clothes').boundingBox();
+      const pressX = cardRect.x + cardRect.width / 2, pressY = cardRect.y + cardRect.height / 2;
+      assert.equal(await page.evaluate(({x,y}) => !!document.elementFromPoint(x,y)?.closest('[data-testid="contract-direction-clothes"]'), {x:pressX,y:pressY}), true, 'touch starts on the visible card');
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: pressX, y: pressY, id: 1 }] });
+      const actualPress = await page.getByTestId('contract-direction-clothes').evaluate(el => ({transform:getComputedStyle(el).transform, opacity:getComputedStyle(el).opacity}));
+      assert.equal(actualPress.transform, 'none', 'the card must not shrink beneath a touching finger');
+      assert.equal(actualPress.opacity, '1', 'the card must not fade beneath a touching finger');
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      // Some mobile Chromium builds delay :active until touch release, so
+      // also assert the actual pressed-state rule using the DevTools CSS API.
+      await cdp.send('DOM.enable'); await cdp.send('CSS.enable');
+      const documentNode = await cdp.send('DOM.getDocument');
+      const cardNode = await cdp.send('DOM.querySelector', { nodeId: documentNode.root.nodeId, selector: '[data-testid="contract-direction-clothes"]' });
+      await cdp.send('CSS.forcePseudoState', { nodeId: cardNode.nodeId, forcedPseudoClasses: ['active'] });
+      const forcedPress = await page.getByTestId('contract-direction-clothes').evaluate(el => ({transform:getComputedStyle(el).transform, opacity:getComputedStyle(el).opacity}));
+      assert.equal(forcedPress.transform, 'none', 'the active CSS state must not scale the card');
+      assert.equal(forcedPress.opacity, '1', 'the active CSS state must not fade the card');
+      await cdp.send('CSS.forcePseudoState', { nodeId: cardNode.nodeId, forcedPseudoClasses: [] });
       const swipe = async (sx, sy, dx, dy) => {
         await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: sx, y: sy, id: 1 }] });
         for (let i = 1; i <= 8; i++) {

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Check, ChevronDown, Plus } from 'lucide-react';
+import { BriefcaseBusiness, Check, ChevronDown, Footprints, Plus, Store, UtensilsCrossed } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../lib/translations';
 import { appTemplatesBase, availableFeaturesBase, categoryKeys, storeCategories, subscriptionPlansBase } from './orderCatalog';
@@ -22,8 +22,8 @@ const russianText = (key: string): string => {
 const money = (value: number) => `${new Intl.NumberFormat('ru-RU').format(value)} ₽`;
 const catalogDirections: Direction[] = [
   ...storeCategories.filter(item => item.id !== 'shoes').map(item => ({ key: item.id, templateId: 'ecommerce-basic', ru: item.fullRu, en: item.fullEn, labelRu: item.ru, labelEn: item.en, image: `/order-contract-previews/${item.id}.webp`, projectId: ({clothes:'muraka-fashion',sneakers:'nike-sneakers',tech:'apple-store',flowers:'flower-store'} as Record<string,string>)[item.id] })),
-  { key: 'restaurant', templateId: 'restaurant', ru: 'Ресторан и доставка', en: 'Restaurant and delivery', image: '/order-contract-previews/restaurant.webp' },
-  { key: 'services', templateId: 'services', ru: russianText('constructor.servicesTemplate'), en: 'Services', image: '/order-contract-previews/services.webp' },
+  { key: 'restaurant', templateId: 'restaurant', ru: 'Ресторан и доставка', en: 'Restaurant and delivery' },
+  { key: 'services', templateId: 'services', ru: russianText('constructor.servicesTemplate'), en: 'Services' },
   { key:'women-fashion', templateId:'ecommerce-basic', ru:'Магазин женской одежды', en:'Womenswear store', labelRu:'Женская одежда', labelEn:'Womenswear', image:'/order-contract-previews/women-fashion.webp', projectId:'women-fashion', reference:true },
   { key:'takt-coffee', templateId:'restaurant', ru:'Кофейня', en:'Coffee shop', labelRu:'Кофейня', labelEn:'Coffee shop', image:'/order-contract-previews/takt-coffee.webp', projectId:'takt-coffee', reference:true },
   { key:'lumi-studio', templateId:'services', ru:'Студия красоты', en:'Beauty studio', labelRu:'Студия красоты', labelEn:'Beauty studio', image:'/order-contract-previews/lumi-studio.webp', projectId:'lumi-studio', reference:true },
@@ -35,7 +35,7 @@ const catalogDirections: Direction[] = [
   { key:'skincare-aura', templateId:'ecommerce-basic', ru:'Магазин косметики', en:'Skincare store', labelRu:'Косметика', labelEn:'Skincare', image:'/order-contract-previews/skincare-aura.webp', projectId:'skincare-aura', reference:true },
 ];
 const legacyDirections: Direction[] = [
-  { key: 'shoes', templateId: 'ecommerce-basic', ru: storeCategories.find(item => item.id === 'shoes')!.fullRu, en: storeCategories.find(item => item.id === 'shoes')!.fullEn, labelRu: 'Обувь', labelEn: 'Shoes', image: '/order-contract-previews/shoes.webp' },
+  { key: 'shoes', templateId: 'ecommerce-basic', ru: storeCategories.find(item => item.id === 'shoes')!.fullRu, en: storeCategories.find(item => item.id === 'shoes')!.fullEn, labelRu: 'Обувь', labelEn: 'Shoes' },
   { key: 'ecommerce-basic', templateId: 'ecommerce-basic', ru: russianText('constructor.onlineStore'), en: 'Online store' },
   { key: 'fitness-center', templateId: 'fitness-center', ru: russianText('constructor.fitnessClub'), en: 'Fitness centre' },
 ];
@@ -132,9 +132,10 @@ export function ContractQuestionnaire({ ru, initialSelection, restoredSelection,
       {visibleDirections.filter(item => groupForDirection(item.key) === group.key).map((item, index) => {
         const itemTemplate = appTemplatesBase.find(templateItem => templateItem.id === item.templateId);
         const active = directionKey === item.key;
+        const CategoryIcon = item.key === 'restaurant' ? UtensilsCrossed : item.key === 'services' || item.key === 'fitness-center' ? BriefcaseBusiness : item.key === 'shoes' ? Footprints : Store;
         const price = itemTemplate ? `${ru ? (item.reference ? 'основа от' : 'от') : (item.reference ? 'base from' : 'from')} ${money(itemTemplate.estimatedPrice)}` : (ru ? 'По согласованию' : 'To be agreed');
         return <button type="button" key={item.key} className={`cq-direction${active ? ' is-selected' : ''}`} aria-pressed={active} aria-label={`${ru ? item.ru : item.en}: ${price}`} onClick={() => setDirection(item)} data-testid={`contract-direction-${item.key}`} data-project-id={item.projectId}>
-          <span className="cq-direction-art">{item.image && <img className={`cq-direction-image cq-direction-image--${item.key}`} src={item.image} alt="" loading={group.key === 'shops' && index < 3 ? 'eager' : 'lazy'} decoding="async"/>}</span>
+          <span className="cq-direction-art">{item.image ? <img className={`cq-direction-image cq-direction-image--${item.key}`} src={`${item.image}?v=real-screens-20261128`} alt="" loading={group.key === 'shops' && index < 3 ? 'eager' : 'lazy'} decoding="async"/> : <span className="cq-direction-generic"><CategoryIcon size={34} strokeWidth={1.4} aria-hidden="true"/></span>}</span>
           <span className="cq-direction-copy"><strong>{ru ? item.labelRu || item.ru : item.labelEn || item.en}</strong><small>{price}</small></span>
           <span className="cq-choice" aria-hidden="true">{active && <Check size={13}/>}</span>
         </button>;
